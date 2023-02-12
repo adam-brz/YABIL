@@ -1,0 +1,108 @@
+{
+    "version": 2,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 20,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "gcc",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "generator": "Unix Makefiles",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/${presetName}/install",
+                "CMAKE_C_COMPILER": "gcc",
+                "CMAKE_CXX_COMPILER": "g++",
+                "YABIL_ENABLE_TESTS": true
+            }
+        },
+        {
+            "name": "gcc_debug",
+            "inherits": "gcc",
+            "displayName": "GCC [Debug]",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "gcc_release",
+            "inherits": "gcc",
+            "displayName": "GCC [Release]",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "clang",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "generator": "Unix Makefiles",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/${presetName}/install",
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "YABIL_ENABLE_TESTS": true
+            }
+        },
+        {
+            "name": "clang_debug",
+            "inherits": "clang",
+            "displayName": "Clang [Debug]",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "clang_release",
+            "inherits": "clang",
+            "displayName": "Clang [Release]",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "vs",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "generator": "Visual Studio 16 2019",
+            "toolset": "host=x64",
+            "architecture": "x64",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/${presetName}/install",
+                "CMAKE_C_COMPILER": "cl.exe",
+                "CMAKE_CXX_COMPILER": "cl.exe",
+                "YABIL_ENABLE_TESTS": true
+            }
+        },
+        {
+            "name": "vs_debug",
+            "inherits": "vs",
+            "displayName": "Visual Studio 16 [Debug]",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "vs_release",
+            "inherits": "vs",
+            "displayName": "Visual Studio 16 [Release]",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "vs_release",
+            "configurePreset": "vs_release",
+            "configuration": "Release"
+        },
+        {
+            "name": "vs_debug",
+            "configurePreset": "vs_debug",
+            "configuration": "Debug"
+        }
+    ]
+}
