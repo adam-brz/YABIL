@@ -35,7 +35,7 @@ jobs:
         run: python3 -m pip install conan
 
       - name: Make debug build
-        run: python build.py --preset gcc --build_type Debug
+        run: python3 build.py --preset gcc --build_type Debug
 
       - name: Run tests
         working-directory: build/gcc
