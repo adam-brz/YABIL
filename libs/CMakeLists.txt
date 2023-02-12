@@ -1,2 +1,2 @@
-add_subdirectory(big_int)
+add_subdirectory(bigint)
 add_subdirectory(crypto)

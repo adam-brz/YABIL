@@ -3,8 +3,11 @@ cmake_minimum_required(VERSION 3.20)
 
 include(cmake/common.cmake)
 
-set(YABIL_ENABLE_TESTS OFF CACHE BOOL "Enable test targets.")
-set(YABIL_USE_CONAN ON CACHE BOOL "Use Conan package manager for dependencies.")
+option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+option(YABIL_ENABLE_TESTS "Enable test targets" ON)
+option(YABIL_USE_CONAN "Use Conan package manager for dependencies" ON)
+
+set(CPACK_GENERATOR "ZIP" CACHE STRING "Generators to support. Semicolon delimited list.")
 
 setup_conan()
 setup_testing()

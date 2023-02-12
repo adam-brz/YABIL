@@ -21,7 +21,10 @@ function(set_common_properties TARGET)
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
     )
 
-    target_include_directories(${TARGET} PUBLIC include)
+    target_include_directories(${TARGET}
+        PUBLIC include
+        PRIVATE src
+    )
 
     if (MSVC)
         target_compile_options(${TARGET} PRIVATE /W4 $<IF:$<CONFIG:Debug>,/Zi,/O2>)
@@ -30,7 +33,12 @@ function(set_common_properties TARGET)
         target_link_options(${TARGET} PRIVATE $<$<CONFIG:RELEASE>:-s>)
     endif()
 
+    if(BUILD_SHARED_LIBS AND MSVC)
+        set_target_properties(${TARGET} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+    endif()
+
     install(TARGETS ${TARGET})
+    install(DIRECTORY include DESTINATION .)
 endfunction()
 
 function(add_test_target TARGET)

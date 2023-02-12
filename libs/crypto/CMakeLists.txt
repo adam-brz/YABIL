@@ -1,7 +1,7 @@
 project(crypto C CXX)
 
 set(SOURCES
-    src/main.cpp
+    src/crypto.cpp
 )
 
 set(HEADERS

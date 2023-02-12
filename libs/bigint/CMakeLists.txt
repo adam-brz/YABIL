@@ -1,10 +1,11 @@
-project(big_int C CXX)
+project(bigint C CXX)
 
 set(SOURCES
     src/test.cpp
 )
 
 set(HEADERS
+    include/yabil/bigint/test.h
 )
 
 set(TESTS
