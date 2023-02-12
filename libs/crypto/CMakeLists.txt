@@ -5,6 +5,7 @@ set(SOURCES
 )
 
 set(HEADERS
+    include/yabil/crypto/crypto.h
 )
 
 set(TESTS
