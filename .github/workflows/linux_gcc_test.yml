@@ -38,5 +38,5 @@ jobs:
         run: python3 build.py --preset gcc --build_type Debug
 
       - name: Run tests
-        working-directory: build/gcc
+        working-directory: build/gcc_debug
         run: ctest --verbose -j "$(nproc)"
