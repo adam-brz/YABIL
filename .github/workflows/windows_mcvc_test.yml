@@ -1,4 +1,4 @@
-name: Test on Windows (MSVC)
+name: Test on Windows (MSVC 17)
 
 on:
   pull_request:

@@ -1,4 +1,4 @@
-name: Test on MacOS (clang)
+name: Test on MacOS (apple-clang 14.0)
 
 on:
   pull_request:
@@ -40,7 +40,7 @@ jobs:
 
       - name: Configure
         working-directory: build
-        run: cmake .. -G "XCode" -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=FALSE -DYABIL_ENABLE_TESTS=TRUE
+        run: cmake .. -G "Xcode" -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=FALSE -DYABIL_ENABLE_TESTS=TRUE
 
       - name: Build
         working-directory: build
