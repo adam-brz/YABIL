@@ -1,10 +1,7 @@
-set(CMAKE_POLICY_DEFAULT_CMP0091 "NEW")
-
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.23)
 project(PackageTest CXX)
 
-include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
-find_package(yabil CONFIG REQUIRED)
+find_package(yabil REQUIRED CONFIG)
 
 add_executable(${PROJECT_NAME} example.cpp)
 target_link_libraries(${PROJECT_NAME} yabil::bigint yabil::crypto)

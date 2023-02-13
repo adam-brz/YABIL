@@ -4,7 +4,7 @@ from conans import ConanFile, CMake, tools
 
 class YabilTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake_paths"
+    generators = "CMakeToolchain", "CMakeDeps"
 
     def build(self):
         cmake = CMake(self)

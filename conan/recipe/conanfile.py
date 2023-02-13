@@ -43,4 +43,19 @@ class YabilConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = ["bigint", "crypto"]
+        self.cpp_info.set_property("cmake_file_name", "yabil")
+
+        for conan_component in ["bigint", "crypto"]:
+            self.cpp_info.components[conan_component].set_property(
+                "cmake_target_name", f"yabil::{conan_component}"
+            )
+            self.cpp_info.components[conan_component].set_property(
+                "cmake_file_name", conan_component
+            )
+            self.cpp_info.components[conan_component].names[
+                "cmake_find_package"
+            ] = conan_component
+            self.cpp_info.components[conan_component].names[
+                "cmake_find_package_multi"
+            ] = conan_component
+            self.cpp_info.components[conan_component].libs = ["bigint"]
