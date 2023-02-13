@@ -50,7 +50,7 @@ jobs:
       - name: Run Clang-tidy
         run:
           clang-tidy -format-style=file -header-filter=. --warnings-as-errors=*
-          -p build $(find libs -iname *.cpp -iname *.h)
+          -p build $(find libs -iname *.cpp) $(find libs -iname *.h)
 
       - name: Run CppLint
         run: cpplint $(find libs -iname *.cpp) $(find libs -iname *.h)
