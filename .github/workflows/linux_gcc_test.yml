@@ -47,7 +47,7 @@ jobs:
       - name: Run tests with Valgrind
         working-directory: build/gcc_debug
         run: |
-          for test in *_tests; do
+          for test in $(find -iname *_tests); do
             valgrind -s --exit-on-first-error=yes --error-exitcode=1 \
               --leak-check=full --show-leak-kinds=all ./${test}
           done
