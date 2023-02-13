@@ -1,0 +1,65 @@
+name: Code Analysis
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  code_analysis:
+    name: Code Analysis
+    runs-on: ubuntu-22.04
+    container:
+      image: andrew2a1/cpp_analysis_tools
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Prepare build directory
+        run: mkdir build
+
+      - name: Run clang-format
+        run: |
+          clang-format-14 -i $(find libs -iname *.cpp) $(find libs -iname *.h)
+          if `git status --porcelain`; then
+            echo "::error ::Clang-format detected unformatted files!"
+            exit 1
+          fi
+
+      - name: Install Conan dependencies
+        working-directory: build
+        run:
+          CC=clang CXX=clang++ conan install ../conan -pr=../conan/profiles/clang
+          -pr:b=../conan/profiles/clang -s build_type=Debug --build=missing
+
+      - name: Configure
+        working-directory: build
+        run:
+          cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DYABIL_ENABLE_TESTS=TRUE -DCOMPILE_WARNING_AS_ERROR=TRUE
+          -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
+
+      - name: Run Clang-tidy
+        run:
+          clang-tidy -format-style=file -header-filter=. --warnings-as-errors=*
+          -p build $(find libs -iname *.cpp -iname *.h)
+
+      - name: Run CppLint
+        run: cpplint $(find libs -iname *.cpp) $(find libs -iname *.h)
+
+      - name: Run CppCheck
+        run:
+          cppcheck --project=build/compile_commands.json --enable=all --error-exitcode=1
+          --suppress=missingInclude:* --suppress=unusedFunction:*
+
+      - name: Compile project
+        working-directory: build
+        run: cmake --build . -j $(nproc) --config Debug

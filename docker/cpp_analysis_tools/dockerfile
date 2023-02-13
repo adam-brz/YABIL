@@ -1,0 +1,22 @@
+FROM ubuntu:22.04
+
+RUN apt-get update -y
+
+RUN apt-get install -y python3-pip curl
+
+RUN apt-get install -y clang-format-14 clang clang-tidy git
+
+RUN curl -o cmake.sh -L "https://github.com/Kitware/CMake/releases/download/v3.25.2/cmake-3.25.2-linux-x86_64.sh"; \
+    chmod +x cmake.sh; \
+    ./cmake.sh --skip-license --prefix=/usr/local
+
+RUN python3 -m pip install cpplint==1.6.1
+
+RUN git clone --depth 1 --branch "2.10" https://github.com/danmar/cppcheck.git cppcheck; \
+    cd cppcheck; \
+    cmake . -DCMAKE_BUILD_TYPE=Release; \
+    cmake --build . --target install -j $(nproc) --config Release; \
+    cd ..; \
+    rm -rf cppcheck
+
+RUN python3 -m pip install conan==1.58.0
