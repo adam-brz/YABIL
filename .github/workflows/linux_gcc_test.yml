@@ -46,4 +46,5 @@ jobs:
 
       - name: Run tests with Valgrind
         working-directory: build/gcc_debug
-        run: valgrind --exit-on-first-error=yes --error-exitcode=1 --leak-check=full ctest --verbose -j "$(nproc)"
+        run: valgrind -s --exit-on-first-error=yes --error-exitcode=1
+          --leak-check=full --show-leak-kinds=all ctest --verbose -j "$(nproc)"
