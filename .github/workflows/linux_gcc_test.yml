@@ -24,7 +24,7 @@ jobs:
       - name: Setup CMake
         uses: jwlawson/actions-setup-cmake@v1.13
         with:
-          cmake-version: "3.24.x"
+          cmake-version: "3.25.x"
 
       - name: Setup Python
         run: |
@@ -46,5 +46,8 @@ jobs:
 
       - name: Run tests with Valgrind
         working-directory: build/gcc_debug
-        run: valgrind -s --exit-on-first-error=yes --error-exitcode=1
-          --leak-check=full --show-leak-kinds=all ctest --verbose -j "$(nproc)"
+        run: |
+          for test in *_tests; do
+            valgrind -s --exit-on-first-error=yes --error-exitcode=1 \
+              --leak-check=full --show-leak-kinds=all ./${test}
+          done
