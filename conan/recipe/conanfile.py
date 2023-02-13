@@ -5,11 +5,10 @@ from conan.tools.cmake import CMake, cmake_layout
 class YabilConan(ConanFile):
     name = "yabil"
     version = "0.1"
-    license = "<Put the package license here>"
-    author = "<Put your name here> <And your email here>"
-    url = "<Package recipe repository url here, for issues about the package>"
-    description = "<Description of Yabil here>"
-    topics = ("<Put some tag here>", "<here>", "<and here>")
+    license = "MIT"
+    url = "https://github.com/Andrew2a1/YABIL"
+    description = "YABIL - Yet Another Big Integer Library"
+    topics = ("bigint", "integer", "cpp17")
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
@@ -19,11 +18,11 @@ class YabilConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
-    def source(self):
-        self.run("git clone --depth 1 https://github.com/Andrew2a1/YABIL.git .")
-
     def layout(self):
         cmake_layout(self, src_folder="yabil")
+
+    def source(self):
+        self.run("git clone --depth 1 https://github.com/Andrew2a1/YABIL.git .")
 
     def build(self):
         cmake = self._configure_cmake()
