@@ -1,10 +1,10 @@
-import os
+import os, platform
 from conans import ConanFile, CMake, tools
 
 
 class YabilTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake"
+    generators = "cmake_paths"
 
     def build(self):
         cmake = CMake(self)
@@ -18,5 +18,7 @@ class YabilTestConan(ConanFile):
 
     def test(self):
         if not tools.cross_building(self):
-            os.chdir("bin")
-            self.run(".%sPackageTest" % os.sep)
+            os.chdir(f"bin/{self.settings.build_type}")
+            self.run(
+                f".{os.sep}PackageTest{'.exe' if platform.system() == 'Windows' else ''}"
+            )

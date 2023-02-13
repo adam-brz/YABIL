@@ -1,6 +1,9 @@
 #include <yabil/bigint/test.h>
 
+#include <iostream>
+
 int main()
 {
-    return yabil::bigint::test(0, 0);
+    std::cout << yabil::bigint::test(0, 0) << yabil::bigint::test(1, 1) << '\n';
+    return 0;
 }
