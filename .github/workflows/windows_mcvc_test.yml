@@ -39,7 +39,7 @@ jobs:
 
       - name: Install conan dependencies
         working-directory: build
-        run: conan install .. -pr:b=default -s build_type=Debug -o shared=False
+        run: conan install ../conan -pr:b=default -s build_type=Debug -o shared=False
 
       - name: Configure
         working-directory: build
