@@ -39,11 +39,11 @@ jobs:
 
       - name: Install conan dependencies
         working-directory: build
-        run: conan install ../conan -pr:b=default -s build_type=Debug -o shared=False
+        run: conan install ../conan -pr:b=default -s build_type=Debug
 
       - name: Configure
         working-directory: build
-        run: cmake .. -DCMAKE_BUILD_TYPE=Debug
+        run: cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=FALSE -DYABIL_ENABLE_TESTS=TRUE
 
       - name: Build
         working-directory: build

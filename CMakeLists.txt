@@ -3,7 +3,7 @@ project(yabil VERSION 0.1)
 
 include(cmake/common.cmake)
 
-option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 option(YABIL_ENABLE_TESTS "Enable test targets" ON)
 option(YABIL_USE_CONAN "Use Conan package manager for dependencies" ON)
 
