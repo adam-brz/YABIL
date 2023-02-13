@@ -30,7 +30,7 @@ jobs:
       - name: Run clang-format
         run: |
           clang-format-14 -i $(find libs -iname *.cpp) $(find libs -iname *.h)
-          if `git status --porcelain`; then
+          if [[ -n `git status --porcelain` ]]; then
             echo "::error ::Clang-format detected unformatted files!"
             exit 1
           fi
