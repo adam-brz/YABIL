@@ -1,3 +1,6 @@
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
 macro(setup_testing)
     if(YABIL_ENABLE_TESTS)
         include(CTest)
@@ -61,17 +64,27 @@ function(setup_install)
     install(EXPORT "${CMAKE_PROJECT_NAME}Targets"
         FILE "${CMAKE_PROJECT_NAME}Targets.cmake"
         NAMESPACE ${CMAKE_PROJECT_NAME}::
-        DESTINATION lib/cmake/${CMAKE_PROJECT_NAME}
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${CMAKE_PROJECT_NAME}"
     )
 
-    include(CMakePackageConfigHelpers)
+    configure_package_config_file(
+        "cmake/config.cmake.in"
+        "${CMAKE_PROJECT_NAME}Config.cmake"
+        INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${CMAKE_PROJECT_NAME}"
+        PATH_VARS CMAKE_INSTALL_LIBDIR
+    )
+
     write_basic_package_version_file(
         "${CMAKE_PROJECT_NAME}ConfigVersion.cmake"
         VERSION ${CMAKE_PROJECT_VERSION}
-        COMPATIBILITY AnyNewerVersion
+        COMPATIBILITY SameMajorVersion
     )
 
-    install(FILES "cmake/${CMAKE_PROJECT_NAME}Config.cmake" "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake"
-        DESTINATION lib/cmake/${CMAKE_PROJECT_NAME}
+    install(
+        FILES
+            "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake"
+            "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake"
+        DESTINATION
+            "${CMAKE_INSTALL_LIBDIR}/cmake/${CMAKE_PROJECT_NAME}"
     )
 endfunction()
