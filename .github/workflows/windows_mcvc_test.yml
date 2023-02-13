@@ -1,0 +1,55 @@
+name: Test on Windows (MSVC)
+
+on:
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build_and_test:
+    name: Build and Test
+    runs-on: windows-2022
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1.4.1
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v1.13
+        with:
+          cmake-version: "3.25.x"
+
+      - name: Setup Python
+        run: |
+          apt-get update -y
+          apt-get install python3-pip -y
+
+      - name: Setup Conan
+        run: python3 -m pip install conan
+
+      - name: Prepare build directory
+        run: mkdir build
+
+      - name: Install conan dependencies
+        working-directory: build
+        run: conan install .. -pr:b=default -s build_type=Debug -o shared=False
+
+      - name: Configure
+        working-directory: build
+        run: cmake .. -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build
+        working-directory: build
+        run: cmake --build . -j "${NUMBER_OF_PROCESSORS}" --config Debug
+
+      - name: Run tests
+        working-directory: build
+        run: ctest --verbose -j "${NUMBER_OF_PROCESSORS}"
