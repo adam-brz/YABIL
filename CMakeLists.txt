@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(yabil)
+project(yabil VERSION 0.1)
 
 include(cmake/common.cmake)
 
@@ -13,6 +13,8 @@ setup_conan()
 setup_testing()
 
 add_subdirectory(libs)
+
+setup_install()
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

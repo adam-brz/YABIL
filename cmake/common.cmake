@@ -21,11 +21,6 @@ function(set_common_properties TARGET)
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
     )
 
-    target_include_directories(${TARGET}
-        PUBLIC include
-        PRIVATE src
-    )
-
     if (MSVC)
         target_compile_options(${TARGET} PRIVATE /W4 $<IF:$<CONFIG:Debug>,/Zi,/O2>)
     else()
@@ -37,8 +32,10 @@ function(set_common_properties TARGET)
         set_target_properties(${TARGET} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
     endif()
 
-    install(TARGETS ${TARGET})
-    install(DIRECTORY include DESTINATION .)
+    install(TARGETS ${TARGET}
+        EXPORT "${CMAKE_PROJECT_NAME}Targets"
+        FILE_SET HEADERS
+    )
 endfunction()
 
 function(add_test_target TARGET)
@@ -58,4 +55,23 @@ function(add_test_target TARGET)
 
     set_common_properties(${TEST_TARGET})
     gtest_discover_tests(${TEST_TARGET})
+endfunction()
+
+function(setup_install)
+    install(EXPORT "${CMAKE_PROJECT_NAME}Targets"
+        FILE "${CMAKE_PROJECT_NAME}Targets.cmake"
+        NAMESPACE ${CMAKE_PROJECT_NAME}::
+        DESTINATION lib/cmake/${CMAKE_PROJECT_NAME}
+    )
+
+    include(CMakePackageConfigHelpers)
+    write_basic_package_version_file(
+        "${CMAKE_PROJECT_NAME}ConfigVersion.cmake"
+        VERSION ${CMAKE_PROJECT_VERSION}
+        COMPATIBILITY AnyNewerVersion
+    )
+
+    install(FILES "cmake/${CMAKE_PROJECT_NAME}Config.cmake" "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake"
+        DESTINATION lib/cmake/${CMAKE_PROJECT_NAME}
+    )
 endfunction()
