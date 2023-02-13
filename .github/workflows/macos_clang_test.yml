@@ -1,0 +1,51 @@
+name: Test on MacOS (clang)
+
+on:
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build_and_test:
+    name: Build and Test
+    runs-on: macos-12
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v1.13
+        with:
+          cmake-version: "3.25.x"
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Setup Conan
+        run: python -m pip install conan
+
+      - name: Prepare build directory
+        run: mkdir build
+
+      - name: Install conan dependencies
+        working-directory: build
+        run: conan install ../conan -pr:b=default -s build_type=Debug --build=missing
+
+      - name: Configure
+        working-directory: build
+        run: cmake .. -G "XCode" -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=FALSE -DYABIL_ENABLE_TESTS=TRUE
+
+      - name: Build
+        working-directory: build
+        run: cmake --build . -j 4 --config Debug
+
+      - name: Run tests
+        working-directory: build
+        run: ctest --verbose -j 4
