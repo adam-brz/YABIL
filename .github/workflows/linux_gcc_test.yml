@@ -38,7 +38,7 @@ jobs:
         run: apt-get install valgrind -y
 
       - name: Setup Conan
-        run: python3 -m pip install conan
+        run: python3 -m pip install conan==1.59
 
       - name: Make debug build
         run: python3 build.py --preset gcc --build_type Debug
