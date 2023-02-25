@@ -5,7 +5,6 @@ include(cmake/common.cmake)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 option(YABIL_ENABLE_TESTS "Enable test targets" OFF)
-option(YABIL_USE_CONAN "Use Conan package manager for dependencies" ON)
 
 set(CPACK_GENERATOR "ZIP" CACHE STRING "Generators to support. Semicolon delimited list.")
 

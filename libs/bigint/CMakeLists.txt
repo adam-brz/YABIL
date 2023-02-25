@@ -1,18 +1,23 @@
 project(bigint C CXX)
 
 set(SOURCES
-    src/test.cpp
+    src/BigInt.cpp
 )
 
 set(HEADERS
-    include/yabil/bigint/test.h
+    include/yabil/bigint/BigInt.h
 )
 
 set(TESTS
-    test/empty.cpp
+    test/BigIntConstructor_tests.cpp
+    test/BigIntConversion_tests.cpp
+    test/BigIntOperator_tests.cpp
 )
 
+find_package(safeint REQUIRED)
+
 add_library(${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME} PRIVATE safeint::safeint)
 
 target_sources(${PROJECT_NAME}
     PRIVATE ${SOURCES}
