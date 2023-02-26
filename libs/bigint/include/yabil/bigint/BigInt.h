@@ -25,7 +25,7 @@ private:
 public:
     explicit BigInt(const std::vector<bigint_base_t> &raw_data, Sign sign = Sign::Plus);
     explicit BigInt(const std::string &str, int base = 10);
-    explicit BigInt() : BigInt(bigint_base_t()) {}
+    BigInt() : BigInt(bigint_base_t()) {}
 
     template <typename T, class = typename std::enable_if_t<std::is_signed_v<T>>>
     explicit BigInt(T number)
