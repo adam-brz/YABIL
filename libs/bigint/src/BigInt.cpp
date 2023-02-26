@@ -18,7 +18,7 @@ int64_t BigInt::to_int() const
     }
 
     int64_t result = 0;
-    for (std::size_t i = 0; (i < sizeof(int64_t) / sizeof(bigint_base_t)) && (i < data.size()); ++i)
+    for (std::size_t i = 0; (i < data.size()) && (i < sizeof(int64_t) / sizeof(bigint_base_t)); ++i)
     {
         result |= static_cast<int64_t>(data[i]) << i * sizeof(bigint_base_t) * 8;
     }
