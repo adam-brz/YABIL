@@ -20,7 +20,7 @@ int64_t BigInt::to_int() const
     int64_t result = 0;
     for (std::size_t i = 0; (i < data.size()) && (i < sizeof(int64_t) / sizeof(bigint_base_t)); ++i)
     {
-        result |= static_cast<int64_t>(data[i]) << i * sizeof(bigint_base_t) * 8;
+        result |= static_cast<int64_t>(data[i]) << (i * sizeof(bigint_base_t) * 8);
     }
 
     return is_negative() ? -result : result;
@@ -58,52 +58,60 @@ bool BigInt::operator!=(const BigInt &other) const
 
 BigInt BigInt::operator+(const BigInt &other) const
 {
-    // BigInt result(*this);
-    // // if (sign == other.sign)
-    // // {
-    // //     // simple add, sign = sign
-    // // }
-    // // else
-    // // {
-    // //     if (sign == Sign::Minus)
-    // //     {
-    // //         // simple other - this
-    // //     }
-    // //     else
-    // //     {
-    // //         // simple this - other
-    // //     }
-    // // }
-    // result += other;
-    // return result;
-    return add_ignore_sign(other);
+    if (sign == other.sign)
+    {
+        return plain_add(other);
+    }
+
+    if (sign == Sign::Minus)
+    {
+        return other.plain_sub(*this);
+    }
+
+    return plain_sub(other);
 }
 
-BigInt BigInt::add_ignore_sign(const BigInt &other) const
+BigInt BigInt::operator-(const BigInt &other) const
 {
-    bool carry = false;
+    if (sign != other.sign)
+    {
+        return plain_add(other);
+    }
+
+    if (sign == Sign::Plus)
+    {
+        return plain_sub(other);
+    }
+
+    return other.plain_sub(*this);
+}
+
+BigInt BigInt::plain_add(const BigInt &other) const
+{
     std::vector<bigint_base_t> result_data;
-    for (std::size_t i = 0; i < std::max(data.size(), other.data.size()); ++i)
+    bigint_base_t carry = 0;
+
+    const std::size_t result_size = std::max(data.size(), other.data.size());
+    result_data.reserve(result_size + 1);
+
+    for (std::size_t i = 0; i < result_size; ++i)
     {
         const bigint_base_t self_value = value_at(i);
         const bigint_base_t other_value = other.value_at(i);
-
-        bigint_base_t self_with_carry = self_value;
-        if (carry && add_get_carry(self_value, 1, &self_with_carry))
-        {
-            result_data.push_back(other_value);
-            continue;
-        }
-
-        bigint_base_t result;
-        carry = add_get_carry(self_with_carry, other_value, &result);
-        result_data.push_back(result);
+        const auto addition_result = safe_add(self_value, other_value, carry);
+        carry = static_cast<bigint_base_t>(addition_result >> (sizeof(carry) * 8));
+        result_data.push_back(static_cast<bigint_base_t>(addition_result));
     }
-    if (carry)
+    if (carry > 0)
     {
-        result_data.push_back(1);
+        result_data.push_back(carry);
     }
     return BigInt(std::move(result_data), sign);
+}
+
+BigInt BigInt::plain_sub(const BigInt &other) const
+{
+    return *this;
 }
 
 BigInt &BigInt::operator+=(const BigInt &other)

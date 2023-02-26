@@ -8,7 +8,7 @@
 namespace yabil::bigint
 {
 
-using bigint_base_t = uint64_t;
+using bigint_base_t = uint32_t;
 
 enum class Sign : uint8_t
 {
@@ -46,7 +46,7 @@ public:
             data.reserve(data_item_count);
             for (std::size_t i = 0; i < data_item_count; ++i)
             {
-                data.push_back(static_cast<bigint_base_t>(number >> i * sizeof(bigint_base_t) * 8));
+                data.push_back(static_cast<bigint_base_t>(number >> (i * sizeof(bigint_base_t) * 8)));
             }
         }
     }
@@ -61,10 +61,12 @@ public:
     bool operator==(const BigInt &other) const;
     bool operator!=(const BigInt &other) const;
     BigInt operator+(const BigInt &other) const;
+    BigInt operator-(const BigInt &other) const;
     BigInt &operator+=(const BigInt &other);
 
 private:
-    BigInt add_ignore_sign(const BigInt &other) const;
+    BigInt plain_add(const BigInt &other) const;
+    BigInt plain_sub(const BigInt &other) const;
 };
 
 }  // namespace yabil::bigint

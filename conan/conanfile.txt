@@ -1,6 +1,5 @@
 [requires]
 gtest/1.13.0
-safeint/3.24
 
 [generators]
 CMakeDeps

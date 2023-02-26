@@ -1,6 +1,5 @@
 #pragma once
 
-#include <SafeInt.hpp>
 #include <cstdint>
 
 namespace yabil::bigint
@@ -31,26 +30,21 @@ struct double_width<uint32_t>
 };
 
 template <typename T>
-double_width_t<T> save_add(T a, T b)
+double_width_t<T> safe_add(T v)
 {
-    return static_cast<double_width_t<T>>(a) + b;
+    return static_cast<double_width_t<T>>(v);
+}
+
+template <typename T, typename... Args>
+double_width_t<T> safe_add(T v, Args... args)
+{
+    return static_cast<double_width_t<T>>(v) + safe_add(args...);
 }
 
 template <typename T>
-double_width_t<T> save_mul(T a, T b)
+double_width_t<T> safe_mul(T a, T b)
 {
     return static_cast<double_width_t<T>>(a) * b;
-}
-
-template <typename T1, typename T2, typename T3>
-bool add_get_carry(T1 a, T2 b, T3 *res)
-{
-#ifdef __GNUC__
-    return __builtin_add_overflow(a, b, res);
-#else
-    *res = a + b;
-    return !SafeAdd(a, b, *res);
-#endif
 }
 
 }  // namespace yabil::bigint
