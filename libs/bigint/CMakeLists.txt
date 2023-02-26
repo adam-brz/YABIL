@@ -2,6 +2,7 @@ project(bigint C CXX)
 
 set(SOURCES
     src/BigInt.cpp
+    src/SafeOperators.h
 )
 
 set(HEADERS

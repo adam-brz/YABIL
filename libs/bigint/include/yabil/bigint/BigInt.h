@@ -56,11 +56,15 @@ public:
     bigint_base_t value_at(std::size_t index) const;
 
     const std::vector<bigint_base_t> &raw_data() const;
+    Sign get_sign() const;
 
     bool operator==(const BigInt &other) const;
     bool operator!=(const BigInt &other) const;
     BigInt operator+(const BigInt &other) const;
     BigInt &operator+=(const BigInt &other);
+
+private:
+    BigInt add_ignore_sign(const BigInt &other) const;
 };
 
 }  // namespace yabil::bigint

@@ -1,6 +1,6 @@
+#include <SafeOperators.h>
 #include <yabil/bigint/BigInt.h>
 
-#include <SafeInt.hpp>
 #include <algorithm>
 #include <iostream>
 #include <ranges>
@@ -41,6 +41,11 @@ const std::vector<bigint_base_t> &BigInt::raw_data() const
     return data;
 }
 
+Sign BigInt::get_sign() const
+{
+    return sign;
+}
+
 bool BigInt::operator==(const BigInt &other) const
 {
     return (data.size() == 0 && other.data.size() == 0) || (data == other.data && sign == other.sign);
@@ -71,29 +76,34 @@ BigInt BigInt::operator+(const BigInt &other) const
     // // }
     // result += other;
     // return result;
-    std::vector<bigint_base_t> result_data;
+    return add_ignore_sign(other);
+}
+
+BigInt BigInt::add_ignore_sign(const BigInt &other) const
+{
     bool carry = false;
+    std::vector<bigint_base_t> result_data;
     for (std::size_t i = 0; i < std::max(data.size(), other.data.size()); ++i)
     {
         const bigint_base_t self_value = value_at(i);
         const bigint_base_t other_value = other.value_at(i);
 
         bigint_base_t self_with_carry = self_value;
-        if (carry && !SafeAdd(self_value, 1, self_with_carry))
+        if (carry && add_get_carry(self_value, 1, &self_with_carry))
         {
             result_data.push_back(other_value);
             continue;
         }
 
-        bigint_base_t dummy;
-        carry = !SafeAdd(self_with_carry, other_value, dummy);
-        result_data.push_back(self_with_carry + other_value);
+        bigint_base_t result;
+        carry = add_get_carry(self_with_carry, other_value, &result);
+        result_data.push_back(result);
     }
     if (carry)
     {
         result_data.push_back(1);
     }
-    return BigInt(std::move(result_data));
+    return BigInt(std::move(result_data), sign);
 }
 
 BigInt &BigInt::operator+=(const BigInt &other)

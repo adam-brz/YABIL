@@ -68,7 +68,21 @@ TEST_F(BigIntOperator_tests, addTwoLongNonZeroWithOverflow)
 {
     const BigInt big_int1(std::vector<bigint_base_t>{std::numeric_limits<bigint_base_t>::max(),
                                                      std::numeric_limits<bigint_base_t>::max()});
-    const BigInt big_int2(10ULL);
+    const BigInt big_int2(10);
     const std::vector<bigint_base_t> expected = {9, 0, 1};
     ASSERT_EQ(expected, (big_int1 + big_int2).raw_data());
+}
+
+TEST_F(BigIntOperator_tests, addTwoNegativeWithOverflow)
+{
+    const BigInt big_int1(std::vector<bigint_base_t>{std::numeric_limits<bigint_base_t>::max(),
+                                                     std::numeric_limits<bigint_base_t>::max()},
+                          Sign::Minus);
+    const BigInt big_int2(-10);
+
+    const std::vector<bigint_base_t> expected = {9, 0, 1};
+    const auto result = big_int1 + big_int2;
+
+    ASSERT_EQ(expected, result.raw_data());
+    ASSERT_EQ(Sign::Minus, result.get_sign());
 }

@@ -22,6 +22,8 @@ function(set_common_properties TARGET)
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
     )
 
+    target_include_directories(${TARGET} PRIVATE src)
+
     if (MSVC)
         target_compile_options(${TARGET} PRIVATE /W4 $<IF:$<CONFIG:Debug>,/Zi,/O2>)
     else()
