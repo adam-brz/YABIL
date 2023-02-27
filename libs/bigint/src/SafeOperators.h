@@ -41,6 +41,12 @@ double_width_t<T> safe_add(T v, Args... args)
     return static_cast<double_width_t<T>>(v) + safe_add(args...);
 }
 
+template <typename T, typename... Args>
+double_width_t<T> safe_sub(T v, Args... args)
+{
+    return static_cast<double_width_t<T>>(v) - safe_add(args...);
+}
+
 template <typename T>
 double_width_t<T> safe_mul(T a, T b)
 {

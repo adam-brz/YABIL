@@ -10,15 +10,16 @@ set(HEADERS
 )
 
 set(TESTS
+    test/BigIntAddOperator_tests.cpp
+    test/BigIntComparaison_tests.cpp
     test/BigIntConstructor_tests.cpp
     test/BigIntConversion_tests.cpp
-    test/BigIntOperator_tests.cpp
+    test/BigIntGreaterComparaison_tests.cpp
+    test/BigIntLowerComparaison_tests.cpp
+    test/BigIntSubOperator_tests.cpp
 )
 
-find_package(safeint REQUIRED)
-
 add_library(${PROJECT_NAME})
-target_link_libraries(${PROJECT_NAME} PRIVATE safeint::safeint)
 
 target_sources(${PROJECT_NAME}
     PRIVATE ${SOURCES}
