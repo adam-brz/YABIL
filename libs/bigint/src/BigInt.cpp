@@ -2,7 +2,6 @@
 #include <yabil/bigint/BigInt.h>
 
 #include <algorithm>
-#include <execution>
 #include <iostream>
 #include <ranges>
 
@@ -53,7 +52,7 @@ Sign BigInt::get_sign() const
 bool BigInt::operator==(const BigInt &other) const
 {
     return (data.size() == 0 && other.data.size() == 0) ||
-           (sign == other.sign && std::equal(std::execution::par, data.cbegin(), data.cend(), other.data.cbegin()));
+           (sign == other.sign && std::equal(data.cbegin(), data.cend(), other.data.cbegin()));
 }
 
 bool BigInt::operator!=(const BigInt &other) const
@@ -112,8 +111,7 @@ bool BigInt::check_abs_greater(const BigInt &other) const
 
 bool BigInt::check_abs_lower(const BigInt &other) const
 {
-    return std::lexicographical_compare(std::execution::par, data.crbegin(), data.crend(), other.data.crbegin(),
-                                        other.data.crend());
+    return std::lexicographical_compare(data.crbegin(), data.crend(), other.data.crbegin(), other.data.crend());
 }
 
 BigInt BigInt::operator+(const BigInt &other) const
