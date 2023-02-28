@@ -207,7 +207,8 @@ BigInt BigInt::plain_sub(const BigInt &other) const
         new_sign = Sign::Minus;
     }
 
-    std::vector<bigint_base_t> result_data(longer->data.size());
+    std::vector<bigint_base_t> result_data;
+    result_data.reserve(longer->data.size());
     bigint_base_t borrow = 0;
     std::size_t i;
 
@@ -215,13 +216,13 @@ BigInt BigInt::plain_sub(const BigInt &other) const
     {
         const auto result = safe_sub(longer->data[i], shorter->data[i], borrow);
         borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        result_data[i] = static_cast<bigint_base_t>(result);
+        result_data.push_back(static_cast<bigint_base_t>(result));
     }
     for (; i < longer->data.size(); ++i)
     {
         const auto result = safe_sub(longer->data[i], borrow);
         borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        result_data[i] = static_cast<bigint_base_t>(result);
+        result_data.push_back(static_cast<bigint_base_t>(result));
     }
 
     return BigInt(std::move(result_data), new_sign);
@@ -231,10 +232,11 @@ BigInt BigInt::operator&(const BigInt &other) const
 {
     const std::size_t min_size = std::min(data.size(), other.data.size());
 
-    std::vector<bigint_base_t> result_data(min_size);
+    std::vector<bigint_base_t> result_data;
+    result_data.reserve(min_size);
     for (std::size_t i = 0; i < min_size; ++i)
     {
-        result_data[i] = data[i] & other.data[i];
+        result_data.push_back(data[i] & other.data[i]);
     }
 
     return BigInt(std::move(result_data),
@@ -251,15 +253,16 @@ BigInt BigInt::operator|(const BigInt &other) const
         std::swap(longer, shorter);
     }
 
-    std::vector<bigint_base_t> result_data(longer->data.size());
+    std::vector<bigint_base_t> result_data;
+    result_data.reserve(longer->data.size());
     std::size_t i;
     for (i = 0; i < shorter->data.size(); ++i)
     {
-        result_data[i] = longer->data[i] | shorter->data[i];
+        result_data.push_back(longer->data[i] | shorter->data[i]);
     }
     for (; i < longer->data.size(); ++i)
     {
-        result_data[i] = longer->data[i];
+        result_data.push_back(longer->data[i]);
     }
 
     return BigInt(std::move(result_data),
@@ -276,15 +279,16 @@ BigInt BigInt::operator^(const BigInt &other) const
         std::swap(longer, shorter);
     }
 
-    std::vector<bigint_base_t> result_data(longer->data.size());
+    std::vector<bigint_base_t> result_data;
+    result_data.reserve(longer->data.size());
     std::size_t i;
     for (i = 0; i < shorter->data.size(); ++i)
     {
-        result_data[i] = longer->data[i] ^ shorter->data[i];
+        result_data.push_back(longer->data[i] ^ shorter->data[i]);
     }
     for (; i < longer->data.size(); ++i)
     {
-        result_data[i] = longer->data[i];
+        result_data.push_back(longer->data[i]);
     }
 
     return BigInt(std::move(result_data), (sign != other.sign) ? Sign::Minus : Sign::Plus);
