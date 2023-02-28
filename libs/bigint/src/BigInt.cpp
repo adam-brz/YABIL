@@ -3,7 +3,6 @@
 
 #include <algorithm>
 #include <iostream>
-#include <ranges>
 
 namespace yabil::bigint
 {
@@ -149,7 +148,7 @@ BigInt BigInt::plain_add(const BigInt &other) const
     const auto *longer = this;
     const auto *shorter = &other;
 
-    if (check_abs_lower(other))
+    if (longer->data.size() < shorter->data.size())
     {
         std::swap(longer, shorter);
     }
@@ -215,9 +214,33 @@ BigInt BigInt::plain_sub(const BigInt &other) const
     return BigInt(std::move(result_data), new_sign);
 }
 
+BigInt BigInt::operator&(const BigInt &other) const
+{
+    const std::size_t min_size = std::min(data.size(), other.data.size());
+
+    std::vector<bigint_base_t> result_data(min_size);
+    for (std::size_t i = 0; i < min_size; ++i)
+    {
+        result_data[i] = data[i] & other.data[i];
+    }
+
+    return BigInt(std::move(result_data),
+                  (sign == Sign::Minus && other.sign == Sign::Minus) ? Sign::Minus : Sign::Plus);
+}
+
 BigInt &BigInt::operator+=(const BigInt &other)
 {
     return *this = *this + other;
+}
+
+BigInt &BigInt::operator-=(const BigInt &other)
+{
+    return *this = *this - other;
+}
+
+BigInt &BigInt::operator&=(const BigInt &other)
+{
+    return *this = *this & other;
 }
 
 void BigInt::remove_trailing_zeros()

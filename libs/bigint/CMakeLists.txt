@@ -11,6 +11,7 @@ set(HEADERS
 
 set(TESTS
     test/BigIntAddOperator_tests.cpp
+    test/BigIntAndOperator_tests.cpp
     test/BigIntComparaison_tests.cpp
     test/BigIntConstructor_tests.cpp
     test/BigIntConversion_tests.cpp

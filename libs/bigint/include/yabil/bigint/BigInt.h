@@ -68,7 +68,12 @@ public:
 
     BigInt operator+(const BigInt &other) const;
     BigInt operator-(const BigInt &other) const;
+
+    BigInt operator&(const BigInt &other) const;
+
     BigInt &operator+=(const BigInt &other);
+    BigInt &operator-=(const BigInt &other);
+    BigInt &operator&=(const BigInt &other);
 
 private:
     bool check_abs_greater(const BigInt &other) const;
