@@ -9,7 +9,21 @@ namespace yabil::bigint
 
 BigInt::BigInt(const std::vector<bigint_base_t> &raw_data, Sign sign) : data(raw_data), sign(sign)
 {
+    normalize();
+}
+
+void BigInt::normalize()
+{
     remove_trailing_zeros();
+    if (data.size() == 0)
+    {
+        sign = Sign::Plus;
+    }
+}
+
+void BigInt::remove_trailing_zeros()
+{
+    data.erase(std::find_if(data.rbegin(), data.rend(), [](const auto &v) { return v != 0; }).base(), data.end());
 }
 
 int64_t BigInt::to_int() const
@@ -187,14 +201,13 @@ BigInt BigInt::plain_sub(const BigInt &other) const
     const BigInt *shorter = &other;
     Sign new_sign = Sign::Plus;
 
-    if (check_abs_lower(other))
+    if (longer->check_abs_lower(*shorter))
     {
         std::swap(longer, shorter);
         new_sign = Sign::Minus;
     }
 
-    std::vector<bigint_base_t> result_data;
-    result_data.reserve(longer->data.size());
+    std::vector<bigint_base_t> result_data(longer->data.size());
     bigint_base_t borrow = 0;
     std::size_t i;
 
@@ -202,13 +215,13 @@ BigInt BigInt::plain_sub(const BigInt &other) const
     {
         const auto result = safe_sub(longer->data[i], shorter->data[i], borrow);
         borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        result_data.push_back(static_cast<bigint_base_t>(result));
+        result_data[i] = static_cast<bigint_base_t>(result);
     }
     for (; i < longer->data.size(); ++i)
     {
         const auto result = safe_sub(longer->data[i], borrow);
         borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        result_data.push_back(static_cast<bigint_base_t>(result));
+        result_data[i] = static_cast<bigint_base_t>(result);
     }
 
     return BigInt(std::move(result_data), new_sign);
@@ -228,6 +241,67 @@ BigInt BigInt::operator&(const BigInt &other) const
                   (sign == Sign::Minus && other.sign == Sign::Minus) ? Sign::Minus : Sign::Plus);
 }
 
+BigInt BigInt::operator|(const BigInt &other) const
+{
+    const auto *longer = this;
+    const auto *shorter = &other;
+
+    if (longer->data.size() < shorter->data.size())
+    {
+        std::swap(longer, shorter);
+    }
+
+    std::vector<bigint_base_t> result_data(longer->data.size());
+    std::size_t i;
+    for (i = 0; i < shorter->data.size(); ++i)
+    {
+        result_data[i] = longer->data[i] | shorter->data[i];
+    }
+    for (; i < longer->data.size(); ++i)
+    {
+        result_data[i] = longer->data[i];
+    }
+
+    return BigInt(std::move(result_data),
+                  (sign == Sign::Minus || other.sign == Sign::Minus) ? Sign::Minus : Sign::Plus);
+}
+
+BigInt BigInt::operator^(const BigInt &other) const
+{
+    const auto *longer = this;
+    const auto *shorter = &other;
+
+    if (longer->data.size() < shorter->data.size())
+    {
+        std::swap(longer, shorter);
+    }
+
+    std::vector<bigint_base_t> result_data(longer->data.size());
+    std::size_t i;
+    for (i = 0; i < shorter->data.size(); ++i)
+    {
+        result_data[i] = longer->data[i] ^ shorter->data[i];
+    }
+    for (; i < longer->data.size(); ++i)
+    {
+        result_data[i] = longer->data[i];
+    }
+
+    return BigInt(std::move(result_data), (sign != other.sign) ? Sign::Minus : Sign::Plus);
+}
+
+BigInt BigInt::operator~() const
+{
+    std::vector<bigint_base_t> result_data(data.size());
+    std::transform(data.cbegin(), data.cend(), result_data.begin(), [](const auto &v) { return ~v; });
+    return BigInt(std::move(result_data), (sign == Sign::Plus) ? Sign::Minus : Sign::Plus);
+}
+
+bool BigInt::operator!() const
+{
+    return !static_cast<bool>(*this);
+}
+
 BigInt &BigInt::operator+=(const BigInt &other)
 {
     return *this = *this + other;
@@ -243,9 +317,14 @@ BigInt &BigInt::operator&=(const BigInt &other)
     return *this = *this & other;
 }
 
-void BigInt::remove_trailing_zeros()
+BigInt &BigInt::operator|=(const BigInt &other)
 {
-    data.erase(std::find_if(data.rbegin(), data.rend(), [](const auto &v) { return v != 0; }).base(), data.end());
+    return *this = *this | other;
+}
+
+BigInt &BigInt::operator^=(const BigInt &other)
+{
+    return *this = *this ^ other;
 }
 
 }  // namespace yabil::bigint

@@ -17,7 +17,10 @@ set(TESTS
     test/BigIntConversion_tests.cpp
     test/BigIntGreaterComparaison_tests.cpp
     test/BigIntLowerComparaison_tests.cpp
+    test/BigIntNotOperator_tests.cpp
+    test/BigIntOrOperator_tests.cpp
     test/BigIntSubOperator_tests.cpp
+    test/BigIntXorOperator_tests.cpp
 )
 
 add_library(${PROJECT_NAME})

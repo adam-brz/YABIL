@@ -49,7 +49,7 @@ public:
                 data.push_back(static_cast<bigint_base_t>(number >> (i * sizeof(bigint_base_t) * 8)));
             }
         }
-        remove_trailing_zeros();
+        normalize();
     }
 
     int64_t to_int() const;
@@ -70,19 +70,31 @@ public:
     BigInt operator-(const BigInt &other) const;
 
     BigInt operator&(const BigInt &other) const;
+    BigInt operator|(const BigInt &other) const;
+    BigInt operator^(const BigInt &other) const;
+    BigInt operator~() const;
+    bool operator!() const;
 
     BigInt &operator+=(const BigInt &other);
     BigInt &operator-=(const BigInt &other);
     BigInt &operator&=(const BigInt &other);
+    BigInt &operator|=(const BigInt &other);
+    BigInt &operator^=(const BigInt &other);
+
+    explicit operator bool() const
+    {
+        return data.size() != 0;
+    }
 
 private:
+    void normalize();
+    void remove_trailing_zeros();
+
     bool check_abs_greater(const BigInt &other) const;
     bool check_abs_lower(const BigInt &other) const;
 
     BigInt plain_add(const BigInt &other) const;
     BigInt plain_sub(const BigInt &other) const;
-
-    void remove_trailing_zeros();
 };
 
 }  // namespace yabil::bigint
