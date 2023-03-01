@@ -22,6 +22,11 @@ function(set_common_properties TARGET)
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
     )
 
+    # find_package(OpenMP)
+    # if(OpenMP_CXX_FOUND)
+    #     target_link_libraries(${TARGET} PRIVATE OpenMP::OpenMP_CXX)
+    # endif()
+
     target_include_directories(${TARGET} PRIVATE src)
 
     if (MSVC)

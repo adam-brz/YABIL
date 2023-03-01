@@ -19,6 +19,7 @@ set(TESTS
     test/BigIntLowerComparaison_tests.cpp
     test/BigIntNotOperator_tests.cpp
     test/BigIntOrOperator_tests.cpp
+    test/BigIntShiftOperator_tests.cpp
     test/BigIntSubOperator_tests.cpp
     test/BigIntXorOperator_tests.cpp
 )

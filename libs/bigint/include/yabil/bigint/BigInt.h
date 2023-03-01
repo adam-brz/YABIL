@@ -54,6 +54,8 @@ public:
 
     int64_t to_int() const;
     bool is_negative() const;
+    BigInt abs() const;
+
     bigint_base_t value_at(std::size_t index) const;
 
     const std::vector<bigint_base_t> &raw_data() const;
@@ -75,11 +77,21 @@ public:
     BigInt operator~() const;
     bool operator!() const;
 
+    BigInt operator<<(const BigInt &shift) const;
+    BigInt operator>>(const BigInt &shift) const;
+    BigInt operator<<(bigint_base_t shift) const;
+    BigInt operator>>(bigint_base_t shift) const;
+
     BigInt &operator+=(const BigInt &other);
     BigInt &operator-=(const BigInt &other);
     BigInt &operator&=(const BigInt &other);
     BigInt &operator|=(const BigInt &other);
     BigInt &operator^=(const BigInt &other);
+
+    BigInt &operator<<=(const BigInt &shift);
+    BigInt &operator>>=(const BigInt &shift);
+    BigInt &operator<<=(bigint_base_t shift);
+    BigInt &operator>>=(bigint_base_t shift);
 
     explicit operator bool() const
     {
@@ -92,6 +104,9 @@ private:
 
     bool check_abs_greater(const BigInt &other) const;
     bool check_abs_lower(const BigInt &other) const;
+
+    BigInt plain_shift_left(BigInt shift) const;
+    BigInt plain_shift_right(BigInt shift) const;
 
     BigInt plain_add(const BigInt &other) const;
     BigInt plain_sub(const BigInt &other) const;

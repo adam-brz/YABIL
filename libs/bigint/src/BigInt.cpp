@@ -47,6 +47,11 @@ bool BigInt::is_negative() const
     return sign == Sign::Minus;
 }
 
+BigInt BigInt::abs() const
+{
+    return BigInt(data, Sign::Plus);
+}
+
 bigint_base_t BigInt::value_at(std::size_t index) const
 {
     return index < data.size() ? data.at(index) : 0;
@@ -294,6 +299,90 @@ BigInt BigInt::operator^(const BigInt &other) const
     return BigInt(std::move(result_data), (sign != other.sign) ? Sign::Minus : Sign::Plus);
 }
 
+BigInt BigInt::operator<<(const BigInt &shift) const
+{
+    return (shift.sign == Sign::Minus) ? plain_shift_right(shift.abs()) : plain_shift_left(shift);
+}
+
+BigInt BigInt::operator>>(const BigInt &shift) const
+{
+    return (shift.sign == Sign::Minus) ? plain_shift_left(shift.abs()) : plain_shift_right(shift);
+}
+
+BigInt BigInt::plain_shift_left(BigInt shift) const
+{
+    BigInt result(*this);
+    while (shift.data.size() > 0)
+    {
+        const bigint_base_t shift_val =
+            (shift.data.front() != 0) ? shift.data.front() : std::numeric_limits<bigint_base_t>::max();
+        result <<= shift_val;
+        shift -= BigInt(shift_val);
+    }
+    return result;
+}
+
+BigInt BigInt::operator<<(bigint_base_t shift) const
+{
+    const bigint_base_t new_items_count = shift / (sizeof(bigint_base_t) * 8);
+    const bigint_base_t real_shift = shift % (sizeof(bigint_base_t) * 8);
+
+    std::vector<bigint_base_t> shifted(new_items_count + data.size() + 1, 0);
+    bigint_base_t shifted_val = 0;
+
+    std::transform(data.cbegin(), data.cend(), shifted.begin() + new_items_count,
+                   [real_shift, &shifted_val](const bigint_base_t &v)
+                   {
+                       const bigint_base_t transformed = (v << real_shift) | shifted_val;
+                       shifted_val =
+                           static_cast<bigint_base_t>((static_cast<double_width_t<bigint_base_t>>(v) << real_shift) >>
+                                                      (sizeof(bigint_base_t) * 8));
+                       return transformed;
+                   });
+
+    shifted.back() = shifted_val;
+    return BigInt(std::move(shifted), sign);
+}
+
+BigInt BigInt::plain_shift_right(BigInt shift) const
+{
+    BigInt result(*this);
+    while (shift.data.size() > 0)
+    {
+        const bigint_base_t shift_val =
+            (shift.data.front() != 0) ? shift.data.front() : std::numeric_limits<bigint_base_t>::max();
+        result >>= shift_val;
+        shift -= BigInt(shift_val);
+    }
+    return result;
+}
+
+BigInt BigInt::operator>>(bigint_base_t shift) const
+{
+    const bigint_base_t removed_items_count = shift / (sizeof(bigint_base_t) * 8);
+    const bigint_base_t real_shift = shift % (sizeof(bigint_base_t) * 8);
+
+    if (removed_items_count >= data.size())
+    {
+        return BigInt(0U, sign);
+    }
+
+    std::vector<bigint_base_t> shifted(data.size() - removed_items_count, 0);
+    bigint_base_t shifted_val = 0;
+
+    std::transform(
+        data.crbegin(), data.crend() - removed_items_count, shifted.rbegin(),
+        [real_shift, &shifted_val](const bigint_base_t &v)
+        {
+            const bigint_base_t transformed = (v >> real_shift) | shifted_val;
+            shifted_val = static_cast<bigint_base_t>(
+                (static_cast<double_width_t<bigint_base_t>>(v) << (sizeof(bigint_base_t) * 8)) >> real_shift);
+            return transformed;
+        });
+
+    return BigInt(std::move(shifted), sign);
+}
+
 BigInt BigInt::operator~() const
 {
     std::vector<bigint_base_t> result_data(data.size());
@@ -329,6 +418,26 @@ BigInt &BigInt::operator|=(const BigInt &other)
 BigInt &BigInt::operator^=(const BigInt &other)
 {
     return *this = *this ^ other;
+}
+
+BigInt &BigInt::operator<<=(const BigInt &shift)
+{
+    return *this = *this << shift;
+}
+
+BigInt &BigInt::operator>>=(const BigInt &shift)
+{
+    return *this = *this >> shift;
+}
+
+BigInt &BigInt::operator<<=(bigint_base_t shift)
+{
+    return *this = *this << shift;
+}
+
+BigInt &BigInt::operator>>=(bigint_base_t shift)
+{
+    return *this = *this >> shift;
 }
 
 }  // namespace yabil::bigint
