@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <string>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace yabil::bigint
@@ -70,6 +71,7 @@ public:
 
     BigInt operator+(const BigInt &other) const;
     BigInt operator-(const BigInt &other) const;
+    BigInt operator*(const BigInt &other) const;
 
     BigInt operator&(const BigInt &other) const;
     BigInt operator|(const BigInt &other) const;
@@ -84,6 +86,7 @@ public:
 
     BigInt &operator+=(const BigInt &other);
     BigInt &operator-=(const BigInt &other);
+    BigInt &operator*=(const BigInt &other);
     BigInt &operator&=(const BigInt &other);
     BigInt &operator|=(const BigInt &other);
     BigInt &operator^=(const BigInt &other);
@@ -102,14 +105,19 @@ private:
     void normalize();
     void remove_trailing_zeros();
 
+    bool is_zero() const;
     bool check_abs_greater(const BigInt &other) const;
     bool check_abs_lower(const BigInt &other) const;
+
+    BigInt basic_mul(const BigInt &other) const;
 
     BigInt plain_shift_left(BigInt shift) const;
     BigInt plain_shift_right(BigInt shift) const;
 
     BigInt plain_add(const BigInt &other) const;
     BigInt plain_sub(const BigInt &other) const;
+
+    static std::pair<const BigInt *, const BigInt *> get_longer_and_shorter(const BigInt &num1, const BigInt &num2);
 };
 
 }  // namespace yabil::bigint

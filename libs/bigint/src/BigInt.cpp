@@ -2,6 +2,7 @@
 #include <yabil/bigint/BigInt.h>
 
 #include <algorithm>
+#include <cctype>
 #include <iostream>
 #include <limits>
 
@@ -11,6 +12,27 @@ namespace yabil::bigint
 BigInt::BigInt(const std::vector<bigint_base_t> &raw_data, Sign sign) : data(raw_data), sign(sign)
 {
     normalize();
+}
+
+BigInt pow10(std::size_t n)
+{
+    BigInt result(1);
+    for (bigint_base_t i = 0; i < n; ++i)
+    {
+        result = (result << 3) + (result << 1);
+    }
+    return result;
+}
+
+BigInt::BigInt(const std::string &str, int base)
+{
+    sign = (str.front() == '-') ? Sign::Minus : Sign::Plus;
+    // bool hasSign = (str.front() == '-') || (str.front() == '+');
+
+    // for (std::size_t i = 0; i < str.size() - (hasSign) ? 1 : 0; ++i)
+    // {
+    //     plain_add(pow10(i) * BigInt(std::tolower(str[i]) - '0'));
+    // }
 }
 
 void BigInt::normalize()
@@ -70,8 +92,7 @@ Sign BigInt::get_sign() const
 
 bool BigInt::operator==(const BigInt &other) const
 {
-    return (data.size() == 0 && other.data.size() == 0) ||
-           (sign == other.sign && std::equal(data.cbegin(), data.cend(), other.data.cbegin()));
+    return (data.size() == 0 && other.data.size() == 0) || (sign == other.sign && data == other.data);
 }
 
 bool BigInt::operator!=(const BigInt &other) const
@@ -123,6 +144,11 @@ bool BigInt::operator>=(const BigInt &other) const
     return (*this > other) || (*this == other);
 }
 
+bool BigInt::is_zero() const
+{
+    return data.size() == 0;
+}
+
 bool BigInt::check_abs_greater(const BigInt &other) const
 {
     return other.check_abs_lower(*this);
@@ -130,7 +156,32 @@ bool BigInt::check_abs_greater(const BigInt &other) const
 
 bool BigInt::check_abs_lower(const BigInt &other) const
 {
-    return std::lexicographical_compare(data.crbegin(), data.crend(), other.data.crbegin(), other.data.crend());
+    return data.size() <= other.data.size() &&
+           std::lexicographical_compare(data.crbegin(), data.crend(), other.data.crbegin(), other.data.crend());
+}
+
+BigInt BigInt::basic_mul(const BigInt &other) const
+{
+    std::vector<bigint_base_t> result(data.size() + other.data.size(), 0);
+    const auto [longer, shorter] = get_longer_and_shorter(*this, other);
+
+    for (std::size_t i = 0; i < shorter->data.size(); ++i)
+    {
+        double_width_t<bigint_base_t> carry = 0;
+        std::size_t j;
+        for (j = 0; j < longer->data.size(); ++j)
+        {
+            carry += safe_add(result[i + j]) + safe_mul(longer->data[j], shorter->data[i]);
+            result[i + j] = static_cast<bigint_base_t>(carry);
+            carry >>= sizeof(bigint_base_t) * 8;
+        }
+        if (carry)
+        {
+            result[i + j] += static_cast<bigint_base_t>(carry);
+        }
+    }
+
+    return BigInt(result, (sign == other.sign) ? Sign::Plus : Sign::Minus);
 }
 
 BigInt BigInt::operator+(const BigInt &other) const
@@ -163,16 +214,14 @@ BigInt BigInt::operator-(const BigInt &other) const
     return other.plain_sub(*this);
 }
 
+BigInt BigInt::operator*(const BigInt &other) const
+{
+    return basic_mul(other);
+}
+
 BigInt BigInt::plain_add(const BigInt &other) const
 {
-    const auto *longer = this;
-    const auto *shorter = &other;
-
-    if (longer->data.size() < shorter->data.size())
-    {
-        std::swap(longer, shorter);
-    }
-
+    const auto [longer, shorter] = get_longer_and_shorter(*this, other);
     std::vector<bigint_base_t> result_data;
     result_data.reserve(longer->data.size() + 1);
 
@@ -251,16 +300,10 @@ BigInt BigInt::operator&(const BigInt &other) const
 
 BigInt BigInt::operator|(const BigInt &other) const
 {
-    const auto *longer = this;
-    const auto *shorter = &other;
-
-    if (longer->data.size() < shorter->data.size())
-    {
-        std::swap(longer, shorter);
-    }
-
+    const auto [longer, shorter] = get_longer_and_shorter(*this, other);
     std::vector<bigint_base_t> result_data;
     result_data.reserve(longer->data.size());
+
     std::size_t i;
     for (i = 0; i < shorter->data.size(); ++i)
     {
@@ -277,16 +320,10 @@ BigInt BigInt::operator|(const BigInt &other) const
 
 BigInt BigInt::operator^(const BigInt &other) const
 {
-    const auto *longer = this;
-    const auto *shorter = &other;
-
-    if (longer->data.size() < shorter->data.size())
-    {
-        std::swap(longer, shorter);
-    }
-
+    const auto [longer, shorter] = get_longer_and_shorter(*this, other);
     std::vector<bigint_base_t> result_data;
     result_data.reserve(longer->data.size());
+
     std::size_t i;
     for (i = 0; i < shorter->data.size(); ++i)
     {
@@ -406,6 +443,11 @@ BigInt &BigInt::operator-=(const BigInt &other)
     return *this = *this - other;
 }
 
+BigInt &BigInt::operator*=(const BigInt &other)
+{
+    return *this = *this * other;
+}
+
 BigInt &BigInt::operator&=(const BigInt &other)
 {
     return *this = *this & other;
@@ -439,6 +481,15 @@ BigInt &BigInt::operator<<=(bigint_base_t shift)
 BigInt &BigInt::operator>>=(bigint_base_t shift)
 {
     return *this = *this >> shift;
+}
+
+std::pair<const BigInt *, const BigInt *> BigInt::get_longer_and_shorter(const BigInt &num1, const BigInt &num2)
+{
+    if (num1.raw_data().size() > num2.raw_data().size())
+    {
+        return {&num1, &num2};
+    }
+    return {&num2, &num1};
 }
 
 }  // namespace yabil::bigint
