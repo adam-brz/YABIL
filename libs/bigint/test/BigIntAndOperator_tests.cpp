@@ -30,6 +30,12 @@ TEST_F(BigIntAndOperator_tests, andShouldLeaveCommonOnes)
     ASSERT_EQ(0xff00ff, (big_int1 & big_int2).to_int());
 }
 
+TEST_F(BigIntAndOperator_tests, fastTestForOddNumber)
+{
+    const BigInt big_int1("129038129048120948120312831"), big_int2(1);
+    ASSERT_EQ(BigInt(1), (big_int1 & big_int2));
+}
+
 TEST_F(BigIntAndOperator_tests, andShouldLeaveCommonOnesForLongNumbers)
 {
     const BigInt big_int1(std::vector<bigint_base_t>{0xf0f000, 0xf0f0f0, 0xf0f0f0});

@@ -25,7 +25,7 @@ private:
 
 public:
     explicit BigInt(const std::vector<bigint_base_t> &raw_data, Sign sign = Sign::Plus);
-    explicit BigInt(const std::string &str, int base = 10);
+    explicit BigInt(const std::string_view &str, int base = 10);
     BigInt() : BigInt(bigint_base_t()) {}
 
     template <typename T, class = typename std::enable_if_t<std::is_signed_v<T>>>
@@ -53,11 +53,13 @@ public:
         normalize();
     }
 
-    int64_t to_int() const;
-    bool is_negative() const;
+    BigInt pow(const BigInt &n) const;
     BigInt abs() const;
+    int64_t to_int() const;
 
     bigint_base_t value_at(std::size_t index) const;
+    bool is_negative() const;
+    bool is_even() const;
 
     const std::vector<bigint_base_t> &raw_data() const;
     Sign get_sign() const;
@@ -110,6 +112,7 @@ private:
     bool check_abs_lower(const BigInt &other) const;
 
     BigInt basic_mul(const BigInt &other) const;
+    BigInt pow_recursive(const BigInt &n) const;
 
     BigInt plain_shift_left(BigInt shift) const;
     BigInt plain_shift_right(BigInt shift) const;
@@ -117,6 +120,7 @@ private:
     BigInt plain_add(const BigInt &other) const;
     BigInt plain_sub(const BigInt &other) const;
 
+    int get_digit_value(int digit) const;
     static std::pair<const BigInt *, const BigInt *> get_longer_and_shorter(const BigInt &num1, const BigInt &num2);
 };
 

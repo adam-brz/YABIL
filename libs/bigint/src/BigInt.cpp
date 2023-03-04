@@ -5,6 +5,7 @@
 #include <cctype>
 #include <iostream>
 #include <limits>
+#include <stdexcept>
 
 namespace yabil::bigint
 {
@@ -14,25 +15,23 @@ BigInt::BigInt(const std::vector<bigint_base_t> &raw_data, Sign sign) : data(raw
     normalize();
 }
 
-BigInt pow10(std::size_t n)
-{
-    BigInt result(1);
-    for (bigint_base_t i = 0; i < n; ++i)
-    {
-        result = (result << 3) + (result << 1);
-    }
-    return result;
-}
-
-BigInt::BigInt(const std::string &str, int base)
+BigInt::BigInt(const std::string_view &str, int base)
 {
     sign = (str.front() == '-') ? Sign::Minus : Sign::Plus;
-    // bool hasSign = (str.front() == '-') || (str.front() == '+');
+    bool hasSign = (str.front() == '-') || (str.front() == '+');
 
-    // for (std::size_t i = 0; i < str.size() - (hasSign) ? 1 : 0; ++i)
-    // {
-    //     plain_add(pow10(i) * BigInt(std::tolower(str[i]) - '0'));
-    // }
+    std::size_t i = 0;
+    for (auto str_it = str.crbegin(); str_it != str.crend() - (hasSign ? 1 : 0); ++str_it)
+    {
+        const auto converted = get_digit_value(std::tolower(*str_it));
+        if (converted < 0 || converted > base)
+        {
+            throw std::invalid_argument("Cannot convert character: " + std::string(1, *str_it) + " at pos: " +
+                                        std::to_string(i) + " to number of base: " + std::to_string(base));
+        }
+        data = plain_add(BigInt(base).pow(BigInt(i)) * BigInt(converted)).data;
+        ++i;
+    }
 }
 
 void BigInt::normalize()
@@ -68,6 +67,17 @@ int64_t BigInt::to_int() const
 bool BigInt::is_negative() const
 {
     return sign == Sign::Minus;
+}
+
+bool BigInt::is_even() const
+{
+    return (data.size() == 0) || ((data.front() & 0x01) == 0);
+}
+
+BigInt BigInt::pow(const BigInt &n) const
+{
+    const auto new_sign = (sign == Sign::Minus && !n.is_even()) ? Sign::Minus : Sign::Plus;
+    return BigInt(pow_recursive(n).data, new_sign);
 }
 
 BigInt BigInt::abs() const
@@ -182,6 +192,15 @@ BigInt BigInt::basic_mul(const BigInt &other) const
     }
 
     return BigInt(result, (sign == other.sign) ? Sign::Plus : Sign::Minus);
+}
+
+BigInt BigInt::pow_recursive(const BigInt &n) const
+{
+    const BigInt one_const(1);
+    if (n.data.size() == 0) return one_const;
+    if (n == one_const) return *this;
+    if (n.is_even()) return (*this * *this).pow(n >> 1);
+    return (*this * *this).pow(n >> 1) * *this;
 }
 
 BigInt BigInt::operator+(const BigInt &other) const
@@ -481,6 +500,12 @@ BigInt &BigInt::operator<<=(bigint_base_t shift)
 BigInt &BigInt::operator>>=(bigint_base_t shift)
 {
     return *this = *this >> shift;
+}
+
+int BigInt::get_digit_value(int digit) const
+{
+    if (digit >= 'a' && digit <= 'f') return digit - 'a' + 10;
+    return digit - '0';
 }
 
 std::pair<const BigInt *, const BigInt *> BigInt::get_longer_and_shorter(const BigInt &num1, const BigInt &num2)
