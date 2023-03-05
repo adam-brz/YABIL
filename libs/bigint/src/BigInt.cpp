@@ -200,6 +200,27 @@ BigInt BigInt::pow_recursive(const BigInt &n) const
     return (*this * *this).pow(n >> 1) * *this;
 }
 
+std::pair<BigInt, BigInt> BigInt::divide_unsigned(const BigInt &other) const
+{
+    BigInt quotient, remainder;
+    const int64_t bits = static_cast<int64_t>(sizeof(bigint_base_t) * data.size() * 8);
+
+    for (int64_t i = bits - 1; i >= 0; --i)
+    {
+        remainder <<= 1;
+        remainder.set_bit(0, !!get_bit(static_cast<std::size_t>(i)));
+        if (remainder >= other)
+        {
+            remainder -= other;
+            quotient.set_bit(static_cast<std::size_t>(i), true);
+        }
+    }
+
+    quotient.normalize();
+    remainder.normalize();
+    return {quotient, remainder};
+}
+
 BigInt BigInt::operator+(const BigInt &other) const
 {
     if (sign == other.sign)
@@ -233,6 +254,16 @@ BigInt BigInt::operator-(const BigInt &other) const
 BigInt BigInt::operator*(const BigInt &other) const
 {
     return basic_mul(other);
+}
+
+BigInt BigInt::operator/(const BigInt &other) const
+{
+    return divide(other).first;
+}
+
+BigInt BigInt::operator%(const BigInt &other) const
+{
+    return divide(other).second;
 }
 
 BigInt BigInt::plain_add(const BigInt &other) const
@@ -297,6 +328,65 @@ BigInt BigInt::plain_sub(const BigInt &other) const
     }
 
     return BigInt(std::move(result_data), new_sign);
+}
+
+std::pair<BigInt, BigInt> BigInt::divide(const BigInt &other) const
+{
+    if (other.is_zero())
+    {
+        throw std::invalid_argument("Cannot divide by 0");
+    }
+    if (is_negative() && other.is_negative())
+    {
+        const auto [quotient, remainder] = (-(*this)).divide_unsigned(-other);
+        return {quotient, -remainder};
+    }
+    if (!is_negative() && other.is_negative())
+    {
+        const auto [quotient, remainder] = divide_unsigned(-other);
+        if (remainder.is_zero())
+        {
+            return {-quotient, BigInt(0)};
+        }
+        return {-quotient - BigInt(1), other + remainder};
+    }
+    if (is_negative() && !other.is_negative())
+    {
+        const auto [quotient, remainder] = (-(*this)).divide_unsigned(other);
+        if (remainder.is_zero())
+        {
+            return {-quotient, BigInt(0)};
+        }
+        return {-quotient - BigInt(1), other - remainder};
+    }
+    return divide_unsigned(other);
+}
+
+uint8_t BigInt::get_bit(std::size_t n) const
+{
+    const auto item_index = n / (sizeof(bigint_base_t) * 8);
+    const auto bit_index = n % (sizeof(bigint_base_t) * 8);
+
+    if (item_index >= data.size())
+    {
+        return 0;
+    }
+    return (data[item_index] >> bit_index) & 0x01;
+}
+
+void BigInt::set_bit(std::size_t n, bool bit_value)
+{
+    const auto item_index = n / (sizeof(bigint_base_t) * 8);
+    const auto bit_index = n % (sizeof(bigint_base_t) * 8);
+
+    if (item_index >= data.size())
+    {
+        data.resize(item_index + 1, 0);
+    }
+
+    data[item_index] =
+        (data[item_index] & ~(bigint_base_t(1) << bit_index)) | (static_cast<uint8_t>(bit_value & 0x01) << bit_index);
+    normalize();
 }
 
 BigInt BigInt::operator&(const BigInt &other) const
@@ -437,6 +527,13 @@ BigInt BigInt::operator>>(bigint_base_t shift) const
     return BigInt(std::move(shifted), sign);
 }
 
+BigInt BigInt::operator-() const
+{
+    BigInt result(*this);
+    result.sign = (sign == Sign::Plus) ? Sign::Minus : Sign::Plus;
+    return result;
+}
+
 BigInt BigInt::operator~() const
 {
     std::vector<bigint_base_t> result_data(data.size());
@@ -462,6 +559,16 @@ BigInt &BigInt::operator-=(const BigInt &other)
 BigInt &BigInt::operator*=(const BigInt &other)
 {
     return *this = *this * other;
+}
+
+BigInt &BigInt::operator/=(const BigInt &other)
+{
+    return *this = *this / other;
+}
+
+BigInt &BigInt::operator%=(const BigInt &other)
+{
+    return *this = *this % other;
 }
 
 BigInt &BigInt::operator&=(const BigInt &other)

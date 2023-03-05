@@ -57,12 +57,18 @@ public:
     BigInt abs() const;
     int64_t to_int() const;
 
-    bigint_base_t value_at(std::size_t index) const;
+    bool is_zero() const;
     bool is_negative() const;
     bool is_even() const;
 
     const std::vector<bigint_base_t> &raw_data() const;
     Sign get_sign() const;
+
+    bigint_base_t value_at(std::size_t index) const;
+    uint8_t get_bit(std::size_t n) const;
+    void set_bit(std::size_t n, bool bit_value);
+
+    std::pair<BigInt, BigInt> divide(const BigInt &other) const;
 
     bool operator==(const BigInt &other) const;
     bool operator!=(const BigInt &other) const;
@@ -74,10 +80,14 @@ public:
     BigInt operator+(const BigInt &other) const;
     BigInt operator-(const BigInt &other) const;
     BigInt operator*(const BigInt &other) const;
+    BigInt operator/(const BigInt &other) const;
+    BigInt operator%(const BigInt &other) const;
 
     BigInt operator&(const BigInt &other) const;
     BigInt operator|(const BigInt &other) const;
     BigInt operator^(const BigInt &other) const;
+
+    BigInt operator-() const;
     BigInt operator~() const;
     bool operator!() const;
 
@@ -89,6 +99,8 @@ public:
     BigInt &operator+=(const BigInt &other);
     BigInt &operator-=(const BigInt &other);
     BigInt &operator*=(const BigInt &other);
+    BigInt &operator/=(const BigInt &other);
+    BigInt &operator%=(const BigInt &other);
     BigInt &operator&=(const BigInt &other);
     BigInt &operator|=(const BigInt &other);
     BigInt &operator^=(const BigInt &other);
@@ -107,12 +119,12 @@ private:
     void normalize();
     void remove_trailing_zeros();
 
-    bool is_zero() const;
     bool check_abs_greater(const BigInt &other) const;
     bool check_abs_lower(const BigInt &other) const;
 
     BigInt basic_mul(const BigInt &other) const;
     BigInt pow_recursive(const BigInt &n) const;
+    std::pair<BigInt, BigInt> divide_unsigned(const BigInt &other) const;
 
     BigInt plain_shift_left(BigInt shift) const;
     BigInt plain_shift_right(BigInt shift) const;

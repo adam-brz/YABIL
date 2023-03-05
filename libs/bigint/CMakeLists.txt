@@ -15,6 +15,8 @@ set(TESTS
     test/BigIntComparaison_tests.cpp
     test/BigIntConstructor_tests.cpp
     test/BigIntConversion_tests.cpp
+    test/BigIntDivOperator_tests.cpp
+    test/BigIntBitOperations_tests.cpp
     test/BigIntGreaterComparaison_tests.cpp
     test/BigIntLowerComparaison_tests.cpp
     test/BigIntMulOperator_tests.cpp
