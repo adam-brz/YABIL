@@ -37,10 +37,7 @@ BigInt::BigInt(const std::string_view &str, int base)
 void BigInt::normalize()
 {
     remove_trailing_zeros();
-    if (data.size() == 0)
-    {
-        sign = Sign::Plus;
-    }
+    sign = is_zero() ? Sign::Plus : sign;
 }
 
 void BigInt::remove_trailing_zeros()
@@ -50,7 +47,7 @@ void BigInt::remove_trailing_zeros()
 
 int64_t BigInt::to_int() const
 {
-    if (data.size() == 0)
+    if (is_zero())
     {
         return 0;
     }
@@ -71,7 +68,7 @@ bool BigInt::is_negative() const
 
 bool BigInt::is_even() const
 {
-    return (data.size() == 0) || ((data.front() & 0x01) == 0);
+    return (is_zero()) || ((data.front() & 0x01) == 0);
 }
 
 BigInt BigInt::pow(const BigInt &n) const
@@ -102,7 +99,7 @@ Sign BigInt::get_sign() const
 
 bool BigInt::operator==(const BigInt &other) const
 {
-    return (data.size() == 0 && other.data.size() == 0) || (sign == other.sign && data == other.data);
+    return (is_zero() && other.is_zero()) || (sign == other.sign && data == other.data);
 }
 
 bool BigInt::operator!=(const BigInt &other) const
@@ -122,7 +119,7 @@ bool BigInt::operator<(const BigInt &other) const
     }
     if (sign == Sign::Minus && other.sign == Sign::Plus)
     {
-        return data.size() != 0 || other.data.size() != 0;
+        return !is_zero() || !other.is_zero();
     }
     return false;
 }
@@ -144,7 +141,7 @@ bool BigInt::operator>(const BigInt &other) const
     }
     if (sign == Sign::Plus && other.sign == Sign::Minus)
     {
-        return data.size() != 0 || other.data.size() != 0;
+        return !is_zero() || !other.is_zero();
     }
     return false;
 }
@@ -197,7 +194,7 @@ BigInt BigInt::basic_mul(const BigInt &other) const
 BigInt BigInt::pow_recursive(const BigInt &n) const
 {
     const BigInt one_const(1);
-    if (n.data.size() == 0) return one_const;
+    if (n.is_zero()) return one_const;
     if (n == one_const) return *this;
     if (n.is_even()) return (*this * *this).pow(n >> 1);
     return (*this * *this).pow(n >> 1) * *this;
@@ -369,7 +366,7 @@ BigInt BigInt::operator>>(const BigInt &shift) const
 BigInt BigInt::plain_shift_left(BigInt shift) const
 {
     BigInt result(*this);
-    while (shift.data.size() > 0)
+    while (!shift.is_zero())
     {
         const bigint_base_t shift_val =
             (shift.data.front() != 0) ? shift.data.front() : std::numeric_limits<bigint_base_t>::max();
@@ -404,7 +401,7 @@ BigInt BigInt::operator<<(bigint_base_t shift) const
 BigInt BigInt::plain_shift_right(BigInt shift) const
 {
     BigInt result(*this);
-    while (shift.data.size() > 0)
+    while (!shift.is_zero())
     {
         const bigint_base_t shift_val =
             (shift.data.front() != 0) ? shift.data.front() : std::numeric_limits<bigint_base_t>::max();
