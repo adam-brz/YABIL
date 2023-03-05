@@ -178,7 +178,7 @@ BigInt BigInt::basic_mul(const BigInt &other) const
         std::size_t j;
         for (j = 0; j < longer->data.size(); ++j)
         {
-            carry += safe_add(result[i + j]) + safe_mul(longer->data[j], shorter->data[i]);
+            carry += result[i + j] + safe_mul(longer->data[j], shorter->data[i]);
             result[i + j] = static_cast<bigint_base_t>(carry);
             carry >>= sizeof(bigint_base_t) * 8;
         }
