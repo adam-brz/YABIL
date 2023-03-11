@@ -39,10 +39,9 @@ jobs:
           fi
 
       - name: Install Conan dependencies
-        working-directory: build
         run:
-          CC=clang CXX=clang++ conan install ../conan -pr=../conan/profiles/clang
-          -pr:b=../conan/profiles/clang -s build_type=Debug --build=missing
+          CC=clang CXX=clang++ conan install ./conan -pr=./conan/profiles/clang
+          -pr:b=./conan/profiles/clang -s build_type=Debug --build=missing -of=build
 
       - name: Configure
         working-directory: build
@@ -66,3 +65,7 @@ jobs:
       - name: Compile project
         working-directory: build
         run: cmake --build . -j $(nproc) --config Debug
+
+      - name: Run tests
+        working-directory: build
+        run: ctest --verbose -j "$(nproc)"
