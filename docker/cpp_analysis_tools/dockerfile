@@ -30,3 +30,5 @@ RUN curl -o valgrind.tar.bz2 -L https://sourceware.org/pub/valgrind/valgrind-3.2
 
 RUN python3 -m pip install conan==2.0.1; \
     conan profile detect
+
+RUN apt-get install -y libc6-dbg
