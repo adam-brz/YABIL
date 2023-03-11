@@ -19,4 +19,4 @@ RUN git clone --depth 1 --branch "2.10" https://github.com/danmar/cppcheck.git c
     cd ..; \
     rm -rf cppcheck
 
-RUN python3 -m pip install conan==1.58.0
+RUN python3 -m pip install conan==2.0.1
