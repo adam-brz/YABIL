@@ -71,7 +71,7 @@ std::string BigInt::to_str(int base) const
         const auto [quotient, remainder] = number.divide_unsigned(BigInt(base));
         number = std::move(quotient);
         str_number.append(1, get_digit_char(static_cast<int>(remainder.to_int())));
-    } while(!number.is_zero());
+    } while (!number.is_zero());
 
     str_number += is_negative() ? "-" : "";
     std::reverse(str_number.begin(), str_number.end());
