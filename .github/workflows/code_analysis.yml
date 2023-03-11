@@ -35,6 +35,7 @@ jobs:
           clang-format-14 -i $(find libs -iname *.cpp) $(find libs -iname *.h)
           if [[ -n `git status --porcelain` ]]; then
             echo "::error ::Clang-format detected unformatted files!"
+            git diff
             exit 1
           fi
 
