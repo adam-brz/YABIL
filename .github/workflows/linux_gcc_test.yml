@@ -24,6 +24,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: setup conan profile
+        run: conan profile detect
+
       - name: Make debug build
         run: python3 build.py --preset gcc --build_type Debug
 
