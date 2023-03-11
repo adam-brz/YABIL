@@ -48,8 +48,8 @@ jobs:
 
       - name: Build
         working-directory: build
-        run: cmake --build . -j $(nproc) --config Debug
+        run: cmake --build . -j 4 --config Debug
 
       - name: Run tests
         working-directory: build
-        run: ctest --verbose -j $(nproc)
+        run: ctest --verbose -j 4
