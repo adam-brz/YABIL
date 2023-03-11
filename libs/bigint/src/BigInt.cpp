@@ -631,8 +631,8 @@ int BigInt::get_digit_value(int digit) const
 
 char BigInt::get_digit_char(int digit) const
 {
-    if (digit >= 10 && digit <= 16) return digit + 'a' - 10;
-    return digit + '0';
+    if (digit >= 10 && digit <= 16) return static_cast<char>(digit + 'a' - 10);
+    return static_cast<char>(digit + '0');
 }
 
 std::pair<const BigInt *, const BigInt *> BigInt::get_longer_and_shorter(const BigInt &num1, const BigInt &num2)
