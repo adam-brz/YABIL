@@ -61,6 +61,23 @@ int64_t BigInt::to_int() const
     return is_negative() ? -result : result;
 }
 
+std::string BigInt::to_str(int base) const
+{
+    BigInt number(*this);
+    std::string str_number;
+
+    do
+    {
+        const auto [quotient, remainder] = number.divide_unsigned(BigInt(base));
+        number = std::move(quotient);
+        str_number.append(1, get_digit_char(static_cast<int>(remainder.to_int())));
+    } while(!number.is_zero());
+
+    str_number += is_negative() ? "-" : "";
+    std::reverse(str_number.begin(), str_number.end());
+    return str_number;
+}
+
 bool BigInt::is_negative() const
 {
     return sign == Sign::Minus;
@@ -610,6 +627,12 @@ int BigInt::get_digit_value(int digit) const
 {
     if (digit >= 'a' && digit <= 'f') return digit - 'a' + 10;
     return digit - '0';
+}
+
+char BigInt::get_digit_char(int digit) const
+{
+    if (digit >= 10 && digit <= 16) return digit + 'a' - 10;
+    return digit + '0';
 }
 
 std::pair<const BigInt *, const BigInt *> BigInt::get_longer_and_shorter(const BigInt &num1, const BigInt &num2)

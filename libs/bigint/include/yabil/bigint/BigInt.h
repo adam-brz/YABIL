@@ -55,7 +55,9 @@ public:
 
     BigInt pow(const BigInt &n) const;
     BigInt abs() const;
+
     int64_t to_int() const;
+    std::string to_str(int base = 10) const;
 
     bool is_zero() const;
     bool is_negative() const;
@@ -133,6 +135,8 @@ private:
     BigInt plain_sub(const BigInt &other) const;
 
     int get_digit_value(int digit) const;
+    char get_digit_char(int digit) const;
+
     static std::pair<const BigInt *, const BigInt *> get_longer_and_shorter(const BigInt &num1, const BigInt &num2);
 };
 
