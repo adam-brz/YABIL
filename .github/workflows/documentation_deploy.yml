@@ -35,7 +35,7 @@ jobs:
 
       - name: Create coverage report
         run: |
-          python ./scripts/coverage.py --llvm_cov "llvm-cov-14" --llvm_profdata "llvm-profdata-14" | tee coverage_logs.txt
+          python3 ./scripts/coverage.py --llvm_cov "llvm-cov-14" --llvm_profdata "llvm-profdata-14" | tee coverage_logs.txt
           coverage=$(tail -n 1 coverage_logs.txt | grep -Eow "[0-9]{2}\.[0-9]{2}%$" | grep -Eow "[0-9]{2}\.[0-9]{2}%")
 
           color="green"
