@@ -42,13 +42,13 @@ jobs:
       - name: Install Conan dependencies
         run:
           CC=clang CXX=clang++ conan install ./conan -pr=./conan/profiles/clang
-          -pr:b=./conan/profiles/clang -s build_type=Debug --build=missing -of=build
+          -pr:b=./conan/profiles/clang -s build_type=Release --build=missing -of=build
 
       - name: Configure
         working-directory: build
         run:
           cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DYABIL_ENABLE_TESTS=TRUE -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE
-          -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
+          -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
 
       - name: Run Clang-tidy
         run:
@@ -65,8 +65,12 @@ jobs:
 
       - name: Compile project
         working-directory: build
-        run: cmake --build . -j $(nproc) --config Debug
+        run: cmake --build . -j $(nproc) --config Release
 
       - name: Run tests
         working-directory: build
         run: ctest --verbose -j "$(nproc)"
+
+      - name: Check coverage
+        run: |
+          coverage=$(python ./scripts/coverage.py --llvm_cov "llvm-cov-14" --llvm_profdata "llvm-profdata-14" | tail -n 1 | grep -Eow "[0-9]{2}\.[0-9]{2}%$")
