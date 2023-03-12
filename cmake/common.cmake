@@ -6,6 +6,8 @@ macro(setup_testing)
         include(CTest)
         include(GoogleTest)
         enable_testing()
+    elseif(YABIL_ENABLE_COVERAGE)
+        message(WARNING "Option YABIL_ENABLE_COVERAGE=TRUE will be ignored since YABIL_ENABLE_TESTS=FALSE.")
     endif()
 endmacro()
 
@@ -27,6 +29,7 @@ function(set_common_properties TARGET)
     #     target_link_libraries(${TARGET} PRIVATE OpenMP::OpenMP_CXX)
     # endif()
 
+    add_coverage(${TARGET})
     target_include_directories(${TARGET} PRIVATE src)
 
     if (MSVC)
@@ -46,6 +49,16 @@ function(set_common_properties TARGET)
     )
 endfunction()
 
+function(add_coverage TARGET)
+    if(YABIL_ENABLE_COVERAGE)
+        if(NOT (CMAKE_CXX_COMPILER MATCHES "clang"))
+            message(ERROR "Coverage is only supported for clang compiler")
+        endif()
+        target_compile_options(${TARGET} PRIVATE -fprofile-instr-generate -fcoverage-mapping)
+        target_link_options(${TARGET} PRIVATE -fprofile-instr-generate)
+    endif()
+endfunction()
+
 function(add_test_target TARGET)
     if(NOT YABIL_ENABLE_TESTS OR NOT ARGN)
         return()
@@ -62,7 +75,16 @@ function(add_test_target TARGET)
     endif()
 
     set_common_properties(${TEST_TARGET})
-    gtest_discover_tests(${TEST_TARGET})
+    if(YABIL_ENABLE_COVERAGE)
+        get_target_property(EXE_OUTPUT_DIR ${TEST_TARGET} RUNTIME_OUTPUT_DIRECTORY)
+        add_test(
+            NAME ${TEST_TARGET}
+            COMMAND ${CMAKE_COMMAND} -E env LLVM_PROFILE_FILE=${TEST_TARGET}.profraw -- ${EXE_OUTPUT_DIR}/${TEST_TARGET}${CMAKE_EXECUTABLE_SUFFIX}
+            WORKING_DIRECTORY ${EXE_OUTPUT_DIR}
+        )
+    else()
+        gtest_discover_tests(${TEST_TARGET})
+    endif()
 endfunction()
 
 function(setup_install)
