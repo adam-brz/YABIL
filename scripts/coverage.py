@@ -6,6 +6,7 @@ import subprocess
 from build import conan_install, cmake_config, cmake_build
 from argparse import ArgumentParser
 
+
 def generate_coverage_report(llvm_profdata, llvm_cov):
     source_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     build_type = "Debug"
@@ -54,8 +55,13 @@ def generate_html(llvm_cov, src_dir, binary_dir, lib_dir, output_dir):
         cwd=binary_dir,
     )
 
+    show_branch_summary = (
+        "-show-branch-summary=false" if llvm_cov.endswith("14") else ""
+    )
+
     subprocess.check_call(
-        f"{llvm_cov} report -show-region-summary=false -show-functions=false -instr-profile coverage.profdata {' '.join(object_flags)} {' '.join(source_flags)}",
+        f"{llvm_cov} report -show-region-summary=false -show-functions=false {show_branch_summary} "
+        f"-instr-profile coverage.profdata {' '.join(object_flags)} {' '.join(source_flags)}",
         shell=True,
         cwd=binary_dir,
     )
@@ -79,4 +85,3 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     generate_coverage_report(args.llvm_profdata, args.llvm_cov)
-
