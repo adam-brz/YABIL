@@ -63,6 +63,14 @@
             }
         },
         {
+            "name": "coverage",
+            "inherits": "clang_debug",
+            "displayName": "Coverage (Clang [Debug])",
+            "cacheVariables": {
+                "YABIL_ENABLE_COVERAGE": true
+            }
+        },
+        {
             "name": "vs",
             "hidden": true,
             "binaryDir": "${sourceDir}/build/${presetName}",

@@ -7,21 +7,33 @@ from argparse import ArgumentParser
 def build(build_type, preset_name):
     full_preset_name = f"{preset_name}_{build_type.lower()}"
     preset_dir = f"build/{full_preset_name}"
-    source_dir = os.path.dirname(os.path.abspath(__file__))
+    source_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     os.makedirs(preset_dir, exist_ok=True)
 
+    conan_install(source_dir, preset_name, build_type, preset_dir)
+    cmake_config(full_preset_name)
+    cmake_build(preset_dir, build_type)
+
+
+def conan_install(source_dir, preset_name, build_type, output_dir):
     subprocess.check_call(
         f"conan install {source_dir}/conan -pr:b={source_dir}/conan/profiles/{preset_name} "
-        f"-s build_type={build_type} --build=missing -of={preset_dir}",
-        shell=True
+        f"-s build_type={build_type} --build=missing -of={output_dir}",
+        shell=True,
     )
+
+
+def cmake_config(full_preset_name):
     subprocess.check_call(
         f"cmake --preset {full_preset_name}",
         shell=True,
     )
+
+
+def cmake_build(binary_dir, build_type):
     subprocess.check_call(
-        f"cmake --build {preset_dir} -j {multiprocessing.cpu_count()} --config {build_type}",
+        f"cmake --build {binary_dir} -j {multiprocessing.cpu_count()} --config {build_type}",
         shell=True,
     )
 
