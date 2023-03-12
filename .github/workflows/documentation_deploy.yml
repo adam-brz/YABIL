@@ -46,7 +46,7 @@ jobs:
             color="yellow"
           fi
 
-          curl -o build/coverage/coverage_report/badge.svg -L "https://img.shields.io/badge/Coverage-${coverage}-${color}"
+          curl -o build/coverage/coverage_report/badge.svg -L "https://img.shields.io/badge/Coverage-${coverage}%-${color}"
           chmod 0755 -R 'build/coverage/coverage_report'
 
       - name: Setup Pages
