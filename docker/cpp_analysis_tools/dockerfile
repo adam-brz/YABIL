@@ -4,7 +4,7 @@ RUN apt-get update -y
 
 RUN apt-get install -y python3-pip curl
 
-RUN apt-get install -y clang-format-14 clang clang-tidy git
+RUN apt-get install -y clang-format-14 clang clang-tidy git gcc g++ make
 
 RUN curl -o cmake.sh -L "https://github.com/Kitware/CMake/releases/download/v3.25.2/cmake-3.25.2-linux-x86_64.sh"; \
     chmod +x cmake.sh; \
@@ -19,4 +19,16 @@ RUN git clone --depth 1 --branch "2.10" https://github.com/danmar/cppcheck.git c
     cd ..; \
     rm -rf cppcheck
 
-RUN python3 -m pip install conan==1.58.0
+RUN curl -o valgrind.tar.bz2 -L https://sourceware.org/pub/valgrind/valgrind-3.20.0.tar.bz2; \
+    tar -xf valgrind.tar.bz2; \
+    cd valgrind-3.20.0; \
+    ./configure; \
+    make -j $(nproc); \
+    make install; \
+    cd ..; \
+    rm -rf valgrind-3.20.0
+
+RUN python3 -m pip install conan==2.0.1; \
+    conan profile detect
+
+RUN apt-get install -y libc6-dbg

@@ -13,9 +13,8 @@ def build(build_type, preset_name):
 
     subprocess.check_call(
         f"conan install {source_dir}/conan -pr:b={source_dir}/conan/profiles/{preset_name} "
-        f"-s build_type={build_type} --build=missing",
-        shell=True,
-        cwd=preset_dir,
+        f"-s build_type={build_type} --build=missing -of={preset_dir}",
+        shell=True
     )
     subprocess.check_call(
         f"cmake --preset {full_preset_name}",

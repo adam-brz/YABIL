@@ -1,4 +1,4 @@
-name: Test on Linux (gcc 12.2)
+name: Test on Linux (gcc 11)
 
 on:
   pull_request:
@@ -14,7 +14,7 @@ jobs:
     name: Build and Test
     runs-on: ubuntu-22.04
     container:
-      image: gcc:12.2
+      image: andrew2a1/cpp_analysis_tools
 
     defaults:
       run:
@@ -24,21 +24,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup CMake
-        uses: jwlawson/actions-setup-cmake@v1.13
-        with:
-          cmake-version: "3.25.x"
-
-      - name: Setup Python
-        run: |
-          apt-get update -y
-          apt-get install python3-pip -y
-
-      - name: Setup Valgrind
-        run: apt-get install valgrind -y
-
-      - name: Setup Conan
-        run: python3 -m pip install conan
+      - name: setup conan profile
+        run: conan profile detect
 
       - name: Make debug build
         run: python3 build.py --preset gcc --build_type Debug

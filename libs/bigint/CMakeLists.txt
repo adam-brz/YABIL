@@ -1,15 +1,31 @@
 project(bigint C CXX)
 
 set(SOURCES
-    src/test.cpp
+    src/BigInt.cpp
+    src/SafeOperators.h
 )
 
 set(HEADERS
-    include/yabil/bigint/test.h
+    include/yabil/bigint/BigInt.h
 )
 
 set(TESTS
-    test/empty.cpp
+    test/BigIntAddOperator_tests.cpp
+    test/BigIntAndOperator_tests.cpp
+    test/BigIntComparaison_tests.cpp
+    test/BigIntConstructor_tests.cpp
+    test/BigIntConversion_tests.cpp
+    test/BigIntDivOperator_tests.cpp
+    test/BigIntBitOperations_tests.cpp
+    test/BigIntGreaterComparaison_tests.cpp
+    test/BigIntLowerComparaison_tests.cpp
+    test/BigIntMulOperator_tests.cpp
+    test/BigIntNotOperator_tests.cpp
+    test/BigIntOrOperator_tests.cpp
+    test/BigIntPowOperator_tests.cpp
+    test/BigIntShiftOperator_tests.cpp
+    test/BigIntSubOperator_tests.cpp
+    test/BigIntXorOperator_tests.cpp
 )
 
 add_library(${PROJECT_NAME})

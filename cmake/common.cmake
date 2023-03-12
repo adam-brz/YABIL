@@ -10,19 +10,24 @@ macro(setup_testing)
 endmacro()
 
 macro(setup_conan)
-    if(YABIL_USE_CONAN AND YABIL_ENABLE_TESTS)
-        include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
-    endif()
+    include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
 endmacro()
 
 function(set_common_properties TARGET)
     set_target_properties(${TARGET} PROPERTIES
-        CXX_STANDARD 17
+        CXX_STANDARD 20
         CXX_STANDARD_REQUIRED TRUE
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
     )
+
+    # find_package(OpenMP)
+    # if(OpenMP_CXX_FOUND)
+    #     target_link_libraries(${TARGET} PRIVATE OpenMP::OpenMP_CXX)
+    # endif()
+
+    target_include_directories(${TARGET} PRIVATE src)
 
     if (MSVC)
         target_compile_options(${TARGET} PRIVATE /W4 $<IF:$<CONFIG:Debug>,/Zi,/O2>)
