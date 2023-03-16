@@ -55,6 +55,14 @@
             }
         },
         {
+            "name": "clang_dev",
+            "inherits": "clang_debug",
+            "displayName": "Clang [Debug] [Export compile commands]",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            }
+        },
+        {
             "name": "clang_release",
             "inherits": "clang",
             "displayName": "Clang [Release]",

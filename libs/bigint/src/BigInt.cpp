@@ -1,4 +1,3 @@
-#include <SafeOperators.h>
 #include <yabil/bigint/BigInt.h>
 
 #include <algorithm>
@@ -7,10 +6,17 @@
 #include <limits>
 #include <stdexcept>
 
+#include "SafeOperators.h"
+
 namespace yabil::bigint
 {
 
 BigInt::BigInt(const std::vector<bigint_base_t> &raw_data, Sign sign) : data(raw_data), sign(sign)
+{
+    normalize();
+}
+
+BigInt::BigInt(std::vector<bigint_base_t> &&raw_data, Sign sign) : data(raw_data), sign(sign)
 {
     normalize();
 }
@@ -69,7 +75,7 @@ std::string BigInt::to_str(int base) const
     do
     {
         const auto [quotient, remainder] = number.divide_unsigned(BigInt(base));
-        number = std::move(quotient);
+        number = quotient;
         str_number.append(1, get_digit_char(static_cast<int>(remainder.to_int())));
     } while (!number.is_zero());
 
@@ -210,7 +216,7 @@ BigInt BigInt::basic_mul(const BigInt &other) const
 
 BigInt BigInt::pow_recursive(const BigInt &n) const
 {
-    const BigInt one_const(1);
+    BigInt one_const(1);
     if (n.is_zero()) return one_const;
     if (n == one_const) return *this;
     if (n.is_even()) return (*this * *this).pow(n >> 1);

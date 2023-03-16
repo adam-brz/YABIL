@@ -1,0 +1,10 @@
+Checks: >
+  -*,
+  bugprone-*,
+  misc-*,
+  performance-*,
+  portability-*,
+  -misc-non-private-member-variables-in-classes,
+  -misc-no-recursion,
+  -bugprone-sizeof-expression
+WarningsAsErrors: "*"

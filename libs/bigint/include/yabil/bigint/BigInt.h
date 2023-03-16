@@ -25,6 +25,7 @@ private:
 
 public:
     explicit BigInt(const std::vector<bigint_base_t> &raw_data, Sign sign = Sign::Plus);
+    explicit BigInt(std::vector<bigint_base_t> &&raw_data, Sign sign = Sign::Plus);
     explicit BigInt(const std::string_view &str, int base = 10);
     BigInt() : BigInt(bigint_base_t()) {}
 
