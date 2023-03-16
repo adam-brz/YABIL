@@ -39,9 +39,13 @@ def run_tests(build_dir):
 
 def merge_raw_profiles(llvm_profdata, binary_dir):
     GitHubLogger.print("::group::Merge coverage data")
+
     raw_profiles = glob.glob(f"{binary_dir}/*.profraw")
+    cmd = f"{llvm_profdata} merge {' '.join(raw_profiles)} -o coverage.profdata"
+    GitHubLogger.print("Executing command:", cmd)
+
     subprocess.check_call(
-        f"{llvm_profdata} merge -sparse {' '.join(raw_profiles)} -o coverage.profdata",
+        cmd,
         shell=True,
         cwd=binary_dir,
     )
@@ -75,6 +79,7 @@ def generate_html(llvm_cov, src_dir, binary_dir, lib_dir, output_dir):
         shell=True,
         cwd=binary_dir,
     )
+    GitHubLogger.print("::endgroup::")
 
 
 if __name__ == "__main__":
