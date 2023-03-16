@@ -79,6 +79,7 @@ def generate_html(llvm_cov, src_dir, binary_dir, lib_dir, output_dir):
         shell=True,
         cwd=binary_dir,
     )
+
     GitHubLogger.print("::endgroup::")
 
 
@@ -98,5 +99,7 @@ if __name__ == "__main__":
         default="llvm-cov",
         help="llvm-cov executable path",
     )
+
     args = parser.parse_args()
     generate_coverage_report(args.llvm_profdata, args.llvm_cov)
+    print("Done")
