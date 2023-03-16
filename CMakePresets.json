@@ -75,7 +75,8 @@
             "inherits": "clang_debug",
             "displayName": "Coverage (Clang [Debug])",
             "cacheVariables": {
-                "YABIL_ENABLE_COVERAGE": true
+                "YABIL_ENABLE_COVERAGE": true,
+                "BUILD_SHARED_LIBS": true
             }
         },
         {

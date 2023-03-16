@@ -57,7 +57,7 @@ def generate_html(llvm_cov, src_dir, binary_dir, lib_dir, output_dir):
     source_files = glob.glob(f"{src_dir}/**/.cpp", recursive=True) + glob.glob(
         f"{src_dir}/**/.h", recursive=True
     )
-    library_files = glob.glob(f"{lib_dir}/*.a")
+    library_files = glob.glob(f"{lib_dir}/*.a") + glob.glob(f"{lib_dir}/*.so")
     exec_files = list(filter(lambda f: f.find(".") == -1, glob.glob(f"{binary_dir}/*")))
 
     object_flags = ["-object " + file for file in (library_files + exec_files)]
