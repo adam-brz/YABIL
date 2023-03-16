@@ -17,25 +17,31 @@ def build(build_type, preset_name):
 
 
 def conan_install(source_dir, preset_name, build_type, output_dir):
+    print("::group::Conan install")
     subprocess.check_call(
         f"conan install {source_dir}/conan -pr:b={source_dir}/conan/profiles/{preset_name} "
         f"-s build_type={build_type} --build=missing -of={output_dir}",
         shell=True,
     )
+    print("::endgroup::")
 
 
 def cmake_config(full_preset_name):
+    print("::group::CMake config")
     subprocess.check_call(
         f"cmake --preset {full_preset_name}",
         shell=True,
     )
+    print("::endgroup::")
 
 
 def cmake_build(binary_dir, build_type):
+    print("::group::CMake build")
     subprocess.check_call(
         f"cmake --build {binary_dir} -j {multiprocessing.cpu_count()} --config {build_type}",
         shell=True,
     )
+    print("::endgroup::")
 
 
 if __name__ == "__main__":
