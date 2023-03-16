@@ -3,8 +3,9 @@ import glob
 import multiprocessing
 import subprocess
 
-from build import conan_install, cmake_config, cmake_build
 from argparse import ArgumentParser
+from build import conan_install, cmake_config, cmake_build
+from github_tools import GitHubLogger
 
 
 def generate_coverage_report(llvm_profdata, llvm_cov):
@@ -25,28 +26,30 @@ def generate_coverage_report(llvm_profdata, llvm_cov):
     merge_raw_profiles(llvm_profdata, binary_dir)
     generate_html(llvm_cov, source_dir, binary_dir, lib_dir, output_dir)
 
+
 def run_tests(build_dir):
-    print("::group::Run tests")
+    GitHubLogger.print("::group::Run tests")
     subprocess.check_call(
         f"ctest -C Debug -j {multiprocessing.cpu_count()}",
         shell=True,
         cwd=build_dir,
     )
-    print("::endgroup::")
+    GitHubLogger.print("::endgroup::")
+
 
 def merge_raw_profiles(llvm_profdata, binary_dir):
-    print("::group::Merge coverage data")
+    GitHubLogger.print("::group::Merge coverage data")
     raw_profiles = glob.glob(f"{binary_dir}/*.profraw")
     subprocess.check_call(
         f"{llvm_profdata} merge -sparse {' '.join(raw_profiles)} -o coverage.profdata",
         shell=True,
         cwd=binary_dir,
     )
-    print("::endgroup::")
+    GitHubLogger.print("::endgroup::")
 
 
 def generate_html(llvm_cov, src_dir, binary_dir, lib_dir, output_dir):
-    print("::group::Generate coverage HTML report")
+    GitHubLogger.print("::group::Generate coverage HTML report")
     source_files = glob.glob(f"{src_dir}/**/.cpp", recursive=True) + glob.glob(
         f"{src_dir}/**/.h", recursive=True
     )

@@ -79,7 +79,7 @@ function(add_test_target TARGET)
         get_target_property(EXE_OUTPUT_DIR ${TEST_TARGET} RUNTIME_OUTPUT_DIRECTORY)
         add_test(
             NAME ${TEST_TARGET}
-            COMMAND ${CMAKE_COMMAND} -E env LLVM_PROFILE_FILE=${TEST_TARGET}.profraw -- ${EXE_OUTPUT_DIR}/${TEST_TARGET}${CMAKE_EXECUTABLE_SUFFIX}
+            COMMAND ${CMAKE_COMMAND} -E env LLVM_PROFILE_FILE=${TEST_TARGET}_%m.profraw -- ${EXE_OUTPUT_DIR}/${TEST_TARGET}${CMAKE_EXECUTABLE_SUFFIX}
             WORKING_DIRECTORY ${EXE_OUTPUT_DIR}
         )
     else()
