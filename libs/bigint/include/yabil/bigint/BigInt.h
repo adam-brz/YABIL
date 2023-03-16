@@ -28,7 +28,7 @@ public:
     explicit BigInt(const std::string_view &str, int base = 10);
     BigInt() : BigInt(bigint_base_t()) {}
 
-    explicit BigInt(std::vector<bigint_base_t> &&raw_data, Sign sign = Sign::Plus) : data(raw_data), sign(sign)
+    BigInt(std::vector<bigint_base_t> &&raw_data, Sign sign) : data(raw_data), sign(sign)
     {
         normalize();
     }
