@@ -16,10 +16,10 @@ BigInt::BigInt(const std::vector<bigint_base_t> &raw_data, Sign sign) : data(raw
     normalize();
 }
 
-BigInt::BigInt(std::vector<bigint_base_t> &&raw_data, Sign sign) : data(raw_data), sign(sign)
-{
-    normalize();
-}
+// BigInt::BigInt(std::vector<bigint_base_t> &&raw_data, Sign sign) : data(raw_data), sign(sign)
+// {
+//     normalize();
+// }
 
 BigInt::BigInt(const std::string_view &str, int base)
 {
