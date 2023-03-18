@@ -16,6 +16,6 @@ void profile_function(Function f, std::ostream &out, int start, int stop, int re
             const auto end_time = std::chrono::steady_clock::now();
             total += std::chrono::duration_cast<OutDuration>(end_time - start_time).count();
         }
-        out << i << " " << total/repeat << std::endl;
+        out << i << "," << total / repeat << std::endl;
     }
 }
