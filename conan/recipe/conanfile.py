@@ -29,9 +29,7 @@ class YabilConan(ConanFile):
         tc.generate()
 
     def source(self):
-        self.run(
-            "git clone --depth 1 --branch performance_measurements https://github.com/Andrew2a1/YABIL.git ."
-        )
+        self.run("git clone --depth 1 https://github.com/Andrew2a1/YABIL.git .")
 
     def build(self):
         cmake = CMake(self)
