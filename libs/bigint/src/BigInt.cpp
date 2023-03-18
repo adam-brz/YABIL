@@ -461,19 +461,6 @@ BigInt BigInt::operator^(const BigInt &other) const
     return BigInt(std::move(result_data), (sign != other.sign) ? Sign::Minus : Sign::Plus);
 }
 
-BigInt BigInt::plain_shift_left(BigInt shift) const
-{
-    BigInt result(*this);
-    while (!shift.is_zero())
-    {
-        const bigint_base_t shift_val =
-            (shift.data.front() != 0) ? shift.data.front() : std::numeric_limits<bigint_base_t>::max();
-        result <<= shift_val;
-        shift -= BigInt(shift_val);
-    }
-    return result;
-}
-
 BigInt BigInt::operator<<(uint64_t shift) const
 {
     const uint64_t new_items_count = shift / (sizeof(bigint_base_t) * 8);
@@ -494,19 +481,6 @@ BigInt BigInt::operator<<(uint64_t shift) const
 
     shifted.back() = shifted_val;
     return BigInt(std::move(shifted), sign);
-}
-
-BigInt BigInt::plain_shift_right(BigInt shift) const
-{
-    BigInt result(*this);
-    while (!shift.is_zero())
-    {
-        const bigint_base_t shift_val =
-            (shift.data.front() != 0) ? shift.data.front() : std::numeric_limits<bigint_base_t>::max();
-        result >>= shift_val;
-        shift -= BigInt(shift_val);
-    }
-    return result;
 }
 
 BigInt BigInt::operator>>(uint64_t shift) const

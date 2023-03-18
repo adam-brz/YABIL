@@ -295,9 +295,6 @@ private:
     BigInt pow_recursive(const BigInt &n) const;
     std::pair<BigInt, BigInt> divide_unsigned(const BigInt &other) const;
 
-    BigInt plain_shift_left(BigInt shift) const;
-    BigInt plain_shift_right(BigInt shift) const;
-
     BigInt plain_add(const BigInt &other) const;
     BigInt plain_sub(const BigInt &other) const;
 
