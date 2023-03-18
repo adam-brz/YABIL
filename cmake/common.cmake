@@ -12,7 +12,9 @@ macro(setup_testing)
 endmacro()
 
 macro(setup_conan)
-    include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
+    if(YABIL_ENABLE_TESTS)
+        include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
+    endif()
 endmacro()
 
 function(set_common_properties TARGET)
@@ -43,10 +45,13 @@ function(set_common_properties TARGET)
         set_target_properties(${TARGET} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
     endif()
 
-    install(TARGETS ${TARGET}
-        EXPORT "${CMAKE_PROJECT_NAME}Targets"
-        FILE_SET HEADERS
-    )
+    get_target_property(IS_TEST_TARGET ${TARGET} IS_TEST_TARGET)
+    if(NOT IS_TEST_TARGET)
+        install(TARGETS ${TARGET}
+            EXPORT "${CMAKE_PROJECT_NAME}Targets"
+            FILE_SET HEADERS
+        )
+    endif()
 endfunction()
 
 function(add_coverage TARGET)
@@ -70,6 +75,11 @@ function(add_test_target TARGET)
     add_executable(${TEST_TARGET} ${ARGN})
     target_link_libraries(${TEST_TARGET} PRIVATE ${TARGET} GTest::gtest GTest::gtest_main)
 
+    set_target_properties(${TEST_TARGET} PROPERTIES IS_TEST_TARGET TRUE)
+    setup_test_target(${TEST_TARGET})
+endfunction()
+
+function(setup_test_target TEST_TARGET)
     if (MSVC)
         set_target_properties(${TEST_TARGET} PROPERTIES LINK_FLAGS "/ignore:4099")
     endif()

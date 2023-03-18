@@ -1,17 +1,18 @@
 project(crypto C CXX)
 
 set(SOURCES
-    src/crypto.cpp
+    src/Utils.cpp
 )
 
 set(HEADERS
-    include/yabil/crypto/crypto.h
+    include/yabil/crypto/Utils.h
 )
 
 set(TESTS
 )
 
 add_library(${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME} PRIVATE bigint)
 
 target_sources(${PROJECT_NAME}
     PRIVATE ${SOURCES}
