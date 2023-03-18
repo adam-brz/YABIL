@@ -105,11 +105,6 @@ BigInt BigInt::abs() const
     return BigInt(data, Sign::Plus);
 }
 
-bigint_base_t BigInt::value_at(std::size_t index) const
-{
-    return index < data.size() ? data.at(index) : 0;
-}
-
 const std::vector<bigint_base_t> &BigInt::raw_data() const
 {
     return data;
@@ -231,7 +226,7 @@ std::pair<BigInt, BigInt> BigInt::divide_unsigned(const BigInt &other) const
     for (int64_t i = bits - 1; i >= 0; --i)
     {
         remainder <<= 1;
-        remainder.set_bit(0, !!get_bit(static_cast<std::size_t>(i)));
+        remainder.set_bit(0, get_bit(static_cast<std::size_t>(i)));
         if (remainder >= other)
         {
             remainder -= other;
@@ -385,7 +380,7 @@ std::pair<BigInt, BigInt> BigInt::divide(const BigInt &other) const
     return divide_unsigned(other);
 }
 
-uint8_t BigInt::get_bit(std::size_t n) const
+bool BigInt::get_bit(std::size_t n) const
 {
     const auto item_index = n / (sizeof(bigint_base_t) * 8);
     const auto bit_index = n % (sizeof(bigint_base_t) * 8);
@@ -466,16 +461,6 @@ BigInt BigInt::operator^(const BigInt &other) const
     return BigInt(std::move(result_data), (sign != other.sign) ? Sign::Minus : Sign::Plus);
 }
 
-BigInt BigInt::operator<<(const BigInt &shift) const
-{
-    return (shift.sign == Sign::Minus) ? plain_shift_right(shift.abs()) : plain_shift_left(shift);
-}
-
-BigInt BigInt::operator>>(const BigInt &shift) const
-{
-    return (shift.sign == Sign::Minus) ? plain_shift_left(shift.abs()) : plain_shift_right(shift);
-}
-
 BigInt BigInt::plain_shift_left(BigInt shift) const
 {
     BigInt result(*this);
@@ -489,15 +474,15 @@ BigInt BigInt::plain_shift_left(BigInt shift) const
     return result;
 }
 
-BigInt BigInt::operator<<(bigint_base_t shift) const
+BigInt BigInt::operator<<(uint64_t shift) const
 {
-    const bigint_base_t new_items_count = shift / (sizeof(bigint_base_t) * 8);
-    const bigint_base_t real_shift = shift % (sizeof(bigint_base_t) * 8);
+    const uint64_t new_items_count = shift / (sizeof(bigint_base_t) * 8);
+    const uint64_t real_shift = shift % (sizeof(bigint_base_t) * 8);
 
     std::vector<bigint_base_t> shifted(new_items_count + data.size() + 1, 0);
     bigint_base_t shifted_val = 0;
 
-    std::transform(data.cbegin(), data.cend(), shifted.begin() + new_items_count,
+    std::transform(data.cbegin(), data.cend(), shifted.begin() + static_cast<int>(new_items_count),
                    [real_shift, &shifted_val](const bigint_base_t &v)
                    {
                        const bigint_base_t transformed = (v << real_shift) | shifted_val;
@@ -524,10 +509,10 @@ BigInt BigInt::plain_shift_right(BigInt shift) const
     return result;
 }
 
-BigInt BigInt::operator>>(bigint_base_t shift) const
+BigInt BigInt::operator>>(uint64_t shift) const
 {
-    const bigint_base_t removed_items_count = shift / (sizeof(bigint_base_t) * 8);
-    const bigint_base_t real_shift = shift % (sizeof(bigint_base_t) * 8);
+    const uint64_t removed_items_count = shift / (sizeof(bigint_base_t) * 8);
+    const uint64_t real_shift = shift % (sizeof(bigint_base_t) * 8);
 
     if (removed_items_count >= data.size())
     {
@@ -538,7 +523,7 @@ BigInt BigInt::operator>>(bigint_base_t shift) const
     bigint_base_t shifted_val = 0;
 
     std::transform(
-        data.crbegin(), data.crend() - removed_items_count, shifted.rbegin(),
+        data.crbegin(), data.crend() - static_cast<int>(removed_items_count), shifted.rbegin(),
         [real_shift, &shifted_val](const bigint_base_t &v)
         {
             const bigint_base_t transformed = (v >> real_shift) | shifted_val;
@@ -562,11 +547,6 @@ BigInt BigInt::operator~() const
     std::vector<bigint_base_t> result_data(data.size());
     std::transform(data.cbegin(), data.cend(), result_data.begin(), [](const auto &v) { return ~v; });
     return BigInt(std::move(result_data), (sign == Sign::Plus) ? Sign::Minus : Sign::Plus);
-}
-
-bool BigInt::operator!() const
-{
-    return !static_cast<bool>(*this);
 }
 
 BigInt &BigInt::operator+=(const BigInt &other)
@@ -609,22 +589,12 @@ BigInt &BigInt::operator^=(const BigInt &other)
     return *this = *this ^ other;
 }
 
-BigInt &BigInt::operator<<=(const BigInt &shift)
+BigInt &BigInt::operator<<=(uint64_t shift)
 {
     return *this = *this << shift;
 }
 
-BigInt &BigInt::operator>>=(const BigInt &shift)
-{
-    return *this = *this >> shift;
-}
-
-BigInt &BigInt::operator<<=(bigint_base_t shift)
-{
-    return *this = *this << shift;
-}
-
-BigInt &BigInt::operator>>=(bigint_base_t shift)
+BigInt &BigInt::operator>>=(uint64_t shift)
 {
     return *this = *this >> shift;
 }

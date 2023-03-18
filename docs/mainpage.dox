@@ -1,0 +1,25 @@
+/*!
+
+\mainpage YABIL Documentation
+\section intro_section Introduction
+
+Yet another big integer library (YABIL) is a library created to support operations for arbitrary length integer numbers.
+
+This library is created for research purposes. If you look for high-performance and well tested solutions see:
+- gmp https://gmplib.org/
+- openssl https://github.com/openssl/openssl
+
+Library consists of two different comonents \ref yabil::bigint and \ref yabil::crypto, where:
+- \ref yabil::bigint - provides basic BigInt class for representing big integer and supports basic operations
+- \ref yabil::crypto - provides cryptographic-related functionalities which uses big integers
+
+\section install_section Installation
+\subsection install_step1 Step 1: WIP
+
+etc...
+
+\section see_also_section See also
+
+Coverage: https://andrew2a1.github.io/YABIL/coverage_report
+
+*/

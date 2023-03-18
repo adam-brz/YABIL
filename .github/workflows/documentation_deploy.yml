@@ -53,13 +53,24 @@ jobs:
           curl -o build/coverage/coverage_report/badge.svg -L "https://img.shields.io/badge/Coverage-${coverage}%25-${color}"
           chmod 0755 -R 'build/coverage/coverage_report'
 
+      - name: Generate documentation
+        run: |
+          doxygen docs/Doxyfile 2| tee warnings.log
+          if [[ -n "$(cat warnings.log)" ]]; then
+            echo "::error ::Doxygen generated warnings"
+            exit 1
+          fi
+
+      - name: Move documentation files
+        run: mv build/coverage/coverage_report build/docs/html/coverage_report
+
       - name: Setup Pages
         uses: actions/configure-pages@v3
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: 'build/coverage/coverage_report'
+          path: 'build/docs/html'
 
       - name: Deploy to GitHub Pages
         id: deployment
