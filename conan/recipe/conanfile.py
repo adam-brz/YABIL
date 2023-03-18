@@ -1,5 +1,5 @@
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 
 
 required_conan_version = ">=1.54.0"
@@ -27,7 +27,6 @@ class YabilConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["YABIL_ENABLE_TESTS"] = "OFF"
         tc.generate()
-        CMakeDeps(self).generate()
 
     def source(self):
         self.run("git clone --depth 1 https://github.com/Andrew2a1/YABIL.git .")
@@ -51,4 +50,7 @@ class YabilConan(ConanFile):
             self.cpp_info.components[conan_component].set_property(
                 "cmake_file_name", conan_component
             )
-            self.cpp_info.components[conan_component].libs = ["bigint"]
+
+            self.cpp_info.components[conan_component].libs = [conan_component]
+
+        self.cpp_info.components["crypto"].requires = ["bigint"]

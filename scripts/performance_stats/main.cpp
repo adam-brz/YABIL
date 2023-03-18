@@ -14,11 +14,12 @@ void gmp_factorial(int n)
 
 void yabil_factorial(int n)
 {
-    yabil::crypto::factorial(static_cast<int>(n));
+    yabil::crypto::utils::factorial(n);
 }
 
 int main()
 {
     profile_function(gmp_factorial, std::cout, 0, 200, 4);
+    profile_function(yabil_factorial, std::cout, 0, 200, 4);
     return 0;
 }
