@@ -12,7 +12,9 @@ macro(setup_testing)
 endmacro()
 
 macro(setup_conan)
-    include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
+    if(YABIL_ENABLE_TESTS)
+        include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
+    endif()
 endmacro()
 
 function(set_common_properties TARGET)
