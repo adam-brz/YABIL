@@ -490,7 +490,7 @@ BigInt BigInt::operator>>(uint64_t shift) const
 
     if (removed_items_count >= data.size())
     {
-        return BigInt(0U, sign);
+        return BigInt();
     }
 
     std::vector<bigint_base_t> shifted(data.size() - removed_items_count, 0);
