@@ -6,5 +6,6 @@ Checks: >
   portability-*,
   -misc-non-private-member-variables-in-classes,
   -misc-no-recursion,
-  -bugprone-sizeof-expression
+  -bugprone-sizeof-expression,
+  -bugprone-easily-swappable-parameters
 WarningsAsErrors: "*"

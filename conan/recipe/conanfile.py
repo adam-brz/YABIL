@@ -51,10 +51,4 @@ class YabilConan(ConanFile):
             self.cpp_info.components[conan_component].set_property(
                 "cmake_file_name", conan_component
             )
-            self.cpp_info.components[conan_component].names[
-                "cmake_find_package"
-            ] = conan_component
-            self.cpp_info.components[conan_component].names[
-                "cmake_find_package_multi"
-            ] = conan_component
             self.cpp_info.components[conan_component].libs = ["bigint"]
