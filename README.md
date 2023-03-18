@@ -5,7 +5,7 @@
 [![Test on Windows (MSVC 17)](https://github.com/Andrew2a1/YABIL/actions/workflows/windows_mcvc_test.yml/badge.svg?branch=master)](https://github.com/Andrew2a1/YABIL/actions/workflows/windows_mcvc_test.yml)
 [![Code Analysis](https://github.com/Andrew2a1/YABIL/actions/workflows/code_analysis.yml/badge.svg?branch=master)](https://github.com/Andrew2a1/YABIL/actions/workflows/code_analysis.yml)
 [![Coverage](https://andrew2a1.github.io/YABIL/coverage_report/badge.svg)](https://andrew2a1.github.io/YABIL/coverage_report)
-[![License](https://raw.githubusercontent.com/Andrew2a1/YABIL/master/docs/license_badge.svg)](https://github.com/Andrew2a1/YABIL/blob/master/LICENSE.txt)
-[![Documentation](https://raw.githubusercontent.com/Andrew2a1/YABIL/master/docs/documentation_badge.svg)](https://andrew2a1.github.io/YABIL)
+[![License](https://raw.githubusercontent.com/Andrew2a1/YABIL/master/docs/badges/license_badge.svg)](https://github.com/Andrew2a1/YABIL/blob/master/LICENSE.txt)
+[![Documentation](https://raw.githubusercontent.com/Andrew2a1/YABIL/master/docs/badges/documentation_badge.svg)](https://andrew2a1.github.io/YABIL)
 
 WIP
