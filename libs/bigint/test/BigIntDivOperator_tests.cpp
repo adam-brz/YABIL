@@ -181,3 +181,23 @@ TEST_F(BigIntDivOperator_tests, noReminderTestMinusMinus)
     ASSERT_EQ(expected_quotioent, quotient);
     ASSERT_EQ(expected_remainder, remainder);
 }
+
+TEST_F(BigIntDivOperator_tests, inPlaceDivision)
+{
+    BigInt big_int1(-2048);
+    BigInt big_int2(-2);
+
+    big_int1 /= big_int2;
+
+    ASSERT_EQ(1024, big_int1.to_int());
+}
+
+TEST_F(BigIntDivOperator_tests, inPlaceModulo)
+{
+    BigInt big_int1(2049);
+    BigInt big_int2(2);
+
+    big_int1 %= big_int2;
+
+    ASSERT_EQ(1, big_int1.to_int());
+}

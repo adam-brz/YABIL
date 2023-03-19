@@ -172,7 +172,7 @@ bool BigInt::operator<(const BigInt &other) const
     }
     if (sign == Sign::Minus && other.sign == Sign::Plus)
     {
-        return !is_zero() || !other.is_zero();
+        return true;
     }
     return false;
 }

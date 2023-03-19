@@ -23,6 +23,12 @@ TEST_F(BigIntConstructorTest, canConstructBigIntFromSignedNumber)
     [[maybe_unused]] const BigInt big_int1(-192931829LL);
 }
 
+TEST_F(BigIntConstructorTest, emptyStringCreatesNUmberZero)
+{
+    const BigInt big_int1("");
+    ASSERT_EQ(0, big_int1.to_int());
+}
+
 TEST_F(BigIntConstructorTest, stringToBigInt)
 {
     const BigInt big_int1("14241");
