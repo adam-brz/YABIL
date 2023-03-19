@@ -27,6 +27,12 @@ TEST_F(BigIntNotOperator_tests, bitwiseNotChangesZerosToOnesAndBackwards)
     ASSERT_EQ(-4042322160LL, (~big_int1).to_int());
 }
 
+TEST_F(BigIntNotOperator_tests, bitwiseNotChangesSign)
+{
+    const BigInt big_int1(-0x0f0f0f0f);
+    ASSERT_EQ(4042322160LL, (~big_int1).to_int());
+}
+
 TEST_F(BigIntNotOperator_tests, booleanNotReturnsFalseForZero)
 {
     const BigInt big_int1, big_int2(0U, Sign::Minus);

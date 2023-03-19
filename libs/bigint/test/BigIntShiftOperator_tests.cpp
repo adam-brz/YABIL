@@ -140,3 +140,47 @@ TEST_F(BigIntShiftOperator_tests, shiftRightLongNumberByLongDistanceNotAligned)
 
     ASSERT_EQ(expected, (big_int >> shift).raw_data());
 }
+
+TEST_F(BigIntShiftOperator_tests, inPlaceLeftShift)
+{
+    BigInt big_int(0b11001101);
+    big_int <<= 5;
+    ASSERT_EQ(0b1100110100000, big_int.to_int());
+}
+
+TEST_F(BigIntShiftOperator_tests, inPlaceRightShift)
+{
+    BigInt big_int(0b11001101);
+    big_int >>= 5;
+    ASSERT_EQ(0b110, big_int.to_int());
+}
+
+TEST_F(BigIntShiftOperator_tests, inPlaceLeftShiftLongNumberByLongDistance)
+{
+    BigInt big_int(std::vector<bigint_base_t>{std::numeric_limits<bigint_base_t>::max(), 0,
+                                              std::numeric_limits<bigint_base_t>::max()});
+
+    const unsigned shift(sizeof(bigint_base_t) * 8 * 2);
+    big_int <<= shift;
+
+    const std::vector<bigint_base_t> expected = {0, 0, std::numeric_limits<bigint_base_t>::max(), 0,
+                                                 std::numeric_limits<bigint_base_t>::max()};
+
+    ASSERT_EQ(expected, (big_int).raw_data());
+}
+
+TEST_F(BigIntShiftOperator_tests, inPlaceShiftRightLongNumber)
+{
+    BigInt big_int(std::vector<bigint_base_t>{std::numeric_limits<bigint_base_t>::max(), 0,
+                                              std::numeric_limits<bigint_base_t>::max()});
+
+    const unsigned shift(sizeof(bigint_base_t) * 8 / 2);
+    big_int >>= shift;
+
+    const std::vector<bigint_base_t> expected = {
+        std::numeric_limits<bigint_base_t>::max() >> (sizeof(bigint_base_t) * 8 / 2),
+        std::numeric_limits<bigint_base_t>::max() << (sizeof(bigint_base_t) * 8 / 2),
+        std::numeric_limits<bigint_base_t>::max() >> (sizeof(bigint_base_t) * 8 / 2)};
+
+    ASSERT_EQ(expected, (big_int).raw_data());
+}

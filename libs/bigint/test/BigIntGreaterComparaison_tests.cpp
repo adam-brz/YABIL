@@ -66,3 +66,27 @@ TEST_F(BigIntGreaterComparaison_tests, checkGreaterNegativeAndPositive)
     const BigInt big_int1(-20), big_int2(22);
     ASSERT_GT(big_int2, big_int1);
 }
+
+TEST_F(BigIntGreaterComparaison_tests, checkGreaterPositiveAndNegative)
+{
+    const BigInt big_int1(0), big_int2(-22);
+    ASSERT_FALSE(big_int2 > big_int1);
+}
+
+TEST_F(BigIntGreaterComparaison_tests, checkGreaterOrEqualPositiveAndNegative)
+{
+    const BigInt big_int1(0), big_int2(-1);
+    ASSERT_TRUE(big_int1 >= big_int2);
+}
+
+TEST_F(BigIntGreaterComparaison_tests, checkGreaterOrEqualTwoPositive)
+{
+    const BigInt big_int1(0), big_int2(1);
+    ASSERT_FALSE(big_int1 >= big_int2);
+}
+
+TEST_F(BigIntGreaterComparaison_tests, checkGreaterOrEqualTwoTheSame)
+{
+    const BigInt big_int1(1), big_int2(1);
+    ASSERT_TRUE(big_int1 >= big_int2);
+}

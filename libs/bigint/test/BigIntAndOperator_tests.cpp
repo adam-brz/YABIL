@@ -53,3 +53,9 @@ TEST_F(BigIntAndOperator_tests, andShouldLeaveCommonOnesForLongNumbers_2)
     big_int1 &= big_int2;
     ASSERT_EQ(expected, big_int1.raw_data());
 }
+
+TEST_F(BigIntAndOperator_tests, twoNegativeNumbersShouldResultInNegative)
+{
+    const BigInt big_int1(-0b01010101010), big_int2(-0b01010101010);
+    ASSERT_EQ(BigInt(-0b01010101010), (big_int1 & big_int2));
+}

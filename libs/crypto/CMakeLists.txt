@@ -9,10 +9,11 @@ set(HEADERS
 )
 
 set(TESTS
+    test/UtilsFactorial_tests.cpp
 )
 
 add_library(${PROJECT_NAME})
-target_link_libraries(${PROJECT_NAME} PRIVATE bigint)
+target_link_libraries(${PROJECT_NAME} PUBLIC bigint)
 
 target_sources(${PROJECT_NAME}
     PRIVATE ${SOURCES}
