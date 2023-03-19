@@ -2,6 +2,7 @@
 #include <yabil/bigint/BigInt.h>
 
 #include <sstream>
+#include <stdexcept>
 
 using namespace yabil::bigint;
 
@@ -92,4 +93,18 @@ TEST_F(BigIntStreamOperator_tests, longStringToBigIntWithSign)
 
     ASSERT_EQ(Sign::Minus, big_int.get_sign());
     ASSERT_EQ(expected, big_int.raw_data());
+}
+
+TEST_F(BigIntStreamOperator_tests, invalidStringShouldThrowException)
+{
+    std::istringstream iss("-129+1");
+    BigInt big_int;
+    ASSERT_THROW(iss >> big_int, std::invalid_argument);
+}
+
+TEST_F(BigIntStreamOperator_tests, invalidStringShouldThrowException_2)
+{
+    std::istringstream iss("Z1291");
+    BigInt big_int;
+    ASSERT_THROW(iss >> big_int, std::invalid_argument);
 }
