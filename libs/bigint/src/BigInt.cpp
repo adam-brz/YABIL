@@ -11,6 +11,32 @@
 namespace yabil::bigint
 {
 
+namespace
+{
+
+int get_digit_value(int digit)
+{
+    if (digit >= 'a' && digit <= 'f') return digit - 'a' + 10;
+    return digit - '0';
+}
+
+char get_digit_char(int digit)
+{
+    if (digit >= 10 && digit <= 16) return static_cast<char>(digit + 'a' - 10);
+    return static_cast<char>(digit + '0');
+}
+
+void check_conversion(char chr, int converted, int base)
+{
+    if (converted < 0 || converted > base)
+    {
+        throw std::invalid_argument("Cannot convert character: " + std::string(1, chr) +
+                                    " to number of base: " + std::to_string(base));
+    }
+}
+
+}  // namespace
+
 BigInt::BigInt(const std::vector<bigint_base_t> &raw_data, Sign sign) : data(raw_data), sign(sign)
 {
     normalize();
@@ -23,21 +49,30 @@ BigInt::BigInt(std::vector<bigint_base_t> &&raw_data, Sign sign) : data(raw_data
 
 BigInt::BigInt(const std::string_view &str, int base)
 {
-    sign = (str.front() == '-') ? Sign::Minus : Sign::Plus;
-    bool hasSign = (str.front() == '-') || (str.front() == '+');
-
-    std::size_t i = 0;
-    for (auto str_it = str.crbegin(); str_it != str.crend() - (hasSign ? 1 : 0); ++str_it)
+    if (str.size() == 0)
     {
-        const auto converted = get_digit_value(std::tolower(*str_it));
-        if (converted < 0 || converted > base)
-        {
-            throw std::invalid_argument("Cannot convert character: " + std::string(1, *str_it) + " at pos: " +
-                                        std::to_string(i) + " to number of base: " + std::to_string(base));
-        }
-        data = plain_add(BigInt(base).pow(BigInt(i)) * BigInt(converted)).data;
-        ++i;
+        return;
     }
+
+    const char first = str.front();
+    const bool hasSign = (first == '-') || (first == '+');
+
+    if (!hasSign)
+    {
+        const int converted = get_digit_value(std::tolower(first));
+        check_conversion(first, converted, base);
+        data.push_back(converted);
+    }
+
+    for (auto it = str.cbegin() + 1; it != str.cend(); ++it)
+    {
+        const int converted = get_digit_value(std::tolower(*it));
+        check_conversion(*it, converted, base);
+        *this *= BigInt(base);
+        *this += BigInt(converted);
+    }
+
+    sign = (first == '-') ? Sign::Minus : Sign::Plus;
 }
 
 void BigInt::normalize()
@@ -573,18 +608,6 @@ BigInt &BigInt::operator>>=(uint64_t shift)
     return *this = *this >> shift;
 }
 
-int BigInt::get_digit_value(int digit) const
-{
-    if (digit >= 'a' && digit <= 'f') return digit - 'a' + 10;
-    return digit - '0';
-}
-
-char BigInt::get_digit_char(int digit) const
-{
-    if (digit >= 10 && digit <= 16) return static_cast<char>(digit + 'a' - 10);
-    return static_cast<char>(digit + '0');
-}
-
 std::pair<const BigInt *, const BigInt *> BigInt::get_longer_and_shorter(const BigInt &num1, const BigInt &num2)
 {
     if (num1.raw_data().size() > num2.raw_data().size())
@@ -592,6 +615,44 @@ std::pair<const BigInt *, const BigInt *> BigInt::get_longer_and_shorter(const B
         return {&num1, &num2};
     }
     return {&num2, &num1};
+}
+
+std::ostream &operator<<(std::ostream &out, const BigInt &bigint)
+{
+    out << bigint.to_str();
+    return out;
+}
+
+std::istream &operator>>(std::istream &in, BigInt &bigint)
+{
+    constexpr int base = 10;
+
+    char first;
+    in >> first;
+
+    const Sign sign = (first == '-') ? Sign::Minus : Sign::Plus;
+    const bool hasSign = (first == '-') || (first == '+');
+
+    BigInt result;
+    if (!hasSign)
+    {
+        int converted = get_digit_value(std::tolower(first));
+        check_conversion(first, converted, base);
+        result = BigInt(converted);
+    }
+
+    for (auto it = std::istreambuf_iterator<char>(in); it != std::istreambuf_iterator<char>(); ++it)
+    {
+        const auto converted = get_digit_value(std::tolower(*it));
+        check_conversion(*it, converted, base);
+        result *= BigInt(base);
+        result += BigInt(converted);
+    }
+
+    result.sign = sign;
+    bigint = std::move(result);
+
+    return in;
 }
 
 }  // namespace yabil::bigint
