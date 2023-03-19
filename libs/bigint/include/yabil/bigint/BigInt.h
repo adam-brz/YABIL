@@ -279,10 +279,14 @@ public:
     BigInt &operator>>=(uint64_t shift);
 
     /// @brief Casts number to boolean value
+    /// @return \p true if number is non-zero and \p false otherwise
     explicit operator bool() const
     {
         return !is_zero();
     }
+
+    friend std::ostream &operator<<(std::ostream &out, const BigInt &bigint);
+    friend std::istream &operator>>(std::istream &in, BigInt &bigint);
 
 private:
     void normalize();
@@ -297,9 +301,6 @@ private:
 
     BigInt plain_add(const BigInt &other) const;
     BigInt plain_sub(const BigInt &other) const;
-
-    int get_digit_value(int digit) const;
-    char get_digit_char(int digit) const;
 
     static std::pair<const BigInt *, const BigInt *> get_longer_and_shorter(const BigInt &num1, const BigInt &num2);
 };

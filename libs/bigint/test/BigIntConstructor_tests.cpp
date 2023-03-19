@@ -59,3 +59,13 @@ TEST_F(BigIntConstructorTest, longStringInBase16ToBigIntWithSign)
     ASSERT_EQ(Sign::Plus, big_int1.get_sign());
     ASSERT_EQ(expected, big_int1.raw_data());
 }
+
+TEST_F(BigIntConstructorTest, invalidStringShouldThrowException)
+{
+    ASSERT_THROW(BigInt("-129+1"), std::invalid_argument);
+}
+
+TEST_F(BigIntConstructorTest, invalidStringShouldThrowException_2)
+{
+    ASSERT_THROW(BigInt("Z1291"), std::invalid_argument);
+}
