@@ -60,7 +60,7 @@ jobs:
       - name: Run CppCheck
         run:
           cppcheck --project=build/compile_commands.json --enable=all --error-exitcode=1
-          --suppress=missingInclude:* --suppress=unusedFunction:*
+          --suppress=missingInclude:*
 
       - name: Compile project
         working-directory: build
