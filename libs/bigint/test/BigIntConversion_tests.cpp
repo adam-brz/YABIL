@@ -93,3 +93,12 @@ TEST_F(BigIntConversionTest, canConvertToStringInBase16)
     const BigInt big_int2("-91283910102313201023731947875192120001");
     ASSERT_EQ("-44aca43f496af1de1ee4cd728589a2c1", big_int2.to_str(16));
 }
+
+TEST_F(BigIntConversionTest, canGetAbsoluteValue)
+{
+    const BigInt big_int1("12381290381928309115962312309132093");
+    ASSERT_EQ("12381290381928309115962312309132093", big_int1.abs().to_str());
+
+    const BigInt big_int2("-91283910102313201023731947875192120001");
+    ASSERT_EQ("91283910102313201023731947875192120001", big_int2.abs().to_str());
+}
