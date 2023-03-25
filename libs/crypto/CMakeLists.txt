@@ -10,6 +10,7 @@ set(HEADERS
 
 set(TESTS
     test/UtilsFactorial_tests.cpp
+    test/UtilsLog_tests.cpp
 )
 
 add_library(${PROJECT_NAME})

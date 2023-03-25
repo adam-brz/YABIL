@@ -25,8 +25,8 @@ int main()
     std::ofstream gmp_out("gmp_factorial.csv");
     std::ofstream yabil_out("yabil_factorial.csv");
 
-    profile_function(gmp_factorial, gmp_out, 0, 1000, 4);
-    profile_function(yabil_factorial, yabil_out, 0, 1000, 4);
+    profile_function(gmp_factorial, gmp_out, 0, 1000, 200);
+    profile_function(yabil_factorial, yabil_out, 0, 1000, 200);
 
     return 0;
 }
