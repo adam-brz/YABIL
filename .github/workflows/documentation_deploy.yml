@@ -41,7 +41,7 @@ jobs:
       - name: Parse coverage results
         run: |
           coverage=$(cat coverage_percent.txt)
-          coverage_val=$(echo "${coverage}" | grep -Eow "^[0-9]{1-3}")
+          coverage_val=$(echo "${coverage}" | grep -Eow "^[0-9]{1,3}")
 
           color="brightgreen"
           if [[ "${coverage_val}" -lt "50" ]]; then
@@ -70,7 +70,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: 'build/docs/html'
+          path: "build/docs/html"
 
       - name: Deploy to GitHub Pages
         id: deployment
