@@ -40,11 +40,18 @@ double log2(const yabil::bigint::BigInt &number)
     const auto bit_shift_quotient_removal = std::countl_zero(number.raw_data().back()) + 1;
     uint64_t raw_fraction = 0;
 
-    for (int i = 0; i < result_iter_count && i < static_cast<int>(number.raw_data().size()); ++i)
+    int i;
+    for (i = 0; i < result_iter_count && i < static_cast<int>(number.raw_data().size()); ++i)
     {
         const uint64_t fraction_part = static_cast<uint64_t>(number.raw_data()[number.raw_data().size() - 1 - i])
                                        << bit_shift_quotient_removal;
         raw_fraction |= fraction_part << (64 - (i + 1) * item_size_bits);
+    }
+
+    if (i < static_cast<int>(number.raw_data().size()))
+    {
+        raw_fraction |= static_cast<uint64_t>(number.raw_data()[number.raw_data().size() - 1 - i]) >>
+                        (item_size_bits - bit_shift_quotient_removal);
     }
 
     raw_fraction = (raw_fraction >> 12) | 0x3ff0000000000000;
@@ -55,6 +62,11 @@ double log2(const yabil::bigint::BigInt &number)
 double log(const yabil::bigint::BigInt &number, const yabil::bigint::BigInt &base)
 {
     return log2(number) / log2(base);
+}
+
+double log(const yabil::bigint::BigInt &number, double base)
+{
+    return log2(number) / std::log2(base);
 }
 
 }  // namespace yabil::crypto::utils

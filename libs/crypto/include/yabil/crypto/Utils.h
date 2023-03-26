@@ -24,9 +24,12 @@ uint64_t log2_int(const yabil::bigint::BigInt &number);
 double log2(const yabil::bigint::BigInt &number);
 
 /// @brief Calculate logarithm for specified number and logarithm base.
-/// @param number \p BigInt Number to calculate logarithm for
-/// @param base \p BigInt Base of the logarithm
+/// @param number Number to calculate logarithm for
+/// @param base Base of the logarithm
 /// @return Logarithm result
 double log(const yabil::bigint::BigInt &number, const yabil::bigint::BigInt &base = yabil::bigint::BigInt(10));
+
+/// @copydoc yabil::crypto::utils::log(const yabil::bigint::BigInt &, const yabil::bigint::BigInt &)
+double log(const yabil::bigint::BigInt &number, double base);
 
 }  // namespace yabil::crypto::utils
