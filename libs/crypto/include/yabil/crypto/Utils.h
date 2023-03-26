@@ -32,4 +32,9 @@ double log(const yabil::bigint::BigInt &number, const yabil::bigint::BigInt &bas
 /// @copydoc yabil::crypto::utils::log(const yabil::bigint::BigInt &, const yabil::bigint::BigInt &)
 double log(const yabil::bigint::BigInt &number, double base = 10);
 
+/// @brief Generate large pseudo-random integer.
+/// @param number_of_bits Number of bits to generate
+/// @return Random \p BigInt
+yabil::bigint::BigInt random_bigint(uint64_t number_of_bits = 64);
+
 }  // namespace yabil::crypto::utils

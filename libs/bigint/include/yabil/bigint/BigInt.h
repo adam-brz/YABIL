@@ -30,7 +30,7 @@ private:
 
 public:
     /// @brief Creates BigInt initialized to 0.
-    BigInt() {}
+    constexpr BigInt() = default;
 
     /// @brief Creates BigInt from string.
     /// @param str String representation of the number.

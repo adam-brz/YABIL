@@ -3,7 +3,9 @@
 #include <bit>
 #include <cmath>
 #include <cstring>
+#include <random>
 #include <stdexcept>
+#include <vector>
 
 namespace yabil::crypto::utils
 {
@@ -67,6 +69,32 @@ double log(const yabil::bigint::BigInt &number, const yabil::bigint::BigInt &bas
 double log(const yabil::bigint::BigInt &number, double base)
 {
     return log2(number) / std::log2(base);
+}
+
+yabil::bigint::BigInt random_bigint(uint64_t number_of_bits)
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::bernoulli_distribution dist(0.5);
+    std::vector<yabil::bigint::bigint_base_t> raw_bigint_data;
+
+    constexpr size_t chunk_size = sizeof(yabil::bigint::bigint_base_t) * 8;
+    const size_t bigint_chunks_count = number_of_bits / chunk_size + 1;
+    raw_bigint_data.reserve(bigint_chunks_count);
+
+    size_t total_bits = 0;
+    for (size_t i = 0; i < bigint_chunks_count; i++)
+    {
+        yabil::bigint::bigint_base_t chunk = 0;
+        for (size_t j = 0; j < chunk_size && total_bits < number_of_bits; ++j)
+        {
+            chunk |= static_cast<yabil::bigint::bigint_base_t>(dist(gen)) << j;
+            ++total_bits;
+        }
+        raw_bigint_data.push_back(chunk);
+    }
+
+    return yabil::bigint::BigInt(std::move(raw_bigint_data));
 }
 
 }  // namespace yabil::crypto::utils
