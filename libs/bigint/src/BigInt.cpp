@@ -209,6 +209,11 @@ bool BigInt::operator>=(const BigInt &other) const
     return (*this > other) || (*this == other);
 }
 
+bool BigInt::is_uint64() const
+{
+    return byte_size() <= sizeof(int64_t);
+}
+
 bool BigInt::is_zero() const
 {
     return data.size() == 0;

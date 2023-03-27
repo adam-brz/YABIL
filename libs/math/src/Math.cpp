@@ -2,6 +2,7 @@
 
 #include <bit>
 #include <cmath>
+#include <numeric>
 #include <stdexcept>
 
 namespace yabil::math
@@ -147,6 +148,11 @@ yabil::bigint::BigInt gcd(yabil::bigint::BigInt number, yabil::bigint::BigInt ot
     uint64_t common_power_of_2 = std::min(power_of_two_divisor_number, power_of_two_divisor_other);
     number >>= common_power_of_2;
     other >>= common_power_of_2;
+
+    if (number.is_uint64() && other.is_uint64())
+    {
+        return yabil::bigint::BigInt(std::gcd(number.to_int(), other.to_int())) << common_power_of_2;
+    }
 
     while (true)
     {

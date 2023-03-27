@@ -91,6 +91,10 @@ public:
     /// @return \p std::string representation of the number
     std::string to_str(int base = 10) const;
 
+    /// @brief Check if big integer can be represented as \p uint64_t
+    /// @return \p true if numeric value is in \p uint64_t range and \p false otherwise
+    bool is_uint64() const;
+
     /// @brief Check is number is equal to zero.
     /// @return \p true if number is equal to zero and \p false otherwise
     bool is_zero() const;

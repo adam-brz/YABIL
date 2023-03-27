@@ -66,3 +66,13 @@ TEST_F(BigIntComparaison_tests, checkIfIsZeroAfterMultipleOperations)
 {
     ASSERT_TRUE((BigInt(128) >> 128).is_zero());
 }
+
+TEST_F(BigIntComparaison_tests, checkIfCanBeCastedToUInt)
+{
+    ASSERT_TRUE(BigInt(128).is_uint64());
+    ASSERT_TRUE(BigInt().is_uint64());
+    ASSERT_TRUE(BigInt(-291381029381).is_uint64());
+    ASSERT_TRUE(BigInt(std::numeric_limits<uint64_t>::max()).is_uint64());
+    ASSERT_FALSE(BigInt("12908103829030000000000000000000000").is_uint64());
+    ASSERT_FALSE(BigInt("18446744073709551616").is_uint64());
+}
