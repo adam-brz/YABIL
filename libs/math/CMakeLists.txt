@@ -1,21 +1,22 @@
-project(crypto C CXX)
+project(math C CXX)
 
 set(SOURCES
-    src/Random.cpp
-    src/Primes.cpp
-    src/Primes.h
+    src/Math.cpp
 )
 
 set(HEADERS
-    include/yabil/crypto/Random.h
+    include/yabil/math/Math.h
 )
 
 set(TESTS
-    test/Random_tests.cpp
+    test/MathFactorial_tests.cpp
+    test/MathLog_tests.cpp
+    test/MathPowOperator_tests.cpp
+    test/MathGCD_tests.cpp
 )
 
 add_library(${PROJECT_NAME})
-target_link_libraries(${PROJECT_NAME} PUBLIC bigint PRIVATE math)
+target_link_libraries(${PROJECT_NAME} PUBLIC bigint)
 
 target_sources(${PROJECT_NAME}
     PRIVATE ${SOURCES}

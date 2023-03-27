@@ -50,3 +50,19 @@ TEST_F(BigIntComparaison_tests, compareWithDifferentSign)
     const BigInt big_int1(-150), big_int2(150);
     ASSERT_NE(big_int1, big_int2);
 }
+
+TEST_F(BigIntComparaison_tests, checkIfIsZero)
+{
+    ASSERT_TRUE(BigInt().is_zero());
+}
+
+TEST_F(BigIntComparaison_tests, checkIfIsZeroAfterOperation)
+{
+    const BigInt big_int1(-150), big_int2(150);
+    ASSERT_TRUE((big_int1 + big_int2).is_zero());
+}
+
+TEST_F(BigIntComparaison_tests, checkIfIsZeroAfterMultipleOperations)
+{
+    ASSERT_TRUE((BigInt(128) >> 128).is_zero());
+}

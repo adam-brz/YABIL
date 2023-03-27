@@ -103,6 +103,10 @@ public:
     /// @return \p true if number is divisible by 2 and \p false otherwise
     bool is_even() const;
 
+    /// @brief Return internal representation size in bytes.
+    /// @return Number of bytes for number
+    uint64_t byte_size() const;
+
     /// @brief Get internal representation of the number.
     /// @return Reference to \p std::vector<yabil::bigint::bigint_base_t>
     const std::vector<bigint_base_t> &raw_data() const;
@@ -111,6 +115,9 @@ public:
     /// @return \p Sign::Plus if number is positive and \p Sign::Minus otherwise (zero is always considered positive
     /// number)
     Sign get_sign() const;
+
+    /// @brief Set sign of the number.
+    void set_sign(Sign new_sign);
 
     /// @brief Get bit value for specified index.
     /// @param n Index of bit to read
@@ -121,12 +128,6 @@ public:
     /// @param n Index of bit to set
     /// @param bit_value Value to set for bit, \p true for 1 and \p false for 0
     void set_bit(std::size_t n, bool bit_value);
-
-    /// @brief Perform exponentiation.
-    /// @details Raise number to the power of \p n.
-    /// @param n Exponent
-    /// @return \p BigInt result of the exponentiation
-    BigInt pow(const BigInt &n) const;
 
     /// @brief Perform division.
     /// @param other \p BigInt Divisor
@@ -296,7 +297,6 @@ private:
     bool check_abs_lower(const BigInt &other) const;
 
     BigInt basic_mul(const BigInt &other) const;
-    BigInt pow_recursive(const BigInt &n) const;
     std::pair<BigInt, BigInt> divide_unsigned(const BigInt &other) const;
 
     BigInt plain_add(const BigInt &other) const;

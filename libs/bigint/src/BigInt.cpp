@@ -73,6 +73,7 @@ BigInt::BigInt(const std::string_view &str, int base)
     }
 
     sign = (first == '-') ? Sign::Minus : Sign::Plus;
+    normalize();
 }
 
 void BigInt::normalize()
@@ -102,6 +103,11 @@ int64_t BigInt::to_int() const
     return is_negative() ? -result : result;
 }
 
+uint64_t BigInt::byte_size() const
+{
+    return data.size() * sizeof(bigint_base_t);
+}
+
 std::string BigInt::to_str(int base) const
 {
     BigInt number(*this);
@@ -129,12 +135,6 @@ bool BigInt::is_even() const
     return (is_zero()) || ((data.front() & 0x01) == 0);
 }
 
-BigInt BigInt::pow(const BigInt &n) const
-{
-    const auto new_sign = (sign == Sign::Minus && !n.is_even()) ? Sign::Minus : Sign::Plus;
-    return BigInt(pow_recursive(n).data, new_sign);
-}
-
 BigInt BigInt::abs() const
 {
     return BigInt(data, Sign::Plus);
@@ -148,6 +148,11 @@ const std::vector<bigint_base_t> &BigInt::raw_data() const
 Sign BigInt::get_sign() const
 {
     return sign;
+}
+
+void BigInt::set_sign(Sign new_sign)
+{
+    sign = new_sign;
 }
 
 bool BigInt::operator==(const BigInt &other) const
@@ -244,19 +249,10 @@ BigInt BigInt::basic_mul(const BigInt &other) const
     return BigInt(result, (sign == other.sign) ? Sign::Plus : Sign::Minus);
 }
 
-BigInt BigInt::pow_recursive(const BigInt &n) const
-{
-    BigInt one_const(1);
-    if (n.is_zero()) return one_const;
-    if (n == one_const) return *this;
-    if (n.is_even()) return (*this * *this).pow(n >> 1);
-    return (*this * *this).pow(n >> 1) * *this;
-}
-
 std::pair<BigInt, BigInt> BigInt::divide_unsigned(const BigInt &other) const
 {
     BigInt quotient, remainder;
-    const int64_t bits = static_cast<int64_t>(sizeof(bigint_base_t) * data.size() * 8);
+    const int64_t bits = static_cast<int64_t>(byte_size() * 8);
 
     for (int64_t i = bits - 1; i >= 0; --i)
     {
