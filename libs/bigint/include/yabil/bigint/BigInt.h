@@ -86,6 +86,11 @@ public:
     /// @return Number of type \p int64_t
     int64_t to_int() const;
 
+    /// @brief Convert \p BigInt to number of \p uint64_t type.
+    /// @details Conversion simply drops any additional bits of number.
+    /// @return Number of type \p uint64_t
+    uint64_t to_uint() const;
+
     /// @brief Convert number to string with specified base.
     /// @param base Base of the number string representation (can be from 2 to 16)
     /// @return \p std::string representation of the number

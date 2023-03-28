@@ -42,8 +42,7 @@ yabil::bigint::BigInt probable_prime(uint64_t number_of_bits)
         for (int i = 1; i < trial_division_count; ++i)
         {
             const auto mod = prime_candidate % yabil::bigint::BigInt(primes()[i]);
-            if (mod.is_zero() ||
-                (number_of_bits <= 31 && (yabil::bigint::BigInt(primes()[i] * primes()[i]) > prime_candidate)))
+            if (mod.is_zero())
             {
                 good_candidate = false;
                 break;
@@ -57,92 +56,45 @@ yabil::bigint::BigInt probable_prime(uint64_t number_of_bits)
     }
 }
 
-bool miller_rabin_test(const yabil::bigint::BigInt &prime_candidate)
+bool miller_rabin_round(const yabil::bigint::BigInt &prime_candidate,
+                        const yabil::bigint::BigInt &prime_candidate_minus_one,
+                        const yabil::bigint::BigInt &odd_component, int two_power_divisor)
 {
-    // const yabil::bigint::BigInt first_even_component = prime_candidate - yabil::bigint::BigInt(1);
-    // yabil::bigint::BigInt even_component = first_even_component;
+    const yabil::bigint::BigInt round_tester =
+        random_bigint(yabil::bigint::BigInt(2), prime_candidate - yabil::bigint::BigInt(2));
 
-    // uint64_t max_divisions_by_two = 0;
-    // while (even_component.is_even())
-    // {
-    //     even_component >>= 1;
-    //     max_divisions_by_two += 1;
-    // }
-
-    // const auto is_trial_composite = [&](const yabil::bigint::BigInt &round_tester)
-    // {
-    //     if (yabil::math::pow(round_tester, even_component, prime_candidate) == yabil::bigint::BigInt(1))
-    //     {
-    //         return false;
-    //     }
-    //     for (uint64_t i = 0; i < max_divisions_by_two; ++i)
-    //     {
-    //         if (yabil::math::pow(round_tester, (yabil::bigint::BigInt(1) << i) * even_component, prime_candidate) ==
-    //             first_even_component)
-    //         {
-    //             return false;
-    //         }
-    //     }
-    //     return true;
-    // };
-
-    //
-    // for (int i = 0; i < number_of_rabin_trials; ++i)
-    // {
-    //     const yabil::bigint::BigInt round_tester = random_bigint(yabil::bigint::BigInt(2), prime_candidate);
-    //     if (is_trial_composite(round_tester))
-    //     {
-    //         return false;
-    //     }
-    // }
-
-    const yabil::bigint::BigInt first_even_component = prime_candidate - yabil::bigint::BigInt(1);
-    yabil::bigint::BigInt x;
-
-    // 1. Calculate largest integer 'a' such that 2^a divides prime_candidate-1
-    int a = 1;
-    while (!first_even_component.get_bit(a))
+    yabil::bigint::BigInt z = yabil::math::pow(round_tester, odd_component, prime_candidate);
+    if (z == yabil::bigint::BigInt(1) || z == prime_candidate_minus_one)
     {
-        a += 1;
+        return true;
     }
 
-    // 2. m = (w-1) / 2^a
-    const yabil::bigint::BigInt m = first_even_component >> a;
+    for (int j = 1; j < two_power_divisor; ++j)
+    {
+        z = yabil::math::pow(z, bigint::BigInt(2), prime_candidate);
+        if (z == bigint::BigInt(1)) return false;
+        if (z == prime_candidate_minus_one) return true;
+    }
+
+    return false;
+}
+
+bool miller_rabin_test(const yabil::bigint::BigInt &prime_candidate)
+{
+    const yabil::bigint::BigInt prime_candidate_minus_one = prime_candidate - yabil::bigint::BigInt(1);
+    int two_power_divisor = 1;
+    while (!prime_candidate_minus_one.get_bit(two_power_divisor))
+    {
+        two_power_divisor += 1;
+    }
+
+    const yabil::bigint::BigInt odd_component = prime_candidate_minus_one >> two_power_divisor;
     constexpr int number_of_rabin_trials = 64;
 
     for (int i = 0; i < number_of_rabin_trials; ++i)
     {
-        /* (Step 4.1) obtain a Random string of bits b where 1 < b < w-1 */
-        const yabil::bigint::BigInt round_tester =
-            random_bigint(yabil::bigint::BigInt(2), prime_candidate - yabil::bigint::BigInt(2));
-
-        /* (Step 4.5) z = b^m mod w */
-        yabil::bigint::BigInt z = yabil::math::pow(round_tester, m, prime_candidate);
-
-        /* (Step 4.6) if (z = 1 or z = w-1) */
-        if (z == yabil::bigint::BigInt(1) || z == first_even_component) break;
-
-        bool z_is_prime_minus_one = false;
-        for (int j = 1; j < a; ++j)
-        {
-            /* (Step 4.7.1 - 4.7.2) x = z. z = x^2 mod w */
-            x = z;
-            z = yabil::math::pow(x, bigint::BigInt(2), prime_candidate);
-            if (z == first_even_component)
-            {
-                z_is_prime_minus_one = true;
-                break;
-            }
-            if (z == bigint::BigInt(1)) return false;
-        }
-
-        if (!z_is_prime_minus_one)
-        {
-            x = z;
-            z = yabil::math::pow(x, bigint::BigInt(2), prime_candidate);
-            if (z == bigint::BigInt(1)) return false;
-            x = z;
-        }
+        if (!miller_rabin_round(prime_candidate, prime_candidate_minus_one, odd_component, two_power_divisor))
+            return false;
     }
 
     return true;
@@ -154,32 +106,23 @@ yabil::bigint::BigInt random_bigint(uint64_t number_of_bits, bool top_two, bool 
 {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::bernoulli_distribution dist(0.5);
-    std::vector<yabil::bigint::bigint_base_t> raw_bigint_data;
+    std::uniform_int_distribution<yabil::bigint::bigint_base_t> dist;
 
-    constexpr size_t chunk_size_bits = sizeof(yabil::bigint::bigint_base_t) * 8;
-    const size_t bigint_chunks_count = number_of_bits / chunk_size_bits;
+    constexpr std::size_t chunk_size_bits = sizeof(yabil::bigint::bigint_base_t) * 8;
+    const std::size_t bigint_chunks_count = number_of_bits / chunk_size_bits;
+
+    std::vector<yabil::bigint::bigint_base_t> raw_bigint_data;
     raw_bigint_data.reserve(bigint_chunks_count + 1);
 
-    for (size_t i = 0; i < bigint_chunks_count; i++)
+    for (std::size_t i = 0; i < bigint_chunks_count; i++)
     {
-        yabil::bigint::bigint_base_t chunk = 0;
-        for (size_t j = 0; j < chunk_size_bits; ++j)
-        {
-            chunk |= static_cast<yabil::bigint::bigint_base_t>(dist(gen)) << j;
-        }
-        raw_bigint_data.push_back(chunk);
+        raw_bigint_data.push_back(dist(gen));
     }
 
-    yabil::bigint::bigint_base_t last_chunk = 0;
-    for (size_t i = 0; i < number_of_bits % chunk_size_bits; i++)
+    const std::size_t bigint_remaining_bits = number_of_bits % chunk_size_bits;
+    if (bigint_remaining_bits)
     {
-        last_chunk |= static_cast<yabil::bigint::bigint_base_t>(dist(gen)) << i;
-    }
-
-    if (last_chunk)
-    {
-        raw_bigint_data.push_back(last_chunk);
+        raw_bigint_data.push_back(dist(gen) >> (chunk_size_bits - bigint_remaining_bits));
     }
 
     if (bottom_odd)
@@ -203,12 +146,14 @@ yabil::bigint::BigInt random_bigint(const yabil::bigint::BigInt &min, const yabi
 
 yabil::bigint::BigInt random_prime(uint64_t number_of_bits)
 {
+    constexpr unsigned max_iter = 128000;
+
     if (number_of_bits < 2)
     {
         throw std::invalid_argument("There is no prime of 2 bits size");
     }
 
-    while (true)
+    for (unsigned i = 0; i < max_iter; ++i)
     {
         yabil::bigint::BigInt prime_candidate = probable_prime(number_of_bits);
         if (miller_rabin_test(prime_candidate))
@@ -216,6 +161,8 @@ yabil::bigint::BigInt random_prime(uint64_t number_of_bits)
             return prime_candidate;
         }
     }
+
+    throw std::runtime_error("Cannot generate prime in: " + std::to_string(max_iter) + " steps");
 }
 
 }  // namespace yabil::crypto::random

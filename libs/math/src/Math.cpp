@@ -39,7 +39,7 @@ yabil::bigint::BigInt pow(const yabil::bigint::BigInt &number, const yabil::bigi
         throw std::invalid_argument("Cannot calculate power in modular arithmetic for negative number");
     }
 
-    if (mod.is_zero())
+    if (n.is_zero())
     {
         return yabil::bigint::BigInt(1);
     }

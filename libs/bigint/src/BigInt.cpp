@@ -89,18 +89,18 @@ void BigInt::remove_trailing_zeros()
 
 int64_t BigInt::to_int() const
 {
-    if (is_zero())
-    {
-        return 0;
-    }
+    const int64_t result = static_cast<int64_t>(to_uint());
+    return is_negative() ? -result : result;
+}
 
-    int64_t result = 0;
+uint64_t BigInt::to_uint() const
+{
+    uint64_t result = 0;
     for (std::size_t i = 0; (i < data.size()) && (i < sizeof(int64_t) / sizeof(bigint_base_t)); ++i)
     {
         result |= static_cast<int64_t>(data[i]) << (i * sizeof(bigint_base_t) * 8);
     }
-
-    return is_negative() ? -result : result;
+    return result;
 }
 
 uint64_t BigInt::byte_size() const
@@ -312,11 +312,29 @@ BigInt BigInt::operator*(const BigInt &other) const
 
 BigInt BigInt::operator/(const BigInt &other) const
 {
+    if (other.is_zero())
+    {
+        throw std::invalid_argument("Cannot divide by 0");
+    }
+
+    if (is_uint64() && other.is_uint64())
+    {
+        return BigInt(to_uint() / other.to_uint());
+    }
     return divide(other).first;
 }
 
 BigInt BigInt::operator%(const BigInt &other) const
 {
+    if (other.is_zero())
+    {
+        throw std::invalid_argument("Cannot divide by 0");
+    }
+
+    if (is_uint64() && other.is_uint64())
+    {
+        return BigInt(to_uint() % other.to_uint());
+    }
     return divide(other).second;
 }
 
