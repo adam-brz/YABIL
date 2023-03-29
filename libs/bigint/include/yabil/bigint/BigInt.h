@@ -100,6 +100,10 @@ public:
     /// @return \p true if numeric value is in \p uint64_t range and \p false otherwise
     bool is_uint64() const;
 
+    /// @brief Check if big integer can be safely represented as \p int64_t
+    /// @return \p true if number can be safely represented as \p int64_t and \p false otherwise
+    bool is_int64() const;
+
     /// @brief Check is number is equal to zero.
     /// @return \p true if number is equal to zero and \p false otherwise
     bool is_zero() const;

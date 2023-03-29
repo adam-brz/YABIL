@@ -211,7 +211,12 @@ bool BigInt::operator>=(const BigInt &other) const
 
 bool BigInt::is_uint64() const
 {
-    return byte_size() <= sizeof(int64_t);
+    return byte_size() <= sizeof(uint64_t);
+}
+
+bool BigInt::is_int64() const
+{
+    return is_uint64() && !get_bit(sizeof(int64_t) * 8 - 1);
 }
 
 bool BigInt::is_zero() const
@@ -312,28 +317,26 @@ BigInt BigInt::operator*(const BigInt &other) const
 
 BigInt BigInt::operator/(const BigInt &other) const
 {
-    if (other.is_zero())
+    if (is_int64() && other.is_int64())
     {
-        throw std::invalid_argument("Cannot divide by 0");
-    }
-
-    if (is_uint64() && other.is_uint64())
-    {
-        return BigInt(to_uint() / other.to_uint());
+        if (other.is_zero())
+        {
+            throw std::invalid_argument("Cannot divide by 0");
+        }
+        return BigInt(to_int() / other.to_int());
     }
     return divide(other).first;
 }
 
 BigInt BigInt::operator%(const BigInt &other) const
 {
-    if (other.is_zero())
+    if (is_int64() && other.is_int64())
     {
-        throw std::invalid_argument("Cannot divide by 0");
-    }
-
-    if (is_uint64() && other.is_uint64())
-    {
-        return BigInt(to_uint() % other.to_uint());
+        if (other.is_zero())
+        {
+            throw std::invalid_argument("Cannot divide by 0");
+        }
+        return BigInt(to_int() % other.to_int());
     }
     return divide(other).second;
 }
@@ -408,6 +411,14 @@ std::pair<BigInt, BigInt> BigInt::divide(const BigInt &other) const
     {
         throw std::invalid_argument("Cannot divide by 0");
     }
+
+    if (is_int64() && other.is_int64())
+    {
+        const auto a = to_int();
+        const auto b = other.to_int();
+        return {BigInt(a / b), BigInt(a % b)};
+    }
+
     if (is_negative() && other.is_negative())
     {
         const auto [quotient, remainder] = (-(*this)).divide_unsigned(-other);
@@ -416,20 +427,12 @@ std::pair<BigInt, BigInt> BigInt::divide(const BigInt &other) const
     if (!is_negative() && other.is_negative())
     {
         const auto [quotient, remainder] = divide_unsigned(-other);
-        if (remainder.is_zero())
-        {
-            return {-quotient, BigInt(0)};
-        }
-        return {-quotient - BigInt(1), other + remainder};
+        return {-quotient, remainder};
     }
     if (is_negative() && !other.is_negative())
     {
         const auto [quotient, remainder] = (-(*this)).divide_unsigned(other);
-        if (remainder.is_zero())
-        {
-            return {-quotient, BigInt(0)};
-        }
-        return {-quotient - BigInt(1), other - remainder};
+        return {-quotient, -remainder};
     }
     return divide_unsigned(other);
 }

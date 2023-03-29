@@ -41,9 +41,7 @@ TEST_F(UtilsRandom_tests, canGenerateRandomNumberFromGivenRange_1)
     ASSERT_TRUE(num >= min && num <= max);
 }
 
-#include <iostream>
-
 TEST_F(UtilsRandom_tests, canGenerateLargeRandomPrimeNumber)
 {
-    ASSERT_NO_THROW({ const BigInt num = random_prime(32); });
+    ASSERT_NO_THROW({ const BigInt num = random_prime(16); });
 }

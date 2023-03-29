@@ -78,8 +78,8 @@ TEST_F(BigIntDivOperator_tests, divTwoLongNonZeroMinusPlus)
     const BigInt big_int1("-19238190239012");
     const BigInt big_int2("12410920");
 
-    const BigInt expected_quotioent("-1550102");
-    const BigInt expected_remainder("1674828");
+    const BigInt expected_quotioent("-1550101");
+    const BigInt expected_remainder(-19238190239012 % 12410920);
 
     const auto [quotient, remainder] = big_int1.divide(big_int2);
     ASSERT_EQ(expected_quotioent, quotient);
@@ -91,8 +91,8 @@ TEST_F(BigIntDivOperator_tests, divTwoLongNonZeroPlusMinus)
     const BigInt big_int1("19238190239012");
     const BigInt big_int2("-12410920");
 
-    const BigInt expected_quotioent("-1550102");
-    const BigInt expected_remainder("-1674828");
+    const BigInt expected_quotioent("-1550101");
+    const BigInt expected_remainder(19238190239012 % -12410920);
 
     const auto [quotient, remainder] = big_int1.divide(big_int2);
 
