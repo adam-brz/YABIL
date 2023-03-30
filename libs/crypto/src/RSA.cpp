@@ -36,7 +36,45 @@ yabil::bigint::BigInt decrypt(const yabil::bigint::BigInt &encrypted, const Priv
     return yabil::math::pow(encrypted, private_key.d, private_key.n);
 }
 
-EncryptionStream::EncryptionStream(std::ostream &out, const PublicKey &pub_key) : out(out), pub_key(pub_key) {}
-EncryptionStream::EncryptionStream(std::ostream &out, PublicKey &&pub_key) : out(out), pub_key(pub_key) {}
+EncryptionStreamWrapper::EncryptionStreamWrapper(std::ostream &out, const PublicKey &pub_key)
+    : out(out),
+      pub_key(pub_key)
+{
+}
+EncryptionStreamWrapper::EncryptionStreamWrapper(std::ostream &out, PublicKey &&pub_key) : out(out), pub_key(pub_key) {}
+
+DecryptionStreamWrapper::DecryptionStreamWrapper(std::istream &in, const PrivateKey &private_key)
+    : in(in),
+      private_key(private_key)
+{
+}
+
+DecryptionStreamWrapper::DecryptionStreamWrapper(std::istream &in, PrivateKey &&private_key)
+    : in(in),
+      private_key(private_key)
+{
+}
+
+std::string DecryptionStreamWrapper::read_all()
+{
+    std::string result;
+    while (!in.eof())
+    {
+        result.push_back(read_single_encoded_item());
+    }
+    result.erase(std::find(result.begin(), result.end(), '\0'), result.end());
+    return result;
+}
+
+char DecryptionStreamWrapper::read_single_encoded_item()
+{
+    uint64_t encrypted_item_size = 0;
+    in.read(reinterpret_cast<char *>(&encrypted_item_size), sizeof(uint64_t));
+    std::vector<yabil::bigint::bigint_base_t> raw_data_buffer(encrypted_item_size);
+
+    in.read(reinterpret_cast<char *>(raw_data_buffer.data()), static_cast<std::streamsize>(encrypted_item_size));
+    const auto decrypted = decrypt(yabil::bigint::BigInt(std::move(raw_data_buffer)), private_key);
+    return static_cast<char>(decrypted.to_int());
+}
 
 }  // namespace yabil::crypto::rsa

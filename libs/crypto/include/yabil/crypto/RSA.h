@@ -2,9 +2,11 @@
 
 #include <yabil/bigint/BigInt.h>
 
+#include <algorithm>
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -43,18 +45,18 @@ yabil::bigint::BigInt encrypt(uint8_t byte, const PublicKey &pub_key);
 /// @return \p BigInt result of decryption
 yabil::bigint::BigInt decrypt(const yabil::bigint::BigInt &encrypted, const PrivateKey &private_key);
 
-class EncryptionStream
+class EncryptionStreamWrapper
 {
 private:
     std::ostream &out;
     PublicKey pub_key;
 
 public:
-    EncryptionStream(std::ostream &out, const PublicKey &pub_key);
-    EncryptionStream(std::ostream &out, PublicKey &&pub_key);
+    EncryptionStreamWrapper(std::ostream &out, const PublicKey &pub_key);
+    EncryptionStreamWrapper(std::ostream &out, PublicKey &&pub_key);
 
     template <typename T>
-    EncryptionStream &operator<<(T data)
+    EncryptionStreamWrapper &operator<<(T data)
     {
         std::ostringstream converted_data;
         converted_data << data;
@@ -69,6 +71,37 @@ public:
         }
         return *this;
     }
+};
+
+class DecryptionStreamWrapper
+{
+private:
+    std::istream &in;
+    PrivateKey private_key;
+
+public:
+    DecryptionStreamWrapper(std::istream &in, const PrivateKey &private_key);
+    DecryptionStreamWrapper(std::istream &in, PrivateKey &&private_key);
+
+    template <typename T>
+    DecryptionStreamWrapper &operator>>(T &data)
+    {
+        std::string result;
+        while (!in.eof())
+        {
+            char item = read_single_encoded_item();
+            if (item == ' ') break;
+            result.push_back(item);
+        }
+        std::istringstream in_stream(std::move(result));
+        in_stream >> data;
+        return *this;
+    }
+
+    std::string read_all();
+
+private:
+    char read_single_encoded_item();
 };
 
 }  // namespace yabil::crypto::rsa
