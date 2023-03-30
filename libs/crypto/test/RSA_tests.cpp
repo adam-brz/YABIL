@@ -78,7 +78,7 @@ TEST_F(RSA_tests, canDecryptEncryptedMessage)
     std::istringstream in(os.str());
     rsa::DecryptionStreamWrapper decryption_stream(in, private_key);
 
-    std::string result = decryption_stream.read_all();
+    const std::string result = decryption_stream.read_all();
     ASSERT_EQ(result, msg);
 }
 
