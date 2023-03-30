@@ -4,6 +4,7 @@
 #include <cmath>
 #include <numeric>
 #include <stdexcept>
+#include <tuple>
 
 namespace yabil::math
 {
@@ -149,7 +150,7 @@ yabil::bigint::BigInt gcd(yabil::bigint::BigInt number, yabil::bigint::BigInt ot
     number >>= common_power_of_2;
     other >>= common_power_of_2;
 
-    if (number.is_uint64() && other.is_uint64())
+    if (number.is_int64() && other.is_int64())
     {
         return yabil::bigint::BigInt(std::gcd(number.to_int(), other.to_int())) << common_power_of_2;
     }
@@ -175,6 +176,34 @@ yabil::bigint::BigInt gcd(yabil::bigint::BigInt number, yabil::bigint::BigInt ot
         }
         other >>= power_of_two_divisor_other;
     }
+}
+
+std::pair<yabil::bigint::BigInt, std::pair<yabil::bigint::BigInt, yabil::bigint::BigInt>> extended_gcd(
+    const yabil::bigint::BigInt &a, const yabil::bigint::BigInt &b)
+{
+    using BezoutCoefficientsType = std::pair<yabil::bigint::BigInt, yabil::bigint::BigInt>;
+    yabil::bigint::BigInt old_r{a}, r{b}, old_s{1}, s{0}, old_t{0}, t{1};
+
+    while (!r.is_zero())
+    {
+        const auto quotient = old_r / r;
+        std::tie(old_r, r) = BezoutCoefficientsType{r, old_r - quotient * r};
+        std::tie(old_s, s) = BezoutCoefficientsType{s, old_s - quotient * s};
+        std::tie(old_t, t) = BezoutCoefficientsType{t, old_t - quotient * t};
+    }
+
+    return {old_r, {old_s, old_t}};
+}
+
+yabil::bigint::BigInt mod_inverse(const yabil::bigint::BigInt &a, const yabil::bigint::BigInt &n)
+{
+    const auto result = extended_gcd(a, n);
+    if (result.first > yabil::bigint::BigInt(1))
+    {
+        throw std::runtime_error("number: " + a.to_str() + " is not invertible");
+    }
+    const auto &x = result.second.first;
+    return x.is_negative() ? x + n : x;
 }
 
 }  // namespace yabil::math

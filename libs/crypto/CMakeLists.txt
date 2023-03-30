@@ -1,17 +1,20 @@
 project(crypto C CXX)
 
 set(SOURCES
-    src/Random.cpp
     src/Primes.cpp
     src/Primes.h
+    src/Random.cpp
+    src/RSA.cpp
 )
 
 set(HEADERS
     include/yabil/crypto/Random.h
+    include/yabil/crypto/RSA.h
 )
 
 set(TESTS
     test/Random_tests.cpp
+    test/RSA_tests.cpp
 )
 
 add_library(${PROJECT_NAME})

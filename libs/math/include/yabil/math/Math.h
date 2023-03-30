@@ -3,6 +3,7 @@
 #include <yabil/bigint/BigInt.h>
 
 #include <cstdint>
+#include <utility>
 
 /// @brief Common mathematical functions for \p BigInt
 namespace yabil::math
@@ -53,5 +54,18 @@ double log(const yabil::bigint::BigInt &number, double base = 10);
 /// @param other Second \p BigInt number
 /// @return Greatest common divisor
 yabil::bigint::BigInt gcd(yabil::bigint::BigInt number, yabil::bigint::BigInt other);
+
+/// @brief Calculate extended gcd for two big integers
+/// @param a First \p BigInt number
+/// @param b Second \p BigInt number
+/// @return \p std::pair<BigInt,std::pair<BigInt,BigInt>> greatest common divisor and Bezout coefficients
+std::pair<yabil::bigint::BigInt, std::pair<yabil::bigint::BigInt, yabil::bigint::BigInt>> extended_gcd(
+    const yabil::bigint::BigInt &a, const yabil::bigint::BigInt &b);
+
+/// @brief Calculate multiplicative inverse of a for modulo n
+/// @param a First \p BigInt number
+/// @param b Second \p BigInt number
+/// @return \p BigInt Result of the inversion
+yabil::bigint::BigInt mod_inverse(const yabil::bigint::BigInt &a, const yabil::bigint::BigInt &n);
 
 }  // namespace yabil::math
