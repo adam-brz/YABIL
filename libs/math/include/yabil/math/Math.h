@@ -64,7 +64,7 @@ std::pair<yabil::bigint::BigInt, std::pair<yabil::bigint::BigInt, yabil::bigint:
 
 /// @brief Calculate multiplicative inverse of a for modulo n
 /// @param a First \p BigInt number
-/// @param b Second \p BigInt number
+/// @param n \p BigInt Modulus
 /// @return \p BigInt Result of the inversion
 yabil::bigint::BigInt mod_inverse(const yabil::bigint::BigInt &a, const yabil::bigint::BigInt &n);
 
