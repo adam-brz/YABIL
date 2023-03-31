@@ -14,7 +14,7 @@ class UtilsRandom_tests : public ::testing::Test
 
 TEST_F(UtilsRandom_tests, canGenerateRandomNumber)
 {
-    ASSERT_NO_THROW({ BigInt num = random_bigint(); });
+    ASSERT_NO_THROW({ [[maybe_unused]] const BigInt num = random_bigint(); });
 }
 
 TEST_F(UtilsRandom_tests, canGenerateRandomNumberWithSetTopAndBottomBit)
@@ -43,5 +43,5 @@ TEST_F(UtilsRandom_tests, canGenerateRandomNumberFromGivenRange_1)
 
 TEST_F(UtilsRandom_tests, canGenerateLargeRandomPrimeNumber)
 {
-    ASSERT_NO_THROW({ const BigInt num = random_prime(16); });
+    ASSERT_NO_THROW({ [[maybe_unused]] const BigInt num = random_prime(16); });
 }
