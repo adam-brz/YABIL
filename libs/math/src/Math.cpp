@@ -127,7 +127,6 @@ double log(const yabil::bigint::BigInt &number, double base)
     return log2(number) / std::log2(base);
 }
 
-// TODO: Lehmer's GCD algorithm
 yabil::bigint::BigInt gcd(yabil::bigint::BigInt number, yabil::bigint::BigInt other)
 {
     if (number.is_zero()) return other;

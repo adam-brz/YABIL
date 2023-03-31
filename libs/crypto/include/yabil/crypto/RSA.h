@@ -49,7 +49,7 @@ class EncryptionStreamWrapper
 {
 private:
     std::ostream &out;
-    PublicKey pub_key;
+    const PublicKey &pub_key;
 
 public:
     EncryptionStreamWrapper(std::ostream &out, const PublicKey &pub_key);
@@ -77,7 +77,7 @@ class DecryptionStreamWrapper
 {
 private:
     std::istream &in;
-    PrivateKey private_key;
+    const PrivateKey &private_key;
 
 public:
     DecryptionStreamWrapper(std::istream &in, const PrivateKey &private_key);
