@@ -1,48 +1,48 @@
 #include <gtest/gtest.h>
 #include <yabil/bigint/BigInt.h>
-#include <yabil/crypto/Utils.h>
+#include <yabil/math/Math.h>
 
 #include <limits>
 
-using namespace yabil::crypto;
+using namespace yabil::math;
 
-class UtilsFactorial_tests : public ::testing::Test
+class MathFactorial_tests : public ::testing::Test
 {
 };
 
-TEST_F(UtilsFactorial_tests, factorialOfZeroIsOne)
+TEST_F(MathFactorial_tests, factorialOfZeroIsOne)
 {
-    const auto result = utils::factorial(0);
+    const auto result = factorial(0);
     ASSERT_EQ(1, result.to_int());
 }
 
-TEST_F(UtilsFactorial_tests, factorialOfOneIsOne)
+TEST_F(MathFactorial_tests, factorialOfOneIsOne)
 {
-    const auto result = utils::factorial(1);
+    const auto result = factorial(1);
     ASSERT_EQ(1, result.to_int());
 }
 
-TEST_F(UtilsFactorial_tests, factorialOfTwoIsTwo)
+TEST_F(MathFactorial_tests, factorialOfTwoIsTwo)
 {
-    const auto result = utils::factorial(2);
+    const auto result = factorial(2);
     ASSERT_EQ(2, result.to_int());
 }
 
-TEST_F(UtilsFactorial_tests, factorialOfThreeIsSix)
+TEST_F(MathFactorial_tests, factorialOfThreeIsSix)
 {
-    const auto result = utils::factorial(3);
+    const auto result = factorial(3);
     ASSERT_EQ(6, result.to_int());
 }
 
-TEST_F(UtilsFactorial_tests, factorialOf12)
+TEST_F(MathFactorial_tests, factorialOf12)
 {
-    ASSERT_EQ(utils::factorial(12), yabil::bigint::BigInt("479001600"));
+    ASSERT_EQ(factorial(12), yabil::bigint::BigInt("479001600"));
 }
 
-TEST_F(UtilsFactorial_tests, factorialOf385)
+TEST_F(MathFactorial_tests, factorialOf385)
 {
     ASSERT_EQ(
-        utils::factorial(385),
+        factorial(385),
         yabil::bigint::BigInt(
             "7778925820002268285726252461141530914984705583003303410988268965025219496967908509462500416061477714284003"
             "2749700960018016880257150600760973387063625465151973977979879777238796637512249859636989563488396079390053"
@@ -54,10 +54,10 @@ TEST_F(UtilsFactorial_tests, factorialOf385)
             "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"));
 }
 
-TEST_F(UtilsFactorial_tests, factorialOf985)
+TEST_F(MathFactorial_tests, factorialOf985)
 {
     ASSERT_EQ(
-        utils::factorial(985),
+        factorial(985),
         yabil::bigint::BigInt(
             "4471643344622686529752554512369084031306251694218472073479302071798821379253565968306613351265829848113613"
             "4459150374810209933236511879382474291093381628925737723417978006830066269937056415667500679564249640327327"

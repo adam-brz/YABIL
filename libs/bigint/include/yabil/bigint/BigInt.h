@@ -30,7 +30,7 @@ private:
 
 public:
     /// @brief Creates BigInt initialized to 0.
-    BigInt() {}
+    BigInt() = default;
 
     /// @brief Creates BigInt from string.
     /// @param str String representation of the number.
@@ -86,10 +86,23 @@ public:
     /// @return Number of type \p int64_t
     int64_t to_int() const;
 
+    /// @brief Convert \p BigInt to number of \p uint64_t type.
+    /// @details Conversion simply drops any additional bits of number.
+    /// @return Number of type \p uint64_t
+    uint64_t to_uint() const;
+
     /// @brief Convert number to string with specified base.
     /// @param base Base of the number string representation (can be from 2 to 16)
     /// @return \p std::string representation of the number
     std::string to_str(int base = 10) const;
+
+    /// @brief Check if big integer can be represented as \p uint64_t
+    /// @return \p true if numeric value is in \p uint64_t range and \p false otherwise
+    bool is_uint64() const;
+
+    /// @brief Check if big integer can be safely represented as \p int64_t
+    /// @return \p true if number can be safely represented as \p int64_t and \p false otherwise
+    bool is_int64() const;
 
     /// @brief Check is number is equal to zero.
     /// @return \p true if number is equal to zero and \p false otherwise
@@ -103,6 +116,10 @@ public:
     /// @return \p true if number is divisible by 2 and \p false otherwise
     bool is_even() const;
 
+    /// @brief Return internal representation size in bytes.
+    /// @return Number of bytes for number
+    uint64_t byte_size() const;
+
     /// @brief Get internal representation of the number.
     /// @return Reference to \p std::vector<yabil::bigint::bigint_base_t>
     const std::vector<bigint_base_t> &raw_data() const;
@@ -111,6 +128,9 @@ public:
     /// @return \p Sign::Plus if number is positive and \p Sign::Minus otherwise (zero is always considered positive
     /// number)
     Sign get_sign() const;
+
+    /// @brief Set sign of the number.
+    void set_sign(Sign new_sign);
 
     /// @brief Get bit value for specified index.
     /// @param n Index of bit to read
@@ -121,12 +141,6 @@ public:
     /// @param n Index of bit to set
     /// @param bit_value Value to set for bit, \p true for 1 and \p false for 0
     void set_bit(std::size_t n, bool bit_value);
-
-    /// @brief Perform exponentiation.
-    /// @details Raise number to the power of \p n.
-    /// @param n Exponent
-    /// @return \p BigInt result of the exponentiation
-    BigInt pow(const BigInt &n) const;
 
     /// @brief Perform division.
     /// @param other \p BigInt Divisor
@@ -296,7 +310,6 @@ private:
     bool check_abs_lower(const BigInt &other) const;
 
     BigInt basic_mul(const BigInt &other) const;
-    BigInt pow_recursive(const BigInt &n) const;
     std::pair<BigInt, BigInt> divide_unsigned(const BigInt &other) const;
 
     BigInt plain_add(const BigInt &other) const;
