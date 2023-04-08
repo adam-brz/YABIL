@@ -35,6 +35,11 @@ function(set_common_properties TARGET)
     target_include_directories(${TARGET} PRIVATE src)
     set_common_target_options(${TARGET})
 
+    add_custom_command(TARGET ${TARGET} POST_BUILD
+        COMMAND $<$<CONFIG:release>:${CMAKE_STRIP}>
+        ARGS --strip-all $<TARGET_FILE:${TARGET}>
+    )
+
     get_target_property(IS_TEST_TARGET ${TARGET} IS_TEST_TARGET)
     if(NOT IS_TEST_TARGET)
         install(TARGETS ${TARGET}
@@ -48,7 +53,6 @@ function(set_common_target_options TARGET)
     set(MSVC_DEBUG_FLAGS /Zi /O2)
     set(OTHER_DEBUG_FLAGS -O0 -g)
     set(OTHER_RELEASE_FLAGS -O3)
-    set(OTHER_LINKER_FLAGS -s)
 
     if (MSVC)
         target_compile_options(${TARGET} PRIVATE /W4)
@@ -64,12 +68,10 @@ function(set_common_target_options TARGET)
                 $<$<CONFIG:Release>:${OTHER_RELEASE_FLAGS}>
                 $<$<CONFIG:Debug>:${OTHER_DEBUG_FLAGS}>
             )
-            target_link_options(${TARGET} PRIVATE $<$<CONFIG:Release>:${OTHER_LINKER_FLAGS}>)
         endif()
     else()
         if(CMAKE_BUILD_TYPE STREQUAL "Release")
             target_compile_options(${TARGET} PRIVATE ${OTHER_RELEASE_FLAGS})
-            target_link_options(${TARGET} PRIVATE ${OTHER_LINKER_FLAGS})
         else()
             target_compile_options(${TARGET} PRIVATE ${OTHER_DEBUG_FLAGS})
         endif()
