@@ -54,4 +54,4 @@ class YabilConan(ConanFile):
             self.cpp_info.components[conan_component].libs = [conan_component]
 
         self.cpp_info.components["math"].requires = ["bigint"]
-        self.cpp_info.components["crypto"].requires = ["bigint"]
+        self.cpp_info.components["crypto"].requires = ["bigint", "math"]
