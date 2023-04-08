@@ -1,6 +1,6 @@
 #include <gmp.h>
 #include <yabil/bigint/BigInt.h>
-#include <yabil/crypto/Utils.h>
+#include <yabil/math/Math.h>
 
 #include <fstream>
 #include <iostream>
@@ -17,7 +17,7 @@ void gmp_factorial(int n)
 
 void yabil_factorial(int n)
 {
-    yabil::crypto::utils::factorial(n);
+    yabil::math::factorial(n);
 }
 
 int main()

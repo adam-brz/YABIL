@@ -33,17 +33,7 @@ function(set_common_properties TARGET)
 
     add_coverage(${TARGET})
     target_include_directories(${TARGET} PRIVATE src)
-
-    if (MSVC)
-        target_compile_options(${TARGET} PRIVATE /W4 $<IF:$<CONFIG:Debug>,/Zi,/O2>)
-    else()
-        target_compile_options(${TARGET} PRIVATE -Wall -Wextra -Wpedantic $<$<CONFIG:RELEASE>:-O3> $<$<CONFIG:DEBUG>:-O0 -g>)
-        target_link_options(${TARGET} PRIVATE $<$<CONFIG:RELEASE>:-s>)
-    endif()
-
-    if(BUILD_SHARED_LIBS AND MSVC)
-        set_target_properties(${TARGET} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-    endif()
+    set_common_target_options(${TARGET})
 
     get_target_property(IS_TEST_TARGET ${TARGET} IS_TEST_TARGET)
     if(NOT IS_TEST_TARGET)
@@ -53,6 +43,43 @@ function(set_common_properties TARGET)
         )
     endif()
 endfunction()
+
+function(set_common_target_options TARGET)
+    set(MSVC_DEBUG_FLAGS /Zi /O2)
+    set(OTHER_DEBUG_FLAGS -O0 -g)
+    set(OTHER_RELEASE_FLAGS -O3)
+    set(OTHER_LINKER_FLAGS -s)
+
+    if (MSVC)
+        target_compile_options(${TARGET} PRIVATE /W4)
+    else()
+        target_compile_options(${TARGET} PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+
+    if(CMAKE_CONFIGURATION_TYPES)
+        if (MSVC)
+            target_compile_options(${TARGET} PRIVATE $<$<CONFIG:Debug>:${MSVC_DEBUG_FLAGS}>)
+        else()
+            target_compile_options(${TARGET} PRIVATE
+                $<$<CONFIG:Release>:${OTHER_RELEASE_FLAGS}>
+                $<$<CONFIG:Debug>:${OTHER_DEBUG_FLAGS}>
+            )
+            target_link_options(${TARGET} PRIVATE $<$<CONFIG:Release>:${OTHER_LINKER_FLAGS}>)
+        endif()
+    else()
+        if(CMAKE_BUILD_TYPE STREQUAL "Release")
+            target_compile_options(${TARGET} PRIVATE ${OTHER_RELEASE_FLAGS})
+            target_link_options(${TARGET} PRIVATE ${OTHER_LINKER_FLAGS})
+        else()
+            target_compile_options(${TARGET} PRIVATE ${OTHER_DEBUG_FLAGS})
+        endif()
+    endif()
+
+    if(BUILD_SHARED_LIBS AND MSVC)
+        set_target_properties(${TARGET} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+    endif()
+endfunction()
+
 
 function(add_coverage TARGET)
     if(YABIL_ENABLE_COVERAGE)

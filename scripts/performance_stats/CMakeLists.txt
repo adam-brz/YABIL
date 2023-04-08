@@ -5,7 +5,7 @@ find_package(yabil REQUIRED)
 find_package(gmp REQUIRED)
 
 add_executable(${PROJECT_NAME} main.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE yabil::bigint yabil::crypto gmp::gmp)
+target_link_libraries(${PROJECT_NAME} PRIVATE yabil::bigint yabil::crypto yabil::math gmp::gmp)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 20
