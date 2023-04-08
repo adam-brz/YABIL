@@ -35,11 +35,6 @@ function(set_common_properties TARGET)
     target_include_directories(${TARGET} PRIVATE src)
     set_common_target_options(${TARGET})
 
-    add_custom_command(TARGET ${TARGET} POST_BUILD
-        COMMAND $<$<CONFIG:release>:${CMAKE_STRIP}>
-        ARGS --strip-all $<TARGET_FILE:${TARGET}>
-    )
-
     get_target_property(IS_TEST_TARGET ${TARGET} IS_TEST_TARGET)
     if(NOT IS_TEST_TARGET)
         install(TARGETS ${TARGET}
