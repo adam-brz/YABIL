@@ -2,7 +2,10 @@ project(bigint C CXX)
 
 set(SOURCES
     src/BigInt.cpp
+    src/BigIntOperators.cpp
     src/SafeOperators.h
+    src/StringConversionUtils.cpp
+    src/StringConversionUtils.h
 )
 
 set(HEADERS
