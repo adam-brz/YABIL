@@ -1,7 +1,7 @@
 #include "StringConversionUtils.h"
 
-#include <string>
 #include <stdexcept>
+#include <string>
 
 namespace yabil::bigint
 {
@@ -27,4 +27,4 @@ void check_conversion(char chr, int converted, int base)
     }
 }
 
-} // namespace yabil::bigint
+}  // namespace yabil::bigint

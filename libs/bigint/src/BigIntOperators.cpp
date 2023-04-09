@@ -126,12 +126,35 @@ BigInt BigInt::operator~() const
 
 BigInt &BigInt::operator+=(const BigInt &other)
 {
-    return *this = *this + other;
+    if (sign == other.sign)
+    {
+        return inplace_plain_add(other);
+    }
+
+    if (sign == Sign::Minus)
+    {
+        inplace_plain_sub(other);
+        sign = (sign == Sign::Minus) ? Sign::Plus : Sign::Minus;
+        return *this;
+    }
+
+    return inplace_plain_sub(other);
 }
 
 BigInt &BigInt::operator-=(const BigInt &other)
 {
-    return *this = *this - other;
+    if (sign != other.sign)
+    {
+        return inplace_plain_add(other);
+    }
+
+    if (sign == Sign::Plus)
+    {
+        return inplace_plain_sub(other);
+    }
+
+    inplace_plain_sub(other);
+    return *this;
 }
 
 BigInt &BigInt::operator*=(const BigInt &other)
@@ -174,15 +197,6 @@ BigInt &BigInt::operator>>=(uint64_t shift)
     return *this = *this >> shift;
 }
 
-std::pair<const BigInt *, const BigInt *> BigInt::get_longer_and_shorter(const BigInt &num1, const BigInt &num2)
-{
-    if (num1.raw_data().size() > num2.raw_data().size())
-    {
-        return {&num1, &num2};
-    }
-    return {&num2, &num1};
-}
-
 std::ostream &operator<<(std::ostream &out, const BigInt &bigint)
 {
     out << bigint.to_str();
@@ -221,4 +235,68 @@ std::istream &operator>>(std::istream &in, BigInt &bigint)
     return in;
 }
 
-} // namespace yabil::bigint
+BigInt &BigInt::inplace_plain_add(const BigInt &other)
+{
+    const auto max_size = std::max(data.size(), other.data.size());
+    data.resize(max_size + 1);
+
+    bigint_base_t carry = 0;
+    std::size_t i;
+
+    for (i = 0; i < other.data.size(); ++i)
+    {
+        const auto sum = safe_add(data[i], other.data[i], carry);
+        data[i] = static_cast<bigint_base_t>(sum);
+        carry = static_cast<bigint_base_t>(sum >> (sizeof(bigint_base_t) * 8));
+    }
+
+    for (; i < data.size(); ++i)
+    {
+        const auto sum = safe_add(data[i], carry);
+        data[i] = static_cast<bigint_base_t>(sum);
+        carry = static_cast<bigint_base_t>(sum >> (sizeof(bigint_base_t) * 8));
+    }
+
+    if (carry)
+    {
+        data[i] = carry;
+    }
+
+    normalize();
+    return *this;
+}
+
+BigInt &BigInt::inplace_plain_sub(const BigInt &other)
+{
+    const BigInt *longer = this;
+    const BigInt *shorter = &other;
+
+    if (check_abs_lower(other))
+    {
+        std::swap(longer, shorter);
+        sign = Sign::Minus;
+    }
+
+    const auto shorter_size = shorter->data.size();
+    data.resize(longer->data.size());
+    bigint_base_t borrow = 0;
+
+    std::size_t i;
+    for (i = 0; i < shorter_size; ++i)
+    {
+        const auto result = safe_sub(longer->data[i], shorter->data[i], borrow);
+        borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
+        data[i] = static_cast<bigint_base_t>(result);
+    }
+    for (; i < longer->data.size(); ++i)
+    {
+        const auto result = safe_sub(longer->data[i], borrow);
+        borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
+        data[i] = static_cast<bigint_base_t>(result);
+    }
+
+    normalize();
+    return *this;
+}
+
+}  // namespace yabil::bigint

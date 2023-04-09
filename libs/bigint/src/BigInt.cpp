@@ -206,8 +206,9 @@ bool BigInt::check_abs_greater(const BigInt &other) const
 
 bool BigInt::check_abs_lower(const BigInt &other) const
 {
-    return data.size() <= other.data.size() &&
-           std::lexicographical_compare(data.crbegin(), data.crend(), other.data.crbegin(), other.data.crend());
+    return data.size() < other.data.size() ||
+           (data.size() == other.data.size() &&
+            std::lexicographical_compare(data.crbegin(), data.crend(), other.data.crbegin(), other.data.crend()));
 }
 
 BigInt BigInt::basic_mul(const BigInt &other) const
@@ -437,6 +438,15 @@ void BigInt::set_bit(std::size_t n, bool bit_value)
     data[item_index] =
         (data[item_index] & ~(bigint_base_t(1) << bit_index)) | (static_cast<uint8_t>(bit_value & 0x01) << bit_index);
     normalize();
+}
+
+std::pair<const BigInt *, const BigInt *> BigInt::get_longer_and_shorter(const BigInt &num1, const BigInt &num2)
+{
+    if (num1.raw_data().size() > num2.raw_data().size())
+    {
+        return {&num1, &num2};
+    }
+    return {&num2, &num1};
 }
 
 }  // namespace yabil::bigint
