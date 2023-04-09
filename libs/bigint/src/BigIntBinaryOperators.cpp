@@ -165,7 +165,7 @@ BigInt &BigInt::operator<<=(uint64_t shift)
     bigint_base_t shifted_val = 0;
 
     std::transform(data.cbegin(), data.cend() - static_cast<int>(new_items_count) - 1,
-        data.begin() + static_cast<int>(new_items_count),
+                   data.begin() + static_cast<int>(new_items_count),
                    [real_shift, &shifted_val](const bigint_base_t &v)
                    {
                        const bigint_base_t transformed = (v << real_shift) | shifted_val;
@@ -175,7 +175,7 @@ BigInt &BigInt::operator<<=(uint64_t shift)
                        return transformed;
                    });
 
-    if(new_items_count > 0)
+    if (new_items_count > 0)
     {
         std::fill(data.begin(), data.begin() + static_cast<int>(new_items_count), 0);
     }
