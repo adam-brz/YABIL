@@ -8,30 +8,6 @@
 namespace yabil::bigint
 {
 
-BigInt BigInt::basic_mul(const BigInt &other) const
-{
-    std::vector<bigint_base_t> result(data.size() + other.data.size(), 0);
-    const auto [longer, shorter] = get_longer_and_shorter(*this, other);
-
-    for (std::size_t i = 0; i < shorter->data.size(); ++i)
-    {
-        double_width_t<bigint_base_t> carry = 0;
-        std::size_t j;
-        for (j = 0; j < longer->data.size(); ++j)
-        {
-            carry += result[i + j] + safe_mul(longer->data[j], shorter->data[i]);
-            result[i + j] = static_cast<bigint_base_t>(carry);
-            carry >>= sizeof(bigint_base_t) * 8;
-        }
-        if (carry)
-        {
-            result[i + j] += static_cast<bigint_base_t>(carry);
-        }
-    }
-
-    return BigInt(result, (sign == other.sign) ? Sign::Plus : Sign::Minus);
-}
-
 std::pair<BigInt, BigInt> BigInt::divide_unsigned(const BigInt &other) const
 {
     BigInt quotient, remainder;
@@ -48,8 +24,6 @@ std::pair<BigInt, BigInt> BigInt::divide_unsigned(const BigInt &other) const
         }
     }
 
-    quotient.normalize();
-    remainder.normalize();
     return {quotient, remainder};
 }
 
@@ -85,7 +59,26 @@ BigInt BigInt::operator-(const BigInt &other) const
 
 BigInt BigInt::operator*(const BigInt &other) const
 {
-    return basic_mul(other);
+    std::vector<bigint_base_t> result(data.size() + other.data.size(), 0);
+    const auto [longer, shorter] = get_longer_and_shorter(*this, other);
+
+    for (std::size_t i = 0; i < shorter->data.size(); ++i)
+    {
+        double_width_t<bigint_base_t> carry = 0;
+        std::size_t j;
+        for (j = 0; j < longer->data.size(); ++j)
+        {
+            carry += result[i + j] + safe_mul(longer->data[j], shorter->data[i]);
+            result[i + j] = static_cast<bigint_base_t>(carry);
+            carry >>= sizeof(bigint_base_t) * 8;
+        }
+        if (carry)
+        {
+            result[i + j] += static_cast<bigint_base_t>(carry);
+        }
+    }
+
+    return BigInt(result, (sign == other.sign) ? Sign::Plus : Sign::Minus);
 }
 
 BigInt BigInt::operator/(const BigInt &other) const

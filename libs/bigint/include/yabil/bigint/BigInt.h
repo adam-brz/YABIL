@@ -309,7 +309,6 @@ private:
     bool check_abs_greater(const BigInt &other) const;
     bool check_abs_lower(const BigInt &other) const;
 
-    BigInt basic_mul(const BigInt &other) const;
     std::pair<BigInt, BigInt> divide_unsigned(const BigInt &other) const;
 
     BigInt plain_add(const BigInt &other) const;
