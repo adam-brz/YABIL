@@ -51,7 +51,7 @@ function(set_common_target_options TARGET)
     set(OTHER_RELEASE_FLAGS -O3)
 
     if (MSVC)
-        target_compile_options(${TARGET} PRIVATE /Wall)
+        target_compile_options(${TARGET} PRIVATE /W4)
     else()
         target_compile_options(${TARGET} PRIVATE -Wall -Wextra -Wpedantic)
     endif()
