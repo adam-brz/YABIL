@@ -30,7 +30,7 @@ TEST_F(BigIntOrOperator_tests, orShouldLeaveAllOnes)
     ASSERT_EQ(0xff0fff, (big_int1 | big_int2).to_int());
 }
 
-TEST_F(BigIntOrOperator_tests, andShouldLeaveCommonOnesForLongNumbers)
+TEST_F(BigIntOrOperator_tests, orShouldLeaveCommonOnesForLongNumbers)
 {
     const BigInt big_int1(std::vector<bigint_base_t>{0xf0f000, 0xf0f0f0, 0xf0f0f0});
     const BigInt big_int2(std::vector<bigint_base_t>{0xff00f0, 0xf000f0});
@@ -38,7 +38,34 @@ TEST_F(BigIntOrOperator_tests, andShouldLeaveCommonOnesForLongNumbers)
     ASSERT_EQ(expected, (big_int1 | big_int2).raw_data());
 }
 
-TEST_F(BigIntOrOperator_tests, andShouldLeaveCommonOnesForLongNumbers_2)
+TEST_F(BigIntOrOperator_tests, inplaceTwoZerosShouldGiveZero)
+{
+    BigInt big_int1;
+    const BigInt big_int2;
+    big_int1 |= big_int2;
+    ASSERT_EQ(0, big_int1.to_int());
+}
+
+TEST_F(BigIntOrOperator_tests, inplaceZeroOrAnyNumberGivesThisNumber)
+{
+    const BigInt zero;
+    for (int i = -20; i < 20; ++i)
+    {
+        BigInt b{i};
+        b ^= zero;
+        ASSERT_EQ(i, b.to_int());
+    }
+}
+
+TEST_F(BigIntOrOperator_tests, inplaceOrShouldLeaveAllOnes)
+{
+    BigInt big_int1(0xff00ff);
+    const BigInt big_int2(0xff0fff);
+    big_int1 |= big_int2;
+    ASSERT_EQ(0xff0fff, big_int1.to_int());
+}
+
+TEST_F(BigIntOrOperator_tests, orShouldLeaveCommonOnesForLongNumbers_2)
 {
     BigInt big_int1(std::vector<bigint_base_t>{0xf0f000, 0xf0f0f0, 0xf0f0f0});
     const BigInt big_int2(std::vector<bigint_base_t>{0xff00f0, 0xf000f0});

@@ -1,9 +1,6 @@
 #include <yabil/bigint/BigInt.h>
 
-#include <iostream>
-
 #include "SafeOperators.h"
-#include "StringConversionUtils.h"
 
 namespace yabil::bigint
 {
@@ -110,13 +107,6 @@ BigInt BigInt::operator>>(uint64_t shift) const
     return BigInt(std::move(shifted), sign);
 }
 
-BigInt BigInt::operator-() const
-{
-    BigInt result(*this);
-    result.sign = (sign == Sign::Plus) ? Sign::Minus : Sign::Plus;
-    return result;
-}
-
 BigInt BigInt::operator~() const
 {
     std::vector<bigint_base_t> result_data(data.size());
@@ -124,176 +114,102 @@ BigInt BigInt::operator~() const
     return BigInt(std::move(result_data), (sign == Sign::Plus) ? Sign::Minus : Sign::Plus);
 }
 
-BigInt &BigInt::operator+=(const BigInt &other)
-{
-    if (sign == other.sign)
-    {
-        return inplace_plain_add(other);
-    }
-
-    if (sign == Sign::Minus)
-    {
-        inplace_plain_sub(other);
-        sign = (sign == Sign::Minus) ? Sign::Plus : Sign::Minus;
-        return *this;
-    }
-
-    return inplace_plain_sub(other);
-}
-
-BigInt &BigInt::operator-=(const BigInt &other)
-{
-    if (sign != other.sign)
-    {
-        return inplace_plain_add(other);
-    }
-
-    if (sign == Sign::Plus)
-    {
-        return inplace_plain_sub(other);
-    }
-
-    inplace_plain_sub(other);
-    return *this;
-}
-
-BigInt &BigInt::operator*=(const BigInt &other)
-{
-    return *this = *this * other;
-}
-
-BigInt &BigInt::operator/=(const BigInt &other)
-{
-    return *this = *this / other;
-}
-
-BigInt &BigInt::operator%=(const BigInt &other)
-{
-    return *this = *this % other;
-}
-
 BigInt &BigInt::operator&=(const BigInt &other)
 {
-    return *this = *this & other;
-}
+    data.resize(std::min(data.size(), other.data.size()));
 
-BigInt &BigInt::operator|=(const BigInt &other)
-{
-    return *this = *this | other;
-}
-
-BigInt &BigInt::operator^=(const BigInt &other)
-{
-    return *this = *this ^ other;
-}
-
-BigInt &BigInt::operator<<=(uint64_t shift)
-{
-    return *this = *this << shift;
-}
-
-BigInt &BigInt::operator>>=(uint64_t shift)
-{
-    return *this = *this >> shift;
-}
-
-std::ostream &operator<<(std::ostream &out, const BigInt &bigint)
-{
-    out << bigint.to_str();
-    return out;
-}
-
-std::istream &operator>>(std::istream &in, BigInt &bigint)
-{
-    constexpr int base = 10;
-
-    char first;
-    in >> first;
-
-    const Sign sign = (first == '-') ? Sign::Minus : Sign::Plus;
-    const bool hasSign = (first == '-') || (first == '+');
-
-    BigInt result;
-    if (!hasSign)
+    for (std::size_t i = 0; i < data.size(); ++i)
     {
-        int converted = get_digit_value(std::tolower(first));
-        check_conversion(first, converted, base);
-        result = BigInt(converted);
+        data[i] &= other.data[i];
     }
 
-    for (auto it = std::istreambuf_iterator<char>(in); it != std::istreambuf_iterator<char>(); ++it)
-    {
-        const auto converted = get_digit_value(std::tolower(*it));
-        check_conversion(*it, converted, base);
-        result *= BigInt(base);
-        result += BigInt(converted);
-    }
-
-    result.sign = sign;
-    bigint = std::move(result);
-
-    return in;
-}
-
-BigInt &BigInt::inplace_plain_add(const BigInt &other)
-{
-    const auto max_size = std::max(data.size(), other.data.size());
-    data.resize(max_size + 1);
-
-    bigint_base_t carry = 0;
-    std::size_t i;
-
-    for (i = 0; i < other.data.size(); ++i)
-    {
-        const auto sum = safe_add(data[i], other.data[i], carry);
-        data[i] = static_cast<bigint_base_t>(sum);
-        carry = static_cast<bigint_base_t>(sum >> (sizeof(bigint_base_t) * 8));
-    }
-
-    for (; i < data.size(); ++i)
-    {
-        const auto sum = safe_add(data[i], carry);
-        data[i] = static_cast<bigint_base_t>(sum);
-        carry = static_cast<bigint_base_t>(sum >> (sizeof(bigint_base_t) * 8));
-    }
-
-    if (carry)
-    {
-        data[i] = carry;
-    }
-
+    sign = (sign == Sign::Minus && other.sign == Sign::Minus) ? Sign::Minus : Sign::Plus;
     normalize();
     return *this;
 }
 
-BigInt &BigInt::inplace_plain_sub(const BigInt &other)
+BigInt &BigInt::operator|=(const BigInt &other)
 {
-    const BigInt *longer = this;
-    const BigInt *shorter = &other;
+    data.resize(std::max(data.size(), other.data.size()));
 
-    if (check_abs_lower(other))
+    for (std::size_t i = 0; i < other.data.size(); ++i)
     {
-        std::swap(longer, shorter);
-        sign = Sign::Minus;
+        data[i] |= other.data[i];
     }
 
-    const auto shorter_size = shorter->data.size();
-    data.resize(longer->data.size());
-    bigint_base_t borrow = 0;
+    sign = (sign == Sign::Minus || other.sign == Sign::Minus) ? Sign::Minus : Sign::Plus;
+    normalize();
+    return *this;
+}
 
-    std::size_t i;
-    for (i = 0; i < shorter_size; ++i)
+BigInt &BigInt::operator^=(const BigInt &other)
+{
+    data.resize(std::max(data.size(), other.data.size()));
+
+    for (std::size_t i = 0; i < other.data.size(); ++i)
     {
-        const auto result = safe_sub(longer->data[i], shorter->data[i], borrow);
-        borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        data[i] = static_cast<bigint_base_t>(result);
+        data[i] ^= other.data[i];
     }
-    for (; i < longer->data.size(); ++i)
+
+    sign = (sign != other.sign) ? Sign::Minus : Sign::Plus;
+    normalize();
+    return *this;
+}
+
+BigInt &BigInt::operator<<=(uint64_t shift)
+{
+    const uint64_t new_items_count = shift / (sizeof(bigint_base_t) * 8);
+    const uint64_t real_shift = shift % (sizeof(bigint_base_t) * 8);
+
+    data.resize(data.size() + new_items_count + 1);
+    bigint_base_t shifted_val = 0;
+
+    std::transform(data.cbegin(), data.cend() - static_cast<int>(new_items_count) - 1,
+        data.begin() + static_cast<int>(new_items_count),
+                   [real_shift, &shifted_val](const bigint_base_t &v)
+                   {
+                       const bigint_base_t transformed = (v << real_shift) | shifted_val;
+                       shifted_val =
+                           static_cast<bigint_base_t>((static_cast<double_width_t<bigint_base_t>>(v) << real_shift) >>
+                                                      (sizeof(bigint_base_t) * 8));
+                       return transformed;
+                   });
+
+    if(new_items_count > 0)
     {
-        const auto result = safe_sub(longer->data[i], borrow);
-        borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        data[i] = static_cast<bigint_base_t>(result);
+        std::fill(data.begin(), data.begin() + static_cast<int>(new_items_count), 0);
     }
+
+    data.back() = shifted_val;
+    normalize();
+
+    return *this;
+}
+
+BigInt &BigInt::operator>>=(uint64_t shift)
+{
+    const uint64_t removed_items_count = shift / (sizeof(bigint_base_t) * 8);
+    const uint64_t real_shift = shift % (sizeof(bigint_base_t) * 8);
+
+    if (removed_items_count >= data.size())
+    {
+        data.resize(0);
+        normalize();
+        return *this;
+    }
+
+    data.resize(data.size() - removed_items_count);
+    bigint_base_t shifted_val = 0;
+
+    std::transform(
+        data.crbegin(), data.crend(), data.rbegin(),
+        [real_shift, &shifted_val](const bigint_base_t &v)
+        {
+            const bigint_base_t transformed = (v >> real_shift) | shifted_val;
+            shifted_val = static_cast<bigint_base_t>(
+                (static_cast<double_width_t<bigint_base_t>>(v) << (sizeof(bigint_base_t) * 8)) >> real_shift);
+            return transformed;
+        });
 
     normalize();
     return *this;
