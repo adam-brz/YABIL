@@ -41,7 +41,7 @@ TEST_F(MathLog_tests, int_log2ForBigNumbers)
         ASSERT_EQ(170, result);
     }
     {
-        const auto result = log2_int(pow(BigInt(2), BigInt(1239)));
+        const auto result = log2_int(BigInt(1) << 1239);
         ASSERT_EQ(1239, result);
     }
 }
@@ -75,7 +75,7 @@ TEST_F(MathLog_tests, log2ForBigNumbers)
         ASSERT_DOUBLE_EQ(170.3134256240503, result);
     }
     {
-        const auto result = log2(pow(BigInt(2), BigInt(1239)));
+        const auto result = log2(BigInt(1) << 1239);
         ASSERT_DOUBLE_EQ(1239, result);
     }
 }

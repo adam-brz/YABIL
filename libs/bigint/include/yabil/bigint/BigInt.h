@@ -310,6 +310,8 @@ private:
     bool check_abs_lower(const BigInt &other) const;
 
     std::pair<BigInt, BigInt> divide_unsigned(const BigInt &other) const;
+    BigInt base_mul(const BigInt &other) const;
+    BigInt karatsuba_mul(const BigInt &other) const;
 
     BigInt plain_add(const BigInt &other) const;
     BigInt plain_sub(const BigInt &other) const;

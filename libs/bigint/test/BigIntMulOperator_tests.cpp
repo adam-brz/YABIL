@@ -111,3 +111,14 @@ TEST_F(BigIntMulOperator_tests, mulTwoTheSameLong)
     ASSERT_EQ(expected, result.raw_data());
     ASSERT_EQ(Sign::Plus, result.get_sign());
 }
+
+TEST_F(BigIntMulOperator_tests, mulVeryLong)
+{
+    const BigInt big_int1("216876217867812abf12312ff124412412f3f129028139182390128", 16);
+    const BigInt big_int2("16876217867812abf12312ff124412412f3f129028139182390128", 16);
+
+    const BigInt expected("2f0a50a3b272a04e7f916ba1b689396c067cb18d3a405f3d784e7566b4e8cc7169215b207489d641a7fcecbd98c6997d312e23d15640", 16);
+    const auto result = big_int1 * big_int2;
+
+    ASSERT_EQ(expected, result);
+}

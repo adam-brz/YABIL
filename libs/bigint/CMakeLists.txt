@@ -8,6 +8,7 @@ set(SOURCES
     src/SafeOperators.h
     src/StringConversionUtils.cpp
     src/StringConversionUtils.h
+    src/Thresholds.h
 )
 
 set(HEADERS

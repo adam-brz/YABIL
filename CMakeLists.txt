@@ -8,6 +8,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
+option(YABIL_ENABLE_SANITIZER "Enable address sanitizer" OFF)
 option(YABIL_ENABLE_TESTS "Enable test targets" OFF)
 option(YABIL_ENABLE_COVERAGE "Build with coverage info" OFF)
 

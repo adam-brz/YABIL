@@ -4,6 +4,7 @@
 
 #include "SafeOperators.h"
 #include "StringConversionUtils.h"
+#include "Thresholds.h"
 
 namespace yabil::bigint
 {
@@ -59,6 +60,11 @@ BigInt BigInt::operator-(const BigInt &other) const
 
 BigInt BigInt::operator*(const BigInt &other) const
 {
+    return karatsuba_mul(other);
+}
+
+BigInt BigInt::base_mul(const BigInt &other) const
+{
     std::vector<bigint_base_t> result(data.size() + other.data.size(), 0);
     const auto [longer, shorter] = get_longer_and_shorter(*this, other);
 
@@ -78,7 +84,31 @@ BigInt BigInt::operator*(const BigInt &other) const
         }
     }
 
-    return BigInt(result, (sign == other.sign) ? Sign::Plus : Sign::Minus);
+    return BigInt(std::move(result), (sign == other.sign) ? Sign::Plus : Sign::Minus);
+}
+
+BigInt BigInt::karatsuba_mul(const BigInt &other) const
+{
+    if (data.size() < karatsuba_threshold_digits || other.data.size() < karatsuba_threshold_digits)
+    {
+        return base_mul(other);
+    }
+
+    const auto m2 = std::max(data.size(), other.data.size()) / 2;
+
+    const BigInt low1{std::vector<bigint_base_t>(data.cbegin(), data.cbegin() + m2)};
+    const BigInt high1{std::vector<bigint_base_t>(data.cbegin() + m2, data.cend())};
+
+    const BigInt low2{std::vector<bigint_base_t>(other.data.cbegin(), other.data.cbegin() + m2)};
+    const BigInt high2{std::vector<bigint_base_t>(other.data.cbegin() + m2, other.data.cend())};
+
+    const auto z0 = low1.karatsuba_mul(low2);
+    const auto z1 = (low1 + high1).karatsuba_mul(low2 + high2);
+    const auto z2 = (high1).karatsuba_mul(high2);
+
+    auto result = (z2 << (m2*2*sizeof(bigint_base_t)*8)) + ((z1 - z2 - z0) << (m2*sizeof(bigint_base_t)*8)) + z0;
+    result.sign = (sign == other.sign) ? Sign::Plus : Sign::Minus;
+    return result;
 }
 
 BigInt BigInt::operator/(const BigInt &other) const
