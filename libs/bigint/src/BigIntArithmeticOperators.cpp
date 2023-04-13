@@ -94,7 +94,7 @@ BigInt BigInt::karatsuba_mul(const BigInt &other) const
         return base_mul(other);
     }
 
-    const auto m2 = std::max(data.size(), other.data.size()) / 2;
+    const int m2 = static_cast<int>(std::max(data.size(), other.data.size()) / 2);
 
     const BigInt low1{std::vector<bigint_base_t>(data.cbegin(), data.cbegin() + m2)};
     const BigInt high1{std::vector<bigint_base_t>(data.cbegin() + m2, data.cend())};
@@ -107,7 +107,7 @@ BigInt BigInt::karatsuba_mul(const BigInt &other) const
     const auto z2 = (high1).karatsuba_mul(high2);
 
     auto result =
-        (z2 << (m2 * 2 * sizeof(bigint_base_t) * 8)) + ((z1 - z2 - z0) << (m2 * sizeof(bigint_base_t) * 8)) + z0;
+        (z2 << (m2 * 2UL * sizeof(bigint_base_t) * 8UL)) + ((z1 - z2 - z0) << (m2 * sizeof(bigint_base_t) * 8UL)) + z0;
     result.sign = (sign == other.sign) ? Sign::Plus : Sign::Minus;
     return result;
 }
