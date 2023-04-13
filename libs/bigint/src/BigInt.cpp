@@ -7,35 +7,10 @@
 #include <stdexcept>
 
 #include "SafeOperators.h"
+#include "StringConversionUtils.h"
 
 namespace yabil::bigint
 {
-
-namespace
-{
-
-int get_digit_value(int digit)
-{
-    if (digit >= 'a' && digit <= 'f') return digit - 'a' + 10;
-    return digit - '0';
-}
-
-char get_digit_char(int digit)
-{
-    if (digit >= 10 && digit <= 16) return static_cast<char>(digit + 'a' - 10);
-    return static_cast<char>(digit + '0');
-}
-
-void check_conversion(char chr, int converted, int base)
-{
-    if (converted < 0 || converted > base)
-    {
-        throw std::invalid_argument("Cannot convert character: " + std::string(1, chr) +
-                                    " to number of base: " + std::to_string(base));
-    }
-}
-
-}  // namespace
 
 BigInt::BigInt(const std::vector<bigint_base_t> &raw_data, Sign sign) : data(raw_data), sign(sign)
 {
@@ -155,60 +130,6 @@ void BigInt::set_sign(Sign new_sign)
     sign = new_sign;
 }
 
-bool BigInt::operator==(const BigInt &other) const
-{
-    return (is_zero() && other.is_zero()) || (sign == other.sign && data == other.data);
-}
-
-bool BigInt::operator!=(const BigInt &other) const
-{
-    return !(*this == other);
-}
-
-bool BigInt::operator<(const BigInt &other) const
-{
-    if (sign == Sign::Minus && other.sign == Sign::Minus)
-    {
-        return check_abs_greater(other);
-    }
-    if (sign == Sign::Plus && other.sign == Sign::Plus)
-    {
-        return check_abs_lower(other);
-    }
-    if (sign == Sign::Minus && other.sign == Sign::Plus)
-    {
-        return true;
-    }
-    return false;
-}
-
-bool BigInt::operator<=(const BigInt &other) const
-{
-    return (*this < other) || (*this == other);
-}
-
-bool BigInt::operator>(const BigInt &other) const
-{
-    if (sign == Sign::Minus && other.sign == Sign::Minus)
-    {
-        return check_abs_lower(other);
-    }
-    if (sign == Sign::Plus && other.sign == Sign::Plus)
-    {
-        return check_abs_greater(other);
-    }
-    if (sign == Sign::Plus && other.sign == Sign::Minus)
-    {
-        return !is_zero() || !other.is_zero();
-    }
-    return false;
-}
-
-bool BigInt::operator>=(const BigInt &other) const
-{
-    return (*this > other) || (*this == other);
-}
-
 bool BigInt::is_uint64() const
 {
     return byte_size() <= sizeof(uint64_t);
@@ -231,210 +152,9 @@ bool BigInt::check_abs_greater(const BigInt &other) const
 
 bool BigInt::check_abs_lower(const BigInt &other) const
 {
-    return data.size() <= other.data.size() &&
-           std::lexicographical_compare(data.crbegin(), data.crend(), other.data.crbegin(), other.data.crend());
-}
-
-BigInt BigInt::basic_mul(const BigInt &other) const
-{
-    std::vector<bigint_base_t> result(data.size() + other.data.size(), 0);
-    const auto [longer, shorter] = get_longer_and_shorter(*this, other);
-
-    for (std::size_t i = 0; i < shorter->data.size(); ++i)
-    {
-        double_width_t<bigint_base_t> carry = 0;
-        std::size_t j;
-        for (j = 0; j < longer->data.size(); ++j)
-        {
-            carry += result[i + j] + safe_mul(longer->data[j], shorter->data[i]);
-            result[i + j] = static_cast<bigint_base_t>(carry);
-            carry >>= sizeof(bigint_base_t) * 8;
-        }
-        if (carry)
-        {
-            result[i + j] += static_cast<bigint_base_t>(carry);
-        }
-    }
-
-    return BigInt(result, (sign == other.sign) ? Sign::Plus : Sign::Minus);
-}
-
-std::pair<BigInt, BigInt> BigInt::divide_unsigned(const BigInt &other) const
-{
-    BigInt quotient, remainder;
-    const int64_t bits = static_cast<int64_t>(byte_size() * 8);
-
-    for (int64_t i = bits - 1; i >= 0; --i)
-    {
-        remainder <<= 1;
-        remainder.set_bit(0, get_bit(static_cast<std::size_t>(i)));
-        if (remainder >= other)
-        {
-            remainder -= other;
-            quotient.set_bit(static_cast<std::size_t>(i), true);
-        }
-    }
-
-    quotient.normalize();
-    remainder.normalize();
-    return {quotient, remainder};
-}
-
-BigInt BigInt::operator+(const BigInt &other) const
-{
-    if (sign == other.sign)
-    {
-        return plain_add(other);
-    }
-
-    if (sign == Sign::Minus)
-    {
-        return other.plain_sub(*this);
-    }
-
-    return plain_sub(other);
-}
-
-BigInt BigInt::operator-(const BigInt &other) const
-{
-    if (sign != other.sign)
-    {
-        return plain_add(other);
-    }
-
-    if (sign == Sign::Plus)
-    {
-        return plain_sub(other);
-    }
-
-    return other.plain_sub(*this);
-}
-
-BigInt BigInt::operator*(const BigInt &other) const
-{
-    return basic_mul(other);
-}
-
-BigInt BigInt::operator/(const BigInt &other) const
-{
-    if (is_int64() && other.is_int64())
-    {
-        if (other.is_zero())
-        {
-            throw std::invalid_argument("Cannot divide by 0");
-        }
-        return BigInt(to_int() / other.to_int());
-    }
-    return divide(other).first;
-}
-
-BigInt BigInt::operator%(const BigInt &other) const
-{
-    if (is_int64() && other.is_int64())
-    {
-        if (other.is_zero())
-        {
-            throw std::invalid_argument("Cannot divide by 0");
-        }
-        return BigInt(to_int() % other.to_int());
-    }
-    return divide(other).second;
-}
-
-BigInt BigInt::plain_add(const BigInt &other) const
-{
-    const auto [longer, shorter] = get_longer_and_shorter(*this, other);
-    std::vector<bigint_base_t> result_data;
-    result_data.reserve(longer->data.size() + 1);
-
-    bigint_base_t carry = 0;
-    std::size_t i;
-
-    for (i = 0; i < shorter->data.size(); ++i)
-    {
-        const auto addition_result = safe_add(longer->data[i], shorter->data[i], carry);
-        carry = static_cast<bigint_base_t>(addition_result >> (sizeof(bigint_base_t) * 8));
-        result_data.push_back(static_cast<bigint_base_t>(addition_result));
-    }
-
-    for (; i < longer->data.size(); ++i)
-    {
-        const auto addition_result = safe_add(longer->data[i], carry);
-        carry = static_cast<bigint_base_t>(addition_result >> (sizeof(bigint_base_t) * 8));
-        result_data.push_back(static_cast<bigint_base_t>(addition_result));
-    }
-
-    if (carry > 0)
-    {
-        result_data.push_back(carry);
-    }
-
-    return BigInt(std::move(result_data), sign);
-}
-
-BigInt BigInt::plain_sub(const BigInt &other) const
-{
-    const BigInt *longer = this;
-    const BigInt *shorter = &other;
-    Sign new_sign = Sign::Plus;
-
-    if (longer->check_abs_lower(*shorter))
-    {
-        std::swap(longer, shorter);
-        new_sign = Sign::Minus;
-    }
-
-    std::vector<bigint_base_t> result_data;
-    result_data.reserve(longer->data.size());
-    bigint_base_t borrow = 0;
-    std::size_t i;
-
-    for (i = 0; i < shorter->data.size(); ++i)
-    {
-        const auto result = safe_sub(longer->data[i], shorter->data[i], borrow);
-        borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        result_data.push_back(static_cast<bigint_base_t>(result));
-    }
-    for (; i < longer->data.size(); ++i)
-    {
-        const auto result = safe_sub(longer->data[i], borrow);
-        borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        result_data.push_back(static_cast<bigint_base_t>(result));
-    }
-
-    return BigInt(std::move(result_data), new_sign);
-}
-
-std::pair<BigInt, BigInt> BigInt::divide(const BigInt &other) const
-{
-    if (other.is_zero())
-    {
-        throw std::invalid_argument("Cannot divide by 0");
-    }
-
-    if (is_int64() && other.is_int64())
-    {
-        const auto a = to_int();
-        const auto b = other.to_int();
-        return {BigInt(a / b), BigInt(a % b)};
-    }
-
-    if (is_negative() && other.is_negative())
-    {
-        const auto [quotient, remainder] = (-(*this)).divide_unsigned(-other);
-        return {quotient, -remainder};
-    }
-    if (!is_negative() && other.is_negative())
-    {
-        const auto [quotient, remainder] = divide_unsigned(-other);
-        return {-quotient, remainder};
-    }
-    if (is_negative() && !other.is_negative())
-    {
-        const auto [quotient, remainder] = (-(*this)).divide_unsigned(other);
-        return {-quotient, -remainder};
-    }
-    return divide_unsigned(other);
+    return data.size() < other.data.size() ||
+           (data.size() == other.data.size() &&
+            std::lexicographical_compare(data.crbegin(), data.crend(), other.data.crbegin(), other.data.crend()));
 }
 
 bool BigInt::get_bit(std::size_t n) const
@@ -462,181 +182,6 @@ void BigInt::set_bit(std::size_t n, bool bit_value)
     data[item_index] =
         (data[item_index] & ~(bigint_base_t(1) << bit_index)) | (static_cast<uint8_t>(bit_value & 0x01) << bit_index);
     normalize();
-}
-
-BigInt BigInt::operator&(const BigInt &other) const
-{
-    const std::size_t min_size = std::min(data.size(), other.data.size());
-
-    std::vector<bigint_base_t> result_data;
-    result_data.reserve(min_size);
-    for (std::size_t i = 0; i < min_size; ++i)
-    {
-        result_data.push_back(data[i] & other.data[i]);
-    }
-
-    return BigInt(std::move(result_data),
-                  (sign == Sign::Minus && other.sign == Sign::Minus) ? Sign::Minus : Sign::Plus);
-}
-
-BigInt BigInt::operator|(const BigInt &other) const
-{
-    const auto [longer, shorter] = get_longer_and_shorter(*this, other);
-    std::vector<bigint_base_t> result_data;
-    result_data.reserve(longer->data.size());
-
-    std::size_t i;
-    for (i = 0; i < shorter->data.size(); ++i)
-    {
-        result_data.push_back(longer->data[i] | shorter->data[i]);
-    }
-    for (; i < longer->data.size(); ++i)
-    {
-        result_data.push_back(longer->data[i]);
-    }
-
-    return BigInt(std::move(result_data),
-                  (sign == Sign::Minus || other.sign == Sign::Minus) ? Sign::Minus : Sign::Plus);
-}
-
-BigInt BigInt::operator^(const BigInt &other) const
-{
-    const auto [longer, shorter] = get_longer_and_shorter(*this, other);
-    std::vector<bigint_base_t> result_data;
-    result_data.reserve(longer->data.size());
-
-    std::size_t i;
-    for (i = 0; i < shorter->data.size(); ++i)
-    {
-        result_data.push_back(longer->data[i] ^ shorter->data[i]);
-    }
-    for (; i < longer->data.size(); ++i)
-    {
-        result_data.push_back(longer->data[i]);
-    }
-
-    return BigInt(std::move(result_data), (sign != other.sign) ? Sign::Minus : Sign::Plus);
-}
-
-BigInt BigInt::operator<<(uint64_t shift) const
-{
-    const uint64_t new_items_count = shift / (sizeof(bigint_base_t) * 8);
-    const uint64_t real_shift = shift % (sizeof(bigint_base_t) * 8);
-
-    std::vector<bigint_base_t> shifted(new_items_count + data.size() + 1, 0);
-    bigint_base_t shifted_val = 0;
-
-    std::transform(data.cbegin(), data.cend(), shifted.begin() + static_cast<int>(new_items_count),
-                   [real_shift, &shifted_val](const bigint_base_t &v)
-                   {
-                       const bigint_base_t transformed = (v << real_shift) | shifted_val;
-                       shifted_val =
-                           static_cast<bigint_base_t>((static_cast<double_width_t<bigint_base_t>>(v) << real_shift) >>
-                                                      (sizeof(bigint_base_t) * 8));
-                       return transformed;
-                   });
-
-    shifted.back() = shifted_val;
-    return BigInt(std::move(shifted), sign);
-}
-
-BigInt BigInt::operator>>(uint64_t shift) const
-{
-    const uint64_t removed_items_count = shift / (sizeof(bigint_base_t) * 8);
-    const uint64_t real_shift = shift % (sizeof(bigint_base_t) * 8);
-
-    if (removed_items_count >= data.size())
-    {
-        return BigInt();
-    }
-
-    std::vector<bigint_base_t> shifted(data.size() - removed_items_count, 0);
-    bigint_base_t shifted_val = 0;
-
-    std::transform(
-        data.crbegin(), data.crend() - static_cast<int>(removed_items_count), shifted.rbegin(),
-        [real_shift, &shifted_val](const bigint_base_t &v)
-        {
-            const bigint_base_t transformed = (v >> real_shift) | shifted_val;
-            shifted_val = static_cast<bigint_base_t>(
-                (static_cast<double_width_t<bigint_base_t>>(v) << (sizeof(bigint_base_t) * 8)) >> real_shift);
-            return transformed;
-        });
-
-    return BigInt(std::move(shifted), sign);
-}
-
-BigInt BigInt::operator-() const
-{
-    BigInt result(*this);
-    result.sign = (sign == Sign::Plus) ? Sign::Minus : Sign::Plus;
-    return result;
-}
-
-BigInt BigInt::operator~() const
-{
-    std::vector<bigint_base_t> result_data(data.size());
-    std::transform(data.cbegin(), data.cend(), result_data.begin(), [](const auto &v) { return ~v; });
-    return BigInt(std::move(result_data), (sign == Sign::Plus) ? Sign::Minus : Sign::Plus);
-}
-
-BigInt &BigInt::operator+=(const BigInt &other)
-{
-    return *this = *this + other;
-}
-
-BigInt &BigInt::operator-=(const BigInt &other)
-{
-    return *this = *this - other;
-}
-
-BigInt &BigInt::operator*=(const BigInt &other)
-{
-    return *this = *this * other;
-}
-
-BigInt &BigInt::operator/=(const BigInt &other)
-{
-    return *this = *this / other;
-}
-
-BigInt &BigInt::operator%=(const BigInt &other)
-{
-    return *this = *this % other;
-}
-
-BigInt &BigInt::operator&=(const BigInt &other)
-{
-    return *this = *this & other;
-}
-
-BigInt &BigInt::operator|=(const BigInt &other)
-{
-    return *this = *this | other;
-}
-
-BigInt &BigInt::operator^=(const BigInt &other)
-{
-    return *this = *this ^ other;
-}
-
-BigInt &BigInt::operator<<=(uint64_t shift)
-{
-    return *this = *this << shift;
-}
-
-BigInt &BigInt::operator>>=(uint64_t shift)
-{
-    return *this = *this >> shift;
-}
-
-std::pair<const BigInt *, const BigInt *> BigInt::get_longer_and_shorter(const BigInt &num1, const BigInt &num2)
-{
-    if (num1.raw_data().size() > num2.raw_data().size())
-    {
-        return {&num1, &num2};
-    }
-    return {&num2, &num1};
 }
 
 std::ostream &operator<<(std::ostream &out, const BigInt &bigint)
@@ -675,6 +220,15 @@ std::istream &operator>>(std::istream &in, BigInt &bigint)
     bigint = std::move(result);
 
     return in;
+}
+
+std::pair<const BigInt *, const BigInt *> BigInt::get_longer_and_shorter(const BigInt &num1, const BigInt &num2)
+{
+    if (num1.raw_data().size() > num2.raw_data().size())
+    {
+        return {&num1, &num2};
+    }
+    return {&num2, &num1};
 }
 
 }  // namespace yabil::bigint
