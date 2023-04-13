@@ -106,7 +106,8 @@ BigInt BigInt::karatsuba_mul(const BigInt &other) const
     const auto z1 = (low1 + high1).karatsuba_mul(low2 + high2);
     const auto z2 = (high1).karatsuba_mul(high2);
 
-    auto result = (z2 << (m2*2*sizeof(bigint_base_t)*8)) + ((z1 - z2 - z0) << (m2*sizeof(bigint_base_t)*8)) + z0;
+    auto result =
+        (z2 << (m2 * 2 * sizeof(bigint_base_t) * 8)) + ((z1 - z2 - z0) << (m2 * sizeof(bigint_base_t) * 8)) + z0;
     result.sign = (sign == other.sign) ? Sign::Plus : Sign::Minus;
     return result;
 }
