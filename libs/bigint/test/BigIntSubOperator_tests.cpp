@@ -142,9 +142,9 @@ TEST_F(BigIntSubOperator_tests, subtractInPlaceTwoLongNonZeroWithOverflow)
     const BigInt big_int2(10);
     const std::vector<bigint_base_t> expected = {std::numeric_limits<bigint_base_t>::max() - 9,
                                                  std::numeric_limits<bigint_base_t>::max() - 1};
-    const auto &result = big_int1 -= big_int2;
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Plus, result.get_sign());
+    big_int1 -= big_int2;
+    ASSERT_EQ(expected, big_int1.raw_data());
+    ASSERT_EQ(Sign::Plus, big_int1.get_sign());
 }
 
 TEST_F(BigIntSubOperator_tests, subtractInPlaceTwoNegativeWithOverflow)
@@ -154,10 +154,10 @@ TEST_F(BigIntSubOperator_tests, subtractInPlaceTwoNegativeWithOverflow)
 
     const std::vector<bigint_base_t> expected = {std::numeric_limits<bigint_base_t>::max() - 9,
                                                  std::numeric_limits<bigint_base_t>::max() - 1};
-    const auto &result = big_int1 -= big_int2;
+    big_int1 -= big_int2;
 
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Minus, result.get_sign());
+    ASSERT_EQ(expected, big_int1.raw_data());
+    ASSERT_EQ(Sign::Minus, big_int1.get_sign());
 }
 
 TEST_F(BigIntSubOperator_tests, subtractInPlaceTwoTheSame)
@@ -166,8 +166,8 @@ TEST_F(BigIntSubOperator_tests, subtractInPlaceTwoTheSame)
     {
         BigInt big_int1(i);
         const BigInt big_int2(i);
-        const auto &result = big_int1 -= big_int2;
-        ASSERT_EQ(0, result.to_int());
+        big_int1 -= big_int2;
+        ASSERT_EQ(0, big_int1.to_int());
     }
 }
 
@@ -178,10 +178,10 @@ TEST_F(BigIntSubOperator_tests, subtractInPlaceTwoLongNoOverflow)
 
     const std::vector<bigint_base_t> expected = {std::numeric_limits<bigint_base_t>::max(),
                                                  std::numeric_limits<bigint_base_t>::max()};
-    const auto &result = big_int1 -= big_int2;
+    big_int1 -= big_int2;
 
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Minus, result.get_sign());
+    ASSERT_EQ(expected, big_int1.raw_data());
+    ASSERT_EQ(Sign::Minus, big_int1.get_sign());
 }
 
 TEST_F(BigIntSubOperator_tests, subtractInPlaceTwoWithDifferentSignsWithOverflow)
@@ -190,10 +190,10 @@ TEST_F(BigIntSubOperator_tests, subtractInPlaceTwoWithDifferentSignsWithOverflow
     const BigInt big_int2(std::numeric_limits<bigint_base_t>::max());
 
     const std::vector<bigint_base_t> expected = {1, std::numeric_limits<bigint_base_t>::max() - 1};
-    const auto &result = big_int1 -= big_int2;
+    big_int1 -= big_int2;
 
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Plus, result.get_sign());
+    ASSERT_EQ(expected, big_int1.raw_data());
+    ASSERT_EQ(Sign::Plus, big_int1.get_sign());
 }
 
 TEST_F(BigIntSubOperator_tests, subtractInPlaceMultiple)
