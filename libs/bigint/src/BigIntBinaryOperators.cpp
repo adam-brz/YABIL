@@ -1,5 +1,7 @@
 #include <yabil/bigint/BigInt.h>
 
+#include <algorithm>
+
 #include "SafeOperators.h"
 
 namespace yabil::bigint
