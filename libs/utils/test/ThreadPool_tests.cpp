@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include <yabil/utils/ThreadPool.h>
 
+#include <atomic>
+
 using namespace yabil::utils;
 
 class ThreadPool_tests : public ::testing::Test
@@ -20,7 +22,7 @@ TEST_F(ThreadPool_tests, canRunMultipleTasksWithSingleCore)
     std::vector<std::future<void>> results;
     results.reserve(100);
 
-    int a = 0;
+    std::atomic<int> a = 0;
     for (int i = 0; i < 100; ++i)
     {
         results.push_back(pool.submit([&]() { ++a; }));
