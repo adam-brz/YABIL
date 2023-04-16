@@ -4,6 +4,7 @@
 
 #include <atomic>
 #include <condition_variable>
+#include <cstdint>
 #include <future>
 #include <list>
 #include <memory>
@@ -42,7 +43,7 @@ public:
 
     /// @brief Get thread count.
     /// @return Number of threads in \p ThreadPool
-    unsigned thread_count() const;
+    std::size_t thread_count() const;
 
     /// @brief Get number of tasks which are currently running.
     /// @return Number of currently running tasks

@@ -32,7 +32,7 @@ void ThreadPool::stop()
     task_ready.notify_all();
 }
 
-unsigned ThreadPool::thread_count() const
+std::size_t ThreadPool::thread_count() const
 {
     return threads.size();
 }
