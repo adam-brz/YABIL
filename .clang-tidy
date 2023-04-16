@@ -7,5 +7,6 @@ Checks: >
   -misc-non-private-member-variables-in-classes,
   -misc-no-recursion,
   -bugprone-sizeof-expression,
-  -bugprone-easily-swappable-parameters
+  -bugprone-easily-swappable-parameters,
+  -bugprone-forwarding-reference-overload
 WarningsAsErrors: "*"

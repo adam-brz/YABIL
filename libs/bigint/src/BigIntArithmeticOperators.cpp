@@ -1,4 +1,5 @@
 #include <yabil/bigint/BigInt.h>
+#include <yabil/utils/ThreadPoolSingleton.h>
 
 #include <iostream>
 
@@ -102,9 +103,15 @@ BigInt BigInt::karatsuba_mul(const BigInt &other) const
     const BigInt low2{std::vector<bigint_base_t>(other.data.cbegin(), other.data.cbegin() + m2)};
     const BigInt high2{std::vector<bigint_base_t>(other.data.cbegin() + m2, other.data.cend())};
 
-    const auto z0 = low1.karatsuba_mul(low2);
-    const auto z1 = (low1 + high1).karatsuba_mul(low2 + high2);
-    const auto z2 = (high1).karatsuba_mul(high2);
+    auto &thread_pool = utils::ThreadPoolSingleton::instance();
+
+    auto w_z0 = thread_pool.smart_run([&]() { return low1.karatsuba_mul(low2); });
+    auto w_z1 = thread_pool.smart_run([&]() { return (low1 + high1).karatsuba_mul(low2 + high2); });
+    auto w_z2 = thread_pool.smart_run([&]() { return (high1).karatsuba_mul(high2); });
+
+    const auto z0 = w_z0.get();
+    const auto z1 = w_z1.get();
+    const auto z2 = w_z2.get();
 
     auto result =
         (z2 << (m2 * 2UL * sizeof(bigint_base_t) * 8UL)) + ((z1 - z2 - z0) << (m2 * sizeof(bigint_base_t) * 8UL)) + z0;
