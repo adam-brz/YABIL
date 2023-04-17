@@ -25,10 +25,9 @@ private:
     std::list<FunctionWrapper> tasks;
 
     std::atomic<bool> should_stop = false;
-    std::atomic<unsigned> currently_running = false;
+    std::atomic<unsigned> currently_running = 0;
     std::condition_variable task_ready;
     std::mutex task_mutex;
-    std::mutex smart_run_mutex;
 
 public:
     /// @brief Creates ThreadPool instance with given concurrency.
@@ -84,17 +83,20 @@ public:
     template <typename FunctionType>
     auto smart_run(FunctionType func)
     {
-        std::lock_guard guard(smart_run_mutex);
+        std::unique_lock guard(task_mutex);
 
         if (tasks.size() < thread_count() && currently_running_tasks_count() < thread_count())
         {
+            guard.unlock();
             return submit(std::move(func));
         }
 
+        guard.unlock();
         return std::async(std::launch::deferred, func);
     }
 
 private:
     void worker();
 };
+
 }  // namespace yabil::utils

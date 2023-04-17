@@ -51,7 +51,7 @@ void ThreadPool::worker()
 {
     while (is_active())
     {
-        std::unique_lock<std::mutex> guard(task_mutex);
+        std::unique_lock guard(task_mutex);
         task_ready.wait(guard, [&]() { return !tasks.empty() || should_stop; });
 
         if (!tasks.empty() && is_active())
