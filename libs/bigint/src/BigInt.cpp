@@ -85,12 +85,12 @@ uint64_t BigInt::byte_size() const
 
 std::string BigInt::to_str(int base) const
 {
-    BigInt number(*this);
+    BigInt number = this->abs();
     std::string str_number;
 
     do
     {
-        const auto [quotient, remainder] = number.divide_unsigned(BigInt(base));
+        const auto [quotient, remainder] = number.divide(BigInt(base));
         number = quotient;
         str_number.append(1, get_digit_char(static_cast<int>(remainder.to_int())));
     } while (!number.is_zero());
@@ -155,6 +155,11 @@ bool BigInt::check_abs_lower(const BigInt &other) const
     return data.size() < other.data.size() ||
            (data.size() == other.data.size() &&
             std::lexicographical_compare(data.crbegin(), data.crend(), other.data.crbegin(), other.data.crend()));
+}
+
+bool BigInt::is_normalized_for_division() const
+{
+    return get_bit(byte_size() * 8 - 1);
 }
 
 bool BigInt::get_bit(std::size_t n) const

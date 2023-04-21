@@ -12,21 +12,44 @@ namespace yabil::bigint
 
 std::pair<BigInt, BigInt> BigInt::divide_unsigned(const BigInt &other) const
 {
-    BigInt quotient, remainder;
-    const int64_t bits = static_cast<int64_t>(byte_size() * 8);
+    const int n = static_cast<int>(other.data.size());
+    const int m = static_cast<int>(data.size()) - n;
 
-    for (int64_t i = bits - 1; i >= 0; --i)
+    if (m < 0)
     {
-        remainder <<= 1;
-        remainder.set_bit(0, get_bit(static_cast<std::size_t>(i)));
-        if (remainder >= other)
-        {
-            remainder -= other;
-            quotient.set_bit(static_cast<std::size_t>(i), true);
-        }
+        return {BigInt(0), *this};
     }
 
-    return {quotient, remainder};
+    BigInt A = *this;
+    const BigInt &B = other;
+
+    std::vector<bigint_base_t> q(m + 1);
+    constexpr auto digit_size_bits = sizeof(bigint_base_t) * 8;
+
+    const BigInt B_m = B << (digit_size_bits * m);
+    if (A >= B_m)
+    {
+        A -= B_m;
+        q[m] = 1;
+    }
+
+    for (int i = m - 1; i >= 0; --i)
+    {
+        const auto top_two_digits = (static_cast<double_width_t<bigint_base_t>>(A.data[n + i]) << digit_size_bits) |
+                                    static_cast<double_width_t<bigint_base_t>>(A.data[n + i - 1]);
+
+        const auto quotient_part = top_two_digits / B.data[n - 1];
+        auto q_i = std::min(quotient_part, (1UL << digit_size_bits) - 1);
+        A -= (BigInt(q_i) * B) << (digit_size_bits * i);
+        while (A.is_negative())
+        {
+            q_i -= 1;
+            A += B << (digit_size_bits * i);
+        }
+        q[i] = static_cast<bigint_base_t>(q_i);
+    }
+
+    return {BigInt(q), A};
 }
 
 BigInt BigInt::operator+(const BigInt &other) const
@@ -157,6 +180,13 @@ std::pair<BigInt, BigInt> BigInt::divide(const BigInt &other) const
         const auto a = to_int();
         const auto b = other.to_int();
         return {BigInt(a / b), BigInt(a % b)};
+    }
+
+    if (!other.is_normalized_for_division())
+    {
+        const auto k = std::countl_zero(other.raw_data().back());
+        const auto [quotient, remainder] = (*this << k).divide(other << k);
+        return {quotient, remainder >> k};
     }
 
     if (is_negative() && other.is_negative())

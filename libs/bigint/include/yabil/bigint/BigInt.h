@@ -309,6 +309,8 @@ private:
     bool check_abs_greater(const BigInt &other) const;
     bool check_abs_lower(const BigInt &other) const;
 
+    bool is_normalized_for_division() const;
+
     std::pair<BigInt, BigInt> divide_unsigned(const BigInt &other) const;
     BigInt base_mul(const BigInt &other) const;
     BigInt karatsuba_mul(const BigInt &other) const;
