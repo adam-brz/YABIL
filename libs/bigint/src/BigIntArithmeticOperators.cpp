@@ -1,6 +1,7 @@
 #include <yabil/bigint/BigInt.h>
 #include <yabil/utils/ThreadPoolSingleton.h>
 
+#include <algorithm>
 #include <iostream>
 
 #include "SafeOperators.h"
@@ -110,7 +111,7 @@ std::pair<BigInt, BigInt> BigInt::base_div(const BigInt &other) const
                                     static_cast<double_width_t<bigint_base_t>>(A.data[n + i - 1]);
 
         const auto quotient_part = top_two_digits / B.data[n - 1];
-        auto q_i = std::min(quotient_part, (1UL << digit_size_bits) - 1);
+        auto q_i = std::min(quotient_part, (static_cast<double_width_t<bigint_base_t>>(1) << digit_size_bits) - 1);
         A -= (BigInt(q_i) * B) << (digit_size_bits * i);
         while (A.is_negative())
         {
