@@ -115,6 +115,19 @@ TEST_F(BigIntDivOperator_tests, divTwoLongNonZeroWithMinusMinus)
     ASSERT_EQ(expected_remainder, remainder);
 }
 
+TEST_F(BigIntDivOperator_tests, divHugeNumbers)
+{
+    const BigInt big_int1("19208481956719872645192371283018203182000");
+    const BigInt big_int2("1283091823901802312312341254000");
+
+    const BigInt expected_quotioent("14970465557");
+    const BigInt expected_remainder("529631778497509513981014704000");
+
+    const auto [quotient, remainder] = big_int1.divide(big_int2);
+    ASSERT_EQ(expected_quotioent, quotient);
+    ASSERT_EQ(expected_remainder, remainder);
+}
+
 TEST_F(BigIntDivOperator_tests, denominatorBiggerThanNominator)
 {
     const BigInt big_int1("129319");
