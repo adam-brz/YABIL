@@ -2,6 +2,7 @@
 #include <yabil/utils/ThreadPoolSingleton.h>
 
 #include <algorithm>
+#include <bit>
 #include <iostream>
 
 #include "SafeOperators.h"
