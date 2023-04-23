@@ -64,6 +64,12 @@ TEST_F(MathLog_tests, log2OfThree)
     ASSERT_DOUBLE_EQ(1.584962500721156, result);
 }
 
+TEST_F(MathLog_tests, logWithBigBase)
+{
+    const auto result = log(BigInt(3), BigInt(20));
+    ASSERT_DOUBLE_EQ(0.36672579134208466, result);
+}
+
 TEST_F(MathLog_tests, log2ForBigNumbers)
 {
     {

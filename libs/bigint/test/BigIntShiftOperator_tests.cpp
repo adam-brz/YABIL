@@ -184,3 +184,10 @@ TEST_F(BigIntShiftOperator_tests, inPlaceShiftRightLongNumber)
 
     ASSERT_EQ(expected, (big_int).raw_data());
 }
+
+TEST_F(BigIntShiftOperator_tests, inPlaceShiftRightLongerThanNumber)
+{
+    BigInt big_int(921083UL);
+    big_int >>= 128;
+    ASSERT_EQ(big_int, BigInt());
+}

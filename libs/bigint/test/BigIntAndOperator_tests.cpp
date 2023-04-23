@@ -24,6 +24,14 @@ TEST_F(BigIntAndOperator_tests, zeroAndAnyNumberGivesZero)
     }
 }
 
+TEST_F(BigIntAndOperator_tests, andWithAnyNumberWithItselfGivesThisNumber)
+{
+    for (int i = -20; i < 20; ++i)
+    {
+        ASSERT_EQ(BigInt(i), BigInt(i) & BigInt(i));
+    }
+}
+
 TEST_F(BigIntAndOperator_tests, andShouldLeaveCommonOnes)
 {
     const BigInt big_int1(0xff00ff), big_int2(0xffffff);
@@ -59,3 +67,18 @@ TEST_F(BigIntAndOperator_tests, twoNegativeNumbersShouldResultInNegative)
     const BigInt big_int1(-0b01010101010), big_int2(-0b01010101010);
     ASSERT_EQ(BigInt(-0b01010101010), (big_int1 & big_int2));
 }
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wself-assign-overloaded"
+
+TEST_F(BigIntAndOperator_tests, inplaceAndWithAnyNumberWithItselfGivesThisNumber)
+{
+    for (int i = -20; i < 20; ++i)
+    {
+        BigInt n(i);
+        n &= n;
+        ASSERT_EQ(n, BigInt(i));
+    }
+}
+
+#pragma GCC diagnostic pop

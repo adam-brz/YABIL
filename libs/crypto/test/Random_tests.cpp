@@ -3,6 +3,7 @@
 #include <yabil/crypto/Random.h>
 
 #include <cmath>
+#include <stdexcept>
 #include <limits>
 
 using namespace yabil::crypto::random;
@@ -14,7 +15,12 @@ class UtilsRandom_tests : public ::testing::Test
 
 TEST_F(UtilsRandom_tests, canGenerateRandomNumber)
 {
-    ASSERT_NO_THROW({ [[maybe_unused]] const BigInt num = random_bigint(); });
+    ASSERT_NO_THROW({ [[maybe_unused]] const BigInt num = random_bigint(32); });
+}
+
+TEST_F(UtilsRandom_tests, randomPrimeMustHaveMoreThan2bits)
+{
+    ASSERT_THROW(random_prime(1), std::invalid_argument);
 }
 
 TEST_F(UtilsRandom_tests, canGenerateRandomNumberWithSetTopAndBottomBit)
@@ -29,7 +35,8 @@ TEST_F(UtilsRandom_tests, canGenerateRandomNumberFromGivenRange)
     for (int i = 0; i < 1000; ++i)
     {
         const BigInt num = random_bigint(BigInt(100), BigInt(200));
-        ASSERT_TRUE(num <= BigInt(200) && num >= BigInt(100));
+        ASSERT_LE(num, BigInt(200));
+        ASSERT_GE(num, BigInt(100));
     }
 }
 
@@ -43,5 +50,5 @@ TEST_F(UtilsRandom_tests, canGenerateRandomNumberFromGivenRange_1)
 
 TEST_F(UtilsRandom_tests, canGenerateLargeRandomPrimeNumber)
 {
-    ASSERT_NO_THROW({ [[maybe_unused]] const BigInt num = random_prime(16); });
+    ASSERT_NO_THROW({ [[maybe_unused]] const BigInt num = random_prime(64); });
 }
