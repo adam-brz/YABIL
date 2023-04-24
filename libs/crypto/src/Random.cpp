@@ -104,9 +104,9 @@ bool miller_rabin_test(const yabil::bigint::BigInt &prime_candidate)
 
 yabil::bigint::BigInt random_bigint(uint64_t number_of_bits, bool top_two, bool bottom_odd)
 {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<yabil::bigint::bigint_base_t> dist;
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_int_distribution<yabil::bigint::bigint_base_t> dist;
 
     constexpr std::size_t chunk_size_bits = sizeof(yabil::bigint::bigint_base_t) * 8;
     const std::size_t bigint_chunks_count = number_of_bits / chunk_size_bits;
@@ -140,15 +140,27 @@ yabil::bigint::BigInt random_bigint(uint64_t number_of_bits, bool top_two, bool 
 
 yabil::bigint::BigInt random_bigint(const yabil::bigint::BigInt &min, const yabil::bigint::BigInt &max)
 {
-    const uint64_t max_bits = max.byte_size() * 8;
-    return min + (random_bigint(max_bits) % (max - min + yabil::bigint::BigInt(1)));
+    const uint64_t max_bits = max.byte_size() * 8 - std::countl_zero(max.raw_data().back());
+    auto result = random_bigint(max_bits);
+
+    if (result > max)
+    {
+        result -= max;
+    }
+
+    if (result < min)
+    {
+        result = min;
+    }
+
+    return result;
 }
 
 yabil::bigint::BigInt random_prime(uint64_t number_of_bits)
 {
     constexpr unsigned max_iter = 128000;
 
-    if (number_of_bits < 2)
+    if (number_of_bits <= 2)
     {
         throw std::invalid_argument("There is no prime of 2 bits size");
     }

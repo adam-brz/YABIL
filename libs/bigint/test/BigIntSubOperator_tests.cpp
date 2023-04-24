@@ -196,6 +196,18 @@ TEST_F(BigIntSubOperator_tests, subtractInPlaceTwoWithDifferentSignsWithOverflow
     ASSERT_EQ(Sign::Plus, big_int1.get_sign());
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wself-assign-overloaded"
+
+TEST_F(BigIntSubOperator_tests, subtractInPlaceSelf)
+{
+    BigInt num("2178129442894712984791373821");
+    num -= num;
+    ASSERT_EQ(num, BigInt());
+}
+
+#pragma GCC diagnostic pop
+
 TEST_F(BigIntSubOperator_tests, subtractInPlaceMultiple)
 {
     {

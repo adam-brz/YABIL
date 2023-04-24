@@ -74,3 +74,18 @@ TEST_F(BigIntOrOperator_tests, orShouldLeaveCommonOnesForLongNumbers_2)
     big_int1 |= big_int2;
     ASSERT_EQ(expected, big_int1.raw_data());
 }
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wself-assign-overloaded"
+
+TEST_F(BigIntOrOperator_tests, inplaceOrWithAnyNumberWithItselfGivesThisNumber)
+{
+    for (int i = -20; i < 20; ++i)
+    {
+        BigInt n(i);
+        n |= n;
+        ASSERT_EQ(n, BigInt(i));
+    }
+}
+
+#pragma GCC diagnostic pop

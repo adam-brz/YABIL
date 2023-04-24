@@ -162,3 +162,21 @@ TEST_F(BigIntAddOperator_tests, addInPlaceTwoNegativeWithOverflow)
     ASSERT_EQ(expected, big_int1.raw_data());
     ASSERT_EQ(Sign::Minus, big_int1.get_sign());
 }
+
+TEST_F(BigIntAddOperator_tests, canAddNegatedNumber)
+{
+    const BigInt a(12031023ULL, Sign::Minus);
+    const BigInt b(10);
+
+    const auto result = a + -(b);
+
+    ASSERT_TRUE(result.is_int64());
+    ASSERT_EQ(-12031033LL, result.to_int());
+}
+
+TEST_F(BigIntAddOperator_tests, addInPlaceSelf)
+{
+    BigInt a(std::numeric_limits<uint64_t>::max());
+    a += a;
+    ASSERT_EQ(a, BigInt("36893488147419103230"));
+}

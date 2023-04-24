@@ -421,11 +421,6 @@ BigInt &BigInt::inplace_plain_add(const BigInt &other)
         carry = static_cast<bigint_base_t>(sum >> (sizeof(bigint_base_t) * 8));
     }
 
-    if (carry)
-    {
-        data[i] = carry;
-    }
-
     normalize();
     return *this;
 }

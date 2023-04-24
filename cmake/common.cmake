@@ -57,7 +57,7 @@ function(set_common_target_options TARGET)
     endif()
 
     if (MSVC)
-        target_compile_options(${TARGET} PRIVATE /W4)
+        target_compile_options(${TARGET} PRIVATE /W4 /wd4068)
     else()
         target_compile_options(${TARGET} PRIVATE -Wall -Wextra -Wpedantic)
     endif()
