@@ -140,15 +140,15 @@ yabil::bigint::BigInt random_bigint(uint64_t number_of_bits, bool top_two, bool 
 
 yabil::bigint::BigInt random_bigint(const yabil::bigint::BigInt &min, const yabil::bigint::BigInt &max)
 {
-    const uint64_t max_bits = max.byte_size()*8 - std::countl_zero(max.raw_data().back());
+    const uint64_t max_bits = max.byte_size() * 8 - std::countl_zero(max.raw_data().back());
     auto result = random_bigint(max_bits);
 
-    if(result > max)
+    if (result > max)
     {
         result -= max;
     }
 
-    if(result < min)
+    if (result < min)
     {
         result = min;
     }

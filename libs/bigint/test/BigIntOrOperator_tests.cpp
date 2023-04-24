@@ -75,7 +75,6 @@ TEST_F(BigIntOrOperator_tests, orShouldLeaveCommonOnesForLongNumbers_2)
     ASSERT_EQ(expected, big_int1.raw_data());
 }
 
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wself-assign-overloaded"
 
