@@ -68,4 +68,15 @@ std::pair<yabil::bigint::BigInt, std::pair<yabil::bigint::BigInt, yabil::bigint:
 /// @return \p BigInt Result of the inversion
 yabil::bigint::BigInt mod_inverse(const yabil::bigint::BigInt &a, const yabil::bigint::BigInt &n);
 
+/// @brief Calculate square root of given \p BigInt
+/// @param n Number to calculate square root of
+/// @return Ceil of square root from input number
+yabil::bigint::BigInt sqrt(const yabil::bigint::BigInt &n);
+
+/// @brief Calculate k-th root of given \p BigInt
+/// @param n Number to calculate root of
+/// @param k Degree of root to calculate
+/// @return Ceil of k-th root from input number
+yabil::bigint::BigInt root(const yabil::bigint::BigInt &n, const yabil::bigint::BigInt &k);
+
 }  // namespace yabil::math

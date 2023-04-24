@@ -205,4 +205,51 @@ yabil::bigint::BigInt mod_inverse(const yabil::bigint::BigInt &a, const yabil::b
     return x.is_negative() ? x + n : x;
 }
 
+yabil::bigint::BigInt sqrt(const yabil::bigint::BigInt &n)
+{
+    yabil::bigint::BigInt tmp = n;
+    yabil::bigint::BigInt result;
+
+    if (n.is_zero())
+    {
+        return bigint::BigInt();
+    }
+
+    if (n.is_negative())
+    {
+        throw std::invalid_argument("Cannot calculate square root for negative integer");
+    }
+
+    do
+    {
+        result = tmp;
+        tmp = (result + n / result) >> 1;
+    } while (tmp < result);
+    return result;
+}
+
+yabil::bigint::BigInt root(const yabil::bigint::BigInt &n, const yabil::bigint::BigInt &k)
+{
+    if (n.is_zero())
+    {
+        return bigint::BigInt();
+    }
+
+    if (n.is_negative())
+    {
+        throw std::invalid_argument("Cannot calculate square root for negative integer");
+    }
+
+    bigint::BigInt tmp = n;
+    bigint::BigInt result;
+    const bigint::BigInt one(1);
+
+    do
+    {
+        result = tmp;
+        tmp = ((k - one) * result + n / pow(result, k - one)) / k;
+    } while (tmp < result);
+    return result;
+}
+
 }  // namespace yabil::math
