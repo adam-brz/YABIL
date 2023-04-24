@@ -22,7 +22,7 @@ TEST_F(ThreadPool_tests, canRunMultipleTasksWithSingleCore)
     std::vector<std::future<void>> results;
     results.reserve(100);
 
-    std::atomic<int> a = 0;
+    int a = 0;
     for (int i = 0; i < 100; ++i)
     {
         results.push_back(pool.submit([&]() { ++a; }));
@@ -42,7 +42,7 @@ TEST_F(ThreadPool_tests, smartRunWorks)
     std::vector<std::future<void>> results;
     results.reserve(100);
 
-    int a = 0;
+    std::atomic<int> a = 0;
     for (int i = 0; i < 100; ++i)
     {
         results.push_back(pool.smart_run([&]() { ++a; }));
