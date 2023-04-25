@@ -6,7 +6,6 @@
 #include <limits>
 #include <stdexcept>
 
-
 using namespace yabil::math;
 using namespace yabil::bigint;
 
