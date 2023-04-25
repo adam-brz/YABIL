@@ -21,7 +21,7 @@ class YabilConan(ConanFile):
             del self.options.fPIC
 
     def layout(self):
-        cmake_layout(self, src_folder="yabil")
+        cmake_layout(self, src_folder="src")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -43,7 +43,7 @@ class YabilConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "yabil")
 
-        for conan_component in ["bigint", "math", "crypto"]:
+        for conan_component in ["bigint", "math", "crypto", "utils"]:
             self.cpp_info.components[conan_component].set_property(
                 "cmake_target_name", f"yabil::{conan_component}"
             )
@@ -53,5 +53,6 @@ class YabilConan(ConanFile):
 
             self.cpp_info.components[conan_component].libs = [conan_component]
 
+        self.cpp_info.components["bigint"].requires = ["utils"]
         self.cpp_info.components["math"].requires = ["bigint"]
         self.cpp_info.components["crypto"].requires = ["bigint", "math"]
