@@ -13,6 +13,8 @@ set(TESTS
     test/MathLog_tests.cpp
     test/MathPowOperator_tests.cpp
     test/MathGCD_tests.cpp
+    test/MathSqrt_tests.cpp
+    test/MathRoot_tests.cpp
 )
 
 add_library(${PROJECT_NAME})
