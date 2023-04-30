@@ -1,0 +1,8 @@
+[requires]
+yabil/0.1
+benchmark/1.7.1
+gmp/6.2.1
+
+[generators]
+CMakeToolchain
+CMakeDeps
