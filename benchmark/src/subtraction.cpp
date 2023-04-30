@@ -22,19 +22,19 @@
 namespace
 {
 
-static void addition_YABIL(benchmark::State& state)  // NOLINT
+static void subtraction_YABIL(benchmark::State& state)  // NOLINT
 {
     yabil::bigint::BigInt a{generate_random_number_string(state.range(0))};
     yabil::bigint::BigInt b{generate_random_number_string(state.range(0))};
     for (auto _ : state)
     {
-        auto c = a + b;
+        auto c = a - b;
         benchmark::DoNotOptimize(c);
         benchmark::ClobberMemory();
     }
 }
 
-static void addition_GMP(benchmark::State& state)  // NOLINT
+static void subtraction_GMP(benchmark::State& state)  // NOLINT
 {
     const auto N1 = generate_random_number_string(state.range(0));
     const auto N2 = generate_random_number_string(state.range(0));
@@ -48,7 +48,7 @@ static void addition_GMP(benchmark::State& state)  // NOLINT
 
     for (auto _ : state)
     {
-        mpz_add(c, a, b);
+        mpz_sub(c, a, b);
         benchmark::DoNotOptimize(c);
         benchmark::ClobberMemory();
     }
@@ -58,7 +58,7 @@ static void addition_GMP(benchmark::State& state)  // NOLINT
     mpz_clear(c);
 }
 
-static void addition_BIGINT_mattmccutchen(benchmark::State& state)  // NOLINT
+static void subtraction_BIGINT_mattmccutchen(benchmark::State& state)  // NOLINT
 {
     const auto N1 = generate_random_number_string(state.range(0));
     const auto N2 = generate_random_number_string(state.range(0));
@@ -67,13 +67,13 @@ static void addition_BIGINT_mattmccutchen(benchmark::State& state)  // NOLINT
     BigInteger b = stringToBigInteger(N2);
     for (auto _ : state)
     {
-        auto c = a + b;
+        auto c = a - b;
         benchmark::DoNotOptimize(c);
         benchmark::ClobberMemory();
     }
 }
 
-static void addition_boost(benchmark::State& state)  // NOLINT
+static void subtraction_boost(benchmark::State& state)  // NOLINT
 {
     const auto N1 = generate_random_number_string(state.range(0));
     const auto N2 = generate_random_number_string(state.range(0));
@@ -82,13 +82,13 @@ static void addition_boost(benchmark::State& state)  // NOLINT
     boost::multiprecision::cpp_int b{N2};
     for (auto _ : state)
     {
-        auto c = a + b;
+        auto c = a - b;
         benchmark::DoNotOptimize(c);
         benchmark::ClobberMemory();
     }
 }
 
-static void addition_openssl(benchmark::State& state)  // NOLINT
+static void subtraction_openssl(benchmark::State& state)  // NOLINT
 {
     const auto N1 = generate_random_number_string(state.range(0));
     const auto N2 = generate_random_number_string(state.range(0));
@@ -102,7 +102,7 @@ static void addition_openssl(benchmark::State& state)  // NOLINT
 
     for (auto _ : state)
     {
-        BN_add(c, a, b);
+        BN_sub(c, a, b);
         benchmark::DoNotOptimize(c);
         benchmark::ClobberMemory();
     }
@@ -116,10 +116,10 @@ static const int hc = static_cast<int>(std::thread::hardware_concurrency());
 static constexpr int stop = 100;
 static constexpr int step = 10;
 
-BENCHMARK(addition_YABIL)->DenseRange(1, stop, step)->Threads(hc);
-BENCHMARK(addition_GMP)->DenseRange(1, stop, step)->Threads(hc);
-BENCHMARK(addition_boost)->DenseRange(1, stop, step)->Threads(hc);
-BENCHMARK(addition_openssl)->DenseRange(1, stop, step)->Threads(hc);
-BENCHMARK(addition_BIGINT_mattmccutchen)->DenseRange(1, stop, step)->Threads(hc);
+BENCHMARK(subtraction_YABIL)->DenseRange(1, stop, step)->Threads(hc);
+BENCHMARK(subtraction_GMP)->DenseRange(1, stop, step)->Threads(hc);
+BENCHMARK(subtraction_boost)->DenseRange(1, stop, step)->Threads(hc);
+BENCHMARK(subtraction_openssl)->DenseRange(1, stop, step)->Threads(hc);
+BENCHMARK(subtraction_BIGINT_mattmccutchen)->DenseRange(1, stop, step)->Threads(hc);
 
 }  // namespace

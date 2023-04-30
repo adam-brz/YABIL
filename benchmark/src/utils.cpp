@@ -1,9 +1,9 @@
-#include "utils.h"
+#include "utils.h"  // NOLINT
 
-#include <string>
 #include <random>
+#include <string>
 
-std::string generate_random_number_string(int digits)
+std::string generate_random_number_string(int64_t digits)
 {
     static std::random_device rd;
     static std::mt19937 gen(rd());
@@ -12,9 +12,9 @@ std::string generate_random_number_string(int digits)
     std::string number;
     number.reserve(digits);
 
-    for(int i = 0; i < digits; ++i)
+    for (int64_t i = 0; i < digits; ++i)
     {
-        number.push_back('0' + dist(gen));
+        number.push_back(static_cast<char>('0' + dist(gen)));
     }
 
     return number;

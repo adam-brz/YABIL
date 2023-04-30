@@ -4,10 +4,15 @@ project(yabil_benchmarks)
 find_package(benchmark REQUIRED CONFIG)
 find_package(gmp REQUIRED CONFIG)
 find_package(yabil REQUIRED CONFIG)
+find_package(bigint REQUIRED CONFIG)
+find_package(Boost REQUIRED CONFIG)
+find_package(OpenSSL REQUIRED CONFIG)
 
 set(SOURCES
     src/addition.cpp
+    src/division.cpp
     src/multiplication.cpp
+    src/subtraction.cpp
     src/utils.cpp
     src/utils.h
 )
@@ -22,6 +27,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 target_link_libraries(${PROJECT_NAME} PRIVATE
     yabil::bigint
     gmp::gmp
+    bigint::bigint
+    Boost::math
+    OpenSSL::Crypto
     benchmark::benchmark
     benchmark::benchmark_main
 )
