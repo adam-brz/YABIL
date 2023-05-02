@@ -1,8 +1,11 @@
 #!/usr/bin/python
 
+import os
 import subprocess
 
 results_output = "./build/results.json"
+
+os.makedirs("build", exist_ok=True)
 
 subprocess.check_call("conan export ../conan/recipe", shell=True)
 
