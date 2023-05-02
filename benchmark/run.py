@@ -10,7 +10,7 @@ os.makedirs("build", exist_ok=True)
 subprocess.check_call("conan export ../conan/recipe", shell=True)
 
 subprocess.check_call(
-    "conan install .. -of=. -pr ../../conan/profiles/clang -s build_type=Release --build=missing",
+    "conan install .. -of=. -pr ../../conan/profiles/clang -s build_type=Release --build=missing -c tools.system.package_manager:mode=install",
     shell=True,
     cwd="build",
 )
