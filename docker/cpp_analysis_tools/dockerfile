@@ -41,3 +41,6 @@ RUN git clone --branch "Release_1_9_6" --depth 1 https://github.com/doxygen/doxy
     cmake --build . --target install -j $(nproc); \
     cd ..; \
     rm -rf doxygen
+
+RUN apt-get update; \
+    apt-get install -y pkg-config
