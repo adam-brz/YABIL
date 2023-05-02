@@ -83,12 +83,16 @@ static void subtraction_boost(benchmark::State& state)  // NOLINT
 
     boost::multiprecision::cpp_int a{N1};
     boost::multiprecision::cpp_int b{N2};
+    boost::multiprecision::cpp_int c;
+
     for (auto _ : state)
     {
-        auto c = a - b;
+        c = a - b;
         benchmark::DoNotOptimize(c);
         benchmark::ClobberMemory();
     }
+
+    static_cast<void>(c);
 }
 
 static void subtraction_openssl(benchmark::State& state)  // NOLINT
@@ -121,9 +125,9 @@ static void subtraction_python(benchmark::State& state)  // NOLINT
     const auto N2 = generate_random_number_string(state.range(0));
 
     Py_Initialize();
-    PyObject *a = PyLong_FromString(N1.c_str(), NULL, 10);
-    PyObject *b = PyLong_FromString(N2.c_str(), NULL, 10);
-    PyObject *c = nullptr;
+    PyObject* a = PyLong_FromString(N1.c_str(), NULL, 10);
+    PyObject* b = PyLong_FromString(N2.c_str(), NULL, 10);
+    PyObject* c = nullptr;
 
     for (auto _ : state)
     {
@@ -138,14 +142,13 @@ static void subtraction_python(benchmark::State& state)  // NOLINT
     Py_Finalize();
 }
 
-static constexpr int stop = 100;
-static constexpr int step = 10;
+static constexpr uint64_t stop = 200000ULL;
+static constexpr int step = 100;
 
 BENCHMARK(subtraction_YABIL)->DenseRange(1, stop, step);
 BENCHMARK(subtraction_GMP)->DenseRange(1, stop, step);
 BENCHMARK(subtraction_boost)->DenseRange(1, stop, step);
 BENCHMARK(subtraction_openssl)->DenseRange(1, stop, step);
 BENCHMARK(subtraction_python)->DenseRange(1, stop, step);
-BENCHMARK(subtraction_BIGINT_mattmccutchen)->DenseRange(1, stop, step);
 
 }  // namespace

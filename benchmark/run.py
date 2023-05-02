@@ -20,6 +20,6 @@ subprocess.check_call(
 subprocess.check_call("cmake --build ./build -j 12", shell=True)
 
 subprocess.check_call(
-    f"./build/yabil_benchmarks --benchmark_out={results_output} --benchmark_out_format=json --benchmark_filter='addition'",
+    f"./build/yabil_benchmarks --benchmark_out={results_output} --benchmark_out_format=json",
     shell=True,
 )
