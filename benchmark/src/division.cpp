@@ -14,6 +14,9 @@
 // OpenSSL
 #include <openssl/bn.h>
 
+// CPython
+#include <Python.h>
+
 // Utils
 #include <thread>
 
@@ -117,7 +120,29 @@ static void division_openssl(benchmark::State& state)  // NOLINT
     BN_CTX_free(ctx);
 }
 
-static const int hc = static_cast<int>(std::thread::hardware_concurrency());
+static void division_python(benchmark::State& state)  // NOLINT
+{
+    const auto N1 = generate_random_number_string(state.range(0));
+    const auto N2 = generate_random_number_string(state.range(0));
+
+    Py_Initialize();
+    PyObject *a = PyLong_FromString(N1.c_str(), NULL, 10);
+    PyObject *b = PyLong_FromString(N2.c_str(), NULL, 10);
+    PyObject *c = nullptr;
+
+    for (auto _ : state)
+    {
+        c = PyNumber_Divmod(a, b);
+        benchmark::DoNotOptimize(c);
+        benchmark::ClobberMemory();
+        Py_DECREF(c);
+    }
+
+    Py_DECREF(a);
+    Py_DECREF(b);
+    Py_Finalize();
+}
+
 static constexpr int stop = 100;
 static constexpr int step = 10;
 
@@ -125,6 +150,7 @@ BENCHMARK(division_YABIL)->DenseRange(1, stop, step);
 BENCHMARK(division_GMP)->DenseRange(1, stop, step);
 BENCHMARK(division_boost)->DenseRange(1, stop, step);
 BENCHMARK(division_openssl)->DenseRange(1, stop, step);
+BENCHMARK(division_python)->DenseRange(1, stop, step);
 BENCHMARK(division_BIGINT_mattmccutchen)->DenseRange(1, stop, step);
 
 }  // namespace

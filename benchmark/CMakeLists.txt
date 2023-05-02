@@ -7,6 +7,7 @@ find_package(yabil REQUIRED CONFIG)
 find_package(bigint REQUIRED CONFIG)
 find_package(Boost REQUIRED CONFIG)
 find_package(OpenSSL REQUIRED CONFIG)
+find_package(cpython REQUIRED CONFIG)
 
 set(SOURCES
     src/addition.cpp
@@ -30,6 +31,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     bigint::bigint
     Boost::math
     OpenSSL::Crypto
+    cpython::python
+    cpython::embed
     benchmark::benchmark
     benchmark::benchmark_main
 )
