@@ -26,7 +26,7 @@ jobs:
 
       - name: Run benchmarks
         working-directory: benchmark
-        run: python3 ./run.py
+        run: CC=clang CXX=clang++ python3 ./run.py
 
       - name: Generate plots
         working-directory: benchmark
