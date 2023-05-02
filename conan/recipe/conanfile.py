@@ -53,6 +53,9 @@ class YabilConan(ConanFile):
 
             self.cpp_info.components[conan_component].libs = [conan_component]
 
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.components["utils"].system_libs = ["pthread"]
+
         self.cpp_info.components["bigint"].requires = ["utils"]
         self.cpp_info.components["math"].requires = ["bigint"]
         self.cpp_info.components["crypto"].requires = ["bigint", "math"]

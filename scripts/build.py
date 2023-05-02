@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import os
 import subprocess
 import multiprocessing
@@ -23,8 +25,9 @@ def conan_install(source_dir, preset_name, build_type, output_dir):
     GitHubLogger.print("::group::Conan install")
     subprocess.check_call(
         f"conan install {source_dir}/conan -pr:b={source_dir}/conan/profiles/{preset_name} "
-        f"-s build_type={build_type} --build=missing -of={output_dir}",
+        f"-s build_type={build_type} --build=missing -of=.",
         shell=True,
+        cwd=output_dir,
     )
     GitHubLogger.print("::endgroup::")
 

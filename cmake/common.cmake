@@ -1,3 +1,5 @@
+# common.cmake
+
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
@@ -47,8 +49,8 @@ endfunction()
 function(set_common_target_options TARGET)
     set(MSVC_DEBUG_FLAGS /Zi /Od)
     set(MSVC_RELEASE_FLAGS /O2)
-    set(OTHER_DEBUG_FLAGS -O0 -g)
-    set(OTHER_RELEASE_FLAGS -O3)
+    set(OTHER_DEBUG_FLAGS -O0 -g -Wno-pragmas)
+    set(OTHER_RELEASE_FLAGS -O3 -Wno-pragmas)
     set(OTHER_DEBUG_LINK_FLAGS "")
 
     if(YABIL_ENABLE_SANITIZER)
