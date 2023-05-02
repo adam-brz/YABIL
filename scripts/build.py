@@ -23,6 +23,7 @@ def build(build_type, preset_name):
 
 def conan_install(source_dir, preset_name, build_type, output_dir):
     GitHubLogger.print("::group::Conan install")
+    os.makedirs(output_dir, exist_ok=True)
     subprocess.check_call(
         f"conan install {source_dir}/conan -pr:b={source_dir}/conan/profiles/{preset_name} "
         f"-s build_type={build_type} --build=missing -of=.",
