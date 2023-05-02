@@ -2,6 +2,7 @@
 
 import os
 import subprocess
+import shutil
 
 results_output = "./build/results.json"
 
@@ -14,6 +15,8 @@ subprocess.check_call(
     shell=True,
     cwd="build",
 )
+
+shutil.copyfile("build/CMakePresets.json", "CMakePresets.json")
 
 subprocess.check_call(
     "cmake --preset release -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang -DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
