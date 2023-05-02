@@ -1,5 +1,9 @@
 name: Benchmarks
 
+concurrency:
+  cancel-in-progress: true
+  group: benchmarks
+
 on:
   push:
     branches:
