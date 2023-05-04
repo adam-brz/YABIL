@@ -29,12 +29,14 @@ static void multiplication_YABIL(benchmark::State& state)  // NOLINT
 {
     yabil::bigint::BigInt a{generate_random_number_string(state.range(0))};
     yabil::bigint::BigInt b{generate_random_number_string(state.range(0))};
+    yabil::bigint::BigInt c;
     for (auto _ : state)
     {
-        auto c = a * b;
+        c = a * b;
         benchmark::DoNotOptimize(c);
         benchmark::ClobberMemory();
     }
+    static_cast<void>(c);
 }
 
 static void multiplication_GMP(benchmark::State& state)  // NOLINT
@@ -145,7 +147,7 @@ static void multiplication_python(benchmark::State& state)  // NOLINT
 }
 
 static constexpr uint64_t stop = 200000ULL;
-static constexpr int step = 100;
+static constexpr int step = stop / 100;
 
 BENCHMARK(multiplication_YABIL)->DenseRange(1, stop, step);
 BENCHMARK(multiplication_GMP)->DenseRange(1, stop, step);

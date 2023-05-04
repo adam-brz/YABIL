@@ -146,7 +146,7 @@ static void division_python(benchmark::State& state)  // NOLINT
 }
 
 static constexpr uint64_t stop = 200000ULL;
-static constexpr int step = 100;
+static constexpr int step = stop / 100;
 
 BENCHMARK(division_YABIL)->DenseRange(1, stop, step);
 BENCHMARK(division_GMP)->DenseRange(1, stop, step);

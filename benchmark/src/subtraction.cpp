@@ -143,7 +143,7 @@ static void subtraction_python(benchmark::State& state)  // NOLINT
 }
 
 static constexpr uint64_t stop = 200000ULL;
-static constexpr int step = 100;
+static constexpr int step = stop / 100;
 
 BENCHMARK(subtraction_YABIL)->DenseRange(1, stop, step);
 BENCHMARK(subtraction_GMP)->DenseRange(1, stop, step);
