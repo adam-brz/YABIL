@@ -1,6 +1,8 @@
 project(bigint C CXX)
 
 set(SOURCES
+    src/AVX2Utils.cpp
+    src/AVX2Utils.h
     src/BigInt.cpp
     src/BigIntArithmeticOperators.cpp
     src/BigIntBinaryOperators.cpp

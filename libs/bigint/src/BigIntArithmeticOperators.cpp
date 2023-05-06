@@ -5,6 +5,7 @@
 #include <bit>
 #include <iostream>
 
+#include "AVX2Utils.h"
 #include "SafeOperators.h"
 #include "StringConversionUtils.h"
 #include "Thresholds.h"
@@ -338,9 +339,11 @@ BigInt &BigInt::operator%=(const BigInt &other)
 BigInt BigInt::plain_add(const BigInt &other) const
 {
     const auto [longer, shorter] = get_longer_and_shorter(*this, other);
-    std::vector<bigint_base_t> result_data;
-    result_data.reserve(longer->data.size() + 1);
+    std::vector<bigint_base_t> result_data(longer->data.size() + 1);
 
+#ifdef __AVX2__
+    avx_add(longer->data.data(), longer->byte_size(), shorter->data.data(), shorter->byte_size(), result_data.data());
+#else
     bigint_base_t carry = 0;
     std::size_t i;
 
@@ -348,20 +351,21 @@ BigInt BigInt::plain_add(const BigInt &other) const
     {
         const auto addition_result = safe_add(longer->data[i], shorter->data[i], carry);
         carry = static_cast<bigint_base_t>(addition_result >> (sizeof(bigint_base_t) * 8));
-        result_data.push_back(static_cast<bigint_base_t>(addition_result));
+        result_data[i] = static_cast<bigint_base_t>(addition_result);
     }
 
     for (; i < longer->data.size(); ++i)
     {
         const auto addition_result = safe_add(longer->data[i], carry);
         carry = static_cast<bigint_base_t>(addition_result >> (sizeof(bigint_base_t) * 8));
-        result_data.push_back(static_cast<bigint_base_t>(addition_result));
+        result_data[i] = static_cast<bigint_base_t>(addition_result);
     }
 
     if (carry > 0)
     {
-        result_data.push_back(carry);
+        result_data[i] = carry;
     }
+#endif
 
     return BigInt(std::move(result_data), sign);
 }

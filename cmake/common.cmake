@@ -58,6 +58,10 @@ function(set_common_target_options TARGET)
         set(OTHER_DEBUG_LINK_FLAGS ${OTHER_DEBUG_LINK_FLAGS} -fsanitize=address)
     endif()
 
+    if(YABIL_ENABLE_OPTIMIZATIONS)
+        set(OTHER_RELEASE_FLAGS ${OTHER_RELEASE_FLAGS} -Ofast -march=native)
+    endif()
+
     if (MSVC)
         target_compile_options(${TARGET} PRIVATE /W4 /wd4068)
     else()

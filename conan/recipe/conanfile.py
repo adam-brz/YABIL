@@ -13,23 +13,29 @@ class YabilConan(ConanFile):
     description = "YABIL - Yet Another Big Integer Library"
     topics = ("bigint", "integer", "cpp17")
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "optimizations": [True, False],
+    }
+    default_options = {"shared": False, "fPIC": True, "optimizations": False}
+    exports_sources = "../../*"
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def layout(self):
-        cmake_layout(self, src_folder="src")
+        cmake_layout(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["YABIL_ENABLE_TESTS"] = "OFF"
+        tc.variables["YABIL_ENABLE_TESTS"] = False
+        tc.variables["YABIL_ENABLE_OPTIMIZATIONS"] = self.options.optimizations
         tc.generate()
 
-    def source(self):
-        self.run("git clone --depth 1 https://github.com/Andrew2a1/YABIL.git .")
+    # def source(self):
+    #     self.run("git clone --depth 1 https://github.com/Andrew2a1/YABIL.git .")
 
     def build(self):
         cmake = CMake(self)

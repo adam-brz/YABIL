@@ -148,10 +148,10 @@ static void division_python(benchmark::State& state)  // NOLINT
 static constexpr uint64_t stop = 200000ULL;
 static constexpr int step = stop / 100;
 
-BENCHMARK(division_YABIL)->DenseRange(1, stop, step);
-BENCHMARK(division_GMP)->DenseRange(1, stop, step);
-BENCHMARK(division_boost)->DenseRange(1, stop, step);
-BENCHMARK(division_openssl)->DenseRange(1, stop, step);
-BENCHMARK(division_python)->DenseRange(1, stop, step);
+BENCHMARK(division_YABIL)->Range(1, stop);
+BENCHMARK(division_GMP)->Range(1, stop);
+BENCHMARK(division_boost)->Range(1, stop);
+BENCHMARK(division_openssl)->Range(1, stop);
+BENCHMARK(division_python)->Range(1, stop);
 
 }  // namespace

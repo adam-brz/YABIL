@@ -11,6 +11,7 @@ option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 option(YABIL_ENABLE_SANITIZER "Enable address sanitizer" OFF)
 option(YABIL_ENABLE_TESTS "Enable test targets" OFF)
 option(YABIL_ENABLE_COVERAGE "Build with coverage info" OFF)
+option(YABIL_ENABLE_OPTIMIZATIONS "Enable aggressive optimizations" OFF)
 
 set(CPACK_GENERATOR "ZIP" CACHE STRING "Generators to support. Semicolon delimited list.")
 

@@ -145,10 +145,10 @@ static void addition_python(benchmark::State& state)  // NOLINT
 static constexpr uint64_t stop = 200000ULL;
 static constexpr int step = stop / 100;
 
-BENCHMARK(addition_YABIL)->DenseRange(1, stop, step);
-BENCHMARK(addition_GMP)->DenseRange(1, stop, step);
-BENCHMARK(addition_boost)->DenseRange(1, stop, step);
-BENCHMARK(addition_openssl)->DenseRange(1, stop, step);
-BENCHMARK(addition_python)->DenseRange(1, stop, step);
+BENCHMARK(addition_YABIL)->Range(1, stop);
+BENCHMARK(addition_GMP)->Range(1, stop);
+BENCHMARK(addition_boost)->Range(1, stop);
+BENCHMARK(addition_openssl)->Range(1, stop);
+BENCHMARK(addition_python)->Range(1, stop);
 
 }  // namespace

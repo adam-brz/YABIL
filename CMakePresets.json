@@ -59,7 +59,8 @@
             "inherits": "clang_debug",
             "displayName": "Clang [Debug] [Export compile commands]",
             "cacheVariables": {
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_CXX_FLAGS": "-march=native"
             }
         },
         {
@@ -67,7 +68,9 @@
             "inherits": "clang",
             "displayName": "Clang [Release]",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
+                "CMAKE_BUILD_TYPE": "Release",
+                "YABIL_ENABLE_OPTIMIZATIONS": true,
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
             }
         },
         {
