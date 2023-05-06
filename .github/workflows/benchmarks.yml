@@ -28,6 +28,9 @@ jobs:
       - name: Downgrade conan
         run: pip install conan==1.59
 
+      - name: Install dependencies
+        run: pip install matplotlib
+
       - name: Run benchmarks
         working-directory: benchmark
         run: CC=clang CXX=clang++ python3 ./run.py
