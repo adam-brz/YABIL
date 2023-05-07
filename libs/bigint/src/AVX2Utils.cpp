@@ -48,9 +48,9 @@ static const __m256i BROADCAST_MASK[16] = {
 __m256i avx_add256(__m256i A, __m256i B, uint32_t *carry)
 {
     A = _mm256_xor_si256(A, _mm256_set1_epi64x(static_cast<int64_t>(0x8000000000000000)));
-    __m256i s = _mm256_add_epi64(A, B);
-    __m256i cv = _mm256_cmpgt_epi64(A, s);
-    __m256i mv = _mm256_cmpeq_epi64(s, _mm256_set1_epi64x(0x7fffffffffffffff));
+    const __m256i s = _mm256_add_epi64(A, B);
+    const __m256i cv = _mm256_cmpgt_epi64(A, s);
+    const __m256i mv = _mm256_cmpeq_epi64(s, _mm256_set1_epi64x(0x7fffffffffffffff));
     uint32_t c = _mm256_movemask_pd(_mm256_castsi256_pd(cv));
     uint32_t m = _mm256_movemask_pd(_mm256_castsi256_pd(mv));
 
@@ -66,9 +66,9 @@ __m256i avx_add256(__m256i A, __m256i B, uint32_t *carry)
 __m256i avx_sub256(__m256i A, __m256i B, uint32_t *borrow)
 {
     A = _mm256_xor_si256(A, _mm256_set1_epi64x(static_cast<int64_t>(0x8000000000000000)));
-    __m256i s = _mm256_sub_epi64(A, B);
-    __m256i cv = _mm256_cmpgt_epi64(s, A);
-    __m256i mv = _mm256_cmpeq_epi64(s, _mm256_set1_epi64x(0x7fffffffffffffff));
+    const __m256i s = _mm256_sub_epi64(A, B);
+    const __m256i cv = _mm256_cmpgt_epi64(s, A);
+    const __m256i mv = _mm256_cmpeq_epi64(s, _mm256_set1_epi64x(0x7fffffffffffffff));
     uint32_t c = _mm256_movemask_pd(_mm256_castsi256_pd(cv));
     uint32_t m = _mm256_movemask_pd(_mm256_castsi256_pd(mv));
 
