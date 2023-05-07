@@ -39,9 +39,9 @@ jobs:
         working-directory: benchmark
         run: python3 ./show.py
 
-      - name: Upload results
-        uses: actions/upload-pages-artifact@v1
+      - uses: actions/upload-artifact@v3
         with:
+          name: my-artifact
           path: |
             benchmark/build/results.json
             benchmark/build/res/*.png
