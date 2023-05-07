@@ -131,7 +131,7 @@ function(setup_test_target TEST_TARGET)
             WORKING_DIRECTORY ${EXE_OUTPUT_DIR}
         )
     else()
-        gtest_discover_tests(${TEST_TARGET})
+        gtest_discover_tests(${TEST_TARGET} DISCOVERY_TIMEOUT 30)
     endif()
 endfunction()
 
