@@ -19,14 +19,13 @@ class YabilConan(ConanFile):
         "optimizations": [True, False],
     }
     default_options = {"shared": False, "fPIC": True, "optimizations": False}
-    exports_sources = "../../*"
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def layout(self):
-        cmake_layout(self)
+        cmake_layout(self, src_folder="src")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -34,8 +33,8 @@ class YabilConan(ConanFile):
         tc.variables["YABIL_ENABLE_OPTIMIZATIONS"] = self.options.optimizations
         tc.generate()
 
-    # def source(self):
-    #     self.run("git clone --depth 1 https://github.com/Andrew2a1/YABIL.git .")
+    def source(self):
+        self.run("git clone --depth 1 https://github.com/Andrew2a1/YABIL.git .")
 
     def build(self):
         cmake = CMake(self)
