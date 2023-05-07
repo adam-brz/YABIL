@@ -382,8 +382,10 @@ BigInt BigInt::plain_sub(const BigInt &other) const
         new_sign = Sign::Minus;
     }
 
-    std::vector<bigint_base_t> result_data;
-    result_data.reserve(longer->data.size());
+    std::vector<bigint_base_t> result_data(longer->data.size());
+#ifdef __AVX2__
+    avx_sub(longer->data.data(), longer->byte_size(), shorter->data.data(), shorter->byte_size(), result_data.data());
+#else
     bigint_base_t borrow = 0;
     std::size_t i;
 
@@ -391,15 +393,15 @@ BigInt BigInt::plain_sub(const BigInt &other) const
     {
         const auto result = safe_sub(longer->data[i], shorter->data[i], borrow);
         borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        result_data.push_back(static_cast<bigint_base_t>(result));
+        result_data[i] = static_cast<bigint_base_t>(result);
     }
     for (; i < longer->data.size(); ++i)
     {
         const auto result = safe_sub(longer->data[i], borrow);
         borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        result_data.push_back(static_cast<bigint_base_t>(result));
+        result_data[i] = static_cast<bigint_base_t>(result);
     }
-
+#endif
     return BigInt(std::move(result_data), new_sign);
 }
 

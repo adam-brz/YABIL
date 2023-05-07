@@ -16,3 +16,4 @@ boost:zlib=False
 openssl:no_zlib=True
 cpython:with_curses=False
 yabil:optimizations=True
+gmp:disable_assembly=False
