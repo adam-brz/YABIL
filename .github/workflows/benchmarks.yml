@@ -44,4 +44,4 @@ jobs:
         with:
           path: |
             benchmark/build/results.json
-            res/*.png
+            benchmark/build/res/*.png
