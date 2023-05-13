@@ -410,6 +410,9 @@ BigInt &BigInt::inplace_plain_add(const BigInt &other)
     const auto max_size = std::max(data.size(), other.data.size());
     data.resize(max_size + 1);
 
+#ifdef __AVX2__
+    avx_add(data.data(), byte_size(), other.data.data(), other.byte_size(), data.data());
+#else
     bigint_base_t carry = 0;
     std::size_t i;
 
@@ -426,7 +429,7 @@ BigInt &BigInt::inplace_plain_add(const BigInt &other)
         data[i] = static_cast<bigint_base_t>(sum);
         carry = static_cast<bigint_base_t>(sum >> (sizeof(bigint_base_t) * 8));
     }
-
+#endif
     normalize();
     return *this;
 }
@@ -442,10 +445,13 @@ BigInt &BigInt::inplace_plain_sub(const BigInt &other)
         sign = Sign::Minus;
     }
 
-    const auto shorter_size = shorter->data.size();
     data.resize(longer->data.size());
-    bigint_base_t borrow = 0;
 
+#ifdef __AVX2__
+    avx_sub(longer->data.data(), longer->byte_size(), shorter->data.data(), shorter->byte_size(), data.data());
+#else
+    const auto shorter_size = shorter->data.size();
+    bigint_base_t borrow = 0;
     std::size_t i;
     for (i = 0; i < shorter_size; ++i)
     {
@@ -459,7 +465,7 @@ BigInt &BigInt::inplace_plain_sub(const BigInt &other)
         borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
         data[i] = static_cast<bigint_base_t>(result);
     }
-
+#endif
     normalize();
     return *this;
 }

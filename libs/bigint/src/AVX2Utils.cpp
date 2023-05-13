@@ -117,7 +117,10 @@ void avx_add(const bigint_base_t *a, std::size_t a_size, const bigint_base_t *b,
         r[i] = static_cast<bigint_base_t>(addition_result);
     }
 
-    r[i] = carry;
+    if (carry)
+    {
+        r[i] = carry;
+    }
 }
 
 // Requires a_size > b_size
