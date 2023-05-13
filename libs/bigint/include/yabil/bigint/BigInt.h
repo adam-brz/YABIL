@@ -292,6 +292,22 @@ public:
     /// @return Reference to modified \p BigInt
     BigInt &operator>>=(uint64_t shift);
 
+    /// @brief Pre-increment operation.
+    /// @return Number increased by 1
+    BigInt &operator++();
+
+    /// @brief Pre-decrement operation.
+    /// @return Number decreased by 1
+    BigInt &operator--();
+
+    /// @brief Post-increment operation. Increase number by 1. Get value befor increment operation.
+    /// @return Original value
+    BigInt operator++(int);
+
+    /// @brief Post-decrement operation. Decrease number by 1. Get value befor increment operation.
+    /// @return Original value
+    BigInt operator--(int);
+
     /// @brief Casts number to boolean value
     /// @return \p true if number is non-zero and \p false otherwise
     explicit operator bool() const
@@ -324,6 +340,9 @@ private:
 
     BigInt &inplace_plain_add(const BigInt &other);
     BigInt &inplace_plain_sub(const BigInt &other);
+
+    BigInt &increment_unsigned();
+    BigInt &decrement_unsigned();
 
     static std::pair<const BigInt *, const BigInt *> get_longer_and_shorter(const BigInt &num1, const BigInt &num2);
 };

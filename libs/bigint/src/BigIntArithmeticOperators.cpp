@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <bit>
+#include <cstring>
 #include <iostream>
 
 #include "AVX2Utils.h"
@@ -334,6 +335,164 @@ BigInt &BigInt::operator/=(const BigInt &other)
 BigInt &BigInt::operator%=(const BigInt &other)
 {
     return *this = *this % other;
+}
+
+BigInt &BigInt::operator++()
+{
+    if (sign == Sign::Plus)
+    {
+        return increment_unsigned();
+    }
+    return decrement_unsigned();
+}
+
+BigInt &BigInt::operator--()
+{
+    if (is_zero())
+    {
+        sign = Sign::Minus;
+        return increment_unsigned();
+    }
+    if (sign == Sign::Minus)
+    {
+        return increment_unsigned();
+    }
+    return decrement_unsigned();
+}
+
+BigInt BigInt::operator++(int)
+{
+    BigInt copied(*this);
+    if (sign == Sign::Plus)
+    {
+        increment_unsigned();
+    }
+    else
+    {
+        decrement_unsigned();
+    }
+    return copied;
+}
+
+BigInt BigInt::operator--(int)
+{
+    BigInt copied(*this);
+
+    if (is_zero())
+    {
+        sign = Sign::Minus;
+    }
+
+    if (sign == Sign::Minus)
+    {
+        increment_unsigned();
+    }
+    else
+    {
+        decrement_unsigned();
+    }
+    return copied;
+}
+
+BigInt &BigInt::increment_unsigned()
+{
+    bigint_base_t carry = 1;
+    for (auto &digit : data)
+    {
+        ++digit;
+        if (digit != 0)
+        {
+            carry = 0;
+            break;
+        }
+    }
+    if (carry)
+    {
+        data.push_back(carry);
+    }
+    return *this;
+}
+
+BigInt &BigInt::decrement_unsigned()
+{
+    for (auto &digit : data)
+    {
+        --digit;
+        if (digit != std::numeric_limits<bigint_base_t>::max())
+        {
+            break;
+        }
+    }
+    normalize();
+    return *this;
+}
+
+BigInt parallel_add(const BigInt &a, const BigInt &b)
+{
+    const auto min_s = std::min(a.raw_data().size(), b.raw_data().size());
+    auto &thread_pool = utils::ThreadPoolSingleton::instance();
+
+    const auto concurrency = thread_pool.thread_count();
+    if (min_s < concurrency)
+    {
+        return a + b;
+    }
+
+    const auto &a_data = a.raw_data();
+    const auto &b_data = b.raw_data();
+
+    const auto chunk_size = min_s / concurrency;
+
+    std::vector<std::future<BigInt>> partial_results;
+    partial_results.reserve(concurrency);
+
+    for (int i = 0; i < static_cast<int>(concurrency) - 1; ++i)
+    {
+        partial_results.push_back(thread_pool.smart_run(
+            [&]()
+            {
+                return BigInt(std::vector<bigint_base_t>(a_data.cbegin() + static_cast<int>(i * chunk_size),
+                                                         a_data.cbegin() + static_cast<int>((i + 1) * chunk_size))) +
+                       BigInt(std::vector<bigint_base_t>(b_data.cbegin() + static_cast<int>(i * chunk_size),
+                                                         b_data.cbegin() + static_cast<int>((i + 1) * chunk_size)));
+            }));
+    }
+
+    auto last_part = thread_pool.smart_run(
+        [&]()
+        {
+            return BigInt(std::vector<bigint_base_t>(a_data.cbegin() + static_cast<int>(concurrency * chunk_size),
+                                                     a_data.cend())) +
+                   BigInt(std::vector<bigint_base_t>(b_data.cbegin() + static_cast<int>(concurrency * chunk_size),
+                                                     b_data.cend()));
+        });
+
+    std::vector<bigint_base_t> result(std::max(a_data.size(), b_data.size()) + 1);
+    bigint_base_t carry = 0;
+
+    for (auto &chunk : partial_results)
+    {
+        auto part_data = chunk.get();
+        if (carry)
+        {
+            ++part_data;
+            carry = 0;
+        }
+        if (part_data.raw_data().size() > chunk_size)
+        {
+            carry = 1;
+        }
+        std::memcpy(result.data(), part_data.raw_data().data(), chunk_size * sizeof(bigint_base_t));
+    }
+
+    auto final_part_data = last_part.get();
+    if (carry)
+    {
+        ++final_part_data;
+    }
+
+    std::memcpy(result.data(), final_part_data.raw_data().data(), final_part_data.byte_size());
+    return BigInt(std::move(result), a.get_sign());
 }
 
 BigInt BigInt::plain_add(const BigInt &other) const
