@@ -4,11 +4,11 @@
 
 #include <memory>
 
-#define BIGINT_CONTEXT_PARALLEL_BLOCK(...)                                        \
-    {                                                                             \
-        BigIntContext::instance().set_parallelism(ParallelismOption::Parallel);   \
-        __VA_ARGS__;                                                              \
-        BigIntContext::instance().set_parallelism(ParallelismOption::Sequential); \
+#define BIGINT_CONTEXT_PARALLEL_BLOCK(...)                                                                      \
+    {                                                                                                           \
+        yabil::bigint::BigIntContext::instance().set_parallelism(yabil::bigint::ParallelismOption::Parallel);   \
+        __VA_ARGS__;                                                                                            \
+        yabil::bigint::BigIntContext::instance().set_parallelism(yabil::bigint::ParallelismOption::Sequential); \
     }
 
 namespace yabil::bigint
