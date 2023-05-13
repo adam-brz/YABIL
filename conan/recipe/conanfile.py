@@ -13,8 +13,12 @@ class YabilConan(ConanFile):
     description = "YABIL - Yet Another Big Integer Library"
     topics = ("bigint", "integer", "cpp17")
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "optimizations": [True, False],
+    }
+    default_options = {"shared": False, "fPIC": True, "optimizations": False}
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -25,7 +29,8 @@ class YabilConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["YABIL_ENABLE_TESTS"] = "OFF"
+        tc.variables["YABIL_ENABLE_TESTS"] = False
+        tc.variables["YABIL_ENABLE_OPTIMIZATIONS"] = self.options.optimizations
         tc.generate()
 
     def source(self):

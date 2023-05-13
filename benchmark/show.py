@@ -33,7 +33,8 @@ for func in results_by_function:
             results_by_function[func][lib].values(),
         )
         plt.plot(x, y)
-    plt.legend(results_by_function[func].keys())
+    legend_entries = list(results_by_function[func].keys())
+    plt.legend([entry.replace("YABIL", "Self implementation") for entry in legend_entries])
     plt.grid()
     plt.xlabel("digits [n]")
     plt.ylabel("time [ns]")

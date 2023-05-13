@@ -145,10 +145,10 @@ static void subtraction_python(benchmark::State& state)  // NOLINT
 static constexpr uint64_t stop = 200000ULL;
 static constexpr int step = stop / 100;
 
-BENCHMARK(subtraction_YABIL)->DenseRange(1, stop, step);
-BENCHMARK(subtraction_GMP)->DenseRange(1, stop, step);
-BENCHMARK(subtraction_boost)->DenseRange(1, stop, step);
-BENCHMARK(subtraction_openssl)->DenseRange(1, stop, step);
-BENCHMARK(subtraction_python)->DenseRange(1, stop, step);
+BENCHMARK(subtraction_YABIL)->Range(1, stop);
+BENCHMARK(subtraction_GMP)->Range(1, stop);
+BENCHMARK(subtraction_boost)->Range(1, stop);
+BENCHMARK(subtraction_openssl)->Range(1, stop);
+BENCHMARK(subtraction_python)->Range(1, stop);
 
 }  // namespace

@@ -149,10 +149,10 @@ static void multiplication_python(benchmark::State& state)  // NOLINT
 static constexpr uint64_t stop = 200000ULL;
 static constexpr int step = stop / 100;
 
-BENCHMARK(multiplication_YABIL)->DenseRange(1, stop, step);
-BENCHMARK(multiplication_GMP)->DenseRange(1, stop, step);
-BENCHMARK(multiplication_boost)->DenseRange(1, stop, step);
-BENCHMARK(multiplication_openssl)->DenseRange(1, stop, step);
-BENCHMARK(multiplication_python)->DenseRange(1, stop, step);
+BENCHMARK(multiplication_YABIL)->Range(1, stop);
+BENCHMARK(multiplication_GMP)->Range(1, stop);
+BENCHMARK(multiplication_boost)->Range(1, stop);
+BENCHMARK(multiplication_openssl)->Range(1, stop);
+BENCHMARK(multiplication_python)->Range(1, stop);
 
 }  // namespace
