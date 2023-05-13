@@ -45,9 +45,6 @@ BigInt::BigInt(const std::string_view &str, int base)
 
     switch (base)
     {
-        case 10:
-            base_multiplier = [](const BigInt &n) { return (n << 3) + (n << 1); };
-            break;
         case 2:
         case 4:
         case 8:

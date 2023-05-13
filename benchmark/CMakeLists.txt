@@ -9,6 +9,7 @@ find_package(Boost REQUIRED CONFIG)
 find_package(OpenSSL REQUIRED CONFIG)
 find_package(cpython REQUIRED CONFIG)
 
+
 set(SOURCES
     src/addition.cpp
     src/division.cpp
@@ -24,6 +25,11 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 20
     CXX_STANDARD_REQUIRED TRUE
 )
+
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
+endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     yabil::bigint
