@@ -56,12 +56,12 @@ TEST_F(BigIntSubOperator_tests, subtractTwoNegativeWithOverflow)
     const BigInt big_int1(std::vector<bigint_base_t>{0, std::numeric_limits<bigint_base_t>::max()}, Sign::Minus);
     const BigInt big_int2(-10);
 
-    const std::vector<bigint_base_t> expected = {std::numeric_limits<bigint_base_t>::max() - 9,
-                                                 std::numeric_limits<bigint_base_t>::max() - 1};
+    const BigInt expected(std::vector<bigint_base_t>{std::numeric_limits<bigint_base_t>::max() - 9,
+                                                     std::numeric_limits<bigint_base_t>::max() - 1},
+                          Sign::Minus);
     const auto result = big_int1 - big_int2;
 
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Minus, result.get_sign());
+    ASSERT_EQ(expected, result);
 }
 
 TEST_F(BigIntSubOperator_tests, subtractTwoTheSame)

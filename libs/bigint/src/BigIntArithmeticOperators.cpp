@@ -14,6 +14,29 @@
 namespace yabil::bigint
 {
 
+namespace
+{
+
+auto get_longer_shorter(const std::vector<bigint_base_t> *a, const std::vector<bigint_base_t> *b)
+{
+    if (a->size() < b->size())
+    {
+        return std::make_pair(b, a);
+    }
+    return std::make_pair(a, b);
+}
+
+auto get_greater_lower(const BigInt &a, const BigInt &b)
+{
+    if (a.abs_lower(b))
+    {
+        return std::make_pair(&b, &a);
+    }
+    return std::make_pair(&a, &b);
+}
+
+}  // namespace
+
 std::pair<BigInt, BigInt> BigInt::divide_unsigned(const BigInt &other) const
 {
     if (data.size() > recursive_div_threshold_digits)
@@ -133,36 +156,30 @@ BigInt BigInt::operator+(const BigInt &other) const
     {
         if (sign == other.sign)
         {
-            return parallel_add_unsigned(other);
+            return BigInt(parallel_add_unsigned(data, other.data), sign);
         }
     }
 
     if (sign == other.sign)
     {
-        return plain_add(other);
+        return BigInt(plain_add(data, other.data), sign);
     }
 
-    if (sign == Sign::Minus)
-    {
-        return other.plain_sub(*this);
-    }
-
-    return plain_sub(other);
+    const auto [greater, lower] = get_greater_lower(other, *this);
+    const Sign new_sign = ((greater == this) == (sign == Sign::Plus)) ? Sign::Plus : Sign::Minus;
+    return BigInt(plain_sub(greater->data, lower->data), new_sign);
 }
 
 BigInt BigInt::operator-(const BigInt &other) const
 {
     if (sign != other.sign)
     {
-        return plain_add(other);
+        return BigInt(plain_add(data, other.data), sign);
     }
 
-    if (sign == Sign::Plus)
-    {
-        return plain_sub(other);
-    }
-
-    return other.plain_sub(*this);
+    const auto [greater, lower] = get_greater_lower(other, *this);
+    const Sign new_sign = ((greater == this) == (sign == Sign::Plus)) ? Sign::Plus : Sign::Minus;
+    return BigInt(plain_sub(greater->data, lower->data), new_sign);
 }
 
 BigInt BigInt::operator*(const BigInt &other) const
@@ -349,9 +366,12 @@ BigInt &BigInt::operator++()
 {
     if (sign == Sign::Plus)
     {
-        return increment_unsigned();
+        increment_unsigned(data);
+        return *this;
     }
-    return decrement_unsigned();
+    decrement_unsigned(data);
+    normalize();
+    return *this;
 }
 
 BigInt &BigInt::operator--()
@@ -359,13 +379,17 @@ BigInt &BigInt::operator--()
     if (is_zero())
     {
         sign = Sign::Minus;
-        return increment_unsigned();
     }
+
     if (sign == Sign::Minus)
     {
-        return increment_unsigned();
+        increment_unsigned(data);
+        return *this;
     }
-    return decrement_unsigned();
+
+    decrement_unsigned(data);
+    normalize();
+    return *this;
 }
 
 BigInt BigInt::operator++(int)
@@ -373,11 +397,12 @@ BigInt BigInt::operator++(int)
     BigInt copied(*this);
     if (sign == Sign::Plus)
     {
-        increment_unsigned();
+        increment_unsigned(data);
     }
     else
     {
-        decrement_unsigned();
+        decrement_unsigned(data);
+        normalize();
     }
     return copied;
 }
@@ -393,19 +418,21 @@ BigInt BigInt::operator--(int)
 
     if (sign == Sign::Minus)
     {
-        increment_unsigned();
+        increment_unsigned(data);
+        // normalization is not needed
     }
     else
     {
-        decrement_unsigned();
+        decrement_unsigned(data);
+        normalize();
     }
     return copied;
 }
 
-BigInt &BigInt::increment_unsigned()
+std::vector<bigint_base_t> &BigInt::increment_unsigned(std::vector<bigint_base_t> &n)
 {
     bigint_base_t carry = 1;
-    for (auto &digit : data)
+    for (auto &digit : n)
     {
         ++digit;
         if (digit != 0)
@@ -416,14 +443,14 @@ BigInt &BigInt::increment_unsigned()
     }
     if (carry)
     {
-        data.push_back(carry);
+        n.push_back(carry);
     }
-    return *this;
+    return n;
 }
 
-BigInt &BigInt::decrement_unsigned()
+std::vector<bigint_base_t> &BigInt::decrement_unsigned(std::vector<bigint_base_t> &n)
 {
-    for (auto &digit : data)
+    for (auto &digit : n)
     {
         --digit;
         if (digit != std::numeric_limits<bigint_base_t>::max())
@@ -431,31 +458,31 @@ BigInt &BigInt::decrement_unsigned()
             break;
         }
     }
-    normalize();
-    return *this;
+    return n;
 }
 
-BigInt BigInt::plain_add(const BigInt &other) const
+std::vector<bigint_base_t> BigInt::plain_add(const std::vector<bigint_base_t> &a, const std::vector<bigint_base_t> &b)
 {
-    const auto [longer, shorter] = get_longer_and_shorter(*this, other);
-    std::vector<bigint_base_t> result_data(longer->data.size() + 1);
+    const auto [longer, shorter] = get_longer_shorter(&a, &b);
+    std::vector<bigint_base_t> result_data(longer->size() + 1);
 
 #ifdef __AVX2__
-    avx_add(longer->data.data(), longer->byte_size(), shorter->data.data(), shorter->byte_size(), result_data.data());
+    avx_add(longer->data(), longer->size() * sizeof(bigint_base_t), shorter->data(),
+            shorter->size() * sizeof(bigint_base_t), result_data.data());
 #else
     bigint_base_t carry = 0;
     std::size_t i;
 
-    for (i = 0; i < shorter->data.size(); ++i)
+    for (i = 0; i < shorter->size(); ++i)
     {
-        const auto addition_result = safe_add(longer->data[i], shorter->data[i], carry);
+        const auto addition_result = safe_add((*longer)[i], (*shorter)[i], carry);
         carry = static_cast<bigint_base_t>(addition_result >> (sizeof(bigint_base_t) * 8));
         result_data[i] = static_cast<bigint_base_t>(addition_result);
     }
 
-    for (; i < longer->data.size(); ++i)
+    for (; i < longer->size(); ++i)
     {
-        const auto addition_result = safe_add(longer->data[i], carry);
+        const auto addition_result = safe_add((*longer)[i], carry);
         carry = static_cast<bigint_base_t>(addition_result >> (sizeof(bigint_base_t) * 8));
         result_data[i] = static_cast<bigint_base_t>(addition_result);
     }
@@ -466,42 +493,32 @@ BigInt BigInt::plain_add(const BigInt &other) const
     }
 #endif
 
-    return BigInt(std::move(result_data), sign);
+    return result_data;
 }
 
-BigInt BigInt::plain_sub(const BigInt &other) const
+std::vector<bigint_base_t> BigInt::plain_sub(const std::vector<bigint_base_t> &a, const std::vector<bigint_base_t> &b)
 {
-    const BigInt *longer = this;
-    const BigInt *shorter = &other;
-    Sign new_sign = Sign::Plus;
-
-    if (longer->check_abs_lower(*shorter))
-    {
-        std::swap(longer, shorter);
-        new_sign = Sign::Minus;
-    }
-
-    std::vector<bigint_base_t> result_data(longer->data.size());
+    std::vector<bigint_base_t> result_data(a.size());
 #ifdef __AVX2__
-    avx_sub(longer->data.data(), longer->byte_size(), shorter->data.data(), shorter->byte_size(), result_data.data());
+    avx_sub(a.data(), a.size() * sizeof(bigint_base_t), b.data(), b.size() * sizeof(bigint_base_t), result_data.data());
 #else
     bigint_base_t borrow = 0;
     std::size_t i;
 
-    for (i = 0; i < shorter->data.size(); ++i)
+    for (i = 0; i < b.size(); ++i)
     {
-        const auto result = safe_sub(longer->data[i], shorter->data[i], borrow);
+        const auto result = safe_sub(a[i], b[i], borrow);
         borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
         result_data[i] = static_cast<bigint_base_t>(result);
     }
-    for (; i < longer->data.size(); ++i)
+    for (; i < a.size(); ++i)
     {
-        const auto result = safe_sub(longer->data[i], borrow);
+        const auto result = safe_sub(a[i], borrow);
         borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
         result_data[i] = static_cast<bigint_base_t>(result);
     }
 #endif
-    return BigInt(std::move(result_data), new_sign);
+    return result_data;
 }
 
 BigInt &BigInt::inplace_plain_add(const BigInt &other)
@@ -538,7 +555,7 @@ BigInt &BigInt::inplace_plain_sub(const BigInt &other)
     const BigInt *longer = this;
     const BigInt *shorter = &other;
 
-    if (check_abs_lower(other))
+    if (abs_lower(other))
     {
         std::swap(longer, shorter);
         sign = Sign::Minus;
@@ -558,7 +575,7 @@ BigInt &BigInt::inplace_plain_sub(const BigInt &other)
         borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
         data[i] = static_cast<bigint_base_t>(result);
     }
-    for (; i < longer->data.size(); ++i)
+    for (; i < longer->raw_data().size(); ++i)
     {
         const auto result = safe_sub(longer->data[i], borrow);
         borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;

@@ -147,6 +147,16 @@ public:
     /// @return Quotient and remainder as \p std::pair of \p std::BigInt
     std::pair<BigInt, BigInt> divide(const BigInt &other) const;
 
+    /// @brief Check if absolute value of number is greater than other number
+    /// @param other Other \p BigInt number
+    /// @return \p true if absolute value of number is greater than other and \p false otherwise
+    bool abs_greater(const BigInt &other) const;
+
+    /// @brief Check if absolute value of number is lower than other number
+    /// @param other Other \p BigInt number
+    /// @return \p true if absolute value of  number is lower than other and \p false otherwise
+    bool abs_lower(const BigInt &other) const;
+
     /// @brief Check if two numbers are equal.
     /// @details Numbers are equal if they have the same value and the same sign.
     /// @param other \p BigInt to compare
@@ -322,9 +332,6 @@ private:
     void normalize();
     void remove_trailing_zeros();
 
-    bool check_abs_greater(const BigInt &other) const;
-    bool check_abs_lower(const BigInt &other) const;
-
     bool is_normalized_for_division() const;
 
     std::pair<BigInt, BigInt> divide_unsigned(const BigInt &other) const;
@@ -335,16 +342,20 @@ private:
     BigInt base_mul(const BigInt &other) const;
     BigInt karatsuba_mul(const BigInt &other) const;
 
-    BigInt plain_add(const BigInt &other) const;
-    BigInt plain_sub(const BigInt &other) const;
-
     BigInt &inplace_plain_add(const BigInt &other);
     BigInt &inplace_plain_sub(const BigInt &other);
 
-    BigInt &increment_unsigned();
-    BigInt &decrement_unsigned();
+    static std::vector<bigint_base_t> plain_add(const std::vector<bigint_base_t> &a,
+                                                const std::vector<bigint_base_t> &b);
 
-    BigInt parallel_add_unsigned(const BigInt &b) const;
+    static std::vector<bigint_base_t> plain_sub(const std::vector<bigint_base_t> &a,
+                                                const std::vector<bigint_base_t> &b);
+
+    static std::vector<bigint_base_t> &increment_unsigned(std::vector<bigint_base_t> &n);
+    static std::vector<bigint_base_t> &decrement_unsigned(std::vector<bigint_base_t> &n);
+
+    static std::vector<bigint_base_t> parallel_add_unsigned(const std::vector<bigint_base_t> &a,
+                                                            const std::vector<bigint_base_t> &b);
 
     static std::pair<const BigInt *, const BigInt *> get_longer_and_shorter(const BigInt &num1, const BigInt &num2);
 };

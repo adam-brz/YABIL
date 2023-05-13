@@ -163,12 +163,12 @@ bool BigInt::is_zero() const
     return data.size() == 0;
 }
 
-bool BigInt::check_abs_greater(const BigInt &other) const
+bool BigInt::abs_greater(const BigInt &other) const
 {
-    return other.check_abs_lower(*this);
+    return other.abs_lower(*this);
 }
 
-bool BigInt::check_abs_lower(const BigInt &other) const
+bool BigInt::abs_lower(const BigInt &other) const
 {
     return data.size() < other.data.size() ||
            (data.size() == other.data.size() &&
