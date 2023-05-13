@@ -60,7 +60,8 @@
             "displayName": "Clang [Debug] [Export compile commands]",
             "cacheVariables": {
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_CXX_FLAGS": "-march=native"
+                "CMAKE_CXX_FLAGS": "-march=native",
+                "YABIL_ENABLE_SANITIZER": true
             }
         },
         {
