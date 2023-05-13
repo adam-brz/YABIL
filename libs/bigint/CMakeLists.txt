@@ -6,6 +6,8 @@ set(SOURCES
     src/BigInt.cpp
     src/BigIntArithmeticOperators.cpp
     src/BigIntBinaryOperators.cpp
+    src/BigIntContext.cpp
+    src/BigIntParallelOperations.cpp
     src/BigIntReleationOperators.cpp
     src/SafeOperators.h
     src/StringConversionUtils.cpp
@@ -15,6 +17,7 @@ set(SOURCES
 
 set(HEADERS
     include/yabil/bigint/BigInt.h
+    include/yabil/bigint/BigIntContext.h
 )
 
 set(TESTS
@@ -31,6 +34,7 @@ set(TESTS
     test/BigIntMulOperator_tests.cpp
     test/BigIntNotOperator_tests.cpp
     test/BigIntOrOperator_tests.cpp
+    test/BigIntParallelOperations_tests.cpp
     test/BigIntShiftOperator_tests.cpp
     test/BigIntStreamOperator_tests.cpp
     test/BigIntSubOperator_tests.cpp

@@ -344,6 +344,8 @@ private:
     BigInt &increment_unsigned();
     BigInt &decrement_unsigned();
 
+    BigInt parallel_add_unsigned(const BigInt &b) const;
+
     static std::pair<const BigInt *, const BigInt *> get_longer_and_shorter(const BigInt &num1, const BigInt &num2);
 };
 

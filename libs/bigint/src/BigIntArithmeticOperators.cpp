@@ -1,9 +1,9 @@
 #include <yabil/bigint/BigInt.h>
+#include <yabil/bigint/BigIntContext.h>
 #include <yabil/utils/ThreadPoolSingleton.h>
 
 #include <algorithm>
 #include <bit>
-#include <cstring>
 #include <iostream>
 
 #include "AVX2Utils.h"
@@ -129,6 +129,14 @@ std::pair<BigInt, BigInt> BigInt::base_div(const BigInt &other) const
 
 BigInt BigInt::operator+(const BigInt &other) const
 {
+    if (BigIntContext::instance().get_parallelism() == ParallelismOption::Parallel)
+    {
+        if (sign == other.sign)
+        {
+            return parallel_add_unsigned(other);
+        }
+    }
+
     if (sign == other.sign)
     {
         return plain_add(other);
@@ -203,9 +211,9 @@ BigInt BigInt::karatsuba_mul(const BigInt &other) const
 
     auto &thread_pool = utils::ThreadPoolSingleton::instance();
 
-    auto w_z0 = thread_pool.smart_run([&]() { return low1.karatsuba_mul(low2); });
-    auto w_z1 = thread_pool.smart_run([&]() { return (low1 + high1).karatsuba_mul(low2 + high2); });
-    auto w_z2 = thread_pool.smart_run([&]() { return (high1).karatsuba_mul(high2); });
+    auto w_z0 = thread_pool.submit_run_task([&]() { return low1.karatsuba_mul(low2); });
+    auto w_z1 = thread_pool.submit_run_task([&]() { return (low1 + high1).karatsuba_mul(low2 + high2); });
+    auto w_z2 = thread_pool.submit_run_task([&]() { return (high1).karatsuba_mul(high2); });
 
     const auto z0 = w_z0.get();
     const auto z1 = w_z1.get();
@@ -425,74 +433,6 @@ BigInt &BigInt::decrement_unsigned()
     }
     normalize();
     return *this;
-}
-
-BigInt parallel_add(const BigInt &a, const BigInt &b)
-{
-    const auto min_s = std::min(a.raw_data().size(), b.raw_data().size());
-    auto &thread_pool = utils::ThreadPoolSingleton::instance();
-
-    const auto concurrency = thread_pool.thread_count();
-    if (min_s < concurrency)
-    {
-        return a + b;
-    }
-
-    const auto &a_data = a.raw_data();
-    const auto &b_data = b.raw_data();
-
-    const auto chunk_size = min_s / concurrency;
-
-    std::vector<std::future<BigInt>> partial_results;
-    partial_results.reserve(concurrency);
-
-    for (int i = 0; i < static_cast<int>(concurrency) - 1; ++i)
-    {
-        partial_results.push_back(thread_pool.smart_run(
-            [&]()
-            {
-                return BigInt(std::vector<bigint_base_t>(a_data.cbegin() + static_cast<int>(i * chunk_size),
-                                                         a_data.cbegin() + static_cast<int>((i + 1) * chunk_size))) +
-                       BigInt(std::vector<bigint_base_t>(b_data.cbegin() + static_cast<int>(i * chunk_size),
-                                                         b_data.cbegin() + static_cast<int>((i + 1) * chunk_size)));
-            }));
-    }
-
-    auto last_part = thread_pool.smart_run(
-        [&]()
-        {
-            return BigInt(std::vector<bigint_base_t>(a_data.cbegin() + static_cast<int>(concurrency * chunk_size),
-                                                     a_data.cend())) +
-                   BigInt(std::vector<bigint_base_t>(b_data.cbegin() + static_cast<int>(concurrency * chunk_size),
-                                                     b_data.cend()));
-        });
-
-    std::vector<bigint_base_t> result(std::max(a_data.size(), b_data.size()) + 1);
-    bigint_base_t carry = 0;
-
-    for (auto &chunk : partial_results)
-    {
-        auto part_data = chunk.get();
-        if (carry)
-        {
-            ++part_data;
-            carry = 0;
-        }
-        if (part_data.raw_data().size() > chunk_size)
-        {
-            carry = 1;
-        }
-        std::memcpy(result.data(), part_data.raw_data().data(), chunk_size * sizeof(bigint_base_t));
-    }
-
-    auto final_part_data = last_part.get();
-    if (carry)
-    {
-        ++final_part_data;
-    }
-
-    std::memcpy(result.data(), final_part_data.raw_data().data(), final_part_data.byte_size());
-    return BigInt(std::move(result), a.get_sign());
 }
 
 BigInt BigInt::plain_add(const BigInt &other) const
