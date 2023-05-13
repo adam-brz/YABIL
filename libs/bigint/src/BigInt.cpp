@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cmath>
+#include <functional>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -39,11 +41,30 @@ BigInt::BigInt(const std::string_view &str, int base)
         data.push_back(converted);
     }
 
+    std::function<BigInt(BigInt)> base_multiplier;
+
+    switch (base)
+    {
+        case 10:
+            base_multiplier = [](const BigInt &n) { return (n << 3) + (n << 1); };
+            break;
+        case 2:
+        case 4:
+        case 8:
+        case 16:
+            base_multiplier = [base](const BigInt &n) { return n << static_cast<int>(std::log2(base)); };
+            break;
+
+        default:
+            base_multiplier = [base](const BigInt &n) { return n * BigInt(base); };
+            break;
+    }
+
     for (auto it = str.cbegin() + 1; it != str.cend(); ++it)
     {
         const int converted = get_digit_value(std::tolower(*it));
         check_conversion(*it, converted, base);
-        *this *= BigInt(base);
+        *this = base_multiplier(*this);
         *this += BigInt(converted);
     }
 

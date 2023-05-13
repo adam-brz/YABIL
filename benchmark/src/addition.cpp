@@ -1,5 +1,7 @@
 #include <benchmark/benchmark.h>
 #include <yabil/bigint/BigInt.h>
+#include <yabil/bigint/BigIntContext.h>
+#include <yabil/crypto/Random.h>
 
 // Boost
 #include <boost/multiprecision/cpp_int.hpp>
@@ -35,6 +37,20 @@ static void addition_YABIL(benchmark::State& state)  // NOLINT
         benchmark::DoNotOptimize(c);
         benchmark::ClobberMemory();
     }
+}
+
+static void addition_YABIL_parallel(benchmark::State& state)  // NOLINT
+{
+    BIGINT_CONTEXT_PARALLEL_BLOCK({
+        yabil::bigint::BigInt a{generate_random_number_string(state.range(0))};
+        yabil::bigint::BigInt b{generate_random_number_string(state.range(0))};
+        for (auto _ : state)
+        {
+            auto c = a + b;
+            benchmark::DoNotOptimize(c);
+            benchmark::ClobberMemory();
+        }
+    });
 }
 
 static void addition_GMP(benchmark::State& state)  // NOLINT
@@ -146,6 +162,7 @@ static constexpr uint64_t stop = 200000ULL;
 static constexpr int step = stop / 100;
 
 BENCHMARK(addition_YABIL)->Range(1, stop);
+BENCHMARK(addition_YABIL_parallel)->Range(1, stop);
 BENCHMARK(addition_GMP)->Range(1, stop);
 BENCHMARK(addition_boost)->Range(1, stop);
 BENCHMARK(addition_openssl)->Range(1, stop);

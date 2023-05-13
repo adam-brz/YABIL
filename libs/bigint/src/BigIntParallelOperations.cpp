@@ -34,7 +34,7 @@ BigInt BigInt::parallel_add_unsigned(const BigInt &b) const
 
     for (int i = 0; i < static_cast<int>(concurrency); ++i)
     {
-        partial_results.push_back(thread_pool.submit_run_task(
+        partial_results.push_back(thread_pool.submit(
             [&, i]()
             {
                 return BigInt(std::vector<bigint_base_t>(a_data.cbegin() + static_cast<int>(i * chunk_size),
@@ -45,7 +45,7 @@ BigInt BigInt::parallel_add_unsigned(const BigInt &b) const
             }));
     }
 
-    auto last_part = thread_pool.submit_run_task(
+    auto last_part = thread_pool.submit(
         [&]()
         {
             return BigInt(std::vector<bigint_base_t>(a_data.cbegin() + static_cast<int>(concurrency * chunk_size),

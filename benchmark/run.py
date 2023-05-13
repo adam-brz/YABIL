@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os
+import os, sys
 import subprocess
 import shutil
 
@@ -25,7 +25,12 @@ subprocess.check_call(
 
 subprocess.check_call("cmake --build ./build -j 12", shell=True)
 
+if len(sys.argv) > 1:
+    filter_flag = f"--benchmark_filter={sys.argv[1]}"
+else:
+    filter_flag = ""
+
 subprocess.check_call(
-    f"./build/yabil_benchmarks --benchmark_out={results_output} --benchmark_out_format=json",
+    f"./build/yabil_benchmarks --benchmark_out={results_output} --benchmark_out_format=json {filter_flag}",
     shell=True,
 )
