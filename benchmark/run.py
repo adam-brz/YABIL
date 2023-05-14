@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import os, sys
+import platform
 import subprocess
 import shutil
 
@@ -10,8 +11,17 @@ os.makedirs("build", exist_ok=True)
 
 subprocess.check_call("conan export ../conan/recipe", shell=True)
 
+if platform.system() == "Linux":
+    profile="clang"
+    additional_flags="-c tools.system.package_manager:mode=install"
+    build_flags="-DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang"
+elif platform.system() == "Darwin":
+    profile="macos"
+    additional_flags=""
+    build_flags=""
+
 subprocess.check_call(
-    "conan install .. -of=. -pr ../../conan/profiles/clang -s build_type=Release --build=missing -c tools.system.package_manager:mode=install",
+    f"conan install .. -of=. -pr ../../conan/profiles/{profile} -s build_type=Release --build=missing {additional_flags}",
     shell=True,
     cwd="build",
 )
@@ -19,7 +29,7 @@ subprocess.check_call(
 shutil.copyfile("build/CMakePresets.json", "CMakePresets.json")
 
 subprocess.check_call(
-    "cmake --preset release -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang -DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+    f"cmake --preset release {build_flags} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
     shell=True,
 )
 

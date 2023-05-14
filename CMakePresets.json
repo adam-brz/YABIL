@@ -60,6 +60,7 @@
             "displayName": "Clang [Debug] [Export compile commands]",
             "cacheVariables": {
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_VERBOSE_MAKEFILE": true,
                 "CMAKE_CXX_FLAGS": "-march=native",
                 "YABIL_ENABLE_SANITIZER": true
             }
@@ -111,6 +112,36 @@
             "displayName": "Visual Studio 17 [Release]",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "apple_clang",
+            "hidden": true,
+            "generator": "Xcode",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_OSX_ARCHITECTURES": "arm64",
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "YABIL_ENABLE_TESTS": true,
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            }
+        },
+        {
+            "name": "apple_clang_debug",
+            "inherits": "apple_clang",
+            "displayName": "Apple Clang [Debug]",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "apple_clang_release",
+            "inherits": "apple_clang",
+            "displayName": "Apple Clang [Release]",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "YABIL_ENABLE_OPTIMIZATIONS": true
             }
         }
     ],

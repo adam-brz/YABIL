@@ -2,6 +2,7 @@
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
+include(CheckCXXCompilerFlag)
 
 macro(setup_testing)
     if(YABIL_ENABLE_TESTS)
@@ -59,7 +60,16 @@ function(set_common_target_options TARGET)
     endif()
 
     if(YABIL_ENABLE_OPTIMIZATIONS)
-        set(OTHER_RELEASE_FLAGS ${OTHER_RELEASE_FLAGS} -Ofast -march=native)
+        check_cxx_compiler_flag("-Ofast" OFAST_SUPPORTED)
+        check_cxx_compiler_flag("-march=native" MNATIVE_SUPPORTED)
+
+        if(OFAST_SUPPORTED)
+            set(OTHER_RELEASE_FLAGS ${OTHER_RELEASE_FLAGS} -Ofast)
+        endif()
+
+        if(MNATIVE_SUPPORTED)
+            set(OTHER_RELEASE_FLAGS ${OTHER_RELEASE_FLAGS} -march=native)
+        endif()
     endif()
 
     if (MSVC)

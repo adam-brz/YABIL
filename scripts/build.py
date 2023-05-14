@@ -57,7 +57,7 @@ if __name__ == "__main__":
         "-p",
         "--preset",
         required=True,
-        choices=["vs", "clang", "gcc"],
+        choices=["vs", "clang", "gcc", "apple_clang"],
         help="CMake preset name to use",
     )
     parser.add_argument(
