@@ -55,7 +55,7 @@ public:
     /// @brief Stops all threads from the pool.
     void stop();
 
-    /// @brief Submit task for execution. Task will be executed as soon as free thread will be available
+    /// @brief Submit task for execution. Task will be executed as soon as free thread is available
     /// @tparam FunctionType Type of function to submit
     /// @param func Function to submit
     /// @return \p std::future for getting function execution results

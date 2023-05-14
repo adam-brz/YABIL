@@ -8,7 +8,7 @@ ThreadPool::ThreadPool(int concurrency)
     if (concurrency == 0)
     {
         const int hc = static_cast<int>(std::thread::hardware_concurrency());
-        concurrency = hc > 0 ? hc - 1 : 1;
+        concurrency = hc > 0 ? hc : 1;
     }
 
     for (int i = 0; i < concurrency; ++i)

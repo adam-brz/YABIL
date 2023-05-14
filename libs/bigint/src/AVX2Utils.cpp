@@ -6,8 +6,10 @@ using namespace yabil::bigint;
 
 #include <immintrin.h>
 
+#include <cassert>
 #include <limits>
 
+#include "Arithmetic.h"
 #include "SafeOperators.h"
 
 static const __m256i BROADCAST_MASK[16] = {
@@ -81,9 +83,10 @@ __m256i avx_sub256(__m256i A, __m256i B, uint32_t *borrow)
     return _mm256_sub_epi64(s, BROADCAST_MASK[m]);
 }
 
-// Requires a_size > b_size
 void avx_add(const bigint_base_t *a, std::size_t a_size, const bigint_base_t *b, std::size_t b_size, bigint_base_t *r)
 {
+    assert(a_size >= b_size);
+
     const auto max_avx_iters = b_size / 32;
     uint32_t carry = 0;
 
@@ -102,25 +105,7 @@ void avx_add(const bigint_base_t *a, std::size_t a_size, const bigint_base_t *b,
     const auto a_unaligned = (a_size - max_avx_iters * 32) / sizeof(*a);
     const auto b_unaligned = (b_size - max_avx_iters * 32) / sizeof(*b);
 
-    std::size_t i;
-    for (i = 0; i < b_unaligned; ++i)
-    {
-        const auto addition_result = safe_add(a[i], b[i], carry);
-        carry = static_cast<uint32_t>(addition_result >> (sizeof(bigint_base_t) * 8));
-        r[i] = static_cast<bigint_base_t>(addition_result);
-    }
-
-    for (; i < a_unaligned; ++i)
-    {
-        const auto addition_result = safe_add(a[i], carry);
-        carry = static_cast<uint32_t>(addition_result >> (sizeof(bigint_base_t) * 8));
-        r[i] = static_cast<bigint_base_t>(addition_result);
-    }
-
-    if (carry)
-    {
-        r[i] = carry;
-    }
+    add_arrays(a, a_unaligned, b, b_unaligned, r, carry);
 }
 
 // Requires a_size > b_size
@@ -144,19 +129,6 @@ void avx_sub(const bigint_base_t *a, std::size_t a_size, const bigint_base_t *b,
     const auto a_unaligned = (a_size - max_avx_iters * 32) / sizeof(*a);
     const auto b_unaligned = (b_size - max_avx_iters * 32) / sizeof(*b);
 
-    std::size_t i;
-    for (i = 0; i < b_unaligned; ++i)
-    {
-        const auto result = safe_sub(a[i], b[i], borrow);
-        borrow = static_cast<uint32_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        r[i] = static_cast<bigint_base_t>(result);
-    }
-
-    for (; i < a_unaligned; ++i)
-    {
-        const auto result = safe_sub(a[i], borrow);
-        borrow = static_cast<uint32_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        r[i] = static_cast<bigint_base_t>(result);
-    }
+    sub_arrays(a, a_unaligned, b, b_unaligned, r, borrow);
 }
 #endif

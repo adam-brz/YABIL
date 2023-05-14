@@ -24,6 +24,12 @@ BigInt::BigInt(std::vector<bigint_base_t> &&raw_data, Sign sign) : data(raw_data
     normalize();
 }
 
+BigInt::BigInt(std::span<bigint_base_t const> raw_data, Sign sign) : sign(sign)
+{
+    data.insert(data.begin(), raw_data.begin(), raw_data.end());
+    normalize();
+}
+
 BigInt::BigInt(const std::string_view &str, int base)
 {
     if (str.size() == 0)

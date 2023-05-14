@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <span>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -44,6 +45,9 @@ public:
 
     /// @copydoc yabil::bigint::BigInt::BigInt(const std::vector<bigint_base_t> &, Sign)
     explicit BigInt(std::vector<bigint_base_t> &&raw_data, Sign sign = Sign::Plus);
+
+    /// @copydoc yabil::bigint::BigInt::BigInt(const std::vector<bigint_base_t> &, Sign)
+    explicit BigInt(std::span<bigint_base_t const> raw_data, Sign sign = Sign::Plus);
 
     /// @brief Creates BigInt from specified signed number.
     /// @tparam T Signed number type
@@ -339,17 +343,14 @@ private:
     std::pair<BigInt, BigInt> recursive_div(const BigInt &other) const;
     std::pair<BigInt, BigInt> base_div(const BigInt &other) const;
 
-    BigInt base_mul(const BigInt &other) const;
-    BigInt karatsuba_mul(const BigInt &other) const;
-
     BigInt &inplace_plain_add(const BigInt &other);
     BigInt &inplace_plain_sub(const BigInt &other);
 
-    static std::vector<bigint_base_t> plain_add(const std::vector<bigint_base_t> &a,
-                                                const std::vector<bigint_base_t> &b);
+    static std::vector<bigint_base_t> base_mul(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b);
+    static std::vector<bigint_base_t> karatsuba_mul(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b);
 
-    static std::vector<bigint_base_t> plain_sub(const std::vector<bigint_base_t> &a,
-                                                const std::vector<bigint_base_t> &b);
+    static std::vector<bigint_base_t> plain_add(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b);
+    static std::vector<bigint_base_t> plain_sub(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b);
 
     static std::vector<bigint_base_t> &increment_unsigned(std::vector<bigint_base_t> &n);
     static std::vector<bigint_base_t> &decrement_unsigned(std::vector<bigint_base_t> &n);

@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "AVX2Utils.h"
+#include "Arithmetic.h"
 #include "SafeOperators.h"
 #include "StringConversionUtils.h"
 #include "Thresholds.h"
@@ -17,7 +18,7 @@ namespace yabil::bigint
 namespace
 {
 
-auto get_longer_shorter(const std::vector<bigint_base_t> *a, const std::vector<bigint_base_t> *b)
+auto get_longer_shorter(std::span<bigint_base_t const> *a, std::span<bigint_base_t const> *b)
 {
     if (a->size() < b->size())
     {
@@ -184,21 +185,21 @@ BigInt BigInt::operator-(const BigInt &other) const
 
 BigInt BigInt::operator*(const BigInt &other) const
 {
-    return karatsuba_mul(other);
+    return BigInt(karatsuba_mul(data, other.data), (sign == other.sign) ? Sign::Plus : Sign::Minus);
 }
 
-BigInt BigInt::base_mul(const BigInt &other) const
+std::vector<bigint_base_t> BigInt::base_mul(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
 {
-    std::vector<bigint_base_t> result(data.size() + other.data.size(), 0);
-    const auto [longer, shorter] = get_longer_and_shorter(*this, other);
+    std::vector<bigint_base_t> result(a.size() + b.size(), 0);
+    const auto [longer, shorter] = get_longer_shorter(&a, &b);
 
-    for (std::size_t i = 0; i < shorter->data.size(); ++i)
+    for (std::size_t i = 0; i < shorter->size(); ++i)
     {
         double_width_t<bigint_base_t> carry = 0;
         std::size_t j;
-        for (j = 0; j < longer->data.size(); ++j)
+        for (j = 0; j < longer->size(); ++j)
         {
-            carry += result[i + j] + safe_mul(longer->data[j], shorter->data[i]);
+            carry += result[i + j] + safe_mul((*longer)[j], (*shorter)[i]);
             result[i + j] = static_cast<bigint_base_t>(carry);
             carry >>= sizeof(bigint_base_t) * 8;
         }
@@ -208,38 +209,43 @@ BigInt BigInt::base_mul(const BigInt &other) const
         }
     }
 
-    return BigInt(std::move(result), (sign == other.sign) ? Sign::Plus : Sign::Minus);
+    return result;
 }
 
-BigInt BigInt::karatsuba_mul(const BigInt &other) const
+std::vector<bigint_base_t> BigInt::karatsuba_mul(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
 {
-    if (data.size() < karatsuba_threshold_digits || other.data.size() < karatsuba_threshold_digits)
+    if (a.size() < karatsuba_threshold_digits || b.size() < karatsuba_threshold_digits)
     {
-        return base_mul(other);
+        return base_mul(a, b);
     }
 
-    const int m2 = static_cast<int>(std::max(data.size(), other.data.size()) / 2);
+    const int m2 = static_cast<int>(std::max(a.size(), b.size()) / 2);
 
-    const BigInt low1{std::vector<bigint_base_t>(data.cbegin(), data.cbegin() + m2)};
-    const BigInt high1{std::vector<bigint_base_t>(data.cbegin() + m2, data.cend())};
+    const std::span<bigint_base_t const> low1{a.begin(), a.begin() + m2};
+    const std::span<bigint_base_t const> high1{a.begin() + m2, a.end()};
 
-    const BigInt low2{std::vector<bigint_base_t>(other.data.cbegin(), other.data.cbegin() + m2)};
-    const BigInt high2{std::vector<bigint_base_t>(other.data.cbegin() + m2, other.data.cend())};
+    const std::span<bigint_base_t const> low2{b.begin(), b.begin() + m2};
+    const std::span<bigint_base_t const> high2{b.begin() + m2, b.end()};
 
     auto &thread_pool = utils::ThreadPoolSingleton::instance();
 
-    auto w_z0 = thread_pool.submit_run_task([&]() { return low1.karatsuba_mul(low2); });
-    auto w_z1 = thread_pool.submit_run_task([&]() { return (low1 + high1).karatsuba_mul(low2 + high2); });
-    auto w_z2 = thread_pool.submit_run_task([&]() { return (high1).karatsuba_mul(high2); });
+    auto w_z0 = thread_pool.submit_run_task([&]() { return karatsuba_mul(low1, low2); });
+    auto w_z1 = thread_pool.submit_run_task(
+        [&]()
+        {
+            const auto lh1 = plain_add(low1, high1);
+            const auto lh2 = plain_add(low2, high2);
+            return karatsuba_mul(lh1, lh2);
+        });
+    auto w_z2 = thread_pool.submit_run_task([&]() { return karatsuba_mul(high1, high2); });
 
-    const auto z0 = w_z0.get();
-    const auto z1 = w_z1.get();
-    const auto z2 = w_z2.get();
+    const auto z0 = BigInt(w_z0.get());
+    const auto z1 = BigInt(w_z1.get());
+    const auto z2 = BigInt(w_z2.get());
 
     auto result =
         (z2 << (m2 * 2UL * sizeof(bigint_base_t) * 8UL)) + ((z1 - z2 - z0) << (m2 * sizeof(bigint_base_t) * 8UL)) + z0;
-    result.sign = (sign == other.sign) ? Sign::Plus : Sign::Minus;
-    return result;
+    return std::move(result.data);
 }
 
 BigInt BigInt::operator/(const BigInt &other) const
@@ -419,7 +425,7 @@ BigInt BigInt::operator--(int)
     if (sign == Sign::Minus)
     {
         increment_unsigned(data);
-        // normalization is not needed
+        // normalization not needed
     }
     else
     {
@@ -461,7 +467,7 @@ std::vector<bigint_base_t> &BigInt::decrement_unsigned(std::vector<bigint_base_t
     return n;
 }
 
-std::vector<bigint_base_t> BigInt::plain_add(const std::vector<bigint_base_t> &a, const std::vector<bigint_base_t> &b)
+std::vector<bigint_base_t> BigInt::plain_add(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
 {
     const auto [longer, shorter] = get_longer_shorter(&a, &b);
     std::vector<bigint_base_t> result_data(longer->size() + 1);
@@ -470,53 +476,19 @@ std::vector<bigint_base_t> BigInt::plain_add(const std::vector<bigint_base_t> &a
     avx_add(longer->data(), longer->size() * sizeof(bigint_base_t), shorter->data(),
             shorter->size() * sizeof(bigint_base_t), result_data.data());
 #else
-    bigint_base_t carry = 0;
-    std::size_t i;
-
-    for (i = 0; i < shorter->size(); ++i)
-    {
-        const auto addition_result = safe_add((*longer)[i], (*shorter)[i], carry);
-        carry = static_cast<bigint_base_t>(addition_result >> (sizeof(bigint_base_t) * 8));
-        result_data[i] = static_cast<bigint_base_t>(addition_result);
-    }
-
-    for (; i < longer->size(); ++i)
-    {
-        const auto addition_result = safe_add((*longer)[i], carry);
-        carry = static_cast<bigint_base_t>(addition_result >> (sizeof(bigint_base_t) * 8));
-        result_data[i] = static_cast<bigint_base_t>(addition_result);
-    }
-
-    if (carry > 0)
-    {
-        result_data[i] = carry;
-    }
+    add_arrays(longer->data(), longer->size(), shorter->data(), shorter->size(), result_data.data());
 #endif
 
     return result_data;
 }
 
-std::vector<bigint_base_t> BigInt::plain_sub(const std::vector<bigint_base_t> &a, const std::vector<bigint_base_t> &b)
+std::vector<bigint_base_t> BigInt::plain_sub(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
 {
     std::vector<bigint_base_t> result_data(a.size());
 #ifdef __AVX2__
     avx_sub(a.data(), a.size() * sizeof(bigint_base_t), b.data(), b.size() * sizeof(bigint_base_t), result_data.data());
 #else
-    bigint_base_t borrow = 0;
-    std::size_t i;
-
-    for (i = 0; i < b.size(); ++i)
-    {
-        const auto result = safe_sub(a[i], b[i], borrow);
-        borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        result_data[i] = static_cast<bigint_base_t>(result);
-    }
-    for (; i < a.size(); ++i)
-    {
-        const auto result = safe_sub(a[i], borrow);
-        borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        result_data[i] = static_cast<bigint_base_t>(result);
-    }
+    sub_arrays(a.data(), a.size(), b.data(), b.size(), result_data.data());
 #endif
     return result_data;
 }
@@ -529,23 +501,9 @@ BigInt &BigInt::inplace_plain_add(const BigInt &other)
 #ifdef __AVX2__
     avx_add(data.data(), byte_size(), other.data.data(), other.byte_size(), data.data());
 #else
-    bigint_base_t carry = 0;
-    std::size_t i;
-
-    for (i = 0; i < other.data.size(); ++i)
-    {
-        const auto sum = safe_add(data[i], other.data[i], carry);
-        data[i] = static_cast<bigint_base_t>(sum);
-        carry = static_cast<bigint_base_t>(sum >> (sizeof(bigint_base_t) * 8));
-    }
-
-    for (; i < data.size(); ++i)
-    {
-        const auto sum = safe_add(data[i], carry);
-        data[i] = static_cast<bigint_base_t>(sum);
-        carry = static_cast<bigint_base_t>(sum >> (sizeof(bigint_base_t) * 8));
-    }
+    add_arrays(data.data(), data.size(), other.data.data(), other.data.size(), data.data());
 #endif
+
     normalize();
     return *this;
 }
@@ -566,22 +524,9 @@ BigInt &BigInt::inplace_plain_sub(const BigInt &other)
 #ifdef __AVX2__
     avx_sub(longer->data.data(), longer->byte_size(), shorter->data.data(), shorter->byte_size(), data.data());
 #else
-    const auto shorter_size = shorter->data.size();
-    bigint_base_t borrow = 0;
-    std::size_t i;
-    for (i = 0; i < shorter_size; ++i)
-    {
-        const auto result = safe_sub(longer->data[i], shorter->data[i], borrow);
-        borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        data[i] = static_cast<bigint_base_t>(result);
-    }
-    for (; i < longer->raw_data().size(); ++i)
-    {
-        const auto result = safe_sub(longer->data[i], borrow);
-        borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        data[i] = static_cast<bigint_base_t>(result);
-    }
+    sub_arrays(longer->data.data(), longer->data.size(), shorter->data.data(), shorter->data.size(), data.data());
 #endif
+
     normalize();
     return *this;
 }

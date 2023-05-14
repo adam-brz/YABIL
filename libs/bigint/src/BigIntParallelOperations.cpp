@@ -30,24 +30,23 @@ std::vector<bigint_base_t> BigInt::parallel_add_unsigned(const std::vector<bigin
     std::vector<std::future<std::vector<bigint_base_t>>> partial_results;
     partial_results.reserve(concurrency);
 
-    for (int i = 0; i < static_cast<int>(concurrency); ++i)
+    for (int i = 0; i < static_cast<int>(concurrency - 1); ++i)
     {
         partial_results.push_back(thread_pool.submit(
             [&, i]()
             {
-                return plain_add(std::vector<bigint_base_t>(a.cbegin() + static_cast<int>(i * chunk_size),
-                                                            a.cbegin() + static_cast<int>((i + 1) * chunk_size)),
-                                 std::vector<bigint_base_t>(b.cbegin() + static_cast<int>(i * chunk_size),
-                                                            b.cbegin() + static_cast<int>((i + 1) * chunk_size)));
+                return plain_add({a.cbegin() + static_cast<int>(i * chunk_size),
+                                  a.cbegin() + static_cast<int>((i + 1) * chunk_size)},
+                                 {b.cbegin() + static_cast<int>(i * chunk_size),
+                                  b.cbegin() + static_cast<int>((i + 1) * chunk_size)});
             }));
     }
 
     auto last_part = thread_pool.submit(
         [&]()
         {
-            return plain_add(
-                std::vector<bigint_base_t>(a.cbegin() + static_cast<int>(concurrency * chunk_size), a.cend()),
-                std::vector<bigint_base_t>(b.cbegin() + static_cast<int>(concurrency * chunk_size), b.cend()));
+            return plain_add({a.cbegin() + static_cast<int>(concurrency * chunk_size), a.cend()},
+                             {b.cbegin() + static_cast<int>(concurrency * chunk_size), b.cend()});
         });
 
     std::vector<bigint_base_t> result(std::max(a.size(), b.size()) + 1);
