@@ -9,12 +9,12 @@ using namespace yabil::bigint;
 class BigIntParallelOperations_tests : public ::testing::Test
 {
 public:
-    [[maybe_unused]] void SetUp() override
+    void SetUp() override  // cppcheck-suppress unusedFunction
     {
         BigIntContext::instance().set_parallelism(ParallelismOption::Parallel);
     }
 
-    [[maybe_unused]] void TearDown() override
+    void TearDown() override  // cppcheck-suppress unusedFunction
     {
         BigIntContext::instance().set_parallelism(ParallelismOption::Sequential);
     }
