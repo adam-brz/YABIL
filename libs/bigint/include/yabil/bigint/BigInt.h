@@ -332,6 +332,12 @@ public:
     friend std::ostream &operator<<(std::ostream &out, const BigInt &bigint);
     friend std::istream &operator>>(std::istream &in, BigInt &bigint);
 
+    static std::vector<bigint_base_t> plain_add(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b);
+    static std::vector<bigint_base_t> plain_sub(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b);
+
+    static std::vector<bigint_base_t> &increment_unsigned(std::vector<bigint_base_t> &n);
+    static std::vector<bigint_base_t> &decrement_unsigned(std::vector<bigint_base_t> &n);
+
 private:
     void normalize();
     void remove_trailing_zeros();
@@ -348,15 +354,6 @@ private:
 
     static std::vector<bigint_base_t> base_mul(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b);
     static std::vector<bigint_base_t> karatsuba_mul(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b);
-
-    static std::vector<bigint_base_t> plain_add(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b);
-    static std::vector<bigint_base_t> plain_sub(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b);
-
-    static std::vector<bigint_base_t> &increment_unsigned(std::vector<bigint_base_t> &n);
-    static std::vector<bigint_base_t> &decrement_unsigned(std::vector<bigint_base_t> &n);
-
-    static std::vector<bigint_base_t> parallel_add_unsigned(const std::vector<bigint_base_t> &a,
-                                                            const std::vector<bigint_base_t> &b);
 
     static std::pair<const BigInt *, const BigInt *> get_longer_and_shorter(const BigInt &num1, const BigInt &num2);
 };

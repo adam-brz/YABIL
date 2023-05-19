@@ -1,5 +1,4 @@
 #include <yabil/bigint/BigInt.h>
-#include <yabil/bigint/BigIntContext.h>
 #include <yabil/utils/ThreadPoolSingleton.h>
 
 #include <algorithm>
@@ -14,29 +13,6 @@
 
 namespace yabil::bigint
 {
-
-namespace
-{
-
-auto get_longer_shorter(std::span<bigint_base_t const> *a, std::span<bigint_base_t const> *b)
-{
-    if (a->size() < b->size())
-    {
-        return std::make_pair(b, a);
-    }
-    return std::make_pair(a, b);
-}
-
-auto get_greater_lower(const BigInt &a, const BigInt &b)
-{
-    if (a.abs_lower(b))
-    {
-        return std::make_pair(&b, &a);
-    }
-    return std::make_pair(&a, &b);
-}
-
-}  // namespace
 
 std::pair<BigInt, BigInt> BigInt::divide_unsigned(const BigInt &other) const
 {
@@ -153,14 +129,6 @@ std::pair<BigInt, BigInt> BigInt::base_div(const BigInt &other) const
 
 BigInt BigInt::operator+(const BigInt &other) const
 {
-    if (BigIntContext::instance().get_parallelism() == ParallelismOption::Parallel)
-    {
-        if (sign == other.sign)
-        {
-            return BigInt(parallel_add_unsigned(data, other.data), sign);
-        }
-    }
-
     if (sign == other.sign)
     {
         return BigInt(plain_add(data, other.data), sign);
