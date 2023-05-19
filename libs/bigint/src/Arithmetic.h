@@ -2,7 +2,7 @@
 
 #include <yabil/bigint/BigInt.h>
 
-#include <cassert>
+#include <span>
 #include <utility>
 
 #include "SafeOperators.h"

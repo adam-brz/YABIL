@@ -1,5 +1,7 @@
 #include "Arithmetic.h"
 
+#include <cassert>
+
 namespace yabil::bigint
 {
 
