@@ -16,7 +16,7 @@ namespace yabil::bigint
 
 std::pair<BigInt, BigInt> BigInt::divide_unsigned(const BigInt &other) const
 {
-    if (data.size() > recursive_div_threshold_digits)
+    if (data.size() > thresholds::recursive_div_threshold_digits)
     {
         return unbalanced_div(other);
     }
@@ -182,7 +182,7 @@ std::vector<bigint_base_t> BigInt::base_mul(std::span<bigint_base_t const> a, st
 
 std::vector<bigint_base_t> BigInt::karatsuba_mul(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
 {
-    if (a.size() < karatsuba_threshold_digits || b.size() < karatsuba_threshold_digits)
+    if (a.size() < thresholds::karatsuba_threshold_digits || b.size() < thresholds::karatsuba_threshold_digits)
     {
         return base_mul(a, b);
     }
@@ -195,21 +195,12 @@ std::vector<bigint_base_t> BigInt::karatsuba_mul(std::span<bigint_base_t const> 
     const std::span<bigint_base_t const> low2{b.begin(), b.begin() + m2};
     const std::span<bigint_base_t const> high2{b.begin() + m2, b.end()};
 
-    auto &thread_pool = utils::ThreadPoolSingleton::instance();
+    const auto lh1 = plain_add(low1, high1);
+    const auto lh2 = plain_add(low2, high2);
 
-    auto w_z0 = thread_pool.submit_run_task([&]() { return karatsuba_mul(low1, low2); });
-    auto w_z1 = thread_pool.submit_run_task(
-        [&]()
-        {
-            const auto lh1 = plain_add(low1, high1);
-            const auto lh2 = plain_add(low2, high2);
-            return karatsuba_mul(lh1, lh2);
-        });
-    auto w_z2 = thread_pool.submit_run_task([&]() { return karatsuba_mul(high1, high2); });
-
-    const auto z0 = BigInt(w_z0.get());
-    const auto z1 = BigInt(w_z1.get());
-    const auto z2 = BigInt(w_z2.get());
+    const auto z0 = BigInt(karatsuba_mul(low1, low2));
+    const auto z1 = BigInt(karatsuba_mul(lh1, lh2));
+    const auto z2 = BigInt(karatsuba_mul(high1, high2));
 
     auto result =
         (z2 << (m2 * 2UL * sizeof(bigint_base_t) * 8UL)) + ((z1 - z2 - z0) << (m2 * sizeof(bigint_base_t) * 8UL)) + z0;
@@ -401,64 +392,6 @@ BigInt BigInt::operator--(int)
         normalize();
     }
     return copied;
-}
-
-std::vector<bigint_base_t> &BigInt::increment_unsigned(std::vector<bigint_base_t> &n)
-{
-    bigint_base_t carry = 1;
-    for (auto &digit : n)
-    {
-        ++digit;
-        if (digit != 0)
-        {
-            carry = 0;
-            break;
-        }
-    }
-    if (carry)
-    {
-        n.push_back(carry);
-    }
-    return n;
-}
-
-std::vector<bigint_base_t> &BigInt::decrement_unsigned(std::vector<bigint_base_t> &n)
-{
-    for (auto &digit : n)
-    {
-        --digit;
-        if (digit != std::numeric_limits<bigint_base_t>::max())
-        {
-            break;
-        }
-    }
-    return n;
-}
-
-std::vector<bigint_base_t> BigInt::plain_add(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
-{
-    const auto [longer, shorter] = get_longer_shorter(&a, &b);
-    std::vector<bigint_base_t> result_data(longer->size() + 1);
-
-#ifdef __AVX2__
-    avx_add(longer->data(), longer->size() * sizeof(bigint_base_t), shorter->data(),
-            shorter->size() * sizeof(bigint_base_t), result_data.data());
-#else
-    add_arrays(longer->data(), longer->size(), shorter->data(), shorter->size(), result_data.data());
-#endif
-
-    return result_data;
-}
-
-std::vector<bigint_base_t> BigInt::plain_sub(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
-{
-    std::vector<bigint_base_t> result_data(a.size());
-#ifdef __AVX2__
-    avx_sub(a.data(), a.size() * sizeof(bigint_base_t), b.data(), b.size() * sizeof(bigint_base_t), result_data.data());
-#else
-    sub_arrays(a.data(), a.size(), b.data(), b.size(), result_data.data());
-#endif
-    return result_data;
 }
 
 BigInt &BigInt::inplace_plain_add(const BigInt &other)

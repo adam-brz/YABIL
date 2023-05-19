@@ -332,11 +332,7 @@ public:
     friend std::ostream &operator<<(std::ostream &out, const BigInt &bigint);
     friend std::istream &operator>>(std::istream &in, BigInt &bigint);
 
-    static std::vector<bigint_base_t> plain_add(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b);
-    static std::vector<bigint_base_t> plain_sub(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b);
-
-    static std::vector<bigint_base_t> &increment_unsigned(std::vector<bigint_base_t> &n);
-    static std::vector<bigint_base_t> &decrement_unsigned(std::vector<bigint_base_t> &n);
+    static std::vector<bigint_base_t> base_mul(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b);
 
 private:
     void normalize();
@@ -352,7 +348,6 @@ private:
     BigInt &inplace_plain_add(const BigInt &other);
     BigInt &inplace_plain_sub(const BigInt &other);
 
-    static std::vector<bigint_base_t> base_mul(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b);
     static std::vector<bigint_base_t> karatsuba_mul(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b);
 
     static std::pair<const BigInt *, const BigInt *> get_longer_and_shorter(const BigInt &num1, const BigInt &num2);

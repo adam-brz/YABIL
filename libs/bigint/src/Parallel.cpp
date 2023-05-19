@@ -18,9 +18,9 @@ namespace
 std::vector<bigint_base_t> parallel_add_unsigned(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
 {
     const auto min_s = std::min(a.size(), b.size());
-    if (min_s < parallel_add_digits)
+    if (min_s < thresholds::parallel_add_digits)
     {
-        return BigInt::plain_add(a, b);
+        return plain_add(a, b);
     }
 
     auto &thread_pool = utils::ThreadPoolSingleton::instance();
@@ -40,7 +40,7 @@ std::vector<bigint_base_t> parallel_add_unsigned(std::span<bigint_base_t const> 
         partial_results.push_back(thread_pool.submit(
             [&, i]()
             {
-                return BigInt::plain_add(
+                return plain_add(
                     {a.begin() + static_cast<int>(i * chunk_size), a.begin() + static_cast<int>((i + 1) * chunk_size)},
                     {b.begin() + static_cast<int>(i * chunk_size), b.begin() + static_cast<int>((i + 1) * chunk_size)});
             }));
@@ -49,8 +49,8 @@ std::vector<bigint_base_t> parallel_add_unsigned(std::span<bigint_base_t const> 
     auto last_part = thread_pool.submit(
         [&]()
         {
-            return BigInt::plain_add({a.begin() + static_cast<int>(concurrency * chunk_size), a.end()},
-                                     {b.begin() + static_cast<int>(concurrency * chunk_size), b.end()});
+            return plain_add({a.begin() + static_cast<int>(concurrency * chunk_size), a.end()},
+                             {b.begin() + static_cast<int>(concurrency * chunk_size), b.end()});
         });
 
     std::vector<bigint_base_t> result(std::max(a.size(), b.size()) + 1);
@@ -62,7 +62,7 @@ std::vector<bigint_base_t> parallel_add_unsigned(std::span<bigint_base_t const> 
         auto part_data = chunk.get();
         if (carry)
         {
-            BigInt::increment_unsigned(part_data);
+            increment_unsigned(part_data);
             carry = 0;
         }
         if (part_data.size() > chunk_size)
@@ -76,16 +76,52 @@ std::vector<bigint_base_t> parallel_add_unsigned(std::span<bigint_base_t const> 
     auto final_part_data = last_part.get();
     if (carry)
     {
-        BigInt::increment_unsigned(final_part_data);
+        increment_unsigned(final_part_data);
     }
 
     std::copy(final_part_data.cbegin(), final_part_data.cend(), result.begin() + chunk_index);
     return result;
 }
 
+std::vector<bigint_base_t> parallel_karatsuba(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
+{
+    if (a.size() < thresholds::karatsuba_threshold_digits || b.size() < thresholds::karatsuba_threshold_digits)
+    {
+        return BigInt::base_mul(a, b);
+    }
+
+    const int m2 = static_cast<int>(std::max(a.size(), b.size()) / 2);
+
+    const std::span<bigint_base_t const> low1{a.begin(), a.begin() + m2};
+    const std::span<bigint_base_t const> high1{a.begin() + m2, a.end()};
+
+    const std::span<bigint_base_t const> low2{b.begin(), b.begin() + m2};
+    const std::span<bigint_base_t const> high2{b.begin() + m2, b.end()};
+
+    auto &thread_pool = utils::ThreadPoolSingleton::instance();
+
+    auto w_z0 = thread_pool.submit_run_task([&]() { return parallel_karatsuba(low1, low2); });
+    auto w_z1 = thread_pool.submit_run_task(
+        [&]()
+        {
+            const auto lh1 = plain_add(low1, high1);
+            const auto lh2 = plain_add(low2, high2);
+            return parallel_karatsuba(lh1, lh2);
+        });
+    auto w_z2 = thread_pool.submit_run_task([&]() { return parallel_karatsuba(high1, high2); });
+
+    const auto z0 = BigInt(w_z0.get());
+    const auto z1 = BigInt(w_z1.get());
+    const auto z2 = BigInt(w_z2.get());
+
+    auto result =
+        (z2 << (m2 * 2UL * sizeof(bigint_base_t) * 8UL)) + ((z1 - z2 - z0) << (m2 * sizeof(bigint_base_t) * 8UL)) + z0;
+    return result.raw_data();
+}
+
 }  // namespace
 
-BigInt parallel_add(const BigInt &a, const BigInt &b)
+BigInt add(const BigInt &a, const BigInt &b)
 {
     if (a.get_sign() == b.get_sign())
     {
@@ -94,7 +130,50 @@ BigInt parallel_add(const BigInt &a, const BigInt &b)
 
     const auto [greater, lower] = get_greater_lower(a, b);
     const Sign new_sign = ((greater == &a) == (a.get_sign() == Sign::Plus)) ? Sign::Plus : Sign::Minus;
-    return BigInt(BigInt::plain_sub(greater->raw_data(), lower->raw_data()), new_sign);
+    return BigInt(plain_sub(greater->raw_data(), lower->raw_data()), new_sign);
+}
+
+BigInt multiply(const BigInt &a, const BigInt &b)
+{
+    return BigInt(parallel_karatsuba(a.raw_data(), b.raw_data()),
+                  (a.get_sign() == b.get_sign()) ? Sign::Plus : Sign::Minus);
+}
+
+std::pair<BigInt, BigInt> divide(const BigInt &a, const BigInt &b)
+{
+    if (b.is_zero())
+    {
+        throw std::invalid_argument("Cannot divide by 0");
+    }
+
+    if (a.raw_data().size() < thresholds::parallel_div_digits || b.raw_data().size() < thresholds::parallel_div_digits)
+    {
+        return a.divide(b);
+    }
+
+    // if (!b.is_normalized_for_division())
+    // {
+    //     const auto k = std::countl_zero(other.raw_data().back());
+    //     const auto [quotient, remainder] = (*this << k).divide(other << k);
+    //     return {quotient, remainder >> k};
+    // }
+
+    // if (is_negative() && other.is_negative())
+    // {
+    //     const auto [quotient, remainder] = (-(*this)).divide_unsigned(-other);
+    //     return {quotient, -remainder};
+    // }
+    // if (!is_negative() && other.is_negative())
+    // {
+    //     const auto [quotient, remainder] = divide_unsigned(-other);
+    //     return {-quotient, remainder};
+    // }
+    // if (is_negative() && !other.is_negative())
+    // {
+    //     const auto [quotient, remainder] = (-(*this)).divide_unsigned(other);
+    //     return {-quotient, -remainder};
+    // }
+    // return divide_unsigned(other);
 }
 
 }  // namespace yabil::bigint::parallel
