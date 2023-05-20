@@ -144,16 +144,16 @@ std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> parallel_unbal
     const int n = static_cast<int>(b.size());
     int m = static_cast<int>(a.size()) - n;
 
-    std::vector<bigint_base_t> A{a.begin(), a.end()};
+    std::vector<bigint_base_t> A;
     BigInt Q;
 
     while (m > n)
     {
-        const auto [q, r] = parallel_recursive_div({A.cbegin() + (m - n), A.cend()}, b);
+        const auto [q, r] = parallel_recursive_div(a.subspan(m - n), b);
         Q = (Q << (digit_size_bits * n)) + BigInt(q);
 
         const auto R = BigInt(r) << (digit_size_bits * (m - n));
-        A = plain_add(R.raw_data(), {A.cbegin(), A.cbegin() + (m - n)});
+        A = plain_add(R.raw_data(), a.subspan(0, m - n));
 
         m -= n;
     }

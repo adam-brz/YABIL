@@ -36,10 +36,10 @@ std::vector<bigint_base_t> karatsuba_mul(std::span<bigint_base_t const> a, std::
 std::vector<bigint_base_t> &increment_unsigned(std::vector<bigint_base_t> &n);
 std::vector<bigint_base_t> &decrement_unsigned(std::vector<bigint_base_t> &n);
 
-std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> divide_unsigned(std::span<bigint_base_t const> a,
-                                                                                  std::span<bigint_base_t const> b);
-std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> unbalanced_div(std::span<bigint_base_t const> a,
-                                                                                 std::span<bigint_base_t const> b);
-std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> recursive_div(std::span<bigint_base_t const> a,
-                                                                                std::span<bigint_base_t const> b);
+// std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> divide_unsigned(std::span<bigint_base_t const> a,
+//                                                                                   std::span<bigint_base_t const> b);
+// std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> unbalanced_div(std::span<bigint_base_t const> a,
+//                                                                                  std::span<bigint_base_t const> b);
+// std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> recursive_div(std::span<bigint_base_t const> a,
+//                                                                                 std::span<bigint_base_t const> b);
 }  // namespace yabil::bigint
