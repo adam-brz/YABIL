@@ -69,7 +69,7 @@ std::pair<BigInt, BigInt> BigInt::recursive_div(const BigInt &other) const
 
     while (A_prim.is_negative())
     {
-        Q1 -= BigInt(1);
+        --Q1;
         A_prim += other << (digit_size_bits * k);
     }
 
@@ -78,7 +78,7 @@ std::pair<BigInt, BigInt> BigInt::recursive_div(const BigInt &other) const
                  BigInt{std::vector<bigint_base_t>(A_prim.data.cbegin(), A_prim.data.cbegin() + k)} - Q0 * B0;
     while (A_bis.is_negative())
     {
-        Q0 -= BigInt(1);
+        --Q0;
         A_bis += other;
     }
 
