@@ -16,12 +16,6 @@ void remove_trailing_zeros(std::vector<bigint_base_t> &data)
     data.erase(std::find_if(data.rbegin(), data.rend(), [](const auto &v) { return v != 0; }).base(), data.end());
 }
 
-std::span<bigint_base_t const> subspan_without_trailing_zeros(const std::span<bigint_base_t const> &data)
-{
-    return data.subspan(
-        0, std::find_if(data.rbegin(), data.rend(), [](const auto &v) { return v != 0; }).base() - data.begin());
-}
-
 bool is_normalized_for_division(const BigInt &n)
 {
     return n.get_bit(n.byte_size() * 8 - 1);
@@ -210,94 +204,5 @@ std::vector<bigint_base_t> &decrement_unsigned(std::vector<bigint_base_t> &n)
     }
     return n;
 }
-
-// std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> divide_unsigned(std::span<bigint_base_t const> a,
-//                                                                                   std::span<bigint_base_t const> b)
-// {
-//     if (a.size() > thresholds::recursive_div_threshold_digits)
-//     {
-//         return unbalanced_div(a, b);
-//     }
-
-//     const auto [q, r] = BigInt(a).base_div(BigInt(b));
-//     return {q.raw_data(), r.raw_data()};
-// }
-
-// std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> unbalanced_div(std::span<bigint_base_t const> a,
-//                                                                                  std::span<bigint_base_t const> b)
-// {
-//     constexpr auto digit_size_bits = sizeof(bigint_base_t) * 8;
-//     const int n = static_cast<int>(b.size());
-//     int m = static_cast<int>(a.size()) - n;
-
-//     std::vector<bigint_base_t> A;
-//     BigInt Q;
-
-//     while (m > n)
-//     {
-//         const auto [q, r] = recursive_div(subspan_without_trailing_zeros(a.subspan(m - n)), b);
-//         const auto Q_shifted = Q << (digit_size_bits * n);
-//         Q = BigInt(plain_add(Q_shifted.raw_data(), q));
-
-//         const auto R = BigInt(r) << (digit_size_bits * (m - n));
-//         A = plain_add(R.raw_data(), subspan_without_trailing_zeros(a.subspan(0, m - n)));
-
-//         m -= n;
-//     }
-
-//     const auto [q, r] = recursive_div(subspan_without_trailing_zeros(A), b);
-//     const auto Q_shifted = Q << (digit_size_bits * m);
-//     const auto quotient = plain_add(Q_shifted.raw_data(), q);
-//     return {quotient, r};
-// }
-
-// std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> recursive_div(std::span<bigint_base_t const> a,
-//                                                                                 std::span<bigint_base_t const> b)
-// {
-//     const int n = static_cast<int>(b.size());
-//     const int m = static_cast<int>(a.size()) - n;
-
-//     if (m < static_cast<int>(thresholds::recursive_div_threshold_digits))
-//     {
-//         const auto [q, r] = BigInt(a).base_div(BigInt(b));
-//         return {q.raw_data(), r.raw_data()};
-//     }
-
-//     const int k = m / 2;
-//     constexpr auto digit_size_bits = sizeof(bigint_base_t) * 8;
-
-//     const auto B1 = subspan_without_trailing_zeros(b.subspan(k));
-//     const auto B0 = subspan_without_trailing_zeros(b.subspan(0, k));
-
-//     auto [Q1, R1] = recursive_div(subspan_without_trailing_zeros(a.subspan(2UL * k)), B1);
-//     const auto R1_shifted = BigInt(R1) << (digit_size_bits * 2 * k);
-//     auto A_prim = BigInt(plain_add(R1_shifted.raw_data(), subspan_without_trailing_zeros(a.subspan(0, 2UL * k)))) -
-//                   (BigInt(karatsuba_mul(Q1, B0)) << (digit_size_bits * k));
-
-//     while (A_prim.is_negative())
-//     {
-//         decrement_unsigned(Q1);
-//         A_prim += BigInt(b) << (digit_size_bits * k);
-//     }
-
-//     std::span<bigint_base_t const> A_prim_view(A_prim.raw_data());
-
-//     auto [Q0, R0] = recursive_div(subspan_without_trailing_zeros(A_prim_view.subspan(k)), B1);
-//     remove_trailing_zeros(Q0);
-
-//     const auto R0_shifted = BigInt(R0) << (digit_size_bits * k);
-//     auto A_bis = BigInt(plain_add(R0_shifted.raw_data(), subspan_without_trailing_zeros(A_prim_view.subspan(0, k))))
-//     -
-//                  BigInt(karatsuba_mul(Q0, B0));
-
-//     while (A_bis.is_negative())
-//     {
-//         decrement_unsigned(Q0);
-//         A_bis += BigInt(b);
-//     }
-
-//     const auto Q1_shifted = BigInt(Q1) << (digit_size_bits * k);
-//     return {plain_add(Q1_shifted.raw_data(), Q0), A_bis.raw_data()};
-// }
 
 }  // namespace yabil::bigint
