@@ -339,10 +339,6 @@ public:
 
 private:
     void normalize();
-    std::pair<BigInt, BigInt> divide_unsigned(const BigInt &other) const;
-    std::pair<BigInt, BigInt> unbalanced_div(const BigInt &other) const;
-    std::pair<BigInt, BigInt> recursive_div(const BigInt &other) const;
-
     BigInt &inplace_plain_add(const BigInt &other);
     BigInt &inplace_plain_sub(const BigInt &other);
 };
