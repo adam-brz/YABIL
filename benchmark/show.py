@@ -34,7 +34,7 @@ for func in results_by_function:
         )
         plt.plot(x, y)
     legend_entries = list(results_by_function[func].keys())
-    plt.legend([entry.replace("YABIL", "Self implementation") for entry in legend_entries])
+    plt.legend([entry.replace("YABIL", "Self implementation").replace("_", " ") for entry in legend_entries])
     plt.grid()
     plt.xlabel("digits [n]")
     plt.ylabel("time [ns]")

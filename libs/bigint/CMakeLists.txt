@@ -1,12 +1,15 @@
 project(bigint C CXX)
 
 set(SOURCES
+    src/Arithmetic.cpp
+    src/Arithmetic.h
     src/AVX2Utils.cpp
     src/AVX2Utils.h
     src/BigInt.cpp
     src/BigIntArithmeticOperators.cpp
     src/BigIntBinaryOperators.cpp
     src/BigIntReleationOperators.cpp
+    src/Parallel.cpp
     src/SafeOperators.h
     src/StringConversionUtils.cpp
     src/StringConversionUtils.h
@@ -15,6 +18,7 @@ set(SOURCES
 
 set(HEADERS
     include/yabil/bigint/BigInt.h
+    include/yabil/bigint/Parallel.h
 )
 
 set(TESTS
@@ -26,10 +30,12 @@ set(TESTS
     test/BigIntDivOperator_tests.cpp
     test/BigIntBitOperations_tests.cpp
     test/BigIntGreaterComparaison_tests.cpp
+    test/BigIntIncrementDecrementOperator_tests.cpp
     test/BigIntLowerComparaison_tests.cpp
     test/BigIntMulOperator_tests.cpp
     test/BigIntNotOperator_tests.cpp
     test/BigIntOrOperator_tests.cpp
+    test/ParallelOperations_tests.cpp
     test/BigIntShiftOperator_tests.cpp
     test/BigIntStreamOperator_tests.cpp
     test/BigIntSubOperator_tests.cpp

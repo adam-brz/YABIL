@@ -1,5 +1,6 @@
 #include <benchmark/benchmark.h>
 #include <yabil/bigint/BigInt.h>
+#include <yabil/bigint/Parallel.h>
 
 // Boost
 #include <boost/multiprecision/cpp_int.hpp>
@@ -33,6 +34,20 @@ static void multiplication_YABIL(benchmark::State& state)  // NOLINT
     for (auto _ : state)
     {
         c = a * b;
+        benchmark::DoNotOptimize(c);
+        benchmark::ClobberMemory();
+    }
+    static_cast<void>(c);
+}
+
+static void multiplication_YABIL_parallel(benchmark::State& state)  // NOLINT
+{
+    yabil::bigint::BigInt a{generate_random_number_string(state.range(0))};
+    yabil::bigint::BigInt b{generate_random_number_string(state.range(0))};
+    yabil::bigint::BigInt c;
+    for (auto _ : state)
+    {
+        c = yabil::bigint::parallel::multiply(a, b);
         benchmark::DoNotOptimize(c);
         benchmark::ClobberMemory();
     }
@@ -150,6 +165,7 @@ static constexpr uint64_t stop = 200000ULL;
 static constexpr int step = stop / 100;
 
 BENCHMARK(multiplication_YABIL)->Range(1, stop);
+BENCHMARK(multiplication_YABIL_parallel)->Range(1, stop);
 BENCHMARK(multiplication_GMP)->Range(1, stop);
 BENCHMARK(multiplication_boost)->Range(1, stop);
 BENCHMARK(multiplication_openssl)->Range(1, stop);

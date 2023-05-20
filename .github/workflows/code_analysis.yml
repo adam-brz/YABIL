@@ -40,27 +40,26 @@ jobs:
           fi
 
       - name: Install Conan dependencies
-        run:
-          CC=clang CXX=clang++ conan install ./conan -pr=./conan/profiles/clang
-          -pr:b=./conan/profiles/clang -s build_type=Release --build=missing -of=build
+        run: |
+          CC=clang CXX=clang++ conan install ./conan -pr=./conan/profiles/clang \
+            -pr:b=./conan/profiles/clang -s build_type=Release --build=missing -of=build
 
       - name: Configure
         working-directory: build
-        run:
-          cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DYABIL_ENABLE_TESTS=TRUE -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE
-          -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
+        run: |
+          cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DYABIL_ENABLE_TESTS=TRUE -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE \
+            -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
 
       - name: Run Clang-tidy
-        run:
-          clang-tidy -format-style=file -header-filter=.* -p build $(find libs -iname *.cpp) $(find libs -iname *.h)
+        run: clang-tidy -format-style=file -header-filter=.* -p build $(find libs -iname *.cpp) $(find libs -iname *.h)
 
       - name: Run CppLint
         run: cpplint $(find libs -iname *.cpp) $(find libs -iname *.h)
 
       - name: Run CppCheck
-        run:
-          cppcheck --project=build/compile_commands.json --enable=all --error-exitcode=1
-          --suppress=missingInclude:*
+        run: |
+          cppcheck --project=build/compile_commands.json \
+            --enable=all --error-exitcode=1 --suppress=missingInclude:* --inline-suppr
 
       - name: Compile project
         working-directory: build

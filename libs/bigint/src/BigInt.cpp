@@ -2,10 +2,13 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cmath>
+#include <functional>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
 
+#include "Arithmetic.h"
 #include "SafeOperators.h"
 #include "StringConversionUtils.h"
 
@@ -19,6 +22,12 @@ BigInt::BigInt(const std::vector<bigint_base_t> &raw_data, Sign sign) : data(raw
 
 BigInt::BigInt(std::vector<bigint_base_t> &&raw_data, Sign sign) : data(raw_data), sign(sign)
 {
+    normalize();
+}
+
+BigInt::BigInt(std::span<bigint_base_t const> raw_data, Sign sign) : sign(sign)
+{
+    data.insert(data.begin(), raw_data.begin(), raw_data.end());
     normalize();
 }
 
@@ -39,11 +48,27 @@ BigInt::BigInt(const std::string_view &str, int base)
         data.push_back(converted);
     }
 
+    std::function<BigInt(BigInt)> base_multiplier;
+
+    switch (base)
+    {
+        case 2:
+        case 4:
+        case 8:
+        case 16:
+            base_multiplier = [base](const BigInt &n) { return n << static_cast<int>(std::log2(base)); };
+            break;
+
+        default:
+            base_multiplier = [base](const BigInt &n) { return n * BigInt(base); };
+            break;
+    }
+
     for (auto it = str.cbegin() + 1; it != str.cend(); ++it)
     {
         const int converted = get_digit_value(std::tolower(*it));
         check_conversion(*it, converted, base);
-        *this *= BigInt(base);
+        *this = base_multiplier(*this);
         *this += BigInt(converted);
     }
 
@@ -53,13 +78,8 @@ BigInt::BigInt(const std::string_view &str, int base)
 
 void BigInt::normalize()
 {
-    remove_trailing_zeros();
+    remove_trailing_zeros(data);
     sign = is_zero() ? Sign::Plus : sign;
-}
-
-void BigInt::remove_trailing_zeros()
-{
-    data.erase(std::find_if(data.rbegin(), data.rend(), [](const auto &v) { return v != 0; }).base(), data.end());
 }
 
 int64_t BigInt::to_int() const
@@ -145,21 +165,16 @@ bool BigInt::is_zero() const
     return data.size() == 0;
 }
 
-bool BigInt::check_abs_greater(const BigInt &other) const
+bool BigInt::abs_greater(const BigInt &other) const
 {
-    return other.check_abs_lower(*this);
+    return other.abs_lower(*this);
 }
 
-bool BigInt::check_abs_lower(const BigInt &other) const
+bool BigInt::abs_lower(const BigInt &other) const
 {
     return data.size() < other.data.size() ||
            (data.size() == other.data.size() &&
             std::lexicographical_compare(data.crbegin(), data.crend(), other.data.crbegin(), other.data.crend()));
-}
-
-bool BigInt::is_normalized_for_division() const
-{
-    return get_bit(byte_size() * 8 - 1);
 }
 
 bool BigInt::get_bit(std::size_t n) const
@@ -225,15 +240,6 @@ std::istream &operator>>(std::istream &in, BigInt &bigint)
     bigint = std::move(result);
 
     return in;
-}
-
-std::pair<const BigInt *, const BigInt *> BigInt::get_longer_and_shorter(const BigInt &num1, const BigInt &num2)
-{
-    if (num1.raw_data().size() > num2.raw_data().size())
-    {
-        return {&num1, &num2};
-    }
-    return {&num2, &num1};
 }
 
 }  // namespace yabil::bigint

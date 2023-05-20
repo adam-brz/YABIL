@@ -17,11 +17,11 @@ bool BigInt::operator<(const BigInt &other) const
 {
     if (sign == Sign::Minus && other.sign == Sign::Minus)
     {
-        return check_abs_greater(other);
+        return abs_greater(other);
     }
     if (sign == Sign::Plus && other.sign == Sign::Plus)
     {
-        return check_abs_lower(other);
+        return abs_lower(other);
     }
     if (sign == Sign::Minus && other.sign == Sign::Plus)
     {
@@ -39,11 +39,11 @@ bool BigInt::operator>(const BigInt &other) const
 {
     if (sign == Sign::Minus && other.sign == Sign::Minus)
     {
-        return check_abs_lower(other);
+        return abs_lower(other);
     }
     if (sign == Sign::Plus && other.sign == Sign::Plus)
     {
-        return check_abs_greater(other);
+        return abs_greater(other);
     }
     if (sign == Sign::Plus && other.sign == Sign::Minus)
     {

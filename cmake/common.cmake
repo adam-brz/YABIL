@@ -2,12 +2,14 @@
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
+include(CheckCXXCompilerFlag)
 
 macro(setup_testing)
     if(YABIL_ENABLE_TESTS)
         include(CTest)
         include(GoogleTest)
         enable_testing()
+        find_package(GTest REQUIRED CONFIG)
     elseif(YABIL_ENABLE_COVERAGE)
         message(WARNING "Option YABIL_ENABLE_COVERAGE=TRUE will be ignored since YABIL_ENABLE_TESTS=FALSE.")
     endif()
@@ -59,7 +61,16 @@ function(set_common_target_options TARGET)
     endif()
 
     if(YABIL_ENABLE_OPTIMIZATIONS)
-        set(OTHER_RELEASE_FLAGS ${OTHER_RELEASE_FLAGS} -Ofast -march=native)
+        check_cxx_compiler_flag("-Ofast" OFAST_SUPPORTED)
+        check_cxx_compiler_flag("-march=native" MNATIVE_SUPPORTED)
+
+        if(OFAST_SUPPORTED)
+            set(OTHER_RELEASE_FLAGS ${OTHER_RELEASE_FLAGS} -Ofast)
+        endif()
+
+        if(MNATIVE_SUPPORTED)
+            set(OTHER_RELEASE_FLAGS ${OTHER_RELEASE_FLAGS} -march=native)
+        endif()
     endif()
 
     if (MSVC)
@@ -108,8 +119,6 @@ function(add_test_target TARGET)
     endif()
 
     set(TEST_TARGET ${TARGET}_tests)
-    find_package(GTest REQUIRED CONFIG)
-
     add_executable(${TEST_TARGET} ${ARGN})
     target_link_libraries(${TEST_TARGET} PRIVATE ${TARGET} GTest::gtest GTest::gtest_main)
 

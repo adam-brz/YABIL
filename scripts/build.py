@@ -24,8 +24,13 @@ def build(build_type, preset_name):
 def conan_install(source_dir, preset_name, build_type, output_dir):
     GitHubLogger.print("::group::Conan install")
     os.makedirs(output_dir, exist_ok=True)
+
+    preset_file = f"{source_dir}/conan/profiles/{preset_name}"
+    if not os.path.exists(preset_file):
+        preset_file = "default"
+
     subprocess.check_call(
-        f"conan install {source_dir}/conan -pr:b={source_dir}/conan/profiles/{preset_name} "
+        f"conan install {source_dir}/conan -pr:b={preset_file} "
         f"-s build_type={build_type} --build=missing -of=.",
         shell=True,
         cwd=output_dir,
@@ -57,7 +62,7 @@ if __name__ == "__main__":
         "-p",
         "--preset",
         required=True,
-        choices=["vs", "clang", "gcc"],
+        choices=["vs", "clang", "gcc", "apple_clang"],
         help="CMake preset name to use",
     )
     parser.add_argument(

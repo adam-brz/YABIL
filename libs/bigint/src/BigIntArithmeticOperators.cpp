@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "AVX2Utils.h"
+#include "Arithmetic.h"
 #include "SafeOperators.h"
 #include "StringConversionUtils.h"
 #include "Thresholds.h"
@@ -15,7 +16,7 @@ namespace yabil::bigint
 
 std::pair<BigInt, BigInt> BigInt::divide_unsigned(const BigInt &other) const
 {
-    if (data.size() > recursive_div_threshold_digits)
+    if (data.size() > thresholds::recursive_div_threshold_digits)
     {
         return unbalanced_div(other);
     }
@@ -68,7 +69,7 @@ std::pair<BigInt, BigInt> BigInt::recursive_div(const BigInt &other) const
 
     while (A_prim.is_negative())
     {
-        Q1 -= BigInt(1);
+        --Q1;
         A_prim += other << (digit_size_bits * k);
     }
 
@@ -77,13 +78,12 @@ std::pair<BigInt, BigInt> BigInt::recursive_div(const BigInt &other) const
                  BigInt{std::vector<bigint_base_t>(A_prim.data.cbegin(), A_prim.data.cbegin() + k)} - Q0 * B0;
     while (A_bis.is_negative())
     {
-        Q0 -= BigInt(1);
+        --Q0;
         A_bis += other;
     }
 
     return {(Q1 << (digit_size_bits * k)) + Q0, A_bis};
 }
-
 std::pair<BigInt, BigInt> BigInt::base_div(const BigInt &other) const
 {
     const int n = static_cast<int>(other.data.size());
@@ -91,7 +91,7 @@ std::pair<BigInt, BigInt> BigInt::base_div(const BigInt &other) const
 
     if (m < 0)
     {
-        return {BigInt(0), *this};
+        return {BigInt(), *this};
     }
 
     BigInt A = *this;
@@ -130,90 +130,29 @@ BigInt BigInt::operator+(const BigInt &other) const
 {
     if (sign == other.sign)
     {
-        return plain_add(other);
+        return BigInt(plain_add(data, other.data), sign);
     }
 
-    if (sign == Sign::Minus)
-    {
-        return other.plain_sub(*this);
-    }
-
-    return plain_sub(other);
+    const auto [greater, lower] = get_greater_lower(other, *this);
+    const Sign new_sign = ((greater == this) == (sign == Sign::Plus)) ? Sign::Plus : Sign::Minus;
+    return BigInt(plain_sub(greater->data, lower->data), new_sign);
 }
 
 BigInt BigInt::operator-(const BigInt &other) const
 {
     if (sign != other.sign)
     {
-        return plain_add(other);
+        return BigInt(plain_add(data, other.data), sign);
     }
 
-    if (sign == Sign::Plus)
-    {
-        return plain_sub(other);
-    }
-
-    return other.plain_sub(*this);
+    const auto [greater, lower] = get_greater_lower(other, *this);
+    const Sign new_sign = ((greater == this) == (sign == Sign::Plus)) ? Sign::Plus : Sign::Minus;
+    return BigInt(plain_sub(greater->data, lower->data), new_sign);
 }
 
 BigInt BigInt::operator*(const BigInt &other) const
 {
-    return karatsuba_mul(other);
-}
-
-BigInt BigInt::base_mul(const BigInt &other) const
-{
-    std::vector<bigint_base_t> result(data.size() + other.data.size(), 0);
-    const auto [longer, shorter] = get_longer_and_shorter(*this, other);
-
-    for (std::size_t i = 0; i < shorter->data.size(); ++i)
-    {
-        double_width_t<bigint_base_t> carry = 0;
-        std::size_t j;
-        for (j = 0; j < longer->data.size(); ++j)
-        {
-            carry += result[i + j] + safe_mul(longer->data[j], shorter->data[i]);
-            result[i + j] = static_cast<bigint_base_t>(carry);
-            carry >>= sizeof(bigint_base_t) * 8;
-        }
-        if (carry)
-        {
-            result[i + j] += static_cast<bigint_base_t>(carry);
-        }
-    }
-
-    return BigInt(std::move(result), (sign == other.sign) ? Sign::Plus : Sign::Minus);
-}
-
-BigInt BigInt::karatsuba_mul(const BigInt &other) const
-{
-    if (data.size() < karatsuba_threshold_digits || other.data.size() < karatsuba_threshold_digits)
-    {
-        return base_mul(other);
-    }
-
-    const int m2 = static_cast<int>(std::max(data.size(), other.data.size()) / 2);
-
-    const BigInt low1{std::vector<bigint_base_t>(data.cbegin(), data.cbegin() + m2)};
-    const BigInt high1{std::vector<bigint_base_t>(data.cbegin() + m2, data.cend())};
-
-    const BigInt low2{std::vector<bigint_base_t>(other.data.cbegin(), other.data.cbegin() + m2)};
-    const BigInt high2{std::vector<bigint_base_t>(other.data.cbegin() + m2, other.data.cend())};
-
-    auto &thread_pool = utils::ThreadPoolSingleton::instance();
-
-    auto w_z0 = thread_pool.smart_run([&]() { return low1.karatsuba_mul(low2); });
-    auto w_z1 = thread_pool.smart_run([&]() { return (low1 + high1).karatsuba_mul(low2 + high2); });
-    auto w_z2 = thread_pool.smart_run([&]() { return (high1).karatsuba_mul(high2); });
-
-    const auto z0 = w_z0.get();
-    const auto z1 = w_z1.get();
-    const auto z2 = w_z2.get();
-
-    auto result =
-        (z2 << (m2 * 2UL * sizeof(bigint_base_t) * 8UL)) + ((z1 - z2 - z0) << (m2 * sizeof(bigint_base_t) * 8UL)) + z0;
-    result.sign = (sign == other.sign) ? Sign::Plus : Sign::Minus;
-    return result;
+    return BigInt(karatsuba_mul(data, other.data), (sign == other.sign) ? Sign::Plus : Sign::Minus);
 }
 
 BigInt BigInt::operator/(const BigInt &other) const
@@ -249,6 +188,11 @@ std::pair<BigInt, BigInt> BigInt::divide(const BigInt &other) const
         throw std::invalid_argument("Cannot divide by 0");
     }
 
+    if (is_zero())
+    {
+        return {BigInt(), BigInt()};
+    }
+
     if (is_int64() && other.is_int64())
     {
         const auto a = to_int();
@@ -256,7 +200,7 @@ std::pair<BigInt, BigInt> BigInt::divide(const BigInt &other) const
         return {BigInt(a / b), BigInt(a % b)};
     }
 
-    if (!other.is_normalized_for_division())
+    if (!is_normalized_for_division(other))
     {
         const auto k = std::countl_zero(other.raw_data().back());
         const auto [quotient, remainder] = (*this << k).divide(other << k);
@@ -336,73 +280,71 @@ BigInt &BigInt::operator%=(const BigInt &other)
     return *this = *this % other;
 }
 
-BigInt BigInt::plain_add(const BigInt &other) const
+BigInt &BigInt::operator++()
 {
-    const auto [longer, shorter] = get_longer_and_shorter(*this, other);
-    std::vector<bigint_base_t> result_data(longer->data.size() + 1);
-
-#ifdef __AVX2__
-    avx_add(longer->data.data(), longer->byte_size(), shorter->data.data(), shorter->byte_size(), result_data.data());
-#else
-    bigint_base_t carry = 0;
-    std::size_t i;
-
-    for (i = 0; i < shorter->data.size(); ++i)
+    if (sign == Sign::Plus)
     {
-        const auto addition_result = safe_add(longer->data[i], shorter->data[i], carry);
-        carry = static_cast<bigint_base_t>(addition_result >> (sizeof(bigint_base_t) * 8));
-        result_data[i] = static_cast<bigint_base_t>(addition_result);
+        increment_unsigned(data);
+        return *this;
     }
-
-    for (; i < longer->data.size(); ++i)
-    {
-        const auto addition_result = safe_add(longer->data[i], carry);
-        carry = static_cast<bigint_base_t>(addition_result >> (sizeof(bigint_base_t) * 8));
-        result_data[i] = static_cast<bigint_base_t>(addition_result);
-    }
-
-    if (carry > 0)
-    {
-        result_data[i] = carry;
-    }
-#endif
-
-    return BigInt(std::move(result_data), sign);
+    decrement_unsigned(data);
+    normalize();
+    return *this;
 }
 
-BigInt BigInt::plain_sub(const BigInt &other) const
+BigInt &BigInt::operator--()
 {
-    const BigInt *longer = this;
-    const BigInt *shorter = &other;
-    Sign new_sign = Sign::Plus;
-
-    if (longer->check_abs_lower(*shorter))
+    if (is_zero())
     {
-        std::swap(longer, shorter);
-        new_sign = Sign::Minus;
+        sign = Sign::Minus;
     }
 
-    std::vector<bigint_base_t> result_data(longer->data.size());
-#ifdef __AVX2__
-    avx_sub(longer->data.data(), longer->byte_size(), shorter->data.data(), shorter->byte_size(), result_data.data());
-#else
-    bigint_base_t borrow = 0;
-    std::size_t i;
+    if (sign == Sign::Minus)
+    {
+        increment_unsigned(data);
+        return *this;
+    }
 
-    for (i = 0; i < shorter->data.size(); ++i)
+    decrement_unsigned(data);
+    normalize();
+    return *this;
+}
+
+BigInt BigInt::operator++(int)
+{
+    BigInt copied(*this);
+    if (sign == Sign::Plus)
     {
-        const auto result = safe_sub(longer->data[i], shorter->data[i], borrow);
-        borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        result_data[i] = static_cast<bigint_base_t>(result);
+        increment_unsigned(data);
     }
-    for (; i < longer->data.size(); ++i)
+    else
     {
-        const auto result = safe_sub(longer->data[i], borrow);
-        borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        result_data[i] = static_cast<bigint_base_t>(result);
+        decrement_unsigned(data);
+        normalize();
     }
-#endif
-    return BigInt(std::move(result_data), new_sign);
+    return copied;
+}
+
+BigInt BigInt::operator--(int)
+{
+    BigInt copied(*this);
+
+    if (is_zero())
+    {
+        sign = Sign::Minus;
+    }
+
+    if (sign == Sign::Minus)
+    {
+        increment_unsigned(data);
+        // normalization not needed
+    }
+    else
+    {
+        decrement_unsigned(data);
+        normalize();
+    }
+    return copied;
 }
 
 BigInt &BigInt::inplace_plain_add(const BigInt &other)
@@ -413,23 +355,9 @@ BigInt &BigInt::inplace_plain_add(const BigInt &other)
 #ifdef __AVX2__
     avx_add(data.data(), byte_size(), other.data.data(), other.byte_size(), data.data());
 #else
-    bigint_base_t carry = 0;
-    std::size_t i;
-
-    for (i = 0; i < other.data.size(); ++i)
-    {
-        const auto sum = safe_add(data[i], other.data[i], carry);
-        data[i] = static_cast<bigint_base_t>(sum);
-        carry = static_cast<bigint_base_t>(sum >> (sizeof(bigint_base_t) * 8));
-    }
-
-    for (; i < data.size(); ++i)
-    {
-        const auto sum = safe_add(data[i], carry);
-        data[i] = static_cast<bigint_base_t>(sum);
-        carry = static_cast<bigint_base_t>(sum >> (sizeof(bigint_base_t) * 8));
-    }
+    add_arrays(data.data(), data.size(), other.data.data(), other.data.size(), data.data());
 #endif
+
     normalize();
     return *this;
 }
@@ -439,7 +367,7 @@ BigInt &BigInt::inplace_plain_sub(const BigInt &other)
     const BigInt *longer = this;
     const BigInt *shorter = &other;
 
-    if (check_abs_lower(other))
+    if (abs_lower(other))
     {
         std::swap(longer, shorter);
         sign = Sign::Minus;
@@ -450,22 +378,9 @@ BigInt &BigInt::inplace_plain_sub(const BigInt &other)
 #ifdef __AVX2__
     avx_sub(longer->data.data(), longer->byte_size(), shorter->data.data(), shorter->byte_size(), data.data());
 #else
-    const auto shorter_size = shorter->data.size();
-    bigint_base_t borrow = 0;
-    std::size_t i;
-    for (i = 0; i < shorter_size; ++i)
-    {
-        const auto result = safe_sub(longer->data[i], shorter->data[i], borrow);
-        borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        data[i] = static_cast<bigint_base_t>(result);
-    }
-    for (; i < longer->data.size(); ++i)
-    {
-        const auto result = safe_sub(longer->data[i], borrow);
-        borrow = static_cast<bigint_base_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        data[i] = static_cast<bigint_base_t>(result);
-    }
+    sub_arrays(longer->data.data(), longer->data.size(), shorter->data.data(), shorter->data.size(), data.data());
 #endif
+
     normalize();
     return *this;
 }

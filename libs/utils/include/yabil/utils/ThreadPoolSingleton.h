@@ -11,7 +11,7 @@ namespace yabil::utils
 class ThreadPoolSingleton
 {
 private:
-    static std::shared_ptr<ThreadPool> thread_pool;
+    static std::unique_ptr<ThreadPool> thread_pool;
 
 public:
     /// @brief Get \p ThreadPool instance, creates new instance on first invocation.

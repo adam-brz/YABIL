@@ -91,11 +91,10 @@ TEST_F(BigIntAddOperator_tests, addTwoWithDifferentSignsWithOverflow_2)
     const BigInt big_int1(std::vector<bigint_base_t>{0, std::numeric_limits<bigint_base_t>::max()});
     const BigInt big_int2(std::numeric_limits<bigint_base_t>::max(), Sign::Minus);
 
-    const std::vector<bigint_base_t> expected = {1, std::numeric_limits<bigint_base_t>::max() - 1};
+    const BigInt expected(std::vector<bigint_base_t>{1, std::numeric_limits<bigint_base_t>::max() - 1});
     const auto result = big_int1 + big_int2;
 
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Plus, result.get_sign());
+    ASSERT_EQ(expected, result);
 }
 
 TEST_F(BigIntAddOperator_tests, addInPlaceTwoZeros)

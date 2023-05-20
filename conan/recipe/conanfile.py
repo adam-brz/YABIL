@@ -19,13 +19,14 @@ class YabilConan(ConanFile):
         "optimizations": [True, False],
     }
     default_options = {"shared": False, "fPIC": True, "optimizations": False}
+    exports_sources = "../../*"
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def layout(self):
-        cmake_layout(self, src_folder="src")
+        cmake_layout(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -33,8 +34,8 @@ class YabilConan(ConanFile):
         tc.variables["YABIL_ENABLE_OPTIMIZATIONS"] = self.options.optimizations
         tc.generate()
 
-    def source(self):
-        self.run("git clone --depth 1 https://github.com/Andrew2a1/YABIL.git .")
+    # def source(self):
+    #     self.run("git clone --depth 1 https://github.com/Andrew2a1/YABIL.git .")
 
     def build(self):
         cmake = CMake(self)
@@ -60,6 +61,7 @@ class YabilConan(ConanFile):
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["utils"].system_libs = ["pthread"]
+            self.cpp_info.components["bigint"].requires = ["omp"]
 
         self.cpp_info.components["bigint"].requires = ["utils"]
         self.cpp_info.components["math"].requires = ["bigint"]

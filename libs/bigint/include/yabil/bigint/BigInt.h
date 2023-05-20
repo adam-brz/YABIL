@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <span>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -44,6 +45,9 @@ public:
 
     /// @copydoc yabil::bigint::BigInt::BigInt(const std::vector<bigint_base_t> &, Sign)
     explicit BigInt(std::vector<bigint_base_t> &&raw_data, Sign sign = Sign::Plus);
+
+    /// @copydoc yabil::bigint::BigInt::BigInt(const std::vector<bigint_base_t> &, Sign)
+    explicit BigInt(std::span<bigint_base_t const> raw_data, Sign sign = Sign::Plus);
 
     /// @brief Creates BigInt from specified signed number.
     /// @tparam T Signed number type
@@ -146,6 +150,16 @@ public:
     /// @param other \p BigInt Divisor
     /// @return Quotient and remainder as \p std::pair of \p std::BigInt
     std::pair<BigInt, BigInt> divide(const BigInt &other) const;
+
+    /// @brief Check if absolute value of number is greater than other number
+    /// @param other Other \p BigInt number
+    /// @return \p true if absolute value of number is greater than other and \p false otherwise
+    bool abs_greater(const BigInt &other) const;
+
+    /// @brief Check if absolute value of number is lower than other number
+    /// @param other Other \p BigInt number
+    /// @return \p true if absolute value of  number is lower than other and \p false otherwise
+    bool abs_lower(const BigInt &other) const;
 
     /// @brief Check if two numbers are equal.
     /// @details Numbers are equal if they have the same value and the same sign.
@@ -292,6 +306,22 @@ public:
     /// @return Reference to modified \p BigInt
     BigInt &operator>>=(uint64_t shift);
 
+    /// @brief Pre-increment operation.
+    /// @return Number increased by 1
+    BigInt &operator++();
+
+    /// @brief Pre-decrement operation.
+    /// @return Number decreased by 1
+    BigInt &operator--();
+
+    /// @brief Post-increment operation. Increase number by 1. Get value befor increment operation.
+    /// @return Original value
+    BigInt operator++(int);
+
+    /// @brief Post-decrement operation. Decrease number by 1. Get value befor increment operation.
+    /// @return Original value
+    BigInt operator--(int);
+
     /// @brief Casts number to boolean value
     /// @return \p true if number is non-zero and \p false otherwise
     explicit operator bool() const
@@ -299,33 +329,22 @@ public:
         return !is_zero();
     }
 
+    /// @brief Base-case division. Requires unsigned inputs.
+    /// @param other Number to divide by
+    /// @return Division result
+    std::pair<BigInt, BigInt> base_div(const BigInt &other) const;
+
     friend std::ostream &operator<<(std::ostream &out, const BigInt &bigint);
     friend std::istream &operator>>(std::istream &in, BigInt &bigint);
 
 private:
     void normalize();
-    void remove_trailing_zeros();
-
-    bool check_abs_greater(const BigInt &other) const;
-    bool check_abs_lower(const BigInt &other) const;
-
-    bool is_normalized_for_division() const;
-
     std::pair<BigInt, BigInt> divide_unsigned(const BigInt &other) const;
     std::pair<BigInt, BigInt> unbalanced_div(const BigInt &other) const;
     std::pair<BigInt, BigInt> recursive_div(const BigInt &other) const;
-    std::pair<BigInt, BigInt> base_div(const BigInt &other) const;
-
-    BigInt base_mul(const BigInt &other) const;
-    BigInt karatsuba_mul(const BigInt &other) const;
-
-    BigInt plain_add(const BigInt &other) const;
-    BigInt plain_sub(const BigInt &other) const;
 
     BigInt &inplace_plain_add(const BigInt &other);
     BigInt &inplace_plain_sub(const BigInt &other);
-
-    static std::pair<const BigInt *, const BigInt *> get_longer_and_shorter(const BigInt &num1, const BigInt &num2);
 };
 
 }  // namespace yabil::bigint
