@@ -1,5 +1,7 @@
 #include <benchmark/benchmark.h>
 #include <yabil/bigint/BigInt.h>
+#include <yabil/bigint/Parallel.h>
+#include <yabil/crypto/Random.h>
 
 // Boost
 #include <boost/multiprecision/cpp_int.hpp>
@@ -27,11 +29,29 @@ namespace
 
 static void division_YABIL(benchmark::State& state)  // NOLINT
 {
-    yabil::bigint::BigInt a{generate_random_number_string(state.range(0))};
-    yabil::bigint::BigInt b{generate_random_number_string(state.range(0))};
+    const auto bits = 4 * state.range(0);
+    yabil::bigint::BigInt a = yabil::crypto::random::random_bigint(bits, true);
+    yabil::bigint::BigInt b = yabil::crypto::random::random_bigint(bits, true);
+    // yabil::bigint::BigInt a{generate_random_number_string(state.range(0))};
+    // yabil::bigint::BigInt b{generate_random_number_string(state.range(0))};
     for (auto _ : state)
     {
         auto c = a / b;
+        benchmark::DoNotOptimize(c);
+        benchmark::ClobberMemory();
+    }
+}
+
+static void division_YABIL_parallel(benchmark::State& state)  // NOLINT
+{
+    const auto bits = 4 * state.range(0);
+    yabil::bigint::BigInt a = yabil::crypto::random::random_bigint(bits, true);
+    yabil::bigint::BigInt b = yabil::crypto::random::random_bigint(bits, true);
+    // yabil::bigint::BigInt a{generate_random_number_string(state.range(0))};
+    // yabil::bigint::BigInt b{generate_random_number_string(state.range(0))};
+    for (auto _ : state)
+    {
+        auto c = yabil::bigint::parallel::divide(a, b);
         benchmark::DoNotOptimize(c);
         benchmark::ClobberMemory();
     }
@@ -149,6 +169,7 @@ static constexpr uint64_t stop = 200000ULL;
 static constexpr int step = stop / 100;
 
 BENCHMARK(division_YABIL)->Range(1, stop);
+BENCHMARK(division_YABIL_parallel)->Range(1, stop);
 BENCHMARK(division_GMP)->Range(1, stop);
 BENCHMARK(division_boost)->Range(1, stop);
 BENCHMARK(division_openssl)->Range(1, stop);

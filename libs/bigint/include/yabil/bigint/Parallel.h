@@ -24,6 +24,6 @@ BigInt multiply(const BigInt &a, const BigInt &b);
 /// @param a First BigInt number
 /// @param b Second BigInt number
 /// @return \p std::pair<BigInt, BigInt> Quotient and remainder of the division
-// std::pair<BigInt, BigInt> divide(const BigInt &a, const BigInt &b);
+std::pair<BigInt, BigInt> divide(const BigInt &a, const BigInt &b);
 
 }  // namespace yabil::bigint::parallel

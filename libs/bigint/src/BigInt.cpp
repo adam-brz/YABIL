@@ -8,6 +8,7 @@
 #include <limits>
 #include <stdexcept>
 
+#include "Arithmetic.h"
 #include "SafeOperators.h"
 #include "StringConversionUtils.h"
 
@@ -77,13 +78,8 @@ BigInt::BigInt(const std::string_view &str, int base)
 
 void BigInt::normalize()
 {
-    remove_trailing_zeros();
+    remove_trailing_zeros(data);
     sign = is_zero() ? Sign::Plus : sign;
-}
-
-void BigInt::remove_trailing_zeros()
-{
-    data.erase(std::find_if(data.rbegin(), data.rend(), [](const auto &v) { return v != 0; }).base(), data.end());
 }
 
 int64_t BigInt::to_int() const
@@ -181,11 +177,6 @@ bool BigInt::abs_lower(const BigInt &other) const
             std::lexicographical_compare(data.crbegin(), data.crend(), other.data.crbegin(), other.data.crend()));
 }
 
-bool BigInt::is_normalized_for_division() const
-{
-    return get_bit(byte_size() * 8 - 1);
-}
-
 bool BigInt::get_bit(std::size_t n) const
 {
     const auto item_index = n / (sizeof(bigint_base_t) * 8);
@@ -249,15 +240,6 @@ std::istream &operator>>(std::istream &in, BigInt &bigint)
     bigint = std::move(result);
 
     return in;
-}
-
-std::pair<const BigInt *, const BigInt *> BigInt::get_longer_and_shorter(const BigInt &num1, const BigInt &num2)
-{
-    if (num1.raw_data().size() > num2.raw_data().size())
-    {
-        return {&num1, &num2};
-    }
-    return {&num2, &num1};
 }
 
 }  // namespace yabil::bigint

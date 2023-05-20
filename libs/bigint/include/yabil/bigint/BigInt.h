@@ -329,28 +329,22 @@ public:
         return !is_zero();
     }
 
+    /// @brief Base-case division. Requires unsigned inputs.
+    /// @param other Number to divide by
+    /// @return Division result
+    std::pair<BigInt, BigInt> base_div(const BigInt &other) const;
+
     friend std::ostream &operator<<(std::ostream &out, const BigInt &bigint);
     friend std::istream &operator>>(std::istream &in, BigInt &bigint);
 
-    static std::vector<bigint_base_t> base_mul(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b);
-
 private:
     void normalize();
-    void remove_trailing_zeros();
-
-    bool is_normalized_for_division() const;
-
     std::pair<BigInt, BigInt> divide_unsigned(const BigInt &other) const;
     std::pair<BigInt, BigInt> unbalanced_div(const BigInt &other) const;
     std::pair<BigInt, BigInt> recursive_div(const BigInt &other) const;
-    std::pair<BigInt, BigInt> base_div(const BigInt &other) const;
 
     BigInt &inplace_plain_add(const BigInt &other);
     BigInt &inplace_plain_sub(const BigInt &other);
-
-    static std::vector<bigint_base_t> karatsuba_mul(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b);
-
-    static std::pair<const BigInt *, const BigInt *> get_longer_and_shorter(const BigInt &num1, const BigInt &num2);
 };
 
 }  // namespace yabil::bigint

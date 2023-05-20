@@ -52,7 +52,7 @@ static void addition_YABIL_parallel(benchmark::State& state)  // NOLINT
     // yabil::bigint::BigInt b{generate_random_number_string(state.range(0))};
     for (auto _ : state)
     {
-        auto c = yabil::bigint::parallel::parallel_add(a, b);
+        auto c = yabil::bigint::parallel::add(a, b);
         benchmark::DoNotOptimize(c);
         benchmark::ClobberMemory();
     }

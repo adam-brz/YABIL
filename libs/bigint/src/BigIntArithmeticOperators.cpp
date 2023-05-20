@@ -84,7 +84,6 @@ std::pair<BigInt, BigInt> BigInt::recursive_div(const BigInt &other) const
 
     return {(Q1 << (digit_size_bits * k)) + Q0, A_bis};
 }
-
 std::pair<BigInt, BigInt> BigInt::base_div(const BigInt &other) const
 {
     const int n = static_cast<int>(other.data.size());
@@ -92,7 +91,7 @@ std::pair<BigInt, BigInt> BigInt::base_div(const BigInt &other) const
 
     if (m < 0)
     {
-        return {BigInt(0), *this};
+        return {BigInt(), *this};
     }
 
     BigInt A = *this;
@@ -156,57 +155,6 @@ BigInt BigInt::operator*(const BigInt &other) const
     return BigInt(karatsuba_mul(data, other.data), (sign == other.sign) ? Sign::Plus : Sign::Minus);
 }
 
-std::vector<bigint_base_t> BigInt::base_mul(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
-{
-    std::vector<bigint_base_t> result(a.size() + b.size(), 0);
-    const auto [longer, shorter] = get_longer_shorter(&a, &b);
-
-    for (std::size_t i = 0; i < shorter->size(); ++i)
-    {
-        double_width_t<bigint_base_t> carry = 0;
-        std::size_t j;
-        for (j = 0; j < longer->size(); ++j)
-        {
-            carry += result[i + j] + safe_mul((*longer)[j], (*shorter)[i]);
-            result[i + j] = static_cast<bigint_base_t>(carry);
-            carry >>= sizeof(bigint_base_t) * 8;
-        }
-        if (carry)
-        {
-            result[i + j] += static_cast<bigint_base_t>(carry);
-        }
-    }
-
-    return result;
-}
-
-std::vector<bigint_base_t> BigInt::karatsuba_mul(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
-{
-    if (a.size() < thresholds::karatsuba_threshold_digits || b.size() < thresholds::karatsuba_threshold_digits)
-    {
-        return base_mul(a, b);
-    }
-
-    const int m2 = static_cast<int>(std::max(a.size(), b.size()) / 2);
-
-    const std::span<bigint_base_t const> low1{a.begin(), a.begin() + m2};
-    const std::span<bigint_base_t const> high1{a.begin() + m2, a.end()};
-
-    const std::span<bigint_base_t const> low2{b.begin(), b.begin() + m2};
-    const std::span<bigint_base_t const> high2{b.begin() + m2, b.end()};
-
-    const auto lh1 = plain_add(low1, high1);
-    const auto lh2 = plain_add(low2, high2);
-
-    const auto z0 = BigInt(karatsuba_mul(low1, low2));
-    const auto z1 = BigInt(karatsuba_mul(lh1, lh2));
-    const auto z2 = BigInt(karatsuba_mul(high1, high2));
-
-    auto result =
-        (z2 << (m2 * 2UL * sizeof(bigint_base_t) * 8UL)) + ((z1 - z2 - z0) << (m2 * sizeof(bigint_base_t) * 8UL)) + z0;
-    return std::move(result.data);
-}
-
 BigInt BigInt::operator/(const BigInt &other) const
 {
     if (is_int64() && other.is_int64())
@@ -240,6 +188,11 @@ std::pair<BigInt, BigInt> BigInt::divide(const BigInt &other) const
         throw std::invalid_argument("Cannot divide by 0");
     }
 
+    if (is_zero())
+    {
+        return {BigInt(), BigInt()};
+    }
+
     if (is_int64() && other.is_int64())
     {
         const auto a = to_int();
@@ -247,7 +200,7 @@ std::pair<BigInt, BigInt> BigInt::divide(const BigInt &other) const
         return {BigInt(a / b), BigInt(a % b)};
     }
 
-    if (!other.is_normalized_for_division())
+    if (!is_normalized_for_division(other))
     {
         const auto k = std::countl_zero(other.raw_data().back());
         const auto [quotient, remainder] = (*this << k).divide(other << k);
