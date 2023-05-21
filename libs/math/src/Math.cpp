@@ -1,3 +1,4 @@
+#include <yabil/bigint/Parallel.h>
 #include <yabil/math/Math.h>
 
 #include <bit>
@@ -51,17 +52,17 @@ yabil::bigint::BigInt pow(const yabil::bigint::BigInt &number, const yabil::bigi
 
     if (base.is_zero())
     {
-        return yabil::bigint::BigInt(0);
+        return yabil::bigint::BigInt();
     }
 
     while (!exponent.is_zero())
     {
         if (!exponent.is_even())
         {
-            result = (result * base) % mod;
+            result = bigint::parallel::multiply(result, base) % mod;
         }
         exponent >>= 1;
-        base = (base * base) % mod;
+        base = bigint::parallel::multiply(base, base) % mod;
     }
     return result;
 }
@@ -71,7 +72,7 @@ yabil::bigint::BigInt factorial(uint64_t n)
     yabil::bigint::BigInt result(1U);
     for (uint64_t i = 1; i <= n; ++i)
     {
-        result *= yabil::bigint::BigInt(i);
+        result = bigint::parallel::multiply(result, yabil::bigint::BigInt(i));
     }
     return result;
 }
@@ -154,27 +155,12 @@ yabil::bigint::BigInt gcd(yabil::bigint::BigInt number, yabil::bigint::BigInt ot
         return yabil::bigint::BigInt(std::gcd(number.to_int(), other.to_int())) << common_power_of_2;
     }
 
-    while (true)
+    while (!other.is_zero())
     {
-        if (number > other)
-        {
-            std::swap(number, other);
-        }
-
-        other -= number;
-
-        if (other.is_zero())
-        {
-            return number << common_power_of_2;
-        }
-
-        power_of_two_divisor_other = 0;
-        while (!other.get_bit(power_of_two_divisor_other))
-        {
-            power_of_two_divisor_other += 1;
-        }
-        other >>= power_of_two_divisor_other;
+        std::tie(number, other) = std::make_pair(other, number % other);
     }
+
+    return number << common_power_of_2;
 }
 
 std::pair<yabil::bigint::BigInt, std::pair<yabil::bigint::BigInt, yabil::bigint::BigInt>> extended_gcd(
@@ -185,10 +171,10 @@ std::pair<yabil::bigint::BigInt, std::pair<yabil::bigint::BigInt, yabil::bigint:
 
     while (!r.is_zero())
     {
-        const auto quotient = old_r / r;
-        std::tie(old_r, r) = BezoutCoefficientsType{r, old_r - quotient * r};
-        std::tie(old_s, s) = BezoutCoefficientsType{s, old_s - quotient * s};
-        std::tie(old_t, t) = BezoutCoefficientsType{t, old_t - quotient * t};
+        const auto [quotient, _] = bigint::parallel::divide(old_r, r);
+        std::tie(old_r, r) = BezoutCoefficientsType{r, old_r - bigint::parallel::multiply(quotient, r)};
+        std::tie(old_s, s) = BezoutCoefficientsType{s, old_s - bigint::parallel::multiply(quotient, s)};
+        std::tie(old_t, t) = BezoutCoefficientsType{t, old_t - bigint::parallel::multiply(quotient, t)};
     }
 
     return {old_r, {old_s, old_t}};

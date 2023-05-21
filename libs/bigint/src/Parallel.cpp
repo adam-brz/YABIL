@@ -247,24 +247,11 @@ std::pair<BigInt, BigInt> divide(const BigInt &a, const BigInt &b)
         return {quotient, remainder >> k};
     }
 
-    if (a.is_negative() && b.is_negative())
-    {
-        const auto [quotient, remainder] = parallel_divide_unsigned(a.raw_data(), b.raw_data());
-        return {BigInt(quotient), BigInt(remainder, Sign::Minus)};
-    }
-    if (!a.is_negative() && b.is_negative())
-    {
-        const auto [quotient, remainder] = parallel_divide_unsigned(a.raw_data(), b.raw_data());
-        return {BigInt(quotient, Sign::Minus), BigInt(remainder)};
-    }
-    if (a.is_negative() && !b.is_negative())
-    {
-        const auto [quotient, remainder] = parallel_divide_unsigned(a.raw_data(), b.raw_data());
-        return {BigInt(quotient, Sign::Minus), BigInt(remainder, Sign::Minus)};
-    }
-
     const auto [quotient, remainder] = parallel_divide_unsigned(a.raw_data(), b.raw_data());
-    return {BigInt(quotient), BigInt(remainder)};
+    const Sign sign_quotient = (a.get_sign() == b.get_sign()) ? Sign::Plus : Sign::Minus;
+    const Sign sign_remainder = a.get_sign();
+
+    return {BigInt(quotient, sign_quotient), BigInt(remainder, sign_remainder)};
 }
 
 }  // namespace yabil::bigint::parallel

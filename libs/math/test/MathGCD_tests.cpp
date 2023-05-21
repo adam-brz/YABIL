@@ -34,8 +34,8 @@ TEST_F(MathGCD_tests, gcdForBigIntegers)
 {
     ASSERT_EQ(2, gcd(BigInt(std::numeric_limits<int64_t>::max() - 1), BigInt(56)).to_int());
     ASSERT_EQ(7, gcd(BigInt(std::numeric_limits<int64_t>::max()), BigInt(56)).to_int());
-    // ASSERT_EQ(BigInt(7), gcd(BigInt("1209301212398127491209"), BigInt(56)));
-    // ASSERT_EQ(BigInt(7), gcd(BigInt("921873891238712039127327381239"), BigInt("128379128371298371982372983781")));
+    ASSERT_EQ(BigInt(7), gcd(BigInt("1209301212398127491209"), BigInt(56)));
+    ASSERT_EQ(BigInt(7), gcd(BigInt("921873891238712039127327381239"), BigInt("128379128371298371982372983781")));
 }
 
 TEST_F(MathGCD_tests, extendedGCDOfZeroAndZeroIsZero)

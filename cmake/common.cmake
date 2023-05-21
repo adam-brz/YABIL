@@ -60,6 +60,10 @@ function(set_common_target_options TARGET)
         set(OTHER_DEBUG_LINK_FLAGS ${OTHER_DEBUG_LINK_FLAGS} -fsanitize=address)
     endif()
 
+    if(YABIL_ENABLE_GPERFTOOLS)
+        target_link_libraries(${TARGET} PRIVATE profiler tcmalloc)
+    endif()
+
     if(YABIL_ENABLE_OPTIMIZATIONS)
         check_cxx_compiler_flag("-Ofast" OFAST_SUPPORTED)
         check_cxx_compiler_flag("-march=native" MNATIVE_SUPPORTED)

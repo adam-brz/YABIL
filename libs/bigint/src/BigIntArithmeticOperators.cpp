@@ -170,15 +170,41 @@ BigInt BigInt::operator/(const BigInt &other) const
 
 BigInt BigInt::operator%(const BigInt &other) const
 {
+    if (other.is_zero())
+    {
+        throw std::invalid_argument("Cannot divide by 0");
+    }
+
     if (is_int64() && other.is_int64())
     {
-        if (other.is_zero())
-        {
-            throw std::invalid_argument("Cannot divide by 0");
-        }
         return BigInt(to_int() % other.to_int());
     }
+
+    if (other.byte_size() <= sizeof(bigint_base_t) && other.sign == Sign::Plus)
+    {
+        return BigInt((*this) % other.data.front());
+    }
+
     return divide(other).second;
+}
+
+bigint_base_t BigInt::operator%(bigint_base_t other) const
+{
+    if (other == 0)
+    {
+        throw std::invalid_argument("Cannot divide by 0");
+    }
+
+    bigint_base_t ret = 0;
+    for (auto it = data.crbegin(); it != data.crend(); ++it)
+    {
+        const bigint_base_t digit = *it;
+        const auto shift_val = sizeof(bigint_base_t) * 8 / 2;
+        const auto mask = std::numeric_limits<half_width_t<bigint_base_t>>::max();
+        ret = ((ret << shift_val) | ((digit >> shift_val) & mask)) % other;
+        ret = ((ret << shift_val) | (digit & mask)) % other;
+    }
+    return ret;
 }
 
 std::pair<BigInt, BigInt> BigInt::divide(const BigInt &other) const
