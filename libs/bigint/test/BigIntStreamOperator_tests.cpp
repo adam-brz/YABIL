@@ -85,14 +85,12 @@ TEST_F(BigIntStreamOperator_tests, stringToBigIntWithSign)
 TEST_F(BigIntStreamOperator_tests, longStringToBigIntWithSign)
 {
     std::istringstream iss("-1424112908491024712973012389");
+    const BigInt expected("-1424112908491024712973012389");
+
     BigInt big_int;
     iss >> big_int;
 
-    const std::vector<bigint_base_t> expected = {0b10100101011000011100110110100101, 0b01110110011010000110110111110110,
-                                                 0b100100110011111111110100011};
-
-    ASSERT_EQ(Sign::Minus, big_int.get_sign());
-    ASSERT_EQ(expected, big_int.raw_data());
+    ASSERT_EQ(expected, big_int);
 }
 
 TEST_F(BigIntStreamOperator_tests, invalidStringShouldThrowException)

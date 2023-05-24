@@ -31,7 +31,7 @@ TEST_F(BigIntBitOperations_tests, getBitFromSingleItem)
 TEST_F(BigIntBitOperations_tests, getBitFromLongNumber)
 {
     const BigInt big_int(std::vector<bigint_base_t>{0b0101010101010101, 0b0101010101010101});
-    ASSERT_EQ(1, big_int.get_bit(32));
+    ASSERT_EQ(1, big_int.get_bit(14));
     ASSERT_EQ(0, big_int.get_bit(60));
 }
 
@@ -51,18 +51,18 @@ TEST_F(BigIntBitOperations_tests, setBitForZero)
 
 TEST_F(BigIntBitOperations_tests, setBitForZeroLongNumber)
 {
-    BigInt big_int;
-    const std::vector<bigint_base_t> expected = {0, 0, 0, 0b10};
-
+    BigInt big_int(2);
     big_int.set_bit(97, true);
-    ASSERT_EQ(expected, big_int.raw_data());
+
+    const BigInt expected = (BigInt(1) << 97) | BigInt(2);
+    ASSERT_EQ(expected, big_int);
 }
 
 TEST_F(BigIntBitOperations_tests, setZeroForLongNumber)
 {
-    BigInt big_int(std::vector<bigint_base_t>{0, 0, 0, 0b10});
-    big_int.set_bit(97, false);
-    ASSERT_EQ(0, big_int.to_int());
+    BigInt big_int(std::vector<bigint_base_t>{0, 0, 0, 1});
+    big_int.set_bit(sizeof(bigint_base_t) * 8 * 3, false);
+    ASSERT_TRUE(big_int.is_zero());
 }
 
 TEST_F(BigIntBitOperations_tests, clearingZeroShouldNotAffectNumber)
@@ -74,9 +74,9 @@ TEST_F(BigIntBitOperations_tests, clearingZeroShouldNotAffectNumber)
 
 TEST_F(BigIntBitOperations_tests, clearingZeroInLongNumber)
 {
-    BigInt big_int(std::vector<bigint_base_t>{0b0101010101010101, 0b0101010101010101, 0b0101010101010101});
-    const std::vector<bigint_base_t> expected = {0b0101010101010101, 0b0101010101010101, 0b0101010101010001};
+    BigInt big_int(179284650);
+    const BigInt expected(179251882);
 
-    big_int.set_bit(66, false);
-    ASSERT_EQ(expected, big_int.raw_data());
+    big_int.set_bit(15, false);
+    ASSERT_EQ(expected, big_int);
 }

@@ -80,13 +80,13 @@ TEST_F(BigIntDivOperator_tests, divTwoLongNonZeroWithOverflow)
     const BigInt big_int1("10928490128490812093812903");
     const BigInt big_int2("128371823");
 
-    const std::vector<bigint_base_t> expected_quotioent = {0xb3618552, 0x12e72ad};
-    const std::vector<bigint_base_t> expected_remainder = {0x76aa19};
+    const BigInt expected_quotioent("85131533331039570");
+    const BigInt expected_remainder(7776793);
 
     const auto [quotient, remainder] = big_int1.divide(big_int2);
 
-    ASSERT_EQ(expected_quotioent, quotient.raw_data());
-    ASSERT_EQ(expected_remainder, remainder.raw_data());
+    ASSERT_EQ(expected_quotioent, quotient);
+    ASSERT_EQ(expected_remainder, remainder);
 }
 
 TEST_F(BigIntDivOperator_tests, divTwoLongNonZeroWithTheSameSign)
@@ -149,11 +149,11 @@ TEST_F(BigIntDivOperator_tests, denominatorBiggerThanNominator)
     const BigInt big_int1("129319");
     const BigInt big_int2("12410920");
 
-    const std::vector<bigint_base_t> expected_remainder = {0x1f927};
+    const BigInt expected_remainder(129319);
     const auto [quotient, remainder] = big_int1.divide(big_int2);
 
-    ASSERT_EQ(0, quotient.raw_data().size());
-    ASSERT_EQ(expected_remainder, remainder.raw_data());
+    ASSERT_TRUE(quotient.is_zero());
+    ASSERT_EQ(expected_remainder, remainder);
 
     ASSERT_EQ(Sign::Plus, quotient.get_sign());
     ASSERT_EQ(Sign::Plus, remainder.get_sign());
