@@ -30,12 +30,7 @@ std::vector<bigint_base_t> parallel_add_unsigned(std::span<bigint_base_t const> 
     }
 
     auto &thread_pool = utils::ThreadPoolSingleton::instance();
-    auto concurrency = thread_pool.thread_count();
-    if (min_s < concurrency)
-    {
-        concurrency = min_s;
-    }
-
+    const auto concurrency = std::min(min_s, thread_pool.thread_count());
     const auto chunk_size = min_s / concurrency;
 
     std::vector<std::future<std::vector<bigint_base_t>>> partial_results;
