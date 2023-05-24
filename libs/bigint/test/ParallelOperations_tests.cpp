@@ -267,15 +267,36 @@ TEST_F(ParallelOperations_tests, mulHugeNegative)
     ASSERT_EQ(expected, result);
 }
 
+TEST_F(ParallelOperations_tests, divTwoNonZeroGetQuotient)
+{
+    const BigInt big_int1(50), big_int2(20);
+    const auto [quotient, remainder] = parallel::divide(big_int1, big_int2);
+    ASSERT_EQ(2, quotient.to_int());
+    ASSERT_EQ(10, remainder.to_int());
+}
+
 TEST_F(ParallelOperations_tests, divTwoLongNumbers)
 {
     const BigInt big_int1("19238190239012");
     const BigInt big_int2("-12410920");
 
-    const BigInt expected_quotioent("-1550101");
+    const BigInt expected_quotient("-1550101");
 
     const auto quotient = parallel::divide(big_int1, big_int2).first;
-    ASSERT_EQ(expected_quotioent, quotient);
+    ASSERT_EQ(expected_quotient, quotient);
+}
+
+TEST_F(ParallelOperations_tests, divTwoLongNegativeNumbers)
+{
+    const BigInt big_int1("-211923819023901129083112");
+    const BigInt big_int2("-912410912938020");
+
+    const BigInt expected_quotient("232267957");
+    const BigInt expected_remainder("-331282356057972");
+
+    const auto [quotient, remainder] = parallel::divide(big_int1, big_int2);
+    ASSERT_EQ(expected_quotient, quotient);
+    ASSERT_EQ(expected_remainder, remainder);
 }
 
 TEST_F(ParallelOperations_tests, divHugeNumbers)
@@ -284,11 +305,11 @@ TEST_F(ParallelOperations_tests, divHugeNumbers)
         "12712642178621745214167236126412748678126782148251752175635217357125381236187236512678312857198272713872183");
     const BigInt big_int2("123216874726781263781628736219678531949374081935798615619386573625");
 
-    const BigInt expected_quotioent("103172899059568864307005240092688842441637");
+    const BigInt expected_quotient("103172899059568864307005240092688842441637");
     const BigInt expected_remainder("41901113651699220090698360505119628087373313170391250252247848058");
 
     const auto [quotient, remainder] = parallel::divide(big_int1, big_int2);
-    ASSERT_EQ(expected_quotioent, quotient);
+    ASSERT_EQ(expected_quotient, quotient);
     ASSERT_EQ(expected_remainder, remainder);
 }
 
@@ -299,11 +320,11 @@ TEST_F(ParallelOperations_tests, divHugeUnbalancedNumbers)
         "3");
     const BigInt big_int2("287362196785319493745798615619386573625");
 
-    const BigInt expected_quotioent("9439801786622221017674810050846457664024907903528889626985672190493594");
+    const BigInt expected_quotient("9439801786622221017674810050846457664024907903528889626985672190493594");
     const BigInt expected_remainder("53244412639911237906247612787542013933");
 
     const auto [quotient, remainder] = parallel::divide(big_int1, big_int2);
-    ASSERT_EQ(expected_quotioent, quotient);
+    ASSERT_EQ(expected_quotient, quotient);
     ASSERT_EQ(expected_remainder, remainder);
 }
 
@@ -312,11 +333,11 @@ TEST_F(ParallelOperations_tests, divHugeUnbalancedNumbers_2)
     const BigInt big_int1("10000000000000000000000000000000000000000000000000000000000000000000000000000000000000001");
     const BigInt big_int2("100000000000010000000000000000000000000100");
 
-    const BigInt expected_quotioent("99999999999990000000000000999999999999800000000");
+    const BigInt expected_quotient("99999999999990000000000000999999999999800000000");
     const BigInt expected_remainder("2999999999999900000000000020000000001");
 
     const auto [quotient, remainder] = parallel::divide(big_int1, big_int2);
-    ASSERT_EQ(expected_quotioent, quotient);
+    ASSERT_EQ(expected_quotient, quotient);
     ASSERT_EQ(expected_remainder, remainder);
 }
 
