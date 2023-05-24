@@ -10,6 +10,33 @@ class BigIntDivOperator_tests : public ::testing::Test
 {
 };
 
+TEST_F(BigIntDivOperator_tests, fastModuloZeroByAnyShouldGiveZero)
+{
+    const BigInt big_int;
+    for (unsigned i = 1; i < 10; ++i)
+    {
+        ASSERT_EQ(0, big_int % i);
+    }
+}
+
+TEST_F(BigIntDivOperator_tests, fastModuloByZeroShouldThrowException)
+{
+    ASSERT_THROW({ BigInt() % 0; }, std::invalid_argument);
+}
+
+TEST_F(BigIntDivOperator_tests, fastModuloDivTwoNonZeroGetRemainder)
+{
+    const BigInt big_int1(50);
+    ASSERT_EQ(10, big_int1 % 20);
+}
+
+TEST_F(BigIntDivOperator_tests, fastModuloWithLargeInput)
+{
+    const BigInt big_int1(
+        "12712642178621745214167236126412748678126782148251752175635217357125381236187236512678312857198272713872183");
+    ASSERT_EQ(5215, big_int1 % 6134);
+}
+
 TEST_F(BigIntDivOperator_tests, zeroDivAnyShouldGiveZero)
 {
     const BigInt big_int;

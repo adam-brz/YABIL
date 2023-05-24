@@ -2,4 +2,4 @@
 
 #include <vector>
 
-std::vector<int> primes();
+const std::vector<int> &primes();

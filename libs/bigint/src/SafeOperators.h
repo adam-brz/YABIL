@@ -29,6 +29,30 @@ struct double_width<uint32_t>
     using type = uint64_t;
 };
 
+template <class>
+struct half_width;
+
+template <class T>
+using half_width_t = typename half_width<T>::type;
+
+template <>
+struct half_width<uint16_t>
+{
+    using type = uint8_t;
+};
+
+template <>
+struct half_width<uint32_t>
+{
+    using type = uint16_t;
+};
+
+template <>
+struct half_width<uint64_t>
+{
+    using type = uint32_t;
+};
+
 template <typename T>
 double_width_t<T> safe_add(T v)
 {

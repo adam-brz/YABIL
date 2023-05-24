@@ -217,6 +217,11 @@ public:
     /// @return \p BigInt remainder of the division result
     BigInt operator%(const BigInt &other) const;
 
+    /// @copybrief BigInt::operator%(const BigInt &) const
+    /// @param other divisor
+    /// @return Remainder of the division result
+    bigint_base_t operator%(bigint_base_t other) const;
+
     /// @brief Get bit AND operation result.
     /// @details Operation performs AND operation for the sign of the number as well as for the raw number bytes
     /// @param other \p BigInt other number to perform operation with

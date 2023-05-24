@@ -76,6 +76,15 @@
             }
         },
         {
+            "name": "clang_prof",
+            "inherits": "clang_release",
+            "displayName": "Clang [Release] [Profiling]",
+            "cacheVariables": {
+                "CMAKE_VERBOSE_MAKEFILE": true,
+                "YABIL_ENABLE_GPERFTOOLS": true
+            }
+        },
+        {
             "name": "coverage",
             "inherits": "clang_debug",
             "displayName": "Coverage (Clang [Debug])",

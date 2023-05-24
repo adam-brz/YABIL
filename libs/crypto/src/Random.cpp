@@ -1,3 +1,4 @@
+#include <yabil/bigint/Parallel.h>
 #include <yabil/crypto/Random.h>
 #include <yabil/math/Math.h>
 
@@ -41,10 +42,12 @@ yabil::bigint::BigInt probable_prime(uint64_t number_of_bits)
 
         for (int i = 1; i < trial_division_count; ++i)
         {
-            const auto mod = prime_candidate % yabil::bigint::BigInt(primes()[i]);
-            if (mod.is_zero())
+            const auto mod = prime_candidate % primes()[i];
+            if (mod == 0)
             {
-                good_candidate = false;
+                good_candidate = prime_candidate.is_int64()
+                                     ? (prime_candidate.to_uint() == static_cast<uint64_t>(primes()[i]))
+                                     : false;
                 break;
             }
         }
@@ -85,7 +88,7 @@ bool miller_rabin_test(const yabil::bigint::BigInt &prime_candidate)
     int two_power_divisor = 1;
     while (!prime_candidate_minus_one.get_bit(two_power_divisor))
     {
-        two_power_divisor += 1;
+        ++two_power_divisor;
     }
 
     const yabil::bigint::BigInt odd_component = prime_candidate_minus_one >> two_power_divisor;

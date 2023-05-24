@@ -15,6 +15,7 @@ def build(build_type, preset_name):
 
     os.makedirs(preset_dir, exist_ok=True)
     build_type = "Debug" if build_type.lower() == "dev" else build_type
+    build_type = "Release" if build_type.lower() == "prof" else build_type
 
     conan_install(source_dir, preset_name, build_type, preset_dir)
     cmake_config(full_preset_name)
@@ -69,7 +70,7 @@ if __name__ == "__main__":
         "-b",
         "--build_type",
         default="Release",
-        choices=["Release", "Debug", "Dev"],
+        choices=["Release", "Debug", "Dev", "Prof"],
         help="CMake build type",
     )
     args = parser.parse_args()
