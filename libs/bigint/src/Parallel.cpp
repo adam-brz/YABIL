@@ -128,7 +128,7 @@ std::vector<bigint_base_t> parallel_karatsuba(std::span<bigint_base_t const> a, 
 std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> parallel_divide_unsigned(
     std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
 {
-    if (a.size() > thresholds::recursive_div_threshold_digits)
+    if (a.size() > thresholds::recursive_div_threshold_digits && b.size() > thresholds::recursive_div_threshold_digits)
     {
         return parallel_unbalanced_div(a, b);
     }

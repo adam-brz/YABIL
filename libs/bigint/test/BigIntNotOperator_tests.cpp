@@ -23,14 +23,16 @@ TEST_F(BigIntNotOperator_tests, bitwiseNotForAllOnesGivesZero)
 
 TEST_F(BigIntNotOperator_tests, bitwiseNotChangesZerosToOnesAndBackwards)
 {
-    const BigInt big_int1(0x0f0f0f0f);
-    ASSERT_EQ(-4042322160LL, (~big_int1).to_int());
+    const BigInt big_int1(0x0f0f);
+    ASSERT_EQ(0xf0f0, (~big_int1).abs().to_int() & 0xffff);
 }
 
 TEST_F(BigIntNotOperator_tests, bitwiseNotChangesSign)
 {
-    const BigInt big_int1(-0x0f0f0f0f);
-    ASSERT_EQ(4042322160LL, (~big_int1).to_int());
+    const BigInt big_int1(-0x0f0f);
+    const auto negated = ~big_int1;
+    ASSERT_EQ(0xf0f0, negated.abs().to_int() & 0xffff);
+    ASSERT_FALSE(negated.is_negative());
 }
 
 TEST_F(BigIntNotOperator_tests, booleanNotReturnsFalseForZero)

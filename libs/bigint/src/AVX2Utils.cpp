@@ -1,16 +1,16 @@
 #include "AVX2Utils.h"
 
-#ifdef __AVX2__
-
 using namespace yabil::bigint;
 
 #include <immintrin.h>
+#include <yabil/bigint/TypeUtils.h>
 
 #include <cassert>
 #include <limits>
 
 #include "Arithmetic.h"
-#include "SafeOperators.h"
+
+#ifdef __AVX2__
 
 static const __m256i BROADCAST_MASK[16] = {
     _mm256_set_epi64x(static_cast<int64_t>(0x8000000000000000), static_cast<int64_t>(0x8000000000000000),
@@ -83,11 +83,12 @@ __m256i avx_sub256(__m256i A, __m256i B, uint32_t *borrow)
     return _mm256_sub_epi64(s, BROADCAST_MASK[m]);
 }
 
-void avx_add(const bigint_base_t *a, std::size_t a_size, const bigint_base_t *b, std::size_t b_size, bigint_base_t *r)
+void avx2_add(const bigint_base_t *a, std::size_t a_size_bytes, const bigint_base_t *b, std::size_t b_size_bytes,
+              bigint_base_t *r)
 {
-    assert(a_size >= b_size);
+    assert(a_size_bytes >= b_size_bytes);
 
-    const auto max_avx_iters = b_size / 32;
+    const auto max_avx_iters = b_size_bytes / 32;
     uint32_t carry = 0;
 
     for (unsigned i = 0; i < max_avx_iters; ++i)
@@ -102,16 +103,17 @@ void avx_add(const bigint_base_t *a, std::size_t a_size, const bigint_base_t *b,
     b += max_avx_iters * 32 / sizeof(*b);
     r += max_avx_iters * 32 / sizeof(*r);
 
-    const auto a_unaligned = (a_size - max_avx_iters * 32) / sizeof(*a);
-    const auto b_unaligned = (b_size - max_avx_iters * 32) / sizeof(*b);
+    const auto a_unaligned = (a_size_bytes - max_avx_iters * 32) / sizeof(*a);
+    const auto b_unaligned = (b_size_bytes - max_avx_iters * 32) / sizeof(*b);
 
     add_arrays(a, a_unaligned, b, b_unaligned, r, carry);
 }
 
 // Requires a_size > b_size
-void avx_sub(const bigint_base_t *a, std::size_t a_size, const bigint_base_t *b, std::size_t b_size, bigint_base_t *r)
+void avx2_sub(const bigint_base_t *a, std::size_t a_size_bytes, const bigint_base_t *b, std::size_t b_size_bytes,
+              bigint_base_t *r)
 {
-    const auto max_avx_iters = b_size / 32;
+    const auto max_avx_iters = b_size_bytes / 32;
     uint32_t borrow = 0;
 
     for (unsigned i = 0; i < max_avx_iters; ++i)
@@ -126,8 +128,8 @@ void avx_sub(const bigint_base_t *a, std::size_t a_size, const bigint_base_t *b,
     b += max_avx_iters * 32 / sizeof(*b);
     r += max_avx_iters * 32 / sizeof(*r);
 
-    const auto a_unaligned = (a_size - max_avx_iters * 32) / sizeof(*a);
-    const auto b_unaligned = (b_size - max_avx_iters * 32) / sizeof(*b);
+    const auto a_unaligned = (a_size_bytes - max_avx_iters * 32) / sizeof(*a);
+    const auto b_unaligned = (b_size_bytes - max_avx_iters * 32) / sizeof(*b);
 
     sub_arrays(a, a_unaligned, b, b_unaligned, r, borrow);
 }

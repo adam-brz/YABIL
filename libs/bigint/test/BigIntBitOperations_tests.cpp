@@ -37,7 +37,7 @@ TEST_F(BigIntBitOperations_tests, getBitFromLongNumber)
 
 TEST_F(BigIntBitOperations_tests, getBitFromMiddleOfLongNumber)
 {
-    const BigInt big_int(std::vector<bigint_base_t>{0b0101010101010101, 0b0101010101010101, 0b0101010101010101});
+    const BigInt big_int("010101010101010101010101010101010101010101010101", 2);
     ASSERT_EQ(1, big_int.get_bit(38));
     ASSERT_EQ(0, big_int.get_bit(69));
 }

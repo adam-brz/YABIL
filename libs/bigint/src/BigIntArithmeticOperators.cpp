@@ -1,4 +1,5 @@
 #include <yabil/bigint/BigInt.h>
+#include <yabil/bigint/TypeUtils.h>
 #include <yabil/utils/ThreadPoolSingleton.h>
 
 #include <algorithm>
@@ -7,16 +8,18 @@
 
 #include "AVX2Utils.h"
 #include "Arithmetic.h"
-#include "SafeOperators.h"
 #include "StringConversionUtils.h"
 #include "Thresholds.h"
+
+using namespace yabil::type_utils;
 
 namespace yabil::bigint
 {
 
 std::pair<BigInt, BigInt> BigInt::divide_unsigned(const BigInt &other) const
 {
-    if (data.size() > thresholds::recursive_div_threshold_digits)
+    if (data.size() > thresholds::recursive_div_threshold_digits &&
+        other.data.size() > thresholds::recursive_div_threshold_digits)
     {
         return unbalanced_div(other);
     }
@@ -84,6 +87,7 @@ std::pair<BigInt, BigInt> BigInt::recursive_div(const BigInt &other) const
 
     return {(Q1 << (digit_size_bits * k)) + Q0, A_bis};
 }
+
 std::pair<BigInt, BigInt> BigInt::base_div(const BigInt &other) const
 {
     const int n = static_cast<int>(other.data.size());
@@ -379,7 +383,7 @@ BigInt &BigInt::inplace_plain_add(const BigInt &other)
     data.resize(max_size + 1);
 
 #ifdef __AVX2__
-    avx_add(data.data(), byte_size(), other.data.data(), other.byte_size(), data.data());
+    avx2_add(data.data(), byte_size(), other.data.data(), other.byte_size(), data.data());
 #else
     add_arrays(data.data(), data.size(), other.data.data(), other.data.size(), data.data());
 #endif
@@ -402,7 +406,7 @@ BigInt &BigInt::inplace_plain_sub(const BigInt &other)
     data.resize(longer->data.size());
 
 #ifdef __AVX2__
-    avx_sub(longer->data.data(), longer->byte_size(), shorter->data.data(), shorter->byte_size(), data.data());
+    avx2_sub(longer->data.data(), longer->byte_size(), shorter->data.data(), shorter->byte_size(), data.data());
 #else
     sub_arrays(longer->data.data(), longer->data.size(), shorter->data.data(), shorter->data.size(), data.data());
 #endif

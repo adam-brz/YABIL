@@ -8,6 +8,8 @@
 #include "AVX2Utils.h"
 #include "Thresholds.h"
 
+using namespace yabil::type_utils;
+
 namespace yabil::bigint
 {
 
@@ -53,20 +55,23 @@ void add_arrays(const bigint_base_t *a, std::size_t a_size, const bigint_base_t 
                 bigint_base_t *r, bigint_base_t carry)
 {
     assert(a_size >= b_size);
+    bigint_base_t tmp1, tmp2;
 
     std::size_t i;
     for (i = 0; i < b_size; ++i)
     {
-        const auto addition_result = safe_add(a[i], b[i], carry);
-        carry = static_cast<uint32_t>(addition_result >> (sizeof(bigint_base_t) * 8));
-        r[i] = static_cast<bigint_base_t>(addition_result);
+        tmp1 = a[i] + carry;
+        carry = static_cast<bigint_base_t>(tmp1 < carry);
+        tmp2 = (tmp1 + b[i]);
+        carry += static_cast<bigint_base_t>(tmp2 < tmp1);
+        r[i] = tmp2;
     }
 
     for (; i < a_size; ++i)
     {
-        const auto addition_result = safe_add(a[i], carry);
-        carry = static_cast<uint32_t>(addition_result >> (sizeof(bigint_base_t) * 8));
-        r[i] = static_cast<bigint_base_t>(addition_result);
+        tmp1 = a[i] + carry;
+        carry = static_cast<bigint_base_t>(tmp1 < carry);
+        r[i] = tmp1;
     }
 
     if (carry)
@@ -79,20 +84,25 @@ void sub_arrays(const bigint_base_t *a, std::size_t a_size, const bigint_base_t 
                 bigint_base_t *r, bigint_base_t borrow)
 {
     assert(a_size >= b_size);
-
+    bigint_base_t tmp1, tmp2;
     std::size_t i;
+
     for (i = 0; i < b_size; ++i)
     {
-        const auto result = safe_sub(a[i], b[i], borrow);
-        borrow = static_cast<uint32_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        r[i] = static_cast<bigint_base_t>(result);
+        tmp1 = a[i];
+        tmp2 = b[i];
+        r[i] = (tmp1 - tmp2 - borrow);
+        if (tmp1 != tmp2)
+        {
+            borrow = static_cast<bigint_base_t>(tmp1 < tmp2);
+        }
     }
 
     for (; i < a_size; ++i)
     {
-        const auto result = safe_sub(a[i], borrow);
-        borrow = static_cast<uint32_t>(result >> (sizeof(borrow) * 8)) & 0x01;
-        r[i] = static_cast<bigint_base_t>(result);
+        tmp1 = a[i];
+        r[i] = (tmp1 - borrow);
+        borrow &= static_cast<bigint_base_t>(tmp1 == 0);
     }
 }
 
@@ -102,8 +112,8 @@ std::vector<bigint_base_t> plain_add(std::span<bigint_base_t const> a, std::span
     std::vector<bigint_base_t> result_data(longer->size() + 1);
 
 #ifdef __AVX2__
-    avx_add(longer->data(), longer->size() * sizeof(bigint_base_t), shorter->data(),
-            shorter->size() * sizeof(bigint_base_t), result_data.data());
+    avx2_add(longer->data(), longer->size() * sizeof(bigint_base_t), shorter->data(),
+             shorter->size() * sizeof(bigint_base_t), result_data.data());
 #else
     add_arrays(longer->data(), longer->size(), shorter->data(), shorter->size(), result_data.data());
 #endif
@@ -115,7 +125,8 @@ std::vector<bigint_base_t> plain_sub(std::span<bigint_base_t const> a, std::span
 {
     std::vector<bigint_base_t> result_data(a.size());
 #ifdef __AVX2__
-    avx_sub(a.data(), a.size() * sizeof(bigint_base_t), b.data(), b.size() * sizeof(bigint_base_t), result_data.data());
+    avx2_sub(a.data(), a.size() * sizeof(bigint_base_t), b.data(), b.size() * sizeof(bigint_base_t),
+             result_data.data());
 #else
     sub_arrays(a.data(), a.size(), b.data(), b.size(), result_data.data());
 #endif
@@ -127,19 +138,26 @@ std::vector<bigint_base_t> mul_basecase(std::span<bigint_base_t const> a, std::s
     std::vector<bigint_base_t> result(a.size() + b.size(), 0);
     const auto [longer, shorter] = get_longer_shorter(&a, &b);
 
-    for (std::size_t i = 0; i < shorter->size(); ++i)
+    // Use half-sized digits
+    const std::span<bigint_half_t const> hl(reinterpret_cast<const bigint_half_t *>(longer->data()),
+                                            longer->size() * 2);
+    const std::span<bigint_half_t const> hs(reinterpret_cast<const bigint_half_t *>(shorter->data()),
+                                            shorter->size() * 2);
+    const std::span<bigint_half_t> hr(reinterpret_cast<bigint_half_t *>(result.data()), result.size() * 2);
+
+    for (std::size_t i = 0; i < hs.size(); ++i)
     {
-        double_width_t<bigint_base_t> carry = 0;
+        bigint_base_t carry = 0;
         std::size_t j;
-        for (j = 0; j < longer->size(); ++j)
+        for (j = 0; j < hl.size(); ++j)
         {
-            carry += result[i + j] + safe_mul((*longer)[j], (*shorter)[i]);
-            result[i + j] = static_cast<bigint_base_t>(carry);
-            carry >>= sizeof(bigint_base_t) * 8;
+            carry += hr[i + j] + safe_mul(hl[j], hs[i]);
+            hr[i + j] = static_cast<bigint_half_t>(carry);
+            carry >>= sizeof(bigint_half_t) * 8;
         }
         if (carry)
         {
-            result[i + j] += static_cast<bigint_base_t>(carry);
+            hr[i + j] += static_cast<bigint_half_t>(carry);
         }
     }
 

@@ -1,12 +1,11 @@
 #pragma once
 
 #include <yabil/bigint/BigInt.h>
+#include <yabil/bigint/TypeUtils.h>
 
 #include <span>
 #include <utility>
 #include <vector>
-
-#include "SafeOperators.h"
 
 namespace yabil::bigint
 {

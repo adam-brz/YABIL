@@ -1,5 +1,7 @@
 #pragma once
 
+#include <yabil/bigint/TypeUtils.h>
+
 #include <cstdint>
 #include <span>
 #include <string>
@@ -13,6 +15,9 @@ namespace yabil::bigint
 
 /// @brief Base type for big integer internal representation
 using bigint_base_t = uint32_t;
+
+/// @brief Unsigned type for half-size of \p bigint_base_t
+using bigint_half_t = yabil::type_utils::half_width_t<bigint_base_t>;
 
 /// @brief Sign of big integer
 enum class Sign : uint8_t
@@ -222,19 +227,19 @@ public:
     /// @return Remainder of the division result
     bigint_base_t operator%(bigint_base_t other) const;
 
-    /// @brief Get bit AND operation result.
+    /// @brief Get bitwise AND operation result.
     /// @details Operation performs AND operation for the sign of the number as well as for the raw number bytes
     /// @param other \p BigInt other number to perform operation with
     /// @return \p BigInt AND operation result
     BigInt operator&(const BigInt &other) const;
 
-    /// @brief Get bit OR operation result.
+    /// @brief Get bitwise OR operation result.
     /// @details Operation performs OR operation for the sign of the number as well as for the raw number bytes
     /// @param other \p BigInt other number to perform operation with
     /// @return \p BigInt OR operation result
     BigInt operator|(const BigInt &other) const;
 
-    /// @brief Get bit XOR operation result.
+    /// @brief Get bitwise XOR operation result.
     /// @details Operation performs XOR operation for the sign of the number as well as for the raw number bytes
     /// @param other \p BigInt other number to perform operation with
     /// @return \p BigInt XOR operation result

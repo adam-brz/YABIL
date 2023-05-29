@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace yabil::bigint
+namespace yabil::type_utils
 {
 
 template <class>
@@ -77,4 +77,10 @@ double_width_t<T> safe_mul(T a, T b)
     return static_cast<double_width_t<T>>(a) * b;
 }
 
-}  // namespace yabil::bigint
+template <typename T, typename... Args>
+double_width_t<T> safe_mul(T v, Args... args)
+{
+    return static_cast<double_width_t<T>>(v) * safe_mul(args...);
+}
+
+}  // namespace yabil::type_utils

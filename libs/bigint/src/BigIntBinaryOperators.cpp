@@ -1,9 +1,12 @@
 #include <yabil/bigint/BigInt.h>
+#include <yabil/bigint/TypeUtils.h>
 
 #include <algorithm>
+#include <limits>
 
 #include "Arithmetic.h"
-#include "SafeOperators.h"
+
+using namespace yabil::type_utils;
 
 namespace yabil::bigint
 {
@@ -64,30 +67,37 @@ BigInt BigInt::operator^(const BigInt &other) const
 
 BigInt BigInt::operator<<(uint64_t shift) const
 {
-    const uint64_t new_items_count = shift / (sizeof(bigint_base_t) * 8);
-    const uint64_t real_shift = shift % (sizeof(bigint_base_t) * 8);
+    constexpr auto base_t_bit_size = sizeof(bigint_base_t) * 8;
+    const auto new_items_count = shift / base_t_bit_size;
+    const auto real_shift = shift % base_t_bit_size;
 
     std::vector<bigint_base_t> shifted(new_items_count + data.size() + 1, 0);
     bigint_base_t shifted_val = 0;
 
-    std::transform(data.cbegin(), data.cend(), shifted.begin() + static_cast<int>(new_items_count),
-                   [real_shift, &shifted_val](const bigint_base_t &v)
-                   {
-                       const bigint_base_t transformed = (v << real_shift) | shifted_val;
-                       shifted_val =
-                           static_cast<bigint_base_t>((static_cast<double_width_t<bigint_base_t>>(v) << real_shift) >>
-                                                      (sizeof(bigint_base_t) * 8));
-                       return transformed;
-                   });
+    if (real_shift == 0)
+    {
+        std::copy(data.cbegin(), data.cend(), shifted.begin() + static_cast<int>(new_items_count));
+    }
+    else
+    {
+        for (std::size_t i = 0; i < data.size(); ++i)
+        {
+            const bigint_base_t v = data[i];
+            const bigint_base_t transformed = static_cast<bigint_base_t>(v << real_shift) | shifted_val;
+            shifted_val = static_cast<bigint_base_t>(v >> (base_t_bit_size - real_shift));
+            shifted[i + new_items_count] = transformed;
+        }
+        shifted.back() = shifted_val;
+    }
 
-    shifted.back() = shifted_val;
     return BigInt(std::move(shifted), sign);
 }
 
 BigInt BigInt::operator>>(uint64_t shift) const
 {
-    const uint64_t removed_items_count = shift / (sizeof(bigint_base_t) * 8);
-    const uint64_t real_shift = shift % (sizeof(bigint_base_t) * 8);
+    constexpr auto base_t_bit_size = sizeof(bigint_base_t) * 8;
+    const uint64_t removed_items_count = shift / base_t_bit_size;
+    const uint64_t real_shift = shift % base_t_bit_size;
 
     if (removed_items_count >= data.size())
     {
@@ -95,17 +105,22 @@ BigInt BigInt::operator>>(uint64_t shift) const
     }
 
     std::vector<bigint_base_t> shifted(data.size() - removed_items_count, 0);
-    bigint_base_t shifted_val = 0;
 
-    std::transform(
-        data.crbegin(), data.crend() - static_cast<int>(removed_items_count), shifted.rbegin(),
-        [real_shift, &shifted_val](const bigint_base_t &v)
-        {
-            const bigint_base_t transformed = (v >> real_shift) | shifted_val;
-            shifted_val = static_cast<bigint_base_t>(
-                (static_cast<double_width_t<bigint_base_t>>(v) << (sizeof(bigint_base_t) * 8)) >> real_shift);
-            return transformed;
-        });
+    if (real_shift == 0)
+    {
+        std::copy(data.cbegin() + static_cast<int>(removed_items_count), data.cend(), shifted.begin());
+    }
+    else
+    {
+        bigint_base_t shifted_val = 0;
+        std::transform(data.crbegin(), data.crend() - static_cast<int>(removed_items_count), shifted.rbegin(),
+                       [real_shift, &shifted_val](const bigint_base_t &v)
+                       {
+                           const bigint_base_t transformed = (v >> real_shift) | shifted_val;
+                           shifted_val = static_cast<bigint_base_t>(v << (base_t_bit_size - real_shift));
+                           return transformed;
+                       });
+    }
 
     return BigInt(std::move(shifted), sign);
 }
@@ -161,8 +176,9 @@ BigInt &BigInt::operator^=(const BigInt &other)
 
 BigInt &BigInt::operator<<=(uint64_t shift)
 {
-    const uint64_t new_items_count = shift / (sizeof(bigint_base_t) * 8);
-    const uint64_t real_shift = shift % (sizeof(bigint_base_t) * 8);
+    constexpr auto base_t_bit_size = sizeof(bigint_base_t) * 8;
+    const uint64_t new_items_count = shift / base_t_bit_size;
+    const uint64_t real_shift = shift % base_t_bit_size;
 
     data.resize(data.size() + new_items_count + 1);
     bigint_base_t shifted_val = 0;
@@ -173,8 +189,7 @@ BigInt &BigInt::operator<<=(uint64_t shift)
                    {
                        const bigint_base_t transformed = (v << real_shift) | shifted_val;
                        shifted_val =
-                           static_cast<bigint_base_t>((static_cast<double_width_t<bigint_base_t>>(v) << real_shift) >>
-                                                      (sizeof(bigint_base_t) * 8));
+                           (real_shift == 0) ? 0 : static_cast<bigint_base_t>(v >> (base_t_bit_size - real_shift));
                        return transformed;
                    });
 
@@ -191,8 +206,9 @@ BigInt &BigInt::operator<<=(uint64_t shift)
 
 BigInt &BigInt::operator>>=(uint64_t shift)
 {
-    const uint64_t removed_items_count = shift / (sizeof(bigint_base_t) * 8);
-    const uint64_t real_shift = shift % (sizeof(bigint_base_t) * 8);
+    constexpr auto base_t_bit_size = sizeof(bigint_base_t) * 8;
+    const uint64_t removed_items_count = shift / base_t_bit_size;
+    const uint64_t real_shift = shift % base_t_bit_size;
 
     if (removed_items_count >= data.size())
     {
@@ -204,15 +220,14 @@ BigInt &BigInt::operator>>=(uint64_t shift)
     data.resize(data.size() - removed_items_count);
     bigint_base_t shifted_val = 0;
 
-    std::transform(
-        data.crbegin(), data.crend(), data.rbegin(),
-        [real_shift, &shifted_val](const bigint_base_t &v)
-        {
-            const bigint_base_t transformed = (v >> real_shift) | shifted_val;
-            shifted_val = static_cast<bigint_base_t>(
-                (static_cast<double_width_t<bigint_base_t>>(v) << (sizeof(bigint_base_t) * 8)) >> real_shift);
-            return transformed;
-        });
+    std::transform(data.crbegin(), data.crend(), data.rbegin(),
+                   [real_shift, &shifted_val](const bigint_base_t &v)
+                   {
+                       const bigint_base_t transformed = (v >> real_shift) | shifted_val;
+                       shifted_val =
+                           (real_shift == 0) ? 0 : static_cast<bigint_base_t>(v << (base_t_bit_size - real_shift));
+                       return transformed;
+                   });
 
     normalize();
     return *this;
