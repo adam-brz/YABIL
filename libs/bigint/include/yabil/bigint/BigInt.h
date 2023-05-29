@@ -14,7 +14,7 @@ namespace yabil::bigint
 {
 
 /// @brief Base type for big integer internal representation
-using bigint_base_t = uint32_t;
+using bigint_base_t = uint64_t;
 
 /// @brief Unsigned type for half-size of \p bigint_base_t
 using bigint_half_t = yabil::type_utils::half_width_t<bigint_base_t>;
@@ -355,6 +355,9 @@ private:
 
     BigInt &inplace_plain_add(const BigInt &other);
     BigInt &inplace_plain_sub(const BigInt &other);
+
+    static std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> base_div(std::span<bigint_base_t const> a,
+                                                                                      std::span<bigint_base_t const> b);
 };
 
 }  // namespace yabil::bigint

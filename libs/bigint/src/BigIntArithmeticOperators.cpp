@@ -88,46 +88,65 @@ std::pair<BigInt, BigInt> BigInt::recursive_div(const BigInt &other) const
     return {(Q1 << (digit_size_bits * k)) + Q0, A_bis};
 }
 
-std::pair<BigInt, BigInt> BigInt::base_div(const BigInt &other) const
+std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> BigInt::base_div(std::span<bigint_base_t const> a,
+                                                                                   std::span<bigint_base_t const> b)
 {
-    const int n = static_cast<int>(other.data.size());
-    const int m = static_cast<int>(data.size()) - n;
+    const int n = static_cast<int>(b.size());
+    const int m = static_cast<int>(a.size()) - n;
 
     if (m < 0)
     {
-        return {BigInt(), *this};
+        return {{}, std::vector<bigint_base_t>(a.begin(), a.end())};
     }
 
-    BigInt A = *this;
-    const BigInt &B = other;
-
     std::vector<bigint_base_t> q(m + 1);
-    constexpr auto digit_size_bits = sizeof(bigint_base_t) * 8;
 
-    const BigInt B_m = B << (digit_size_bits * m);
+    const std::span<bigint_half_t> hq(reinterpret_cast<bigint_half_t *>(q.data()), q.size() * 2);
+    const bigint_half_t b_div = static_cast<bigint_half_t>(b.back() >> (sizeof(bigint_half_t) * 8));
+
+    const int hn = static_cast<int>(b.size() * 2);
+    const int hm = static_cast<int>(a.size() * 2) - hn;
+
+    BigInt A(a);
+    const BigInt B(b);
+
+    constexpr auto half_digit_size_bits = sizeof(bigint_half_t) * 8;
+    const BigInt B_m = B << (half_digit_size_bits * hm);
     if (A >= B_m)
     {
         A -= B_m;
         q[m] = 1;
     }
 
-    for (int i = m - 1; i >= 0; --i)
+    for (int i = hm - 1; i >= 0; --i)
     {
-        const auto top_two_digits = (static_cast<double_width_t<bigint_base_t>>(A.data[n + i]) << digit_size_bits) |
-                                    static_cast<double_width_t<bigint_base_t>>(A.data[n + i - 1]);
+        const std::span<bigint_half_t const> ha(reinterpret_cast<const bigint_half_t *>(A.data.data()),
+                                                A.data.size() * 2);
 
-        const auto quotient_part = top_two_digits / B.data[n - 1];
-        auto q_i = std::min(quotient_part, (static_cast<double_width_t<bigint_base_t>>(1) << digit_size_bits) - 1);
-        A -= (BigInt(q_i) * B) << (digit_size_bits * i);
+        const bigint_base_t top_two_digits = (static_cast<bigint_base_t>(ha[hn + i]) << half_digit_size_bits) |
+                                             static_cast<bigint_base_t>(ha[hn + i - 1]);
+
+        const bigint_base_t quotient_part = top_two_digits / b_div;
+
+        auto q_i = std::min(quotient_part, static_cast<bigint_base_t>(std::numeric_limits<bigint_half_t>::max()));
+        A -= (BigInt(q_i) * B) << (half_digit_size_bits * i);
+
         while (A.is_negative())
         {
             q_i -= 1;
-            A += B << (digit_size_bits * i);
+            A += B << (half_digit_size_bits * i);
         }
-        q[i] = static_cast<bigint_base_t>(q_i);
+
+        hq[i] = static_cast<bigint_base_t>(q_i);
     }
 
-    return {BigInt(q), A};
+    return {q, std::move(A.data)};
+}
+
+std::pair<BigInt, BigInt> BigInt::base_div(const BigInt &other) const
+{
+    const auto [q, r] = BigInt::base_div(data, other.data);
+    return {BigInt(q), BigInt(r)};
 }
 
 BigInt BigInt::operator+(const BigInt &other) const

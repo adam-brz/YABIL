@@ -61,7 +61,6 @@
             "cacheVariables": {
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_VERBOSE_MAKEFILE": true,
-                "CMAKE_CXX_FLAGS": "-march=native",
                 "YABIL_ENABLE_SANITIZER": true
             }
         },
