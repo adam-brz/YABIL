@@ -137,7 +137,7 @@ std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> BigInt::base_d
             A += B << (half_digit_size_bits * i);
         }
 
-        hq[i] = static_cast<bigint_base_t>(q_i);
+        hq[i] = static_cast<bigint_half_t>(q_i);
     }
 
     return {q, std::move(A.data)};
