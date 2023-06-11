@@ -3,12 +3,12 @@
 using namespace yabil::bigint;
 
 #include <immintrin.h>
-#include "TypeUtils.h"
 
 #include <cassert>
 #include <limits>
 
 #include "Arithmetic.h"
+#include "TypeUtils.h"
 
 #ifdef __AVX2__
 
