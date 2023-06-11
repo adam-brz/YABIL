@@ -61,13 +61,16 @@ TEST_F(BigIntConstructorTest, longStringToBigIntWithSign)
         ASSERT_EQ(Sign::Minus, big_int1.get_sign());
         ASSERT_EQ(expected, big_int1.raw_data());
     }
+
+#ifdef __SIZEOF_INT128__
     if constexpr (sizeof(bigint_base_t) == 8)
     {
         const BigInt big_int1("-1424112908491024712973012389");
-        const std::vector<bigint_base_t> expected = {8532190400157437349, 77201315};
+        const std::vector<bigint_base_t> expected = {8532190400157437349ULL, 77201315ULL};
         ASSERT_EQ(Sign::Minus, big_int1.get_sign());
         ASSERT_EQ(expected, big_int1.raw_data());
     }
+#endif
 }
 
 TEST_F(BigIntConstructorTest, longStringInBase2ToBigIntWithSign)
@@ -79,6 +82,8 @@ TEST_F(BigIntConstructorTest, longStringInBase2ToBigIntWithSign)
         ASSERT_EQ(Sign::Minus, big_int1.get_sign());
         ASSERT_EQ(expected, big_int1.raw_data());
     }
+
+#ifdef __SIZEOF_INT128__
     if constexpr (sizeof(bigint_base_t) == 8)
     {
         const BigInt big_int1("-101010110111100101110101010101010101010");
@@ -86,6 +91,7 @@ TEST_F(BigIntConstructorTest, longStringInBase2ToBigIntWithSign)
         ASSERT_EQ(Sign::Minus, big_int1.get_sign());
         ASSERT_EQ(expected, big_int1.raw_data());
     }
+#endif
 }
 
 TEST_F(BigIntConstructorTest, longStringInBase16ToBigIntWithSign)
@@ -97,6 +103,8 @@ TEST_F(BigIntConstructorTest, longStringInBase16ToBigIntWithSign)
         ASSERT_EQ(Sign::Plus, big_int1.get_sign());
         ASSERT_EQ(expected, big_int1.raw_data());
     }
+
+#ifdef __SIZEOF_INT128__
     if constexpr (sizeof(bigint_base_t) == 8)
     {
         const BigInt big_int1("+abcd18782172918aafffbab", 16);
@@ -104,4 +112,5 @@ TEST_F(BigIntConstructorTest, longStringInBase16ToBigIntWithSign)
         ASSERT_EQ(Sign::Plus, big_int1.get_sign());
         ASSERT_EQ(expected, big_int1.raw_data());
     }
+#endif
 }
