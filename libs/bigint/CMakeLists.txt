@@ -13,9 +13,9 @@ set(SOURCES
     src/StringConversionUtils.cpp
     src/StringConversionUtils.h
     src/Thresholds.h
-    )
+)
 
-    set(HEADERS
+set(HEADERS
     include/yabil/bigint/BigInt.h
     include/yabil/bigint/Parallel.h
     include/yabil/bigint/TypeUtils.h
