@@ -3,7 +3,7 @@
 using namespace yabil::bigint;
 
 #include <immintrin.h>
-#include <yabil/bigint/TypeUtils.h>
+#include "TypeUtils.h"
 
 #include <cassert>
 #include <limits>

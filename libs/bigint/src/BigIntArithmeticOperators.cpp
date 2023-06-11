@@ -1,5 +1,4 @@
 #include <yabil/bigint/BigInt.h>
-#include <yabil/bigint/TypeUtils.h>
 #include <yabil/utils/ThreadPoolSingleton.h>
 
 #include <algorithm>
@@ -10,6 +9,7 @@
 #include "Arithmetic.h"
 #include "StringConversionUtils.h"
 #include "Thresholds.h"
+#include "TypeUtils.h"
 
 using namespace yabil::type_utils;
 

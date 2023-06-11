@@ -1,5 +1,4 @@
 #include <yabil/bigint/BigInt.h>
-#include <yabil/bigint/TypeUtils.h>
 
 #include <algorithm>
 #include <cctype>
@@ -11,6 +10,8 @@
 
 #include "Arithmetic.h"
 #include "StringConversionUtils.h"
+#include "TypeUtils.h"
+
 
 namespace yabil::bigint
 {

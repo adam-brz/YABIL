@@ -1,10 +1,10 @@
 #include <yabil/bigint/BigInt.h>
-#include <yabil/bigint/TypeUtils.h>
 
 #include <algorithm>
 #include <limits>
 
 #include "Arithmetic.h"
+#include "TypeUtils.h"
 
 using namespace yabil::type_utils;
 

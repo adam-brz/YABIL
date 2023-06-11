@@ -13,12 +13,12 @@ set(SOURCES
     src/StringConversionUtils.cpp
     src/StringConversionUtils.h
     src/Thresholds.h
+    src/TypeUtils.h
 )
 
 set(HEADERS
     include/yabil/bigint/BigInt.h
     include/yabil/bigint/Parallel.h
-    include/yabil/bigint/TypeUtils.h
 )
 
 set(TESTS
