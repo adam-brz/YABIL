@@ -12,7 +12,6 @@
 #include "StringConversionUtils.h"
 #include "TypeUtils.h"
 
-
 namespace yabil::bigint
 {
 
