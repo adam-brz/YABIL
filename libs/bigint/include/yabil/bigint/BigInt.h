@@ -7,12 +7,20 @@
 #include <utility>
 #include <vector>
 
+#ifndef BIGINT_BASE_T
+#ifdef __SIZEOF_INT128__
+#define BIGINT_BASE_T uint64_t
+#else
+#define BIGINT_BASE_T uint32_t
+#endif
+#endif
+
 /// @brief BigInt core functionalities
 namespace yabil::bigint
 {
 
 /// @brief Base type for big integer internal representation
-using bigint_base_t = uint64_t;
+using bigint_base_t = BIGINT_BASE_T;
 
 /// @brief Sign of big integer
 enum class Sign : uint8_t
