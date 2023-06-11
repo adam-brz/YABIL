@@ -138,26 +138,19 @@ std::vector<bigint_base_t> mul_basecase(std::span<bigint_base_t const> a, std::s
     std::vector<bigint_base_t> result(a.size() + b.size(), 0);
     const auto [longer, shorter] = get_longer_shorter(&a, &b);
 
-    // Use half-sized digits
-    const std::span<bigint_half_t const> hl(reinterpret_cast<const bigint_half_t *>(longer->data()),
-                                            longer->size() * 2);
-    const std::span<bigint_half_t const> hs(reinterpret_cast<const bigint_half_t *>(shorter->data()),
-                                            shorter->size() * 2);
-    const std::span<bigint_half_t> hr(reinterpret_cast<bigint_half_t *>(result.data()), result.size() * 2);
-
-    for (std::size_t i = 0; i < hs.size(); ++i)
+    for (std::size_t i = 0; i < shorter->size(); ++i)
     {
-        bigint_base_t carry = 0;
+        double_width_t<bigint_base_t> carry = 0;
         std::size_t j;
-        for (j = 0; j < hl.size(); ++j)
+        for (j = 0; j < longer->size(); ++j)
         {
-            carry += hr[i + j] + safe_mul(hl[j], hs[i]);
-            hr[i + j] = static_cast<bigint_half_t>(carry);
-            carry >>= sizeof(bigint_half_t) * 8;
+            carry += result[i + j] + safe_mul((*longer)[j], (*shorter)[i]);
+            result[i + j] = static_cast<bigint_base_t>(carry);
+            carry >>= sizeof(bigint_base_t) * 8;
         }
         if (carry)
         {
-            hr[i + j] += static_cast<bigint_half_t>(carry);
+            result[i + j] += static_cast<bigint_base_t>(carry);
         }
     }
 

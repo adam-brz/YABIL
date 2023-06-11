@@ -29,6 +29,14 @@ struct double_width<uint32_t>
     using type = uint64_t;
 };
 
+#ifdef __SIZEOF_INT128__
+template <>
+struct double_width<uint64_t>
+{
+    using type = __uint128_t;
+};
+#endif
+
 template <class>
 struct half_width;
 
