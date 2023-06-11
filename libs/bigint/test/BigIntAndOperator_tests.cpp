@@ -46,17 +46,19 @@ TEST_F(BigIntAndOperator_tests, fastTestForOddNumber)
 
 TEST_F(BigIntAndOperator_tests, andShouldLeaveCommonOnesForLongNumbers)
 {
-    const BigInt big_int1(std::vector<bigint_base_t>{0xf0f000, 0xf0f0f0, 0xf0f0f0});
-    const BigInt big_int2(std::vector<bigint_base_t>{0xff00f0, 0xf000f0});
-    const std::vector<bigint_base_t> expected = {0xf00000, 0xf000f0};
+    const bigint_base_t bit_mask = (static_cast<uint64_t>(0xf) << (sizeof(bigint_base_t) * 8 - 4));
+
+    const BigInt big_int1(std::vector<bigint_base_t>{bit_mask | 0xf, bit_mask, bit_mask});
+    const BigInt big_int2(std::vector<bigint_base_t>{bit_mask | 0xf, bit_mask});
+    const std::vector<bigint_base_t> expected = {bit_mask | 0xf, bit_mask};
     ASSERT_EQ(expected, (big_int1 & big_int2).raw_data());
 }
 
 TEST_F(BigIntAndOperator_tests, andShouldLeaveCommonOnesForLongNumbers_2)
 {
-    BigInt big_int1(std::vector<bigint_base_t>{0xf0f000, 0xf0f0f0, 0xf0f0f0});
-    const BigInt big_int2(std::vector<bigint_base_t>{0xff00f0, 0xf000f0});
-    const std::vector<bigint_base_t> expected = {0xf00000, 0xf000f0};
+    BigInt big_int1(std::vector<bigint_base_t>{0xf0f0, 0xf0f0, 0xf0f0});
+    const BigInt big_int2(std::vector<bigint_base_t>{0xff00, 0xf000});
+    const std::vector<bigint_base_t> expected = {0xf000, 0xf000};
 
     big_int1 &= big_int2;
     ASSERT_EQ(expected, big_int1.raw_data());

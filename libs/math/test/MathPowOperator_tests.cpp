@@ -29,48 +29,31 @@ TEST_F(BigIntPowOperator_tests, anyNumberPowerZeroGivesOneExceptZero)
 TEST_F(BigIntPowOperator_tests, powTwoNonZero)
 {
     const BigInt big_int1(50), big_int2(7);
-    const std::vector<bigint_base_t> expected = {0b11100110001000001111010010000000, 0b10110101};
-    ASSERT_EQ(expected, (pow(big_int1, big_int2)).raw_data());
+    const BigInt expected("781250000000");
+    ASSERT_EQ(expected, pow(big_int1, big_int2));
 }
 
 TEST_F(BigIntPowOperator_tests, negativeToOddPositivePower)
 {
-    const BigInt big_int1(std::vector<bigint_base_t>{std::numeric_limits<bigint_base_t>::max(),
-                                                     std::numeric_limits<bigint_base_t>::max()},
-                          Sign::Minus);
+    const BigInt big_int1("-129038120571289392103870921890412");
     const BigInt big_int2(5);
+    const BigInt expected(
+        "-3577586514556524751500188827255184591811798297355380654694285252054770916028342342124319938380029330573452593"
+        "0670069164419844798156739022909190352696715881720832");
 
-    const std::vector<bigint_base_t> expected = {
-        0b11111111111111111111111111111111, 0b11111111111111111111111111111111, 0b00000000000000000000000000000100,
-        0b00000000000000000000000000000000, 0b11111111111111111111111111110110, 0b11111111111111111111111111111111,
-        0b00000000000000000000000000001001, 0b00000000000000000000000000000000, 0b11111111111111111111111111111011,
-        0b11111111111111111111111111111111};
     const auto result = pow(big_int1, big_int2);
-
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Minus, result.get_sign());
+    ASSERT_EQ(expected, result);
 }
 
 TEST_F(BigIntPowOperator_tests, negativeToEvenPositivePower)
 {
     const BigInt big_int1("-1209102941902");
     const BigInt big_int2(8);
+    const BigInt expected(
+        "4567790983503473628822144089267398479608916390481093247641625221676310287022555776664881033625856");
 
-    const std::vector<bigint_base_t> expected = {0b10011110000100111100000100000000,
-                                                 0b10110000000010000011001000000000,
-                                                 0b11111100011000100111111011110111,
-                                                 0b00011100100110000100010111101010,
-                                                 0b11110001101010111101011001110010,
-                                                 0b00101111011110011100100010011000,
-                                                 0b01101010010110001001100111111011,
-                                                 0b11001001001000101001001001111011,
-                                                 0b10110111101100011001101101001010,
-                                                 0b00100011011101000011010010010110,
-                                                 0b10};
     const auto result = pow(big_int1, big_int2);
-
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Plus, result.get_sign());
+    ASSERT_EQ(expected, result);
 }
 
 TEST_F(BigIntPowOperator_tests, powLong)
@@ -78,13 +61,12 @@ TEST_F(BigIntPowOperator_tests, powLong)
     const BigInt big_int1(19298);
     const BigInt big_int2(30);
 
-    const std::vector<bigint_base_t> expected = {0x40000000, 0xb93b7968, 0xedb00f94, 0x2e9bb49f, 0xefd46cd8,
-                                                 0x925fe292, 0xe8cb96bd, 0xbe0dceea, 0x7c56f8ef, 0x79543c2e,
-                                                 0x9ed5214,  0x59a1e666, 0x27bf9cf9, 0x87c};
+    const BigInt expected(
+        "36759454841427245796179197277120989910150693752330730444072565114753704065037485655114226749737707469282845618"
+        "6722836758422093824");
     const auto result = pow(big_int1, big_int2);
 
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Plus, result.get_sign());
+    ASSERT_EQ(expected, result);
 }
 
 TEST_F(BigIntPowOperator_tests, powModularArithmeticWithZeroExponent)

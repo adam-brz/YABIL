@@ -169,8 +169,8 @@ TEST_F(ParallelOperations_tests, mulTwoNegativeWithOverflow)
                           Sign::Minus);
     const BigInt big_int2(-10);
 
-    const std::vector<bigint_base_t> expected = {0b11111111111111111111111111110110, 0b11111111111111111111111111111111,
-                                                 0b1001};
+    const std::vector<bigint_base_t> expected = {std::numeric_limits<bigint_base_t>::max() & ~(0b1001),
+                                                 std::numeric_limits<bigint_base_t>::max(), 0b1001};
     const auto result = parallel::multiply(big_int1, big_int2);
 
     ASSERT_EQ(expected, result.raw_data());
@@ -182,8 +182,7 @@ TEST_F(ParallelOperations_tests, mulTwoWithDifferentSignsWithOverflow)
     const BigInt big_int1(std::vector<bigint_base_t>{0, std::numeric_limits<bigint_base_t>::max()}, Sign::Minus);
     const BigInt big_int2(std::numeric_limits<bigint_base_t>::max());
 
-    const std::vector<bigint_base_t> expected = {0, 0b00000000000000000000000000000001,
-                                                 0b11111111111111111111111111111110};
+    const std::vector<bigint_base_t> expected = {0, 1, std::numeric_limits<bigint_base_t>::max() - 1};
     const auto result = parallel::multiply(big_int1, big_int2);
 
     ASSERT_EQ(expected, result.raw_data());
@@ -195,7 +194,7 @@ TEST_F(ParallelOperations_tests, mulTwoTheSameLong)
     const BigInt big_int1(std::vector<bigint_base_t>{0, std::numeric_limits<bigint_base_t>::max()});
     const BigInt big_int2(std::vector<bigint_base_t>{0, std::numeric_limits<bigint_base_t>::max()});
 
-    const std::vector<bigint_base_t> expected = {0, 0, 1, 0b11111111111111111111111111111110};
+    const std::vector<bigint_base_t> expected = {0, 0, 1, std::numeric_limits<bigint_base_t>::max() - 1};
     const auto result = parallel::multiply(big_int1, big_int2);
 
     ASSERT_EQ(expected, result.raw_data());

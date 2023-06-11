@@ -43,20 +43,20 @@ TEST_F(BigIntLowerComparaison_tests, checkLowerTwoPositive)
 
 TEST_F(BigIntLowerComparaison_tests, checkLowerMultipleLong)
 {
-    for (unsigned i = 0; i < 20; ++i)
+    for (uint8_t i = 0; i < 20; ++i)
     {
         const BigInt big_int1(std::vector<bigint_base_t>{i, 0, i});
-        const BigInt big_int2(std::vector<bigint_base_t>{i + 1, i, i});
+        const BigInt big_int2(std::vector<bigint_base_t>{static_cast<bigint_base_t>(i + 1), i, i});
         ASSERT_LT(big_int1, big_int2);
     }
 }
 
 TEST_F(BigIntLowerComparaison_tests, checkLowerMultipleNegativeLong)
 {
-    for (unsigned i = 0; i < 20; ++i)
+    for (uint8_t i = 0; i < 20; ++i)
     {
         const BigInt big_int1(std::vector<bigint_base_t>{i, 0, i}, Sign::Minus);
-        const BigInt big_int2(std::vector<bigint_base_t>{i + 1, i, i}, Sign::Minus);
+        const BigInt big_int2(std::vector<bigint_base_t>{static_cast<bigint_base_t>(i + 1), i, i}, Sign::Minus);
         ASSERT_LT(big_int2, big_int1);
     }
 }

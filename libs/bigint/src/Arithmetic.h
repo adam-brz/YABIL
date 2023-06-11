@@ -6,7 +6,7 @@
 #include <utility>
 #include <vector>
 
-#include "SafeOperators.h"
+#include "TypeUtils.h"
 
 namespace yabil::bigint
 {

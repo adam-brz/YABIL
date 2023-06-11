@@ -10,10 +10,10 @@ set(SOURCES
     src/BigIntBinaryOperators.cpp
     src/BigIntReleationOperators.cpp
     src/Parallel.cpp
-    src/SafeOperators.h
     src/StringConversionUtils.cpp
     src/StringConversionUtils.h
     src/Thresholds.h
+    src/TypeUtils.h
 )
 
 set(HEADERS

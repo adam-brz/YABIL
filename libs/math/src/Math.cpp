@@ -136,14 +136,18 @@ yabil::bigint::BigInt gcd(yabil::bigint::BigInt number, yabil::bigint::BigInt ot
     uint64_t power_of_two_divisor_number = 0;
     uint64_t power_of_two_divisor_other = 0;
 
-    while (!number.get_bit(power_of_two_divisor_number))
+    for (const auto &digit : number.raw_data())
     {
-        power_of_two_divisor_number += 1;
+        const uint64_t counted_zeroes = std::countr_zero(digit);
+        power_of_two_divisor_number += counted_zeroes;
+        if (counted_zeroes != sizeof(bigint::bigint_base_t) * 8) break;
     }
 
-    while (!other.get_bit(power_of_two_divisor_other))
+    for (const auto &digit : other.raw_data())
     {
-        power_of_two_divisor_other += 1;
+        const uint64_t counted_zeroes = std::countr_zero(digit);
+        power_of_two_divisor_other += counted_zeroes;
+        if (counted_zeroes != sizeof(bigint::bigint_base_t) * 8) break;
     }
 
     uint64_t common_power_of_2 = std::min(power_of_two_divisor_number, power_of_two_divisor_other);

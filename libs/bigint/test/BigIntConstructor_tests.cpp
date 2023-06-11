@@ -41,31 +41,6 @@ TEST_F(BigIntConstructorTest, stringToBigIntWithSign)
     ASSERT_EQ(-14241, big_int1.to_int());
 }
 
-TEST_F(BigIntConstructorTest, longStringToBigIntWithSign)
-{
-    const BigInt big_int1("-1424112908491024712973012389");
-    const std::vector<bigint_base_t> expected = {0b10100101011000011100110110100101, 0b01110110011010000110110111110110,
-                                                 0b100100110011111111110100011};
-    ASSERT_EQ(Sign::Minus, big_int1.get_sign());
-    ASSERT_EQ(expected, big_int1.raw_data());
-}
-
-TEST_F(BigIntConstructorTest, longStringInBase2ToBigIntWithSign)
-{
-    const BigInt big_int1("-101010110111100101110101010101010101010", 2);
-    const std::vector<bigint_base_t> expected = {0b10111100101110101010101010101010, 0b1010101};
-    ASSERT_EQ(Sign::Minus, big_int1.get_sign());
-    ASSERT_EQ(expected, big_int1.raw_data());
-}
-
-TEST_F(BigIntConstructorTest, longStringInBase16ToBigIntWithSign)
-{
-    const BigInt big_int1("+abcd18782172918aafffbab", 16);
-    const std::vector<bigint_base_t> expected = {0xaafffbab, 0x82172918, 0xabcd187};
-    ASSERT_EQ(Sign::Plus, big_int1.get_sign());
-    ASSERT_EQ(expected, big_int1.raw_data());
-}
-
 TEST_F(BigIntConstructorTest, invalidStringShouldThrowException)
 {
     ASSERT_THROW(BigInt("-129+1"), std::invalid_argument);
@@ -74,4 +49,68 @@ TEST_F(BigIntConstructorTest, invalidStringShouldThrowException)
 TEST_F(BigIntConstructorTest, invalidStringShouldThrowException_2)
 {
     ASSERT_THROW(BigInt("Z1291"), std::invalid_argument);
+}
+
+TEST_F(BigIntConstructorTest, longStringToBigIntWithSign)
+{
+    if constexpr (sizeof(bigint_base_t) == 4)
+    {
+        const BigInt big_int1("-1424112908491024712973012389");
+        const std::vector<bigint_base_t> expected = {0b10100101011000011100110110100101,
+                                                     0b01110110011010000110110111110110, 0b100100110011111111110100011};
+        ASSERT_EQ(Sign::Minus, big_int1.get_sign());
+        ASSERT_EQ(expected, big_int1.raw_data());
+    }
+
+#ifdef __SIZEOF_INT128__
+    if constexpr (sizeof(bigint_base_t) == 8)
+    {
+        const BigInt big_int1("-1424112908491024712973012389");
+        const std::vector<bigint_base_t> expected = {8532190400157437349ULL, 77201315ULL};
+        ASSERT_EQ(Sign::Minus, big_int1.get_sign());
+        ASSERT_EQ(expected, big_int1.raw_data());
+    }
+#endif
+}
+
+TEST_F(BigIntConstructorTest, longStringInBase2ToBigIntWithSign)
+{
+    if constexpr (sizeof(bigint_base_t) == 4)
+    {
+        const BigInt big_int1("-101010110111100101110101010101010101010", 2);
+        const std::vector<bigint_base_t> expected = {0b10111100101110101010101010101010, 0b1010101};
+        ASSERT_EQ(Sign::Minus, big_int1.get_sign());
+        ASSERT_EQ(expected, big_int1.raw_data());
+    }
+
+#ifdef __SIZEOF_INT128__
+    if constexpr (sizeof(bigint_base_t) == 8)
+    {
+        const BigInt big_int1("-101010110111100101110101010101010101010");
+        const std::vector<bigint_base_t> expected = {10617269109349872402ULL, 5475769041272737363ULL};
+        ASSERT_EQ(Sign::Minus, big_int1.get_sign());
+        ASSERT_EQ(expected, big_int1.raw_data());
+    }
+#endif
+}
+
+TEST_F(BigIntConstructorTest, longStringInBase16ToBigIntWithSign)
+{
+    if constexpr (sizeof(bigint_base_t) == 4)
+    {
+        const BigInt big_int1("+abcd18782172918aafffbab", 16);
+        const std::vector<bigint_base_t> expected = {0xaafffbabULL, 0x82172918ULL, 0xabcd187ULL};
+        ASSERT_EQ(Sign::Plus, big_int1.get_sign());
+        ASSERT_EQ(expected, big_int1.raw_data());
+    }
+
+#ifdef __SIZEOF_INT128__
+    if constexpr (sizeof(bigint_base_t) == 8)
+    {
+        const BigInt big_int1("+abcd18782172918aafffbab", 16);
+        const std::vector<bigint_base_t> expected = {9374006335319833515ULL, 180146567ULL};
+        ASSERT_EQ(Sign::Plus, big_int1.get_sign());
+        ASSERT_EQ(expected, big_int1.raw_data());
+    }
+#endif
 }

@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace yabil::bigint
+namespace yabil::type_utils
 {
 
 template <class>
@@ -28,6 +28,14 @@ struct double_width<uint32_t>
 {
     using type = uint64_t;
 };
+
+#ifdef __SIZEOF_INT128__
+template <>
+struct double_width<uint64_t>
+{
+    using type = __uint128_t;
+};
+#endif
 
 template <class>
 struct half_width;
@@ -77,4 +85,10 @@ double_width_t<T> safe_mul(T a, T b)
     return static_cast<double_width_t<T>>(a) * b;
 }
 
-}  // namespace yabil::bigint
+template <typename T, typename... Args>
+double_width_t<T> safe_mul(T v, Args... args)
+{
+    return static_cast<double_width_t<T>>(v) * safe_mul(args...);
+}
+
+}  // namespace yabil::type_utils

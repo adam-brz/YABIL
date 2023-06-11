@@ -13,7 +13,7 @@ class RSA_tests : public ::testing::Test
 
 TEST_F(RSA_tests, canGeneratePrivateAndPublicKey)
 {
-    const auto [private_key, pub_key] = rsa::generate_keys(32);
+    const auto [private_key, pub_key] = rsa::generate_keys(256);
 
     ASSERT_TRUE(private_key.n == pub_key.n);
     ASSERT_FALSE(private_key.e.is_zero());

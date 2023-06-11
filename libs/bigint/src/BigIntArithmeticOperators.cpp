@@ -7,16 +7,19 @@
 
 #include "AVX2Utils.h"
 #include "Arithmetic.h"
-#include "SafeOperators.h"
 #include "StringConversionUtils.h"
 #include "Thresholds.h"
+#include "TypeUtils.h"
+
+using namespace yabil::type_utils;
 
 namespace yabil::bigint
 {
 
 std::pair<BigInt, BigInt> BigInt::divide_unsigned(const BigInt &other) const
 {
-    if (data.size() > thresholds::recursive_div_threshold_digits)
+    if (data.size() > thresholds::recursive_div_threshold_digits &&
+        other.data.size() > thresholds::recursive_div_threshold_digits)
     {
         return unbalanced_div(other);
     }
@@ -84,6 +87,7 @@ std::pair<BigInt, BigInt> BigInt::recursive_div(const BigInt &other) const
 
     return {(Q1 << (digit_size_bits * k)) + Q0, A_bis};
 }
+
 std::pair<BigInt, BigInt> BigInt::base_div(const BigInt &other) const
 {
     const int n = static_cast<int>(other.data.size());
@@ -180,7 +184,8 @@ BigInt BigInt::operator%(const BigInt &other) const
         return BigInt(to_int() % other.to_int());
     }
 
-    if (other.byte_size() <= sizeof(bigint_base_t) && other.sign == Sign::Plus)
+    if (other.data.size() == 1 && other.sign == Sign::Plus &&
+        other.data.front() < std::numeric_limits<half_width_t<bigint_base_t>>::max())
     {
         return BigInt((*this) % other.data.front());
     }
@@ -199,8 +204,8 @@ bigint_base_t BigInt::operator%(bigint_base_t other) const
     for (auto it = data.crbegin(); it != data.crend(); ++it)
     {
         const bigint_base_t digit = *it;
-        const auto shift_val = sizeof(bigint_base_t) * 8 / 2;
-        const auto mask = std::numeric_limits<half_width_t<bigint_base_t>>::max();
+        constexpr auto shift_val = sizeof(bigint_base_t) * 8 / 2;
+        constexpr auto mask = std::numeric_limits<half_width_t<bigint_base_t>>::max();
         ret = ((ret << shift_val) | ((digit >> shift_val) & mask)) % other;
         ret = ((ret << shift_val) | (digit & mask)) % other;
     }
@@ -379,7 +384,7 @@ BigInt &BigInt::inplace_plain_add(const BigInt &other)
     data.resize(max_size + 1);
 
 #ifdef __AVX2__
-    avx_add(data.data(), byte_size(), other.data.data(), other.byte_size(), data.data());
+    avx2_add(data.data(), byte_size(), other.data.data(), other.byte_size(), data.data());
 #else
     add_arrays(data.data(), data.size(), other.data.data(), other.data.size(), data.data());
 #endif
@@ -402,7 +407,7 @@ BigInt &BigInt::inplace_plain_sub(const BigInt &other)
     data.resize(longer->data.size());
 
 #ifdef __AVX2__
-    avx_sub(longer->data.data(), longer->byte_size(), shorter->data.data(), shorter->byte_size(), data.data());
+    avx2_sub(longer->data.data(), longer->byte_size(), shorter->data.data(), shorter->byte_size(), data.data());
 #else
     sub_arrays(longer->data.data(), longer->data.size(), shorter->data.data(), shorter->data.size(), data.data());
 #endif

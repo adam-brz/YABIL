@@ -50,7 +50,7 @@ TEST_F(UtilsRandom_tests, canGenerateRandomNumberFromGivenRange_1)
 
 TEST_F(UtilsRandom_tests, canGenerateLargeRandomPrimeNumber)
 {
-    ASSERT_NO_THROW({ [[maybe_unused]] const BigInt num = random_prime(64); });
+    ASSERT_NO_THROW({ [[maybe_unused]] const BigInt num = random_prime(128); });
 #ifdef NDEBUG
     ASSERT_NO_THROW({ [[maybe_unused]] const BigInt num = random_prime(1024); });
 #endif

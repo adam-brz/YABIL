@@ -9,8 +9,8 @@
 #include <stdexcept>
 
 #include "Arithmetic.h"
-#include "SafeOperators.h"
 #include "StringConversionUtils.h"
+#include "TypeUtils.h"
 
 namespace yabil::bigint
 {
@@ -93,7 +93,7 @@ uint64_t BigInt::to_uint() const
     uint64_t result = 0;
     for (std::size_t i = 0; (i < data.size()) && (i < sizeof(int64_t) / sizeof(bigint_base_t)); ++i)
     {
-        result |= static_cast<int64_t>(data[i]) << (i * sizeof(bigint_base_t) * 8);
+        result |= static_cast<uint64_t>(data[i]) << (i * sizeof(bigint_base_t) * 8);
     }
     return result;
 }
@@ -179,8 +179,9 @@ bool BigInt::abs_lower(const BigInt &other) const
 
 bool BigInt::get_bit(std::size_t n) const
 {
-    const auto item_index = n / (sizeof(bigint_base_t) * 8);
-    const auto bit_index = n % (sizeof(bigint_base_t) * 8);
+    constexpr auto digit_bit_size = sizeof(bigint_base_t) * 8;
+    const auto item_index = n / digit_bit_size;
+    const auto bit_index = n % digit_bit_size;
 
     if (item_index >= data.size())
     {
@@ -191,8 +192,9 @@ bool BigInt::get_bit(std::size_t n) const
 
 void BigInt::set_bit(std::size_t n, bool bit_value)
 {
-    const auto item_index = n / (sizeof(bigint_base_t) * 8);
-    const auto bit_index = n % (sizeof(bigint_base_t) * 8);
+    constexpr auto digit_bit_size = sizeof(bigint_base_t) * 8;
+    const auto item_index = n / digit_bit_size;
+    const auto bit_index = n % digit_bit_size;
 
     if (item_index >= data.size())
     {
@@ -200,7 +202,7 @@ void BigInt::set_bit(std::size_t n, bool bit_value)
     }
 
     data[item_index] =
-        (data[item_index] & ~(bigint_base_t(1) << bit_index)) | (static_cast<uint8_t>(bit_value & 0x01) << bit_index);
+        (data[item_index] & ~(bigint_base_t(1) << bit_index)) | (static_cast<bigint_base_t>(bit_value) << bit_index);
     normalize();
 }
 
