@@ -16,7 +16,6 @@ option(YABIL_ENABLE_OPTIMIZATIONS "Enable aggressive optimizations" OFF)
 
 set(CPACK_GENERATOR "ZIP" CACHE STRING "Generators to support. Semicolon delimited list.")
 
-setup_conan()
 setup_testing()
 
 add_subdirectory(libs)
