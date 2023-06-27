@@ -15,12 +15,6 @@ macro(setup_testing)
     endif()
 endmacro()
 
-macro(setup_conan)
-    if(YABIL_ENABLE_TESTS)
-        include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
-    endif()
-endmacro()
-
 function(set_common_properties TARGET)
     set_target_properties(${TARGET} PROPERTIES
         CXX_STANDARD 20
