@@ -160,6 +160,35 @@
                 "CMAKE_BUILD_TYPE": "Release",
                 "YABIL_ENABLE_OPTIMIZATIONS": true
             }
+        },
+        {
+            "name": "android",
+            "hidden": true,
+            "displayName": "Android [Release]",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "generator": "Unix Makefiles",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/${presetName}/install",
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/build/${presetName}/conan_toolchain.cmake",
+                "YABIL_ENABLE_TESTS": true,
+                "YABIL_ENABLE_TBB": true
+            }
+        },
+        {
+            "name": "android_release",
+            "displayName": "Android [Release]",
+            "inherits": "android",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "android_debug",
+            "displayName": "Android [Debug]",
+            "inherits": "android",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
         }
     ],
     "buildPresets": [

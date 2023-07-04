@@ -37,17 +37,15 @@ std::vector<bigint_base_t> parallel_add_unsigned(std::span<bigint_base_t const> 
                 [&](const tbb::blocked_range<std::size_t>& r)
                 {
                     const auto i = r.begin();
-                    partial_results[i] = plain_add({a.begin() + static_cast<int>(i * chunk_size),
-                                                    a.begin() + static_cast<int>((i + 1) * chunk_size)},
-                                                   {b.begin() + static_cast<int>(i * chunk_size),
-                                                    b.begin() + static_cast<int>((i + 1) * chunk_size)});
+                    partial_results[i] = plain_add(std::span<bigint_base_t const>(&a[i * chunk_size], chunk_size),
+                                                   std::span<bigint_base_t const>(&b[i * chunk_size], chunk_size));
                 },
                 tbb::simple_partitioner());
         },
         [&]()
         {
-            partial_results.back() = plain_add({a.begin() + static_cast<int>(concurrency * chunk_size), a.end()},
-                                               {b.begin() + static_cast<int>(concurrency * chunk_size), b.end()});
+            const int begin = static_cast<int>(concurrency * chunk_size);
+            partial_results.back() = plain_add({&a[begin], a.size() - begin}, {&b[begin], b.size() - begin});
         });
 
     std::vector<bigint_base_t> result(std::max(a.size(), b.size()) + 1);
@@ -89,11 +87,11 @@ std::vector<bigint_base_t> parallel_karatsuba(std::span<bigint_base_t const> a, 
 
     const int m2 = static_cast<int>(std::max(a.size(), b.size()) / 2);
 
-    const std::span<bigint_base_t const> low1{a.begin(), a.begin() + m2};
-    const std::span<bigint_base_t const> high1{a.begin() + m2, a.end()};
+    const std::span<bigint_base_t const> low1(a.data(), m2);
+    const std::span<bigint_base_t const> high1(&a[m2], a.size() - m2);
 
-    const std::span<bigint_base_t const> low2{b.begin(), b.begin() + m2};
-    const std::span<bigint_base_t const> high2{b.begin() + m2, b.end()};
+    const std::span<bigint_base_t const> low2(b.data(), m2);
+    const std::span<bigint_base_t const> high2(&b[m2], b.size() - m2);
 
     std::vector<bigint_base_t> w_z0, w_z1, w_z2;
 

@@ -137,6 +137,11 @@ function(setup_test_target TEST_TARGET)
     endif()
 
     set_common_properties(${TEST_TARGET})
+
+    if(CMAKE_CROSSCOMPILING)
+        return()
+    endif()
+
     if(YABIL_ENABLE_COVERAGE)
         get_target_property(EXE_OUTPUT_DIR ${TEST_TARGET} RUNTIME_OUTPUT_DIRECTORY)
         add_test(

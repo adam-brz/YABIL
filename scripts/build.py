@@ -30,8 +30,15 @@ def conan_install(source_dir, preset_name, build_type, output_dir):
     if not os.path.exists(preset_file):
         preset_file = "default"
 
+    profile_host = ""
+    config = ""
+    if preset_name == "android":
+        profile_host = f"-pr:h={preset_file}"
+        preset_file = "default"
+        config = f"-c tools.android:ndk_path={os.environ['NDK']}"
+
     subprocess.check_call(
-        f"conan install {source_dir}/conan -pr:b={preset_file} "
+        f"conan install {source_dir}/conan -pr:b={preset_file} {profile_host} {config} "
         f"-s build_type={build_type} --build=missing -of=.",
         shell=True,
         cwd=output_dir,
@@ -63,7 +70,7 @@ if __name__ == "__main__":
         "-p",
         "--preset",
         required=True,
-        choices=["vs", "clang", "gcc", "apple_clang"],
+        choices=["vs", "clang", "gcc", "apple_clang", "android"],
         help="CMake preset name to use",
     )
     parser.add_argument(

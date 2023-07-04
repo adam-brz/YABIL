@@ -166,11 +166,11 @@ std::vector<bigint_base_t> karatsuba_mul(std::span<bigint_base_t const> a, std::
 
     const int m2 = static_cast<int>(std::max(a.size(), b.size()) / 2);
 
-    const std::span<bigint_base_t const> low1{a.begin(), a.begin() + m2};
-    const std::span<bigint_base_t const> high1{a.begin() + m2, a.end()};
+    const std::span<bigint_base_t const> low1(a.data(), m2);
+    const std::span<bigint_base_t const> high1(&a[m2], a.size() - m2);
 
-    const std::span<bigint_base_t const> low2{b.begin(), b.begin() + m2};
-    const std::span<bigint_base_t const> high2{b.begin() + m2, b.end()};
+    const std::span<bigint_base_t const> low2(b.data(), m2);
+    const std::span<bigint_base_t const> high2(&b[m2], b.size() - m2);
 
     const auto lh1 = plain_add(low1, high1);
     const auto lh2 = plain_add(low2, high2);
