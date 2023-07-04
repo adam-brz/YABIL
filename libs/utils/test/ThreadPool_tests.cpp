@@ -45,7 +45,7 @@ TEST_F(ThreadPool_tests, smartRunWorks)
     std::atomic<int> a = 0;
     for (int i = 0; i < 100; ++i)
     {
-        results.push_back(pool.submit_run_task([&]() { ++a; }));
+        results.push_back(pool.run_task([&]() { ++a; }));
     }
 
     for (auto &result : results)

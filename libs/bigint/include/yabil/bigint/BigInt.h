@@ -327,11 +327,11 @@ public:
     /// @return Number decreased by 1
     BigInt &operator--();
 
-    /// @brief Post-increment operation. Increase number by 1. Get value befor increment operation.
+    /// @brief Post-increment operation. Increase number by 1. Get value before increment operation.
     /// @return Original value
     BigInt operator++(int);
 
-    /// @brief Post-decrement operation. Decrease number by 1. Get value befor increment operation.
+    /// @brief Post-decrement operation. Decrease number by 1. Get value before increment operation.
     /// @return Original value
     BigInt operator--(int);
 

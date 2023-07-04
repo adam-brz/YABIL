@@ -81,7 +81,7 @@ public:
     /// @param func Function to submit
     /// @return \p std::future for getting function execution results
     template <typename FunctionType>
-    auto submit_run_task(FunctionType func)
+    auto run_task(FunctionType func)
     {
         std::unique_lock guard(task_mutex);
 

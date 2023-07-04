@@ -101,21 +101,21 @@ std::vector<bigint_base_t> parallel_karatsuba(std::span<bigint_base_t const> a, 
 
     auto &thread_pool = utils::ThreadPoolSingleton::instance();
 
-    auto w_z0 = thread_pool.submit_run_task([&]() { return parallel_karatsuba(low1, low2); });
-    auto w_z1 = thread_pool.submit_run_task(
+    auto w_z0 = thread_pool.run_task([&]() { return parallel_karatsuba(low1, low2); });
+    auto w_z1 = thread_pool.run_task(
         [&]()
         {
             const auto lh1 = plain_add(low1, high1);
             const auto lh2 = plain_add(low2, high2);
             return parallel_karatsuba(lh1, lh2);
         });
-    auto w_z2 = thread_pool.submit_run_task([&]() { return parallel_karatsuba(high1, high2); });
+    auto w_z2 = thread_pool.run_task([&]() { return parallel_karatsuba(high1, high2); });
 
     const auto z0 = BigInt(w_z0.get());
     const auto z1 = BigInt(w_z1.get());
     const auto z2 = BigInt(w_z2.get());
 
-    auto result =
+    const auto result =
         (z2 << (m2 * 2UL * sizeof(bigint_base_t) * 8UL)) + ((z1 - z2 - z0) << (m2 * sizeof(bigint_base_t) * 8UL)) + z0;
     return result.raw_data();
 }
