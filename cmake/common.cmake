@@ -4,12 +4,20 @@ include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include(CheckCXXCompilerFlag)
 
+macro(setup_deps)
+    if(YABIL_ENABLE_TESTS)
+        find_package(GTest REQUIRED CONFIG)
+    endif()
+    if(YABIL_ENABLE_TBB)
+        find_package(TBB REQUIRED CONFIG)
+    endif()
+endmacro()
+
 macro(setup_testing)
     if(YABIL_ENABLE_TESTS)
         include(CTest)
         include(GoogleTest)
         enable_testing()
-        find_package(GTest REQUIRED CONFIG)
     elseif(YABIL_ENABLE_COVERAGE)
         message(WARNING "Option YABIL_ENABLE_COVERAGE=TRUE will be ignored since YABIL_ENABLE_TESTS=FALSE.")
     endif()
@@ -19,14 +27,13 @@ function(set_common_properties TARGET)
     set_target_properties(${TARGET} PROPERTIES
         CXX_STANDARD 20
         CXX_STANDARD_REQUIRED TRUE
-        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib$<0:>"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib$<0:>"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin$<0:>"
     )
 
-    find_package(OpenMP)
-    if(OpenMP_CXX_FOUND)
-        target_link_libraries(${TARGET} PRIVATE OpenMP::OpenMP_CXX)
+    if(YABIL_ENABLE_TBB)
+        target_link_libraries(${TARGET} PRIVATE TBB::tbb)
     endif()
 
     add_coverage(${TARGET})

@@ -1,6 +1,11 @@
 [requires]
 gtest/1.13.0
+onetbb/2021.9.0
 
 [generators]
 CMakeDeps
 CMakeToolchain
+
+[imports]
+bin, *.dll -> ./bin
+lib, *.dylib* -> ./bin

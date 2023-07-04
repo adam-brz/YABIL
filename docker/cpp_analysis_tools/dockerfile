@@ -19,14 +19,14 @@ RUN git clone --depth 1 --branch "2.10" https://github.com/danmar/cppcheck.git c
     cd ..; \
     rm -rf cppcheck
 
-RUN curl -o valgrind.tar.bz2 -L https://sourceware.org/pub/valgrind/valgrind-3.20.0.tar.bz2; \
+RUN curl -o valgrind.tar.bz2 -L https://sourceware.org/pub/valgrind/valgrind-3.21.0.tar.bz2; \
     tar -xf valgrind.tar.bz2; \
-    cd valgrind-3.20.0; \
+    cd valgrind-3.21.0; \
     ./configure; \
     make -j $(nproc); \
     make install; \
     cd ..; \
-    rm -rf valgrind-3.20.0
+    rm -rf valgrind-3.21.0
 
 RUN python3 -m pip install conan==2.0.1; \
     conan profile detect
