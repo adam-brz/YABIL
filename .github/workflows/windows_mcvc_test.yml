@@ -43,7 +43,8 @@ jobs:
         run: mkdir build
 
       - name: Install conan dependencies
-        run: conan install ./conan -pr:b=default -s build_type=Debug -of=build --build=missing
+        working-directory: build
+        run: conan install ../conan -pr:b=default -s build_type=Debug --build=missing
 
       - name: Configure
         working-directory: build
