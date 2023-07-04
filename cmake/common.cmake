@@ -138,6 +138,14 @@ function(setup_test_target TEST_TARGET)
 
     set_common_properties(${TEST_TARGET})
 
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+        add_custom_command(
+            TARGET ${TEST_TARGET} POST_BUILD
+            COMMAND ${CMAKE_STRIP}
+            ARGS --strip-all $<TARGET_FILE:${TEST_TARGET}>
+        )
+    endif()
+
     if(CMAKE_CROSSCOMPILING)
         return()
     endif()
@@ -146,7 +154,7 @@ function(setup_test_target TEST_TARGET)
         get_target_property(EXE_OUTPUT_DIR ${TEST_TARGET} RUNTIME_OUTPUT_DIRECTORY)
         add_test(
             NAME ${TEST_TARGET}
-            COMMAND ${CMAKE_COMMAND} -E env LLVM_PROFILE_FILE=${TEST_TARGET}_%m.profraw -- ${EXE_OUTPUT_DIR}/${TEST_TARGET}${CMAKE_EXECUTABLE_SUFFIX}
+            COMMAND ${CMAKE_COMMAND} -E env LLVM_PROFILE_FILE=${TEST_TARGET}_%m.profraw -- $<TARGET_FILE:${TEST_TARGET}>
             WORKING_DIRECTORY ${EXE_OUTPUT_DIR}
         )
     else()
