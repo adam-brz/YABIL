@@ -36,14 +36,14 @@ jobs:
 
       - name: Setup Conan
         run: |
-          python -m pip install conan==2.0.1
-          conan profile detect
+          python -m pip install conan==1.59
 
       - name: Prepare build directory
         run: mkdir build
 
       - name: Install conan dependencies
-        run: conan install ./conan -pr:b=default -s build_type=Debug -of=build --build=missing
+        working-directory: build
+        run: conan install ../conan -pr:b=default -s build_type=Debug -of=. --build=missing
 
       - name: Configure
         working-directory: build
