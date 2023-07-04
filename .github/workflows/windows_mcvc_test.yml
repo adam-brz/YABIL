@@ -44,7 +44,7 @@ jobs:
 
       - name: Install conan dependencies
         working-directory: build
-        run: conan install ../conan -pr:b=default -s build_type=Debug --build=missing
+        run: conan install ../conan -pr:b=default -s build_type=Debug -of=. --build=missing
 
       - name: Configure
         working-directory: build
