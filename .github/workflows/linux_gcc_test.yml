@@ -63,6 +63,11 @@ jobs:
             -DYABIL_ENABLE_TBB=FALSE -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE \
             -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ ..
 
+      - name: Build
+        working-directory: build
+        run: |
+          cmake --build . -j "$(nproc)" --config Debug
+
       - name: Run tests
         working-directory: build
         run: ctest --verbose -j "$(nproc)"
