@@ -9,12 +9,19 @@ set(SOURCES
     src/BigIntArithmeticOperators.cpp
     src/BigIntBinaryOperators.cpp
     src/BigIntReleationOperators.cpp
-    src/Parallel.cpp
     src/StringConversionUtils.cpp
     src/StringConversionUtils.h
     src/Thresholds.h
     src/TypeUtils.h
+    src/parallel/Parallel.cpp
+    src/parallel/ParallelImpl.h
 )
+
+if(YABIL_ENABLE_TBB)
+    list(APPEND SOURCES src/parallel/ParallelTBBImpl.cpp)
+else()
+    list(APPEND SOURCES src/parallel/ParallelStdImpl.cpp)
+endif()
 
 set(HEADERS
     include/yabil/bigint/BigInt.h

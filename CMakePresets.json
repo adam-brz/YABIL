@@ -16,7 +16,8 @@
                 "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/build/${presetName}/conan_toolchain.cmake",
                 "CMAKE_C_COMPILER": "gcc",
                 "CMAKE_CXX_COMPILER": "g++",
-                "YABIL_ENABLE_TESTS": true
+                "YABIL_ENABLE_TESTS": true,
+                "YABIL_ENABLE_TBB": true
             }
         },
         {
@@ -45,7 +46,8 @@
                 "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/build/${presetName}/conan_toolchain.cmake",
                 "CMAKE_C_COMPILER": "clang",
                 "CMAKE_CXX_COMPILER": "clang++",
-                "YABIL_ENABLE_TESTS": true
+                "YABIL_ENABLE_TESTS": true,
+                "YABIL_ENABLE_TBB": true
             }
         },
         {
@@ -107,7 +109,8 @@
                 "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/build/${presetName}/conan_toolchain.cmake",
                 "CMAKE_C_COMPILER": "cl.exe",
                 "CMAKE_CXX_COMPILER": "cl.exe",
-                "YABIL_ENABLE_TESTS": true
+                "YABIL_ENABLE_TESTS": true,
+                "YABIL_ENABLE_TBB": true
             }
         },
         {
@@ -137,7 +140,8 @@
                 "CMAKE_C_COMPILER": "clang",
                 "CMAKE_CXX_COMPILER": "clang++",
                 "YABIL_ENABLE_TESTS": true,
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "YABIL_ENABLE_TBB": true
             }
         },
         {
