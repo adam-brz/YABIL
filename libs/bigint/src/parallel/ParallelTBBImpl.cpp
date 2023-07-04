@@ -1,7 +1,6 @@
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_invoke.h>
 #include <yabil/bigint/BigInt.h>
-#include <yabil/utils/ThreadPoolSingleton.h>
 
 #include <algorithm>
 #include <thread>

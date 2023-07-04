@@ -1,8 +1,8 @@
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/Parallel.h>
-#include <yabil/utils/ThreadPoolSingleton.h>
 
 #include <algorithm>
+#include <bit>
 #include <future>
 #include <vector>
 
