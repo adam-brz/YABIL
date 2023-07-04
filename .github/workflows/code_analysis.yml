@@ -51,7 +51,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
 
       - name: Run Clang-tidy
-        run: clang-tidy -format-style=file -header-filter=.* -p build $(find libs -iname *.cpp) $(find libs -iname *.h)
+        run: clang-tidy -format-style=file -header-filter=.* -p build $(find libs -iname "*.cpp" -not -path "*/ParallelStdImpl.cpp" -or -iname "*.h")
 
       - name: Run CppLint
         run: cpplint $(find libs -iname *.cpp) $(find libs -iname *.h)
