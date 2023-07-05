@@ -8,12 +8,14 @@ set(SOURCES
 
 set(HEADERS
     include/yabil/utils/FunctionWrapper.h
+    include/yabil/utils/MakeSpan.h
     include/yabil/utils/ThreadPool.h
     include/yabil/utils/ThreadPoolSingleton.h
 )
 
 set(TESTS
     test/FunctionWrapper_tests.cpp
+    test/MakeSpan_tests.cpp
     test/ThreadPool_tests.cpp
     test/ThreadPoolSingleton_tests.cpp
 )
