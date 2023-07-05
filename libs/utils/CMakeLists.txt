@@ -15,6 +15,7 @@ set(HEADERS
 
 set(TESTS
     test/FunctionWrapper_tests.cpp
+    test/MakeSpan_tests.cpp
     test/ThreadPool_tests.cpp
     test/ThreadPoolSingleton_tests.cpp
 )
