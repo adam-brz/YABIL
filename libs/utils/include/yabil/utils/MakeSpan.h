@@ -17,8 +17,15 @@ constexpr auto make_span(BeginIter begin, EndIter end)
 {
     using begin_data_t = std::remove_pointer_t<typename BeginIter::pointer>;
     using end_data_t = std::remove_pointer_t<typename EndIter::pointer>;
+
     static_assert(std::is_same_v<begin_data_t, end_data_t>,
                   "Both begin and end operators must point to data of the same type.");
+
+    if (std::distance(begin, end) == 0)
+    {
+        return std::span<begin_data_t>{};
+    }
+
     return std::span<begin_data_t>(&(*begin), std::distance(begin, end));
 }
 
