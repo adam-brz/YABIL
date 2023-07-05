@@ -50,10 +50,7 @@ set(TESTS
 )
 
 add_library(${PROJECT_NAME})
-
-if(NOT YABIL_ENABLE_TBB)
-    target_link_libraries(${PROJECT_NAME} PRIVATE utils)
-endif()
+target_link_libraries(${PROJECT_NAME} PRIVATE utils)
 
 target_sources(${PROJECT_NAME}
     PRIVATE ${SOURCES}

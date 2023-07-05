@@ -8,6 +8,7 @@ set(SOURCES
 
 set(HEADERS
     include/yabil/utils/FunctionWrapper.h
+    include/yabil/utils/MakeSpan.h
     include/yabil/utils/ThreadPool.h
     include/yabil/utils/ThreadPoolSingleton.h
 )
