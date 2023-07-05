@@ -2,7 +2,7 @@ FROM ubuntu:22.04
 
 RUN apt-get update -y
 
-RUN apt-get install -y python3-pip curl
+RUN apt-get install -y python3-pip curl unzip
 
 RUN apt-get install -y git gcc g++ make
 
@@ -13,7 +13,7 @@ RUN curl -o cmake.sh -L "https://github.com/Kitware/CMake/releases/download/v3.2
 RUN python3 -m pip install conan==2.0.7; \
     conan profile detect
 
-RUN curl -o android_ndk.zip -L "wget https://dl.google.com/android/repository/android-ndk-r25c-linux.zip"; \
+RUN curl -o android_ndk.zip -L "https://dl.google.com/android/repository/android-ndk-r25c-linux.zip"; \
     mkdir -p /opt/; \
     unzip android_ndk.zip -d /opt/ > /dev/null; \
     rm -f android_ndk.zip
