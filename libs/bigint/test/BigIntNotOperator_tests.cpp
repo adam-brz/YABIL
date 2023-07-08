@@ -12,26 +12,26 @@ class BigIntNotOperator_tests : public ::testing::Test
 TEST_F(BigIntNotOperator_tests, bitwiseNotForZeroGivesZero)
 {
     const BigInt zero;
-    ASSERT_EQ(0, (~zero).to_int());
+    EXPECT_EQ(0, (~zero).to_int());
 }
 
 TEST_F(BigIntNotOperator_tests, bitwiseNotForAllOnesGivesZero)
 {
     const BigInt all_ones(std::numeric_limits<bigint_base_t>::max());
-    ASSERT_EQ(0, (~all_ones).to_int());
+    EXPECT_EQ(0, (~all_ones).to_int());
 }
 
 TEST_F(BigIntNotOperator_tests, bitwiseNotChangesZerosToOnesAndBackwards)
 {
     const BigInt big_int1(0x0f0f);
-    ASSERT_EQ(0xf0f0, (~big_int1).abs().to_int() & 0xffff);
+    EXPECT_EQ(0xf0f0, (~big_int1).abs().to_int() & 0xffff);
 }
 
 TEST_F(BigIntNotOperator_tests, bitwiseNotChangesSign)
 {
     const BigInt big_int1(-0x0f0f);
     const auto negated = ~big_int1;
-    ASSERT_EQ(0xf0f0, negated.abs().to_int() & 0xffff);
+    EXPECT_EQ(0xf0f0, negated.abs().to_int() & 0xffff);
     ASSERT_FALSE(negated.is_negative());
 }
 

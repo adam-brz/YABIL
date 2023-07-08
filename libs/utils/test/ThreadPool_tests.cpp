@@ -13,7 +13,7 @@ TEST_F(ThreadPool_tests, canRunSingleTask)
 {
     ThreadPool pool;
     auto result = pool.submit([]() { return 2 + 8; });
-    ASSERT_EQ(result.get(), 10);
+    EXPECT_EQ(result.get(), 10);
 }
 
 TEST_F(ThreadPool_tests, canRunMultipleTasksWithSingleCore)
@@ -33,7 +33,7 @@ TEST_F(ThreadPool_tests, canRunMultipleTasksWithSingleCore)
         result.wait();
     }
 
-    ASSERT_EQ(a, 100);
+    EXPECT_EQ(a, 100);
 }
 
 TEST_F(ThreadPool_tests, smartRunWorks)
@@ -53,5 +53,5 @@ TEST_F(ThreadPool_tests, smartRunWorks)
         result.wait();
     }
 
-    ASSERT_EQ(a, 100);
+    EXPECT_EQ(a, 100);
 }

@@ -15,7 +15,7 @@ TEST_F(BigIntDivOperator_tests, fastModuloZeroByAnyShouldGiveZero)
     const BigInt big_int;
     for (unsigned i = 1; i < 10; ++i)
     {
-        ASSERT_EQ(0, big_int % i);
+        EXPECT_EQ(0, big_int % i);
     }
 }
 
@@ -27,14 +27,14 @@ TEST_F(BigIntDivOperator_tests, fastModuloByZeroShouldThrowException)
 TEST_F(BigIntDivOperator_tests, fastModuloDivTwoNonZeroGetRemainder)
 {
     const BigInt big_int1(50);
-    ASSERT_EQ(10, big_int1 % 20);
+    EXPECT_EQ(10, big_int1 % 20);
 }
 
 TEST_F(BigIntDivOperator_tests, fastModuloWithLargeInput)
 {
     const BigInt big_int1(
         "12712642178621745214167236126412748678126782148251752175635217357125381236187236512678312857198272713872183");
-    ASSERT_EQ(5215, big_int1 % 6134);
+    EXPECT_EQ(5215, big_int1 % 6134);
 }
 
 TEST_F(BigIntDivOperator_tests, zeroDivAnyShouldGiveZero)
@@ -42,8 +42,8 @@ TEST_F(BigIntDivOperator_tests, zeroDivAnyShouldGiveZero)
     const BigInt big_int;
     for (int i = 1; i < 10; ++i)
     {
-        ASSERT_EQ(0, (big_int / BigInt(i)).to_int());
-        ASSERT_EQ(0, (big_int / BigInt(-i)).to_int());
+        EXPECT_EQ(0, (big_int / BigInt(i)).to_int());
+        EXPECT_EQ(0, (big_int / BigInt(-i)).to_int());
     }
 }
 
@@ -58,21 +58,21 @@ TEST_F(BigIntDivOperator_tests, divisionByZeroShouldThrowException)
 TEST_F(BigIntDivOperator_tests, divTwoNonZeroGetQuotient)
 {
     const BigInt big_int1(50), big_int2(20);
-    ASSERT_EQ(2, (big_int1 / big_int2).to_int());
+    EXPECT_EQ(2, (big_int1 / big_int2).to_int());
 }
 
 TEST_F(BigIntDivOperator_tests, divTwoNonZeroGetRemainder)
 {
     const BigInt big_int1(50), big_int2(20);
-    ASSERT_EQ(10, (big_int1 % big_int2).to_int());
+    EXPECT_EQ(10, (big_int1 % big_int2).to_int());
 }
 
 TEST_F(BigIntDivOperator_tests, divTwoNonZeroGetQuotientAndRemainder)
 {
     const BigInt big_int1(50), big_int2(20);
     const auto [quotient, remainder] = big_int1.divide(big_int2);
-    ASSERT_EQ(2, quotient.to_int());
-    ASSERT_EQ(10, remainder.to_int());
+    EXPECT_EQ(2, quotient.to_int());
+    EXPECT_EQ(10, remainder.to_int());
 }
 
 TEST_F(BigIntDivOperator_tests, divTwoLongNonZeroWithOverflow)
@@ -85,8 +85,8 @@ TEST_F(BigIntDivOperator_tests, divTwoLongNonZeroWithOverflow)
 
     const auto [quotient, remainder] = big_int1.divide(big_int2);
 
-    ASSERT_EQ(expected_quotioent, quotient);
-    ASSERT_EQ(expected_remainder, remainder);
+    EXPECT_EQ(expected_quotioent, quotient);
+    EXPECT_EQ(expected_remainder, remainder);
 }
 
 TEST_F(BigIntDivOperator_tests, divTwoLongNonZeroWithTheSameSign)
@@ -98,8 +98,8 @@ TEST_F(BigIntDivOperator_tests, divTwoLongNonZeroWithTheSameSign)
     const BigInt expected_remainder("107360920000");
 
     const auto [quotient, remainder] = big_int1.divide(big_int2);
-    ASSERT_EQ(expected_quotioent, quotient);
-    ASSERT_EQ(expected_remainder, remainder);
+    EXPECT_EQ(expected_quotioent, quotient);
+    EXPECT_EQ(expected_remainder, remainder);
 }
 
 TEST_F(BigIntDivOperator_tests, divTwoLongNonZeroMinusPlus)
@@ -111,8 +111,8 @@ TEST_F(BigIntDivOperator_tests, divTwoLongNonZeroMinusPlus)
     const BigInt expected_remainder("-1073609200000000");
 
     const auto [quotient, remainder] = big_int1.divide(big_int2);
-    ASSERT_EQ(expected_quotioent, quotient);
-    ASSERT_EQ(expected_remainder, remainder);
+    EXPECT_EQ(expected_quotioent, quotient);
+    EXPECT_EQ(expected_remainder, remainder);
 }
 
 TEST_F(BigIntDivOperator_tests, divTwoLongNonZeroPlusMinus)
@@ -125,10 +125,10 @@ TEST_F(BigIntDivOperator_tests, divTwoLongNonZeroPlusMinus)
 
     const auto [quotient, remainder] = big_int1.divide(big_int2);
 
-    ASSERT_EQ(expected_quotioent.raw_data(), quotient.raw_data());
-    ASSERT_EQ(expected_remainder.raw_data(), remainder.raw_data());
-    ASSERT_EQ(expected_quotioent.get_sign(), quotient.get_sign());
-    ASSERT_EQ(expected_remainder.get_sign(), remainder.get_sign());
+    EXPECT_EQ(expected_quotioent.raw_data(), quotient.raw_data());
+    EXPECT_EQ(expected_remainder.raw_data(), remainder.raw_data());
+    EXPECT_EQ(expected_quotioent.get_sign(), quotient.get_sign());
+    EXPECT_EQ(expected_remainder.get_sign(), remainder.get_sign());
 }
 
 TEST_F(BigIntDivOperator_tests, divTwoLongNonZeroWithMinusMinus)
@@ -140,8 +140,8 @@ TEST_F(BigIntDivOperator_tests, divTwoLongNonZeroWithMinusMinus)
     const BigInt expected_remainder("-1073609200000000");
 
     const auto [quotient, remainder] = big_int1.divide(big_int2);
-    ASSERT_EQ(expected_quotioent, quotient);
-    ASSERT_EQ(expected_remainder, remainder);
+    EXPECT_EQ(expected_quotioent, quotient);
+    EXPECT_EQ(expected_remainder, remainder);
 }
 
 TEST_F(BigIntDivOperator_tests, denominatorBiggerThanNominator)
@@ -153,10 +153,10 @@ TEST_F(BigIntDivOperator_tests, denominatorBiggerThanNominator)
     const auto [quotient, remainder] = big_int1.divide(big_int2);
 
     ASSERT_TRUE(quotient.is_zero());
-    ASSERT_EQ(expected_remainder, remainder);
+    EXPECT_EQ(expected_remainder, remainder);
 
-    ASSERT_EQ(Sign::Plus, quotient.get_sign());
-    ASSERT_EQ(Sign::Plus, remainder.get_sign());
+    EXPECT_EQ(Sign::Plus, quotient.get_sign());
+    EXPECT_EQ(Sign::Plus, remainder.get_sign());
 }
 
 TEST_F(BigIntDivOperator_tests, noReminderTestPlusPlus)
@@ -168,8 +168,8 @@ TEST_F(BigIntDivOperator_tests, noReminderTestPlusPlus)
     const BigInt expected_remainder(0);
 
     const auto [quotient, remainder] = big_int1.divide(big_int2);
-    ASSERT_EQ(expected_quotioent, quotient);
-    ASSERT_EQ(expected_remainder, remainder);
+    EXPECT_EQ(expected_quotioent, quotient);
+    EXPECT_EQ(expected_remainder, remainder);
 }
 
 TEST_F(BigIntDivOperator_tests, noReminderTestMinusPlus)
@@ -181,8 +181,8 @@ TEST_F(BigIntDivOperator_tests, noReminderTestMinusPlus)
     const BigInt expected_remainder(0);
 
     const auto [quotient, remainder] = big_int1.divide(big_int2);
-    ASSERT_EQ(expected_quotioent, quotient);
-    ASSERT_EQ(expected_remainder, remainder);
+    EXPECT_EQ(expected_quotioent, quotient);
+    EXPECT_EQ(expected_remainder, remainder);
 }
 
 TEST_F(BigIntDivOperator_tests, noReminderTestPlusMinus)
@@ -194,8 +194,8 @@ TEST_F(BigIntDivOperator_tests, noReminderTestPlusMinus)
     const BigInt expected_remainder(0);
 
     const auto [quotient, remainder] = big_int1.divide(big_int2);
-    ASSERT_EQ(expected_quotioent, quotient);
-    ASSERT_EQ(expected_remainder, remainder);
+    EXPECT_EQ(expected_quotioent, quotient);
+    EXPECT_EQ(expected_remainder, remainder);
 }
 
 TEST_F(BigIntDivOperator_tests, noReminderTestMinusMinus)
@@ -207,8 +207,8 @@ TEST_F(BigIntDivOperator_tests, noReminderTestMinusMinus)
     const BigInt expected_remainder(0);
 
     const auto [quotient, remainder] = big_int1.divide(big_int2);
-    ASSERT_EQ(expected_quotioent, quotient);
-    ASSERT_EQ(expected_remainder, remainder);
+    EXPECT_EQ(expected_quotioent, quotient);
+    EXPECT_EQ(expected_remainder, remainder);
 }
 
 TEST_F(BigIntDivOperator_tests, inPlaceDivision)
@@ -218,7 +218,7 @@ TEST_F(BigIntDivOperator_tests, inPlaceDivision)
 
     big_int1 /= big_int2;
 
-    ASSERT_EQ(1024, big_int1.to_int());
+    EXPECT_EQ(1024, big_int1.to_int());
 }
 
 TEST_F(BigIntDivOperator_tests, inPlaceModulo)
@@ -228,7 +228,7 @@ TEST_F(BigIntDivOperator_tests, inPlaceModulo)
 
     big_int1 %= big_int2;
 
-    ASSERT_EQ(1, big_int1.to_int());
+    EXPECT_EQ(1, big_int1.to_int());
 }
 
 TEST_F(BigIntDivOperator_tests, divTwoLongNumbers)
@@ -239,7 +239,7 @@ TEST_F(BigIntDivOperator_tests, divTwoLongNumbers)
     const BigInt expected_quotioent("-1550101");
 
     const auto quotient = big_int1 / big_int2;
-    ASSERT_EQ(expected_quotioent, quotient);
+    EXPECT_EQ(expected_quotioent, quotient);
 }
 
 TEST_F(BigIntDivOperator_tests, divHugeNumbers)
@@ -252,8 +252,8 @@ TEST_F(BigIntDivOperator_tests, divHugeNumbers)
     const BigInt expected_remainder("41901113651699220090698360505119628087373313170391250252247848058");
 
     const auto [quotient, remainder] = big_int1.divide(big_int2);
-    ASSERT_EQ(expected_quotioent, quotient);
-    ASSERT_EQ(expected_remainder, remainder);
+    EXPECT_EQ(expected_quotioent, quotient);
+    EXPECT_EQ(expected_remainder, remainder);
 }
 
 TEST_F(BigIntDivOperator_tests, divHugeUnbalancedNumbers)
@@ -267,8 +267,8 @@ TEST_F(BigIntDivOperator_tests, divHugeUnbalancedNumbers)
     const BigInt expected_remainder("53244412639911237906247612787542013933");
 
     const auto [quotient, remainder] = big_int1.divide(big_int2);
-    ASSERT_EQ(expected_quotioent, quotient);
-    ASSERT_EQ(expected_remainder, remainder);
+    EXPECT_EQ(expected_quotioent, quotient);
+    EXPECT_EQ(expected_remainder, remainder);
 }
 
 TEST_F(BigIntDivOperator_tests, divHugeUnbalancedNumbers_2)
@@ -280,8 +280,8 @@ TEST_F(BigIntDivOperator_tests, divHugeUnbalancedNumbers_2)
     const BigInt expected_remainder("2999999999999900000000000020000000001");
 
     const auto [quotient, remainder] = big_int1.divide(big_int2);
-    ASSERT_EQ(expected_quotioent, quotient);
-    ASSERT_EQ(expected_remainder, remainder);
+    EXPECT_EQ(expected_quotioent, quotient);
+    EXPECT_EQ(expected_remainder, remainder);
 }
 
 TEST_F(BigIntDivOperator_tests, divHugeUnbalancedNumbers_3)
@@ -305,6 +305,6 @@ TEST_F(BigIntDivOperator_tests, divHugeUnbalancedNumbers_3)
         "01");
 
     const auto [quotient, remainder] = big_int1.divide(big_int2);
-    ASSERT_EQ(expected_quotioent, quotient);
-    ASSERT_EQ(expected_remainder, remainder);
+    EXPECT_EQ(expected_quotioent, quotient);
+    EXPECT_EQ(expected_remainder, remainder);
 }

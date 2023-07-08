@@ -12,7 +12,7 @@ TEST_F(FunctionWrapper_tests, canRunRunWrappedFunction)
     int a = 0;
     FunctionWrapper wrapper([&a]() { a = 1; });
     wrapper.call();
-    ASSERT_EQ(a, 1);
+    EXPECT_EQ(a, 1);
 }
 
 TEST_F(FunctionWrapper_tests, canCreateEmptyWrapper)
@@ -30,7 +30,7 @@ TEST_F(FunctionWrapper_tests, canMoveWrapper)
     wrapper.call();
     FunctionWrapper wrapper2{std::move(wrapper)};
     wrapper2.call();
-    ASSERT_EQ(a, 2);
+    EXPECT_EQ(a, 2);
 }
 
 TEST_F(FunctionWrapper_tests, canMoveWrapperOnAssignment)
@@ -42,5 +42,5 @@ TEST_F(FunctionWrapper_tests, canMoveWrapperOnAssignment)
     wrapper2.call();
     wrapper2 = std::move(wrapper);
     wrapper2.call();
-    ASSERT_EQ(a, 2);
+    EXPECT_EQ(a, 2);
 }

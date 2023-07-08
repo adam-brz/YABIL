@@ -12,32 +12,32 @@ class BigIntAddOperator_tests : public ::testing::Test
 TEST_F(BigIntAddOperator_tests, addTwoZeros)
 {
     const BigInt big_int1, big_int2;
-    ASSERT_EQ(0, (big_int1 + big_int2).to_int());
+    EXPECT_EQ(0, (big_int1 + big_int2).to_int());
 }
 
 TEST_F(BigIntAddOperator_tests, addZeroAndNonZero)
 {
     const BigInt big_int1, big_int2(20);
-    ASSERT_EQ(20, (big_int1 + big_int2).to_int());
+    EXPECT_EQ(20, (big_int1 + big_int2).to_int());
 }
 
 TEST_F(BigIntAddOperator_tests, addZeroAndNegative)
 {
     const BigInt big_int1, big_int2(-20);
-    ASSERT_EQ(-20, (big_int1 + big_int2).to_int());
+    EXPECT_EQ(-20, (big_int1 + big_int2).to_int());
 }
 
 TEST_F(BigIntAddOperator_tests, addTwoNonZero)
 {
     const BigInt big_int1(50), big_int2(20);
-    ASSERT_EQ(70, (big_int1 + big_int2).to_int());
+    EXPECT_EQ(70, (big_int1 + big_int2).to_int());
 }
 
 TEST_F(BigIntAddOperator_tests, addTwoNonZeroWithOverflow)
 {
     const BigInt big_int1(std::numeric_limits<bigint_base_t>::max()), big_int2(20);
     const std::vector<bigint_base_t> expected = {19, 1};
-    ASSERT_EQ(expected, (big_int1 + big_int2).raw_data());
+    EXPECT_EQ(expected, (big_int1 + big_int2).raw_data());
 }
 
 TEST_F(BigIntAddOperator_tests, addTwoLongNonZeroWithOverflow)
@@ -46,7 +46,7 @@ TEST_F(BigIntAddOperator_tests, addTwoLongNonZeroWithOverflow)
                                                      std::numeric_limits<bigint_base_t>::max()});
     const BigInt big_int2(10);
     const std::vector<bigint_base_t> expected = {9, 0, 1};
-    ASSERT_EQ(expected, (big_int1 + big_int2).raw_data());
+    EXPECT_EQ(expected, (big_int1 + big_int2).raw_data());
 }
 
 TEST_F(BigIntAddOperator_tests, addTwoNegativeWithOverflow)
@@ -59,8 +59,8 @@ TEST_F(BigIntAddOperator_tests, addTwoNegativeWithOverflow)
     const std::vector<bigint_base_t> expected = {9, 0, 1};
     const auto result = big_int1 + big_int2;
 
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Minus, result.get_sign());
+    EXPECT_EQ(expected, result.raw_data());
+    EXPECT_EQ(Sign::Minus, result.get_sign());
 }
 
 TEST_F(BigIntAddOperator_tests, addTwoWithDifferentSigns)
@@ -70,7 +70,7 @@ TEST_F(BigIntAddOperator_tests, addTwoWithDifferentSigns)
         const BigInt big_int1(i);
         const BigInt big_int2(-i);
         const auto result = big_int1 + big_int2;
-        ASSERT_EQ(0, result.to_int());
+        EXPECT_EQ(0, result.to_int());
     }
 }
 
@@ -82,8 +82,8 @@ TEST_F(BigIntAddOperator_tests, addTwoWithDifferentSignsWithOverflow)
     const std::vector<bigint_base_t> expected = {1, std::numeric_limits<bigint_base_t>::max() - 1};
     const auto result = big_int1 + big_int2;
 
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Minus, result.get_sign());
+    EXPECT_EQ(expected, result.raw_data());
+    EXPECT_EQ(Sign::Minus, result.get_sign());
 }
 
 TEST_F(BigIntAddOperator_tests, addTwoWithDifferentSignsWithOverflow_2)
@@ -94,35 +94,35 @@ TEST_F(BigIntAddOperator_tests, addTwoWithDifferentSignsWithOverflow_2)
     const BigInt expected(std::vector<bigint_base_t>{1, std::numeric_limits<bigint_base_t>::max() - 1});
     const auto result = big_int1 + big_int2;
 
-    ASSERT_EQ(expected, result);
+    EXPECT_EQ(expected, result);
 }
 
 TEST_F(BigIntAddOperator_tests, addInPlaceTwoZeros)
 {
     BigInt a, b;
     a += b;
-    ASSERT_EQ(0, a.to_int());
+    EXPECT_EQ(0, a.to_int());
 }
 
 TEST_F(BigIntAddOperator_tests, addInPlaceZeroAndNonZero)
 {
     BigInt a, b(20);
     a += b;
-    ASSERT_EQ(20, a.to_int());
+    EXPECT_EQ(20, a.to_int());
 }
 
 TEST_F(BigIntAddOperator_tests, addInPlaceZeroAndNegative)
 {
     BigInt a, b(-20);
     a += b;
-    ASSERT_EQ(-20, a.to_int());
+    EXPECT_EQ(-20, a.to_int());
 }
 
 TEST_F(BigIntAddOperator_tests, addInPlaceTwoNonZero)
 {
     BigInt a(50), b(20);
     a += b;
-    ASSERT_EQ(70, a.to_int());
+    EXPECT_EQ(70, a.to_int());
 }
 
 TEST_F(BigIntAddOperator_tests, addInPlaceWithDifferentSigns)
@@ -132,7 +132,7 @@ TEST_F(BigIntAddOperator_tests, addInPlaceWithDifferentSigns)
         BigInt a(i);
         const BigInt b(-i);
         a += b;
-        ASSERT_EQ(0, a.to_int());
+        EXPECT_EQ(0, a.to_int());
     }
 }
 
@@ -144,7 +144,7 @@ TEST_F(BigIntAddOperator_tests, addInPlaceTwoLongNonZeroWithOverflow)
     const std::vector<bigint_base_t> expected = {9, 0, 1};
 
     big_int1 += big_int2;
-    ASSERT_EQ(expected, big_int1.raw_data());
+    EXPECT_EQ(expected, big_int1.raw_data());
 }
 
 TEST_F(BigIntAddOperator_tests, addInPlaceTwoNegativeWithOverflow)
@@ -158,8 +158,8 @@ TEST_F(BigIntAddOperator_tests, addInPlaceTwoNegativeWithOverflow)
 
     big_int1 += big_int2;
 
-    ASSERT_EQ(expected, big_int1.raw_data());
-    ASSERT_EQ(Sign::Minus, big_int1.get_sign());
+    EXPECT_EQ(expected, big_int1.raw_data());
+    EXPECT_EQ(Sign::Minus, big_int1.get_sign());
 }
 
 TEST_F(BigIntAddOperator_tests, canAddNegatedNumber)
@@ -170,14 +170,14 @@ TEST_F(BigIntAddOperator_tests, canAddNegatedNumber)
     const auto result = a + -(b);
 
     ASSERT_TRUE(result.is_int64());
-    ASSERT_EQ(-12031033LL, result.to_int());
+    EXPECT_EQ(-12031033LL, result.to_int());
 }
 
 TEST_F(BigIntAddOperator_tests, addInPlaceSelf)
 {
     BigInt a(std::numeric_limits<uint64_t>::max());
     a += a;
-    ASSERT_EQ(a, BigInt("36893488147419103230"));
+    EXPECT_EQ(a, BigInt("36893488147419103230"));
 }
 
 TEST_F(BigIntAddOperator_tests, addTwoHugeTheSameLength)
@@ -190,7 +190,7 @@ TEST_F(BigIntAddOperator_tests, addTwoHugeTheSameLength)
         "5311385854279744397509782556744379094371243970935784347782558974259675825674");
 
     const auto result = a + a;
-    ASSERT_EQ(result, expected);
+    EXPECT_EQ(result, expected);
 }
 
 TEST_F(BigIntAddOperator_tests, addTwoHugeDifferentLength)
@@ -208,5 +208,30 @@ TEST_F(BigIntAddOperator_tests, addTwoHugeDifferentLength)
         "190130214704794777700858734759772104284964477715674723856417921045097659819");
 
     const auto result = a + b;
-    ASSERT_EQ(result, expected);
+    EXPECT_EQ(result, expected);
+}
+
+TEST_F(BigIntAddOperator_tests, addTwoHugeVaryInSize)
+{
+    const BigInt a(
+        "92189714721838901283901285812749812999999996721864378246128947298372819379127854967124612389812749812999999996"
+        "72186437824612894729127498256921695762987349128127498129999999967218643782461289472981274981299999999672186437"
+        "82461289472981274981299999999672186437824612894729816957629873491281274911274981299999999672186437824612894729"
+        "65569292713987219875489127837218954718522222222222226219854678929999999999812749812999999996721864378246128947"
+        "299999999999173891279487129837912837");
+
+    const BigInt b(
+        "1843794294436778025678025716254996253443728756492257894596745638758255709934249224778254996513843391525974698"
+        "2");
+
+    const BigInt expected(
+        "92189714721838901283901285812749812999999996721864378246128947298372819379127854967124612389812749812999999996"
+        "72186437824612894729127498256921695762987349128127498129999999967218643782461289472981274981299999999672186437"
+        "82461289472981274981299999999672186437824612894729816957629873491281274911274981299999999672186437824612894729"
+        "65569292713987219875489127837218954736960165166590006476634936092549962534250037377922578942689320765828686046"
+        "642492247781723856417921045097659819");
+
+    const auto result = a + b;
+    EXPECT_EQ(result, expected);
+    EXPECT_EQ(result, b + a);
 }

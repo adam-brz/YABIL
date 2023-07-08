@@ -13,32 +13,32 @@ class ParallelOperations_tests : public ::testing::Test
 TEST_F(ParallelOperations_tests, addTwoZeros)
 {
     const BigInt big_int1, big_int2;
-    ASSERT_EQ(0, parallel::add(big_int1, big_int2).to_int());
+    EXPECT_EQ(0, parallel::add(big_int1, big_int2).to_int());
 }
 
 TEST_F(ParallelOperations_tests, addZeroAndNonZero)
 {
     const BigInt big_int1, big_int2(20);
-    ASSERT_EQ(20, parallel::add(big_int1, big_int2).to_int());
+    EXPECT_EQ(20, parallel::add(big_int1, big_int2).to_int());
 }
 
 TEST_F(ParallelOperations_tests, addZeroAndNegative)
 {
     const BigInt big_int1, big_int2(-20);
-    ASSERT_EQ(-20, parallel::add(big_int1, big_int2).to_int());
+    EXPECT_EQ(-20, parallel::add(big_int1, big_int2).to_int());
 }
 
 TEST_F(ParallelOperations_tests, addTwoNonZero)
 {
     const BigInt big_int1(50), big_int2(20);
-    ASSERT_EQ(70, parallel::add(big_int1, big_int2).to_int());
+    EXPECT_EQ(70, parallel::add(big_int1, big_int2).to_int());
 }
 
 TEST_F(ParallelOperations_tests, addTwoNonZeroWithOverflow)
 {
     const BigInt big_int1(std::numeric_limits<bigint_base_t>::max()), big_int2(20);
     const std::vector<bigint_base_t> expected = {19, 1};
-    ASSERT_EQ(expected, parallel::add(big_int1, big_int2).raw_data());
+    EXPECT_EQ(expected, parallel::add(big_int1, big_int2).raw_data());
 }
 
 TEST_F(ParallelOperations_tests, addTwoLongNonZeroWithOverflow)
@@ -47,7 +47,7 @@ TEST_F(ParallelOperations_tests, addTwoLongNonZeroWithOverflow)
                                                      std::numeric_limits<bigint_base_t>::max()});
     const BigInt big_int2(10);
     const std::vector<bigint_base_t> expected = {9, 0, 1};
-    ASSERT_EQ(expected, parallel::add(big_int1, big_int2).raw_data());
+    EXPECT_EQ(expected, parallel::add(big_int1, big_int2).raw_data());
 }
 
 TEST_F(ParallelOperations_tests, addTwoNegativeWithOverflow)
@@ -60,8 +60,8 @@ TEST_F(ParallelOperations_tests, addTwoNegativeWithOverflow)
     const std::vector<bigint_base_t> expected = {9, 0, 1};
     const auto result = parallel::add(big_int1, big_int2);
 
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Minus, result.get_sign());
+    EXPECT_EQ(expected, result.raw_data());
+    EXPECT_EQ(Sign::Minus, result.get_sign());
 }
 
 TEST_F(ParallelOperations_tests, addTwoWithDifferentSigns)
@@ -71,7 +71,7 @@ TEST_F(ParallelOperations_tests, addTwoWithDifferentSigns)
         const BigInt big_int1(i);
         const BigInt big_int2(-i);
         const auto result = parallel::add(big_int1, big_int2);
-        ASSERT_EQ(0, result.to_int());
+        EXPECT_EQ(0, result.to_int());
     }
 }
 
@@ -83,8 +83,8 @@ TEST_F(ParallelOperations_tests, addTwoWithDifferentSignsWithOverflow)
     const std::vector<bigint_base_t> expected = {1, std::numeric_limits<bigint_base_t>::max() - 1};
     const auto result = parallel::add(big_int1, big_int2);
 
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Minus, result.get_sign());
+    EXPECT_EQ(expected, result.raw_data());
+    EXPECT_EQ(Sign::Minus, result.get_sign());
 }
 
 TEST_F(ParallelOperations_tests, addTwoWithDifferentSignsWithOverflow_2)
@@ -95,8 +95,8 @@ TEST_F(ParallelOperations_tests, addTwoWithDifferentSignsWithOverflow_2)
     const std::vector<bigint_base_t> expected = {1, std::numeric_limits<bigint_base_t>::max() - 1};
     const auto result = parallel::add(big_int1, big_int2);
 
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Plus, result.get_sign());
+    EXPECT_EQ(expected, result.raw_data());
+    EXPECT_EQ(Sign::Plus, result.get_sign());
 }
 
 TEST_F(ParallelOperations_tests, canAddNegatedNumber)
@@ -107,13 +107,13 @@ TEST_F(ParallelOperations_tests, canAddNegatedNumber)
     const auto result = parallel::add(a, -b);
 
     ASSERT_TRUE(result.is_int64());
-    ASSERT_EQ(-12031033LL, result.to_int());
+    EXPECT_EQ(-12031033LL, result.to_int());
 }
 
 TEST_F(ParallelOperations_tests, addInPlaceSelf)
 {
     BigInt a(std::numeric_limits<uint64_t>::max());
-    ASSERT_EQ(parallel::add(a, a), BigInt("36893488147419103230"));
+    EXPECT_EQ(parallel::add(a, a), BigInt("36893488147419103230"));
 }
 
 TEST_F(ParallelOperations_tests, addTwoHugeTheSameLength)
@@ -126,7 +126,7 @@ TEST_F(ParallelOperations_tests, addTwoHugeTheSameLength)
         "5311385854279744397509782556744379094371243970935784347782558974259675825674");
 
     const auto result = parallel::add(a, a);
-    ASSERT_EQ(result, expected);
+    EXPECT_EQ(result, expected);
 }
 
 TEST_F(ParallelOperations_tests, addTwoHugeDifferentLength)
@@ -144,13 +144,13 @@ TEST_F(ParallelOperations_tests, addTwoHugeDifferentLength)
         "190130214704794777700858734759772104284964477715674723856417921045097659819");
 
     const auto result = parallel::add(a, b);
-    ASSERT_EQ(result, expected);
+    EXPECT_EQ(result, expected);
 }
 
 TEST_F(ParallelOperations_tests, mulTwoZeros)
 {
     const BigInt big_int1, big_int2;
-    ASSERT_EQ(0, (parallel::multiply(big_int1, big_int2)).to_int());
+    EXPECT_EQ(0, (parallel::multiply(big_int1, big_int2)).to_int());
 }
 
 TEST_F(ParallelOperations_tests, mulZeroAndNonZeroShouldAlwaysGiveZero)
@@ -158,7 +158,7 @@ TEST_F(ParallelOperations_tests, mulZeroAndNonZeroShouldAlwaysGiveZero)
     const BigInt zero;
     for (int i = -10; i < 10; ++i)
     {
-        ASSERT_EQ(0, parallel::multiply(zero, BigInt(i)).to_int());
+        EXPECT_EQ(0, parallel::multiply(zero, BigInt(i)).to_int());
     }
 }
 
@@ -173,8 +173,8 @@ TEST_F(ParallelOperations_tests, mulTwoNegativeWithOverflow)
                                                  std::numeric_limits<bigint_base_t>::max(), 0b1001};
     const auto result = parallel::multiply(big_int1, big_int2);
 
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Plus, result.get_sign());
+    EXPECT_EQ(expected, result.raw_data());
+    EXPECT_EQ(Sign::Plus, result.get_sign());
 }
 
 TEST_F(ParallelOperations_tests, mulTwoWithDifferentSignsWithOverflow)
@@ -185,8 +185,8 @@ TEST_F(ParallelOperations_tests, mulTwoWithDifferentSignsWithOverflow)
     const std::vector<bigint_base_t> expected = {0, 1, std::numeric_limits<bigint_base_t>::max() - 1};
     const auto result = parallel::multiply(big_int1, big_int2);
 
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Minus, result.get_sign());
+    EXPECT_EQ(expected, result.raw_data());
+    EXPECT_EQ(Sign::Minus, result.get_sign());
 }
 
 TEST_F(ParallelOperations_tests, mulTwoTheSameLong)
@@ -197,8 +197,8 @@ TEST_F(ParallelOperations_tests, mulTwoTheSameLong)
     const std::vector<bigint_base_t> expected = {0, 0, 1, std::numeric_limits<bigint_base_t>::max() - 1};
     const auto result = parallel::multiply(big_int1, big_int2);
 
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Plus, result.get_sign());
+    EXPECT_EQ(expected, result.raw_data());
+    EXPECT_EQ(Sign::Plus, result.get_sign());
 }
 
 TEST_F(ParallelOperations_tests, mulVeryLong)
@@ -211,7 +211,7 @@ TEST_F(ParallelOperations_tests, mulVeryLong)
         16);
     const auto result = parallel::multiply(big_int1, big_int2);
 
-    ASSERT_EQ(expected, result);
+    EXPECT_EQ(expected, result);
 }
 
 TEST_F(ParallelOperations_tests, mulHuge)
@@ -237,7 +237,7 @@ TEST_F(ParallelOperations_tests, mulHuge)
         "185943176529708443007373708291711774966199862846607649901");
     const auto result = parallel::multiply(big_int1, big_int2);
 
-    ASSERT_EQ(expected, result);
+    EXPECT_EQ(expected, result);
 }
 
 TEST_F(ParallelOperations_tests, mulHugeNegative)
@@ -263,5 +263,5 @@ TEST_F(ParallelOperations_tests, mulHugeNegative)
         "185943176529708443007373708291711774966199862846607649901");
     const auto result = parallel::multiply(big_int1, big_int2);
 
-    ASSERT_EQ(expected, result);
+    EXPECT_EQ(expected, result);
 }

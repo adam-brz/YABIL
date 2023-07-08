@@ -13,5 +13,5 @@ TEST_F(ThreadPoolSingleton_tests, createsOnlyOneInstance)
 {
     auto &pool1 = ThreadPoolSingleton::instance();
     auto &pool2 = ThreadPoolSingleton::instance();
-    ASSERT_EQ(&pool1, &pool2);
+    EXPECT_EQ(&pool1, &pool2);
 }

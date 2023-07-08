@@ -13,35 +13,35 @@ class MathFactorial_tests : public ::testing::Test
 TEST_F(MathFactorial_tests, factorialOfZeroIsOne)
 {
     const auto result = factorial(0);
-    ASSERT_EQ(1, result.to_int());
+    EXPECT_EQ(1, result.to_int());
 }
 
 TEST_F(MathFactorial_tests, factorialOfOneIsOne)
 {
     const auto result = factorial(1);
-    ASSERT_EQ(1, result.to_int());
+    EXPECT_EQ(1, result.to_int());
 }
 
 TEST_F(MathFactorial_tests, factorialOfTwoIsTwo)
 {
     const auto result = factorial(2);
-    ASSERT_EQ(2, result.to_int());
+    EXPECT_EQ(2, result.to_int());
 }
 
 TEST_F(MathFactorial_tests, factorialOfThreeIsSix)
 {
     const auto result = factorial(3);
-    ASSERT_EQ(6, result.to_int());
+    EXPECT_EQ(6, result.to_int());
 }
 
 TEST_F(MathFactorial_tests, factorialOf12)
 {
-    ASSERT_EQ(factorial(12), yabil::bigint::BigInt("479001600"));
+    EXPECT_EQ(factorial(12), yabil::bigint::BigInt("479001600"));
 }
 
 TEST_F(MathFactorial_tests, factorialOf385)
 {
-    ASSERT_EQ(
+    EXPECT_EQ(
         factorial(385),
         yabil::bigint::BigInt(
             "7778925820002268285726252461141530914984705583003303410988268965025219496967908509462500416061477714284003"
@@ -56,7 +56,7 @@ TEST_F(MathFactorial_tests, factorialOf385)
 
 TEST_F(MathFactorial_tests, factorialOf985)
 {
-    ASSERT_EQ(
+    EXPECT_EQ(
         factorial(985),
         yabil::bigint::BigInt(
             "4471643344622686529752554512369084031306251694218472073479302071798821379253565968306613351265829848113613"

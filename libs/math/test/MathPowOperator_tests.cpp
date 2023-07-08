@@ -17,12 +17,12 @@ TEST_F(BigIntPowOperator_tests, anyNumberPowerZeroGivesOneExceptZero)
     for (int i = -10; i < 0; ++i)
     {
         const BigInt num(i);
-        ASSERT_EQ(1, pow(num, BigInt(0)).to_int());
+        EXPECT_EQ(1, pow(num, BigInt(0)).to_int());
     }
     for (int i = 1; i < 10; ++i)
     {
         const BigInt num(i);
-        ASSERT_EQ(1, pow(num, BigInt(0)).to_int());
+        EXPECT_EQ(1, pow(num, BigInt(0)).to_int());
     }
 }
 
@@ -30,7 +30,7 @@ TEST_F(BigIntPowOperator_tests, powTwoNonZero)
 {
     const BigInt big_int1(50), big_int2(7);
     const BigInt expected("781250000000");
-    ASSERT_EQ(expected, pow(big_int1, big_int2));
+    EXPECT_EQ(expected, pow(big_int1, big_int2));
 }
 
 TEST_F(BigIntPowOperator_tests, negativeToOddPositivePower)
@@ -42,7 +42,7 @@ TEST_F(BigIntPowOperator_tests, negativeToOddPositivePower)
         "0670069164419844798156739022909190352696715881720832");
 
     const auto result = pow(big_int1, big_int2);
-    ASSERT_EQ(expected, result);
+    EXPECT_EQ(expected, result);
 }
 
 TEST_F(BigIntPowOperator_tests, negativeToEvenPositivePower)
@@ -53,7 +53,7 @@ TEST_F(BigIntPowOperator_tests, negativeToEvenPositivePower)
         "4567790983503473628822144089267398479608916390481093247641625221676310287022555776664881033625856");
 
     const auto result = pow(big_int1, big_int2);
-    ASSERT_EQ(expected, result);
+    EXPECT_EQ(expected, result);
 }
 
 TEST_F(BigIntPowOperator_tests, powLong)
@@ -66,7 +66,7 @@ TEST_F(BigIntPowOperator_tests, powLong)
         "6722836758422093824");
     const auto result = pow(big_int1, big_int2);
 
-    ASSERT_EQ(expected, result);
+    EXPECT_EQ(expected, result);
 }
 
 TEST_F(BigIntPowOperator_tests, powModularArithmeticWithZeroExponent)
@@ -75,7 +75,7 @@ TEST_F(BigIntPowOperator_tests, powModularArithmeticWithZeroExponent)
     const BigInt exponent("0");
     const BigInt mod("1211111111");
 
-    ASSERT_EQ(BigInt(1), pow(base, exponent, mod));
+    EXPECT_EQ(BigInt(1), pow(base, exponent, mod));
 }
 
 TEST_F(BigIntPowOperator_tests, powModularArithmeticWithOneAsExponent)
@@ -84,7 +84,7 @@ TEST_F(BigIntPowOperator_tests, powModularArithmeticWithOneAsExponent)
     const BigInt exponent("1");
     const BigInt mod("1211111112");
 
-    ASSERT_EQ(BigInt(1211111111), pow(base, exponent, mod));
+    EXPECT_EQ(BigInt(1211111111), pow(base, exponent, mod));
 }
 
 TEST_F(BigIntPowOperator_tests, powModularArithmetic)
@@ -93,7 +93,7 @@ TEST_F(BigIntPowOperator_tests, powModularArithmetic)
     const BigInt exponent("12");
     const BigInt mod("12");
 
-    ASSERT_EQ(BigInt(9), pow(base, exponent, mod));
+    EXPECT_EQ(BigInt(9), pow(base, exponent, mod));
 }
 
 TEST_F(BigIntPowOperator_tests, powModularArithmeticThrowsOnNegativeInput)
