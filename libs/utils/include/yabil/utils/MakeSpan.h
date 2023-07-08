@@ -21,12 +21,13 @@ constexpr auto make_span(BeginIter begin, EndIter end)
     static_assert(std::is_same_v<begin_data_t, end_data_t>,
                   "Both begin and end operators must point to data of the same type.");
 
-    if (std::distance(begin, end) == 0)
+    const auto distance = std::distance(begin, end);
+    if (distance == 0)
     {
         return std::span<begin_data_t>{};
     }
 
-    return std::span<begin_data_t>(&(*begin), std::distance(begin, end));
+    return std::span<begin_data_t>(&(*begin), distance);
 }
 
 }  // namespace yabil::utils

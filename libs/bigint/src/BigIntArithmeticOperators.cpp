@@ -1,4 +1,6 @@
 #include <yabil/bigint/BigInt.h>
+#include <yabil/bigint/BigIntGlobalConfig.h>
+#include <yabil/bigint/Parallel.h>
 
 #include <algorithm>
 #include <bit>
@@ -156,6 +158,10 @@ BigInt BigInt::operator-(const BigInt &other) const
 
 BigInt BigInt::operator*(const BigInt &other) const
 {
+    if (BigIntGlobalConfig::instance().use_parallel_algorithms())
+    {
+        return parallel::multiply(*this, other);
+    }
     return BigInt(karatsuba_mul(data, other.data), (sign == other.sign) ? Sign::Plus : Sign::Minus);
 }
 

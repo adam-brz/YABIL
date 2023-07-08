@@ -1,3 +1,4 @@
+#include <oneapi/tbb/global_control.h>
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_invoke.h>
 #include <yabil/bigint/BigInt.h>
@@ -15,6 +16,16 @@ using namespace oneapi;
 
 namespace yabil::bigint::parallel
 {
+
+std::size_t get_thread_count()
+{
+    return tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism);
+}
+
+void set_thread_count(std::size_t thread_count)
+{
+    [[maybe_unused]] tbb::global_control global_limit(tbb::global_control::max_allowed_parallelism, thread_count);
+}
 
 std::vector<bigint_base_t> parallel_add_unsigned(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
 {

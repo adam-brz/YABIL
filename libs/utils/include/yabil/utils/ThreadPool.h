@@ -55,6 +55,11 @@ public:
     /// @brief Stops all threads from the pool.
     void stop();
 
+    /// @brief Resize thread pool to given number of threads.
+    /// @details Costly operation, use only when really needed.
+    /// @param new_size New number of threads
+    void resize(std::size_t new_size);
+
     /// @brief Submit task for execution. Task will be executed as soon as free thread is available
     /// @tparam FunctionType Type of function to submit
     /// @param func Function to submit

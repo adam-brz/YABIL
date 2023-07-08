@@ -26,6 +26,20 @@ ThreadPool::~ThreadPool()
     }
 }
 
+void ThreadPool::resize(std::size_t new_size)
+{
+    stop();
+    for (auto &thread : threads)
+    {
+        thread.join();
+    }
+    threads.clear();
+    for (std::size_t i = 0; i < new_size; ++i)
+    {
+        threads.emplace_back(&ThreadPool::worker, this);
+    }
+}
+
 void ThreadPool::stop()
 {
     should_stop = true;

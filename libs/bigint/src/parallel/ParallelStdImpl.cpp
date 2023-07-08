@@ -12,6 +12,16 @@
 namespace yabil::bigint::parallel
 {
 
+std::size_t get_thread_count()
+{
+    return utils::ThreadPoolSingleton::instance().thread_count();
+}
+
+void set_thread_count(std::size_t thread_count)
+{
+    utils::ThreadPoolSingleton::instance().resize(thread_count);
+}
+
 std::vector<bigint_base_t> parallel_add_unsigned(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
 {
     const auto min_s = std::min(a.size(), b.size());
