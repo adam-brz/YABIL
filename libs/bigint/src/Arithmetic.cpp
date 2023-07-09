@@ -57,23 +57,22 @@ void add_arrays(const bigint_base_t *a, std::size_t a_size, const bigint_base_t 
                 bigint_base_t *r, bigint_base_t carry)
 {
     assert(a_size >= b_size);
-    bigint_base_t tmp1, tmp2;
 
     std::size_t i;
     for (i = 0; i < b_size; ++i)
     {
-        tmp1 = a[i] + carry;
+        const bigint_base_t tmp1 = a[i] + carry;
         carry = static_cast<bigint_base_t>(tmp1 < carry);
-        tmp2 = (tmp1 + b[i]);
+        const bigint_base_t tmp2 = (tmp1 + b[i]);
         carry += static_cast<bigint_base_t>(tmp2 < tmp1);
         r[i] = tmp2;
     }
 
     for (; i < a_size; ++i)
     {
-        tmp1 = a[i] + carry;
-        carry = static_cast<bigint_base_t>(tmp1 < carry);
-        r[i] = tmp1;
+        const bigint_base_t tmp = a[i] + carry;
+        carry = static_cast<bigint_base_t>(tmp < carry);
+        r[i] = tmp;
     }
 
     if (carry)
@@ -86,13 +85,12 @@ void sub_arrays(const bigint_base_t *a, std::size_t a_size, const bigint_base_t 
                 bigint_base_t *r, bigint_base_t borrow)
 {
     assert(a_size >= b_size);
-    bigint_base_t tmp1, tmp2;
     std::size_t i;
 
     for (i = 0; i < b_size; ++i)
     {
-        tmp1 = a[i];
-        tmp2 = b[i];
+        const bigint_base_t tmp1 = a[i];
+        const bigint_base_t tmp2 = b[i];
         r[i] = (tmp1 - tmp2 - borrow);
         if (tmp1 != tmp2)
         {
@@ -102,9 +100,9 @@ void sub_arrays(const bigint_base_t *a, std::size_t a_size, const bigint_base_t 
 
     for (; i < a_size; ++i)
     {
-        tmp1 = a[i];
-        r[i] = (tmp1 - borrow);
-        borrow &= static_cast<bigint_base_t>(tmp1 == 0);
+        const bigint_base_t tmp = a[i];
+        r[i] = (tmp - borrow);
+        borrow &= static_cast<bigint_base_t>(tmp == 0);
     }
 }
 

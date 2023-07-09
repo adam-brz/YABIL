@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <limits>
+#include <stdexcept>
 
 using namespace yabil::math;
 using namespace yabil::bigint;
@@ -16,6 +17,11 @@ TEST_F(MathLog_tests, int_log2OfOneIsZero)
 {
     const auto result = log2_int(BigInt(1));
     EXPECT_EQ(0, result);
+}
+
+TEST_F(MathLog_tests, int_log2OfNegativeShouldThrowException)
+{
+    ASSERT_THROW({ log2_int(BigInt(-1)); }, std::invalid_argument);
 }
 
 TEST_F(MathLog_tests, int_log2OfTwoIsOne)

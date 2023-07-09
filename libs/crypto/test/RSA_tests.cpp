@@ -82,6 +82,25 @@ TEST_F(RSA_tests, canDecryptEncryptedMessage)
     EXPECT_EQ(result, msg);
 }
 
+TEST_F(RSA_tests, canDecryptEncryptedMessage2)
+{
+    const BigInt n{119}, e{5}, d{77};
+    rsa::PublicKey pub_key{e, n};
+    rsa::PrivateKey private_key{d, n};
+
+    std::ostringstream os;
+    rsa::EncryptionStreamWrapper encryption_stream(os, std::move(pub_key));
+
+    const std::string msg = "This is message to encode:";
+    encryption_stream << msg;
+
+    std::istringstream in(os.str());
+    rsa::DecryptionStreamWrapper decryption_stream(in, std::move(private_key));
+
+    const std::string result = decryption_stream.read_all();
+    EXPECT_EQ(result, msg);
+}
+
 TEST_F(RSA_tests, canEncryptAndDecryptFromDifferentSources)
 {
     const BigInt n{119}, e{5}, d{77};

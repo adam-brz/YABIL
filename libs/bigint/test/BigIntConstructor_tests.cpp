@@ -13,6 +13,13 @@ TEST_F(BigIntConstructorTest, canConstructBigIntFromRawData)
     [[maybe_unused]] const BigInt big_int2(std::vector<bigint_base_t>({0x02, 0x01}), Sign::Minus);
 }
 
+TEST_F(BigIntConstructorTest, canConstructBigIntFromSpan)
+{
+    const std::vector<bigint_base_t> data({0xff, 0xff});
+    std::span<bigint_base_t const> data_view(data);
+    [[maybe_unused]] const BigInt big_int1(data_view);
+}
+
 TEST_F(BigIntConstructorTest, canConstructBigIntFromUnsignedNumber)
 {
     [[maybe_unused]] const BigInt big_int1(0xffff0abcULL);

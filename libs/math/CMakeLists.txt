@@ -11,6 +11,7 @@ set(HEADERS
 set(TESTS
     test/MathFactorial_tests.cpp
     test/MathLog_tests.cpp
+    test/MathModInverse_tests.cpp
     test/MathPowOperator_tests.cpp
     test/MathGCD_tests.cpp
     test/MathSqrt_tests.cpp

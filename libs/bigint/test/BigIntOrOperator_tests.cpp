@@ -75,6 +75,16 @@ TEST_F(BigIntOrOperator_tests, orShouldLeaveCommonOnesForLongNumbers_2)
     EXPECT_EQ(expected, big_int1.raw_data());
 }
 
+TEST_F(BigIntOrOperator_tests, orForDifferentLengthNumbers)
+{
+    const BigInt big_int1(std::vector<bigint_base_t>{0xf0f0, 0xf0f0, 0xf0f0, 0xf0f0, 0xf0f0, 0xf0f0});
+    const BigInt big_int2(std::vector<bigint_base_t>{0xff00, 0xf000});
+    const std::vector<bigint_base_t> expected = {0xfff0, 0xf0f0, 0xf0f0, 0xf0f0, 0xf0f0, 0xf0f0};
+
+    EXPECT_EQ(expected, (big_int1 | big_int2).raw_data());
+    EXPECT_EQ(expected, (big_int2 | big_int1).raw_data());
+}
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wself-assign-overloaded"
 
