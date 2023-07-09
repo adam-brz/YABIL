@@ -22,9 +22,9 @@ void BigIntGlobalConfig::set_thread_count(int thread_count)
     parallel::set_thread_count(static_cast<std::size_t>(thread_count));
 }
 
-void BigIntGlobalConfig::set_parallel_algorithms_enabled(bool parallel_algorithms_enabled)
+void BigIntGlobalConfig::set_parallel_algorithms_enabled(bool enabled)
 {
-    this->parallel_algorithms_enabled = parallel_algorithms_enabled;
+    parallel_algorithms_enabled = enabled;
 }
 
 bool BigIntGlobalConfig::use_parallel_algorithms() const

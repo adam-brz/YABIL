@@ -20,7 +20,7 @@ public:
     static BigIntGlobalConfig &instance();
 
     void set_thread_count(int thread_count);
-    void set_parallel_algorithms_enabled(bool parallel_algorithms_enabled);
+    void set_parallel_algorithms_enabled(bool enabled);
 
     bool use_parallel_algorithms() const;
     int get_number_of_threads() const;
