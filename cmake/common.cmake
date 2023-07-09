@@ -57,8 +57,9 @@ function(set_common_target_options TARGET)
     set(OTHER_DEBUG_LINK_FLAGS "")
 
     if(YABIL_ENABLE_SANITIZER)
-        set(OTHER_DEBUG_FLAGS ${OTHER_DEBUG_FLAGS} -fsanitize=address -fno-omit-frame-pointer)
-        set(OTHER_DEBUG_LINK_FLAGS ${OTHER_DEBUG_LINK_FLAGS} -fsanitize=address)
+        set(YABIL_SANITIZER_TO_USE "address" CACHE STRING "Sanitizer to use (eg. address, thread, memory)")
+        set(OTHER_DEBUG_FLAGS ${OTHER_DEBUG_FLAGS} -fsanitize=${YABIL_SANITIZER_TO_USE} -fno-omit-frame-pointer)
+        set(OTHER_DEBUG_LINK_FLAGS ${OTHER_DEBUG_LINK_FLAGS} -fsanitize=${YABIL_SANITIZER_TO_USE})
     endif()
 
     if(YABIL_ENABLE_GPERFTOOLS)
