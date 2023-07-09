@@ -30,4 +30,24 @@ constexpr auto make_span(BeginIter begin, EndIter end)
     return std::span<begin_data_t>(&(*begin), distance);
 }
 
+/// @brief Advance iterator and clamp advance amount if operation would result in out of bounds iterator.
+/// @tparam Iterator Iterator type
+/// @tparam Container Container of iterator type
+/// @param iter Iterator
+/// @param amount Advance value
+/// @param container Container to which iterator belongs to
+template <typename Iterator, typename Container>
+constexpr auto safe_advance(Iterator iter, int amount, Container &container)
+{
+    if(amount < 0)
+    {
+        amount = std::max(-static_cast<int>(std::distance(container.begin(), iter)), amount);
+    }
+    else
+    {
+        amount = std::min(static_cast<int>(std::distance(iter, container.end())), amount);
+    }
+    return iter + amount;
+}
+
 }  // namespace yabil::utils

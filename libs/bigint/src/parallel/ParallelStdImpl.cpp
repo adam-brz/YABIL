@@ -94,11 +94,11 @@ std::vector<bigint_base_t> parallel_karatsuba(std::span<bigint_base_t const> a, 
 
     const int m2 = static_cast<int>(std::max(a.size(), b.size()) / 2);
 
-    const std::span<bigint_base_t const> low1{a.begin(), a.begin() + m2};
-    const std::span<bigint_base_t const> high1{a.begin() + m2, a.end()};
+    const std::span<bigint_base_t const> low1 = utils::make_span(a.begin(), utils::safe_advance(a.begin(), m2, a));
+    const std::span<bigint_base_t const> high1 = utils::make_span(utils::safe_advance(a.begin(), m2, a), a.end());
 
-    const std::span<bigint_base_t const> low2{b.begin(), b.begin() + m2};
-    const std::span<bigint_base_t const> high2{b.begin() + m2, b.end()};
+    const std::span<bigint_base_t const> low2 = utils::make_span(b.begin(), utils::safe_advance(b.begin(), m2, b));
+    const std::span<bigint_base_t const> high2 = utils::make_span(utils::safe_advance(b.begin(), m2, b), b.end());
 
     auto &thread_pool = utils::ThreadPoolSingleton::instance();
 
