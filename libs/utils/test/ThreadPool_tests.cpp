@@ -120,10 +120,8 @@ TEST_F(ThreadPool_tests, canUseManyThreadPools)
 
     for (int i = 0; i < 100; ++i)
     {
-        for (auto &pool : pools)
-        {
-            results.push_back(pool.submit([&]() { ++a; }));
-        }
+        std::transform(pools.begin(), pools.end(), std::back_inserter(results),
+                       [&](auto &pool) { return pool.submit([&]() { ++a; }); });
     }
 
     for (auto &result : results)
