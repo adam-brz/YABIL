@@ -5,10 +5,7 @@
 namespace yabil::bigint
 {
 
-BigIntGlobalConfig::BigIntGlobalConfig()
-{
-    number_of_threads = static_cast<int>(parallel::get_thread_count());
-}
+BigIntGlobalConfig::BigIntGlobalConfig() : number_of_threads(static_cast<int>(parallel::get_thread_count())) {}
 
 BigIntGlobalConfig &BigIntGlobalConfig::instance()
 {

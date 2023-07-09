@@ -37,6 +37,7 @@ set(TESTS
     test/BigIntConstructor_tests.cpp
     test/BigIntConversion_tests.cpp
     test/BigIntDivOperator_tests.cpp
+    test/BigIntGlobalConfig_tests.cpp
     test/BigIntBitOperations_tests.cpp
     test/BigIntGreaterComparaison_tests.cpp
     test/BigIntIncrementDecrementOperator_tests.cpp
