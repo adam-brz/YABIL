@@ -39,7 +39,7 @@ constexpr auto make_span(BeginIter begin, EndIter end)
 template <typename Iterator, typename Container>
 constexpr auto safe_advance(Iterator iter, int amount, Container &container)
 {
-    if(amount < 0)
+    if (amount < 0)
     {
         amount = std::max(-static_cast<int>(std::distance(container.begin(), iter)), amount);
     }

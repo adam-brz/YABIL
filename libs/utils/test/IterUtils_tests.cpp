@@ -37,7 +37,7 @@ TEST_F(IterUtils_tests, canClampIteratorToEnd)
         EXPECT_EQ(advanced, test_vector.begin());
     }
     {
-        const auto advanced = safe_advance(test_vector.end(), -20, test_vector);;
+        const auto advanced = safe_advance(test_vector.end(), -20, test_vector);
         EXPECT_EQ(advanced, test_vector.begin());
     }
 }
