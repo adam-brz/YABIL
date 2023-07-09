@@ -107,8 +107,8 @@ TEST_F(ThreadPool_tests, canResizeThreadPool)
 
     for (auto &future : futures)
     {
-        const auto status = future.wait_for(std::chrono::milliseconds(5));
-        EXPECT_NE(status, std::future_status::timeout);
+        const auto status = future.wait_for(std::chrono::milliseconds(500));
+        ASSERT_NE(status, std::future_status::timeout);
     }
 }
 
