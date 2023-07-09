@@ -122,12 +122,7 @@ TEST_F(ThreadPool_tests, canUseManyThreadPools)
     {
         for (auto &pool : pools)
         {
-            results.push_back(pool.submit(
-                [&]()
-                {
-                    ++a;
-                    std::this_thread::sleep_for(std::chrono::microseconds(100));
-                }));
+            results.push_back(pool.submit([&]() { ++a; }));
         }
     }
 
