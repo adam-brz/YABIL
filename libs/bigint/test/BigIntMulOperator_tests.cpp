@@ -24,12 +24,12 @@ struct DisabledParallelism
 template <typename ParallelSettings>
 class BigIntMulOperator_tests : public ::testing::Test
 {
-    [[maybe_unused]] void SetUp() override
+    [[maybe_unused]] virtual void SetUp() override
     {
         BigIntGlobalConfig::instance().set_parallel_algorithms_enabled(ParallelSettings{}.parallelism_enabled);
     }
 
-    [[maybe_unused]] void TearDown() override
+    [[maybe_unused]] virtual void TearDown() override
     {
         BigIntGlobalConfig::instance().set_parallel_algorithms_enabled(true);
     }
