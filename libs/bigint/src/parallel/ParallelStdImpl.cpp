@@ -41,19 +41,16 @@ std::vector<bigint_base_t> parallel_add_unsigned(std::span<bigint_base_t const> 
     for (int i = 0; i < static_cast<int>(concurrency); ++i)
     {
         partial_results.push_back(thread_pool.submit(
-            [&, i]()
-            {
-                return plain_add(
-                    {a.begin() + static_cast<int>(i * chunk_size), a.begin() + static_cast<int>((i + 1) * chunk_size)},
-                    {b.begin() + static_cast<int>(i * chunk_size), b.begin() + static_cast<int>((i + 1) * chunk_size)});
+            [&, i]() {
+                return plain_add({&a[i * chunk_size], chunk_size}, {&b[i * chunk_size], chunk_size});
             }));
     }
 
     auto last_part = thread_pool.submit(
         [&]()
         {
-            return plain_add({a.begin() + static_cast<int>(concurrency * chunk_size), a.end()},
-                             {b.begin() + static_cast<int>(concurrency * chunk_size), b.end()});
+            return plain_add(utils::make_span(a.begin() + static_cast<int>(concurrency * chunk_size), a.end()),
+                             utils::make_span(b.begin() + static_cast<int>(concurrency * chunk_size), b.end()));
         });
 
     std::vector<bigint_base_t> result(std::max(a.size(), b.size()) + 1);
