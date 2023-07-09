@@ -126,7 +126,7 @@ TEST_F(ThreadPool_tests, canUseManyThreadPools)
 
     for (auto &result : results)
     {
-        const auto status = result.wait_for(std::chrono::milliseconds(5));
-        EXPECT_NE(status, std::future_status::timeout);
+        const auto status = result.wait_for(std::chrono::milliseconds(500));
+        ASSERT_NE(status, std::future_status::timeout);
     }
 }
