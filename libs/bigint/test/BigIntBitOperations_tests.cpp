@@ -14,39 +14,39 @@ TEST_F(BigIntBitOperations_tests, getBitFromZeroShouldGiveZero)
     const BigInt big_int;
     for (std::size_t n = 0; n < 20; ++n)
     {
-        ASSERT_EQ(0, big_int.get_bit(n));
+        EXPECT_EQ(0, big_int.get_bit(n));
     }
 }
 
 TEST_F(BigIntBitOperations_tests, getBitFromSingleItem)
 {
     const BigInt big_int(1);
-    ASSERT_EQ(1, big_int.get_bit(0));
+    EXPECT_EQ(1, big_int.get_bit(0));
     for (std::size_t n = 1; n < 100; ++n)
     {
-        ASSERT_EQ(0, big_int.get_bit(n));
+        EXPECT_EQ(0, big_int.get_bit(n));
     }
 }
 
 TEST_F(BigIntBitOperations_tests, getBitFromLongNumber)
 {
     const BigInt big_int(std::vector<bigint_base_t>{0b0101010101010101, 0b0101010101010101});
-    ASSERT_EQ(1, big_int.get_bit(14));
-    ASSERT_EQ(0, big_int.get_bit(60));
+    EXPECT_EQ(1, big_int.get_bit(14));
+    EXPECT_EQ(0, big_int.get_bit(60));
 }
 
 TEST_F(BigIntBitOperations_tests, getBitFromMiddleOfLongNumber)
 {
     const BigInt big_int("010101010101010101010101010101010101010101010101", 2);
-    ASSERT_EQ(1, big_int.get_bit(38));
-    ASSERT_EQ(0, big_int.get_bit(69));
+    EXPECT_EQ(1, big_int.get_bit(38));
+    EXPECT_EQ(0, big_int.get_bit(69));
 }
 
 TEST_F(BigIntBitOperations_tests, setBitForZero)
 {
     BigInt big_int;
     big_int.set_bit(0, true);
-    ASSERT_EQ(1, big_int.to_int());
+    EXPECT_EQ(1, big_int.to_int());
 }
 
 TEST_F(BigIntBitOperations_tests, setBitForZeroLongNumber)
@@ -55,7 +55,7 @@ TEST_F(BigIntBitOperations_tests, setBitForZeroLongNumber)
     big_int.set_bit(97, true);
 
     const BigInt expected = (BigInt(1) << 97) | BigInt(2);
-    ASSERT_EQ(expected, big_int);
+    EXPECT_EQ(expected, big_int);
 }
 
 TEST_F(BigIntBitOperations_tests, setZeroForLongNumber)
@@ -69,7 +69,7 @@ TEST_F(BigIntBitOperations_tests, clearingZeroShouldNotAffectNumber)
 {
     BigInt big_int;
     big_int.set_bit(12, false);
-    ASSERT_EQ(0, big_int.to_int());
+    EXPECT_EQ(0, big_int.to_int());
 }
 
 TEST_F(BigIntBitOperations_tests, clearingZeroInLongNumber)
@@ -78,5 +78,5 @@ TEST_F(BigIntBitOperations_tests, clearingZeroInLongNumber)
     const BigInt expected(179251882);
 
     big_int.set_bit(15, false);
-    ASSERT_EQ(expected, big_int);
+    EXPECT_EQ(expected, big_int);
 }

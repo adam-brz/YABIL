@@ -127,7 +127,7 @@ bool BigInt::is_negative() const
 
 bool BigInt::is_even() const
 {
-    return (is_zero()) || ((data.front() & 0x01) == 0);
+    return is_zero() || ((data.front() & 0x01) == 0);
 }
 
 BigInt BigInt::abs() const

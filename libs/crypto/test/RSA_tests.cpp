@@ -30,7 +30,7 @@ TEST_F(RSA_tests, canEncryptSingleCharacter)
 
     ASSERT_LT(encrypted, n);
     ASSERT_TRUE(encrypted.is_int64());
-    ASSERT_EQ(encrypted.to_int(), 4);
+    EXPECT_EQ(encrypted.to_int(), 4);
 }
 
 TEST_F(RSA_tests, canEncryptMessage)
@@ -59,7 +59,7 @@ TEST_F(RSA_tests, canDecryptEncryptedCharacter)
         const auto decrypted = rsa::decrypt(encrypted, private_key);
 
         ASSERT_TRUE(decrypted.is_int64());
-        ASSERT_EQ(c, decrypted.to_int());
+        EXPECT_EQ(c, decrypted.to_int());
     }
 }
 
@@ -79,7 +79,7 @@ TEST_F(RSA_tests, canDecryptEncryptedMessage)
     rsa::DecryptionStreamWrapper decryption_stream(in, private_key);
 
     const std::string result = decryption_stream.read_all();
-    ASSERT_EQ(result, msg);
+    EXPECT_EQ(result, msg);
 }
 
 TEST_F(RSA_tests, canEncryptAndDecryptFromDifferentSources)
@@ -100,7 +100,7 @@ TEST_F(RSA_tests, canEncryptAndDecryptFromDifferentSources)
     char chr;
 
     decryption_stream >> message >> number >> chr;
-    ASSERT_EQ("Message:", message);
-    ASSERT_EQ(12, number);
-    ASSERT_EQ('.', chr);
+    EXPECT_EQ("Message:", message);
+    EXPECT_EQ(12, number);
+    EXPECT_EQ('.', chr);
 }

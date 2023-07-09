@@ -12,7 +12,7 @@ class BigIntAndOperator_tests : public ::testing::Test
 TEST_F(BigIntAndOperator_tests, twoZerosShouldGiveZero)
 {
     const BigInt big_int1, big_int2;
-    ASSERT_EQ(0, (big_int1 & big_int2).to_int());
+    EXPECT_EQ(0, (big_int1 & big_int2).to_int());
 }
 
 TEST_F(BigIntAndOperator_tests, zeroAndAnyNumberGivesZero)
@@ -20,7 +20,7 @@ TEST_F(BigIntAndOperator_tests, zeroAndAnyNumberGivesZero)
     const BigInt zero;
     for (int i = -20; i < 20; ++i)
     {
-        ASSERT_EQ(0, (BigInt(i) & zero).to_int());
+        EXPECT_EQ(0, (BigInt(i) & zero).to_int());
     }
 }
 
@@ -28,20 +28,20 @@ TEST_F(BigIntAndOperator_tests, andWithAnyNumberWithItselfGivesThisNumber)
 {
     for (int i = -20; i < 20; ++i)
     {
-        ASSERT_EQ(BigInt(i), BigInt(i) & BigInt(i));
+        EXPECT_EQ(BigInt(i), BigInt(i) & BigInt(i));
     }
 }
 
 TEST_F(BigIntAndOperator_tests, andShouldLeaveCommonOnes)
 {
     const BigInt big_int1(0xff00ff), big_int2(0xffffff);
-    ASSERT_EQ(0xff00ff, (big_int1 & big_int2).to_int());
+    EXPECT_EQ(0xff00ff, (big_int1 & big_int2).to_int());
 }
 
 TEST_F(BigIntAndOperator_tests, fastTestForOddNumber)
 {
     const BigInt big_int1("129038129048120948120312831"), big_int2(1);
-    ASSERT_EQ(BigInt(1), (big_int1 & big_int2));
+    EXPECT_EQ(BigInt(1), (big_int1 & big_int2));
 }
 
 TEST_F(BigIntAndOperator_tests, andShouldLeaveCommonOnesForLongNumbers)
@@ -51,7 +51,7 @@ TEST_F(BigIntAndOperator_tests, andShouldLeaveCommonOnesForLongNumbers)
     const BigInt big_int1(std::vector<bigint_base_t>{bit_mask | 0xf, bit_mask, bit_mask});
     const BigInt big_int2(std::vector<bigint_base_t>{bit_mask | 0xf, bit_mask});
     const std::vector<bigint_base_t> expected = {bit_mask | 0xf, bit_mask};
-    ASSERT_EQ(expected, (big_int1 & big_int2).raw_data());
+    EXPECT_EQ(expected, (big_int1 & big_int2).raw_data());
 }
 
 TEST_F(BigIntAndOperator_tests, andShouldLeaveCommonOnesForLongNumbers_2)
@@ -61,13 +61,13 @@ TEST_F(BigIntAndOperator_tests, andShouldLeaveCommonOnesForLongNumbers_2)
     const std::vector<bigint_base_t> expected = {0xf000, 0xf000};
 
     big_int1 &= big_int2;
-    ASSERT_EQ(expected, big_int1.raw_data());
+    EXPECT_EQ(expected, big_int1.raw_data());
 }
 
 TEST_F(BigIntAndOperator_tests, twoNegativeNumbersShouldResultInNegative)
 {
     const BigInt big_int1(-0b01010101010), big_int2(-0b01010101010);
-    ASSERT_EQ(BigInt(-0b01010101010), (big_int1 & big_int2));
+    EXPECT_EQ(BigInt(-0b01010101010), (big_int1 & big_int2));
 }
 
 #pragma GCC diagnostic push
@@ -79,7 +79,7 @@ TEST_F(BigIntAndOperator_tests, inplaceAndWithAnyNumberWithItselfGivesThisNumber
     {
         BigInt n(i);
         n &= n;
-        ASSERT_EQ(n, BigInt(i));
+        EXPECT_EQ(n, BigInt(i));
     }
 }
 

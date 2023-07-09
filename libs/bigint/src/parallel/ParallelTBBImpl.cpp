@@ -1,7 +1,8 @@
+#include <oneapi/tbb/global_control.h>
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_invoke.h>
 #include <yabil/bigint/BigInt.h>
-#include <yabil/utils/MakeSpan.h>
+#include <yabil/utils/IterUtils.h>
 
 #include <algorithm>
 #include <thread>
@@ -15,6 +16,16 @@ using namespace oneapi;
 
 namespace yabil::bigint::parallel
 {
+
+std::size_t get_thread_count()
+{
+    return tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism);
+}
+
+void set_thread_count(std::size_t thread_count)
+{
+    [[maybe_unused]] tbb::global_control global_limit(tbb::global_control::max_allowed_parallelism, thread_count);
+}
 
 std::vector<bigint_base_t> parallel_add_unsigned(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
 {
@@ -92,11 +103,11 @@ std::vector<bigint_base_t> parallel_karatsuba(std::span<bigint_base_t const> a, 
 
     const int m2 = static_cast<int>(std::max(a.size(), b.size()) / 2);
 
-    const std::span<bigint_base_t const> low1 = utils::make_span(a.begin(), a.begin() + m2);
-    const std::span<bigint_base_t const> high1 = utils::make_span(a.begin() + m2, a.end());
+    const std::span<bigint_base_t const> low1 = utils::make_span(a.begin(), utils::safe_advance(a.begin(), m2, a));
+    const std::span<bigint_base_t const> high1 = utils::make_span(utils::safe_advance(a.begin(), m2, a), a.end());
 
-    const std::span<bigint_base_t const> low2 = utils::make_span(b.begin(), b.begin() + m2);
-    const std::span<bigint_base_t const> high2 = utils::make_span(b.begin() + m2, b.end());
+    const std::span<bigint_base_t const> low2 = utils::make_span(b.begin(), utils::safe_advance(b.begin(), m2, b));
+    const std::span<bigint_base_t const> high2 = utils::make_span(utils::safe_advance(b.begin(), m2, b), b.end());
 
     std::vector<bigint_base_t> w_z0, w_z1, w_z2;
 

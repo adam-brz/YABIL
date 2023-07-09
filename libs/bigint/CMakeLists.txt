@@ -8,6 +8,7 @@ set(SOURCES
     src/BigInt.cpp
     src/BigIntArithmeticOperators.cpp
     src/BigIntBinaryOperators.cpp
+    src/BigIntGlobalConfig.cpp
     src/BigIntReleationOperators.cpp
     src/StringConversionUtils.cpp
     src/StringConversionUtils.h
@@ -25,6 +26,7 @@ endif()
 
 set(HEADERS
     include/yabil/bigint/BigInt.h
+    include/yabil/bigint/BigIntGlobalConfig.h
     include/yabil/bigint/Parallel.h
 )
 
@@ -35,6 +37,7 @@ set(TESTS
     test/BigIntConstructor_tests.cpp
     test/BigIntConversion_tests.cpp
     test/BigIntDivOperator_tests.cpp
+    test/BigIntGlobalConfig_tests.cpp
     test/BigIntBitOperations_tests.cpp
     test/BigIntGreaterComparaison_tests.cpp
     test/BigIntIncrementDecrementOperator_tests.cpp

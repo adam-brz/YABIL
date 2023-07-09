@@ -26,6 +26,24 @@ ThreadPool::~ThreadPool()
     }
 }
 
+void ThreadPool::resize(std::size_t new_size)
+{
+    stop();
+    for (auto &thread : threads)
+    {
+        thread.join();
+    }
+
+    threads.clear();
+    currently_running = 0;
+    should_stop = false;
+
+    for (std::size_t i = 0; i < new_size; ++i)
+    {
+        threads.emplace_back(&ThreadPool::worker, this);
+    }
+}
+
 void ThreadPool::stop()
 {
     should_stop = true;
@@ -58,9 +76,10 @@ void ThreadPool::worker()
         {
             FunctionWrapper task = std::move(tasks.front());
             tasks.pop_front();
-            guard.unlock();
 
             currently_running.fetch_add(1);
+            guard.unlock();
+
             task.call();
             currently_running.fetch_sub(1);
         }

@@ -15,7 +15,7 @@ TEST_F(BigIntStreamOperator_tests, canConvertToString)
     const BigInt big_int(127981278LL);
     std::ostringstream oss;
     oss << big_int;
-    ASSERT_EQ("127981278", oss.str());
+    EXPECT_EQ("127981278", oss.str());
 }
 
 TEST_F(BigIntStreamOperator_tests, canConvertZeroToString)
@@ -23,7 +23,7 @@ TEST_F(BigIntStreamOperator_tests, canConvertZeroToString)
     const BigInt big_int(0U);
     std::ostringstream oss;
     oss << big_int;
-    ASSERT_EQ("0", oss.str());
+    EXPECT_EQ("0", oss.str());
 }
 
 TEST_F(BigIntStreamOperator_tests, canConvertLongNumberToString)
@@ -31,7 +31,7 @@ TEST_F(BigIntStreamOperator_tests, canConvertLongNumberToString)
     const BigInt big_int(std::numeric_limits<uint64_t>::max());
     std::ostringstream oss;
     oss << big_int;
-    ASSERT_EQ("18446744073709551615", oss.str());
+    EXPECT_EQ("18446744073709551615", oss.str());
 }
 
 TEST_F(BigIntStreamOperator_tests, canConvertLongSignedNumberToString)
@@ -39,7 +39,7 @@ TEST_F(BigIntStreamOperator_tests, canConvertLongSignedNumberToString)
     const BigInt big_int(std::numeric_limits<uint64_t>::max() - 11, Sign::Minus);
     std::ostringstream oss;
     oss << big_int;
-    ASSERT_EQ("-18446744073709551604", oss.str());
+    EXPECT_EQ("-18446744073709551604", oss.str());
 }
 
 TEST_F(BigIntStreamOperator_tests, fromStringToStringShouldGiveTheSameResult)
@@ -51,7 +51,7 @@ TEST_F(BigIntStreamOperator_tests, fromStringToStringShouldGiveTheSameResult)
     iss >> big_int;
     oss << big_int;
 
-    ASSERT_EQ("318748915896591374892374917328417214734913489243", oss.str());
+    EXPECT_EQ("318748915896591374892374917328417214734913489243", oss.str());
 }
 
 TEST_F(BigIntStreamOperator_tests, fromStringToStringShouldGiveTheSameResultForNegative)
@@ -63,7 +63,7 @@ TEST_F(BigIntStreamOperator_tests, fromStringToStringShouldGiveTheSameResultForN
     iss >> big_int;
     oss << big_int;
 
-    ASSERT_EQ("-91283910102313201023731947875192120001", oss.str());
+    EXPECT_EQ("-91283910102313201023731947875192120001", oss.str());
 }
 
 TEST_F(BigIntStreamOperator_tests, stringToBigInt)
@@ -71,7 +71,7 @@ TEST_F(BigIntStreamOperator_tests, stringToBigInt)
     std::istringstream iss("14241");
     BigInt big_int;
     iss >> big_int;
-    ASSERT_EQ(14241, big_int.to_int());
+    EXPECT_EQ(14241, big_int.to_int());
 }
 
 TEST_F(BigIntStreamOperator_tests, stringToBigIntWithSign)
@@ -79,7 +79,7 @@ TEST_F(BigIntStreamOperator_tests, stringToBigIntWithSign)
     std::istringstream iss("-14241");
     BigInt big_int;
     iss >> big_int;
-    ASSERT_EQ(-14241, big_int.to_int());
+    EXPECT_EQ(-14241, big_int.to_int());
 }
 
 TEST_F(BigIntStreamOperator_tests, longStringToBigIntWithSign)
@@ -90,7 +90,7 @@ TEST_F(BigIntStreamOperator_tests, longStringToBigIntWithSign)
     BigInt big_int;
     iss >> big_int;
 
-    ASSERT_EQ(expected, big_int);
+    EXPECT_EQ(expected, big_int);
 }
 
 TEST_F(BigIntStreamOperator_tests, invalidStringShouldThrowException)

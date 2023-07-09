@@ -15,34 +15,34 @@ class MathLog_tests : public ::testing::Test
 TEST_F(MathLog_tests, int_log2OfOneIsZero)
 {
     const auto result = log2_int(BigInt(1));
-    ASSERT_EQ(0, result);
+    EXPECT_EQ(0, result);
 }
 
 TEST_F(MathLog_tests, int_log2OfTwoIsOne)
 {
     const auto result = log2_int(BigInt(2));
-    ASSERT_EQ(1, result);
+    EXPECT_EQ(1, result);
 }
 
 TEST_F(MathLog_tests, int_log2OfThreeIsOne)
 {
     const auto result = log2_int(BigInt(3));
-    ASSERT_EQ(1, result);
+    EXPECT_EQ(1, result);
 }
 
 TEST_F(MathLog_tests, int_log2ForBigNumbers)
 {
     {
         const auto result = log2_int(BigInt("125481752983123319283091238"));
-        ASSERT_EQ(86, result);
+        EXPECT_EQ(86, result);
     }
     {
         const auto result = log2_int(BigInt("1859729487127836218417238641986492814612834129835152"));
-        ASSERT_EQ(170, result);
+        EXPECT_EQ(170, result);
     }
     {
         const auto result = log2_int(BigInt(1) << 1239);
-        ASSERT_EQ(1239, result);
+        EXPECT_EQ(1239, result);
     }
 }
 

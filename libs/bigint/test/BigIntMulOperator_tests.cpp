@@ -1,45 +1,74 @@
 #include <gtest/gtest.h>
 #include <yabil/bigint/BigInt.h>
+#include <yabil/bigint/BigIntGlobalConfig.h>
 
 #include <limits>
 
 using namespace yabil::bigint;
 
-class BigIntMulOperator_tests : public ::testing::Test
+namespace
 {
+
+struct EnabledParallelism
+{
+    bool parallelism_enabled = true;
 };
 
-TEST_F(BigIntMulOperator_tests, mulTwoZeros)
+struct DisabledParallelism
+{
+    bool parallelism_enabled = false;
+};
+
+}  // namespace
+
+template <typename ParallelSettings>
+class BigIntMulOperator_tests : public ::testing::Test
+{
+    [[maybe_unused]] void SetUp() override  // cppcheck-suppress [unusedFunction]
+    {
+        BigIntGlobalConfig::instance().set_parallel_algorithms_enabled(ParallelSettings{}.parallelism_enabled);
+    }
+
+    [[maybe_unused]] void TearDown() override  // cppcheck-suppress [unusedFunction]
+    {
+        BigIntGlobalConfig::instance().set_parallel_algorithms_enabled(true);
+    }
+};
+
+using parallel_settings = ::testing::Types<EnabledParallelism, DisabledParallelism>;
+TYPED_TEST_SUITE(BigIntMulOperator_tests, parallel_settings);
+
+TYPED_TEST(BigIntMulOperator_tests, mulTwoZeros)
 {
     const BigInt big_int1, big_int2;
-    ASSERT_EQ(0, (big_int1 * big_int2).to_int());
+    EXPECT_EQ(0, (big_int1 * big_int2).to_int());
 }
 
-TEST_F(BigIntMulOperator_tests, mulZeroAndNonZeroShouldAlwaysGiveZero)
+TYPED_TEST(BigIntMulOperator_tests, mulZeroAndNonZeroShouldAlwaysGiveZero)
 {
     const BigInt zero;
     for (int i = -10; i < 10; ++i)
     {
-        ASSERT_EQ(0, (zero * BigInt(i)).to_int());
+        EXPECT_EQ(0, (zero * BigInt(i)).to_int());
     }
 }
 
-TEST_F(BigIntMulOperator_tests, mulTwoNonZero)
+TYPED_TEST(BigIntMulOperator_tests, mulTwoNonZero)
 {
     const BigInt big_int1(50), big_int2(20);
-    ASSERT_EQ(1000, (big_int1 * big_int2).to_int());
+    EXPECT_EQ(1000, (big_int1 * big_int2).to_int());
 }
 
-TEST_F(BigIntMulOperator_tests, mulTwoNonZeroWithOverflow)
+TYPED_TEST(BigIntMulOperator_tests, mulTwoNonZeroWithOverflow)
 {
     const BigInt big_int1(std::numeric_limits<bigint_base_t>::max());
     const BigInt big_int2(2);
     const std::vector<bigint_base_t> expected = {
         static_cast<bigint_base_t>(std::numeric_limits<bigint_base_t>::max() << 1), 1};
-    ASSERT_EQ(expected, (big_int1 * big_int2).raw_data());
+    EXPECT_EQ(expected, (big_int1 * big_int2).raw_data());
 }
 
-TEST_F(BigIntMulOperator_tests, mulTwoLongNonZeroWithOverflow)
+TYPED_TEST(BigIntMulOperator_tests, mulTwoLongNonZeroWithOverflow)
 {
     const BigInt big_int1(std::vector<bigint_base_t>{std::numeric_limits<bigint_base_t>::max(),
                                                      std::numeric_limits<bigint_base_t>::max()});
@@ -47,11 +76,11 @@ TEST_F(BigIntMulOperator_tests, mulTwoLongNonZeroWithOverflow)
     const std::vector<bigint_base_t> expected = {std::numeric_limits<bigint_base_t>::max() & ~(0b1001),
                                                  std::numeric_limits<bigint_base_t>::max(), 0b1001};
     const auto result = big_int1 * big_int2;
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Plus, result.get_sign());
+    EXPECT_EQ(expected, result.raw_data());
+    EXPECT_EQ(Sign::Plus, result.get_sign());
 }
 
-TEST_F(BigIntMulOperator_tests, mulTwoNegativeWithOverflow)
+TYPED_TEST(BigIntMulOperator_tests, mulTwoNegativeWithOverflow)
 {
     const BigInt big_int1(std::vector<bigint_base_t>{std::numeric_limits<bigint_base_t>::max(),
                                                      std::numeric_limits<bigint_base_t>::max()},
@@ -62,11 +91,11 @@ TEST_F(BigIntMulOperator_tests, mulTwoNegativeWithOverflow)
                                                  std::numeric_limits<bigint_base_t>::max(), 0b1001};
     const auto result = big_int1 * big_int2;
 
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Plus, result.get_sign());
+    EXPECT_EQ(expected, result.raw_data());
+    EXPECT_EQ(Sign::Plus, result.get_sign());
 }
 
-TEST_F(BigIntMulOperator_tests, mulTwoWithDifferentSigns)
+TYPED_TEST(BigIntMulOperator_tests, mulTwoWithDifferentSigns)
 {
     for (int i = 1; i < 11; ++i)
     {
@@ -77,7 +106,7 @@ TEST_F(BigIntMulOperator_tests, mulTwoWithDifferentSigns)
     }
 }
 
-TEST_F(BigIntMulOperator_tests, mulTwoWithDifferentSignsWithOverflow)
+TYPED_TEST(BigIntMulOperator_tests, mulTwoWithDifferentSignsWithOverflow)
 {
     const BigInt big_int1(std::vector<bigint_base_t>{0, std::numeric_limits<bigint_base_t>::max()}, Sign::Minus);
     const BigInt big_int2(std::numeric_limits<bigint_base_t>::max());
@@ -85,11 +114,11 @@ TEST_F(BigIntMulOperator_tests, mulTwoWithDifferentSignsWithOverflow)
     const std::vector<bigint_base_t> expected = {0, 1, std::numeric_limits<bigint_base_t>::max() - 1};
     const auto result = big_int1 * big_int2;
 
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Minus, result.get_sign());
+    EXPECT_EQ(expected, result.raw_data());
+    EXPECT_EQ(Sign::Minus, result.get_sign());
 }
 
-TEST_F(BigIntMulOperator_tests, mulTwoWithDifferentSignsWithOverflow_2)
+TYPED_TEST(BigIntMulOperator_tests, mulTwoWithDifferentSignsWithOverflow_2)
 {
     const BigInt big_int1(std::vector<bigint_base_t>{0, std::numeric_limits<bigint_base_t>::max()});
     const BigInt big_int2(std::numeric_limits<bigint_base_t>::max(), Sign::Minus);
@@ -97,11 +126,11 @@ TEST_F(BigIntMulOperator_tests, mulTwoWithDifferentSignsWithOverflow_2)
     const std::vector<bigint_base_t> expected = {0, 1, std::numeric_limits<bigint_base_t>::max() - 1};
     const auto result = big_int1 * big_int2;
 
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Minus, result.get_sign());
+    EXPECT_EQ(expected, result.raw_data());
+    EXPECT_EQ(Sign::Minus, result.get_sign());
 }
 
-TEST_F(BigIntMulOperator_tests, mulTwoTheSameLong)
+TYPED_TEST(BigIntMulOperator_tests, mulTwoTheSameLong)
 {
     const BigInt big_int1(std::vector<bigint_base_t>{0, std::numeric_limits<bigint_base_t>::max()});
     const BigInt big_int2(std::vector<bigint_base_t>{0, std::numeric_limits<bigint_base_t>::max()});
@@ -109,11 +138,11 @@ TEST_F(BigIntMulOperator_tests, mulTwoTheSameLong)
     const std::vector<bigint_base_t> expected = {0, 0, 1, std::numeric_limits<bigint_base_t>::max() - 1};
     const auto result = big_int1 * big_int2;
 
-    ASSERT_EQ(expected, result.raw_data());
-    ASSERT_EQ(Sign::Plus, result.get_sign());
+    EXPECT_EQ(expected, result.raw_data());
+    EXPECT_EQ(Sign::Plus, result.get_sign());
 }
 
-TEST_F(BigIntMulOperator_tests, mulVeryLong)
+TYPED_TEST(BigIntMulOperator_tests, mulVeryLong)
 {
     const BigInt big_int1("216876217867812abf12312ff124412412f3f129028139182390128", 16);
     const BigInt big_int2("16876217867812abf12312ff124412412f3f129028139182390128", 16);
@@ -123,10 +152,10 @@ TEST_F(BigIntMulOperator_tests, mulVeryLong)
         16);
     const auto result = big_int1 * big_int2;
 
-    ASSERT_EQ(expected, result);
+    EXPECT_EQ(expected, result);
 }
 
-TEST_F(BigIntMulOperator_tests, mulHuge)
+TYPED_TEST(BigIntMulOperator_tests, mulHuge)
 {
     const BigInt big_int1(
         "18927389127389127846728510256391826512763982157821632917591289378128319283718293791283189273891273891278467285"
@@ -149,10 +178,10 @@ TEST_F(BigIntMulOperator_tests, mulHuge)
         "185943176529708443007373708291711774966199862846607649901");
     const auto result = big_int1 * big_int2;
 
-    ASSERT_EQ(expected, result);
+    EXPECT_EQ(expected, result);
 }
 
-TEST_F(BigIntMulOperator_tests, mulHugeNegative)
+TYPED_TEST(BigIntMulOperator_tests, mulHugeNegative)
 {
     const BigInt big_int1(
         "18927389127389127846728510256391826512763982157821632917591289378128319283718293791283189273891273891278467285"
@@ -175,5 +204,33 @@ TEST_F(BigIntMulOperator_tests, mulHugeNegative)
         "185943176529708443007373708291711774966199862846607649901");
     const auto result = big_int1 * big_int2;
 
-    ASSERT_EQ(expected, result);
+    EXPECT_EQ(expected, result);
+}
+
+TYPED_TEST(BigIntMulOperator_tests, mulAGreaterThanB)
+{
+    const BigInt a(
+        "16997887000988080495851168186738221931100597225549119678413638971635831321627851395541676832287535702059127620"
+        "29970803350323177836985297912920138948391988598938282053760521379605401271511347590631522673008002517758073928"
+        "50810724828395763078990477714581109743271547498909720951602671830569139818607326307112551222286258232399880592"
+        "10818255350075100940392005330685796073012416802539165399792217928169709753289344034172188105728988428407366757"
+        "53256866960375509205890462516014012309657451251534141851144492750240148102002286653830708972570855669036921522"
+        "142273068596019194937906863589807934");
+
+    const BigInt b(
+        "1843794294436778025678025716254996253443728756492257894596745638758255709934249224778254996513843391525974698"
+        "218437942944367780256780257162549962549962534437287564922578");
+
+    const BigInt expected(
+        "31340607069902898705252825932127587490192236496835893171922127908081532126952526029797114431623282310068901924"
+        "48685326485148684962341779553308286472111351600767107567368816849661244745146966590476498038055551294643592282"
+        "16812376101617414504157834525494038697624543150840097164677236934814843231170160800850223386348616124328881250"
+        "54139914620596238529177379298020222253341237733862108802244444754379766613075376234246697897712934880593103227"
+        "60438101273253591405548133350913933825945290840537429083376317807179921489493230977155124627612889195730798333"
+        "17520422437779349436612988733948292298625507621847980258980980214509205545768690330438407755645726121964130190"
+        "5454009130262426210556303952348551122018839451582871314044869545658236421436401083690600133852");
+
+    const auto result = a * b;
+    EXPECT_EQ(expected, result);
+    EXPECT_EQ(expected, b * a);
 }

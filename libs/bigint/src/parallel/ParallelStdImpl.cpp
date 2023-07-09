@@ -1,4 +1,5 @@
 #include <yabil/bigint/BigInt.h>
+#include <yabil/utils/IterUtils.h>
 #include <yabil/utils/ThreadPoolSingleton.h>
 
 #include <algorithm>
@@ -11,6 +12,16 @@
 
 namespace yabil::bigint::parallel
 {
+
+std::size_t get_thread_count()
+{
+    return utils::ThreadPoolSingleton::instance().thread_count();
+}
+
+void set_thread_count(std::size_t thread_count)
+{
+    utils::ThreadPoolSingleton::instance().resize(thread_count);
+}
 
 std::vector<bigint_base_t> parallel_add_unsigned(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
 {
@@ -30,19 +41,16 @@ std::vector<bigint_base_t> parallel_add_unsigned(std::span<bigint_base_t const> 
     for (int i = 0; i < static_cast<int>(concurrency); ++i)
     {
         partial_results.push_back(thread_pool.submit(
-            [&, i]()
-            {
-                return plain_add(
-                    {a.begin() + static_cast<int>(i * chunk_size), a.begin() + static_cast<int>((i + 1) * chunk_size)},
-                    {b.begin() + static_cast<int>(i * chunk_size), b.begin() + static_cast<int>((i + 1) * chunk_size)});
+            [&, i]() {
+                return plain_add({&a[i * chunk_size], chunk_size}, {&b[i * chunk_size], chunk_size});
             }));
     }
 
     auto last_part = thread_pool.submit(
         [&]()
         {
-            return plain_add({a.begin() + static_cast<int>(concurrency * chunk_size), a.end()},
-                             {b.begin() + static_cast<int>(concurrency * chunk_size), b.end()});
+            return plain_add(utils::make_span(a.begin() + static_cast<int>(concurrency * chunk_size), a.end()),
+                             utils::make_span(b.begin() + static_cast<int>(concurrency * chunk_size), b.end()));
         });
 
     std::vector<bigint_base_t> result(std::max(a.size(), b.size()) + 1);
@@ -84,11 +92,11 @@ std::vector<bigint_base_t> parallel_karatsuba(std::span<bigint_base_t const> a, 
 
     const int m2 = static_cast<int>(std::max(a.size(), b.size()) / 2);
 
-    const std::span<bigint_base_t const> low1{a.begin(), a.begin() + m2};
-    const std::span<bigint_base_t const> high1{a.begin() + m2, a.end()};
+    const std::span<bigint_base_t const> low1 = utils::make_span(a.begin(), utils::safe_advance(a.begin(), m2, a));
+    const std::span<bigint_base_t const> high1 = utils::make_span(utils::safe_advance(a.begin(), m2, a), a.end());
 
-    const std::span<bigint_base_t const> low2{b.begin(), b.begin() + m2};
-    const std::span<bigint_base_t const> high2{b.begin() + m2, b.end()};
+    const std::span<bigint_base_t const> low2 = utils::make_span(b.begin(), utils::safe_advance(b.begin(), m2, b));
+    const std::span<bigint_base_t const> high2 = utils::make_span(utils::safe_advance(b.begin(), m2, b), b.end());
 
     auto &thread_pool = utils::ThreadPoolSingleton::instance();
 

@@ -55,6 +55,11 @@ public:
     /// @brief Stops all threads from the pool.
     void stop();
 
+    /// @brief Resize thread pool to given number of threads.
+    /// @details Costly operation, use only when really needed.
+    /// @param new_size New number of threads
+    void resize(std::size_t new_size);
+
     /// @brief Submit task for execution. Task will be executed as soon as free thread is available
     /// @tparam FunctionType Type of function to submit
     /// @param func Function to submit
@@ -75,8 +80,6 @@ public:
     }
 
     /// @brief Submit task for execution if free thread is available. Otherwise execute function in current thread.
-    /// @details It is not safe to use this function with \p ThreadPool::submit due to race conditions during checks of
-    /// currently running tasks
     /// @tparam FunctionType Type of function to submit
     /// @param func Function to submit
     /// @return \p std::future for getting function execution results
@@ -87,11 +90,14 @@ public:
 
         if (tasks.size() < thread_count() && currently_running_tasks_count() < thread_count())
         {
-            guard.unlock();
-            return submit(std::move(func));
+            using ReturnType = std::invoke_result_t<FunctionType>;
+            std::packaged_task<ReturnType()> task(std::move(func));
+            auto future = task.get_future();
+            tasks.emplace_back(std::move(task));
+            task_ready.notify_one();
+            return future;
         }
 
-        guard.unlock();
         return std::async(std::launch::deferred, func);
     }
 

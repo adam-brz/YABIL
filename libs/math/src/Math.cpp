@@ -59,10 +59,10 @@ yabil::bigint::BigInt pow(const yabil::bigint::BigInt &number, const yabil::bigi
     {
         if (!exponent.is_even())
         {
-            result = bigint::parallel::multiply(result, base) % mod;
+            result = (result * base) % mod;
         }
         exponent >>= 1;
-        base = bigint::parallel::multiply(base, base) % mod;
+        base = (base * base) % mod;
     }
     return result;
 }
@@ -72,7 +72,7 @@ yabil::bigint::BigInt factorial(uint64_t n)
     yabil::bigint::BigInt result(1U);
     for (uint64_t i = 1; i <= n; ++i)
     {
-        result = bigint::parallel::multiply(result, yabil::bigint::BigInt(i));
+        result *= yabil::bigint::BigInt(i);
     }
     return result;
 }
@@ -170,15 +170,15 @@ yabil::bigint::BigInt gcd(yabil::bigint::BigInt number, yabil::bigint::BigInt ot
 std::pair<yabil::bigint::BigInt, std::pair<yabil::bigint::BigInt, yabil::bigint::BigInt>> extended_gcd(
     const yabil::bigint::BigInt &a, const yabil::bigint::BigInt &b)
 {
-    using BezoutCoefficientsType = std::pair<yabil::bigint::BigInt, yabil::bigint::BigInt>;
+    using BezoutCoefficients = std::pair<yabil::bigint::BigInt, yabil::bigint::BigInt>;
     yabil::bigint::BigInt old_r{a}, r{b}, old_s{1}, s{0}, old_t{0}, t{1};
 
     while (!r.is_zero())
     {
-        const auto [quotient, _] = bigint::parallel::divide(old_r, r);
-        std::tie(old_r, r) = BezoutCoefficientsType{r, old_r - bigint::parallel::multiply(quotient, r)};
-        std::tie(old_s, s) = BezoutCoefficientsType{s, old_s - bigint::parallel::multiply(quotient, s)};
-        std::tie(old_t, t) = BezoutCoefficientsType{t, old_t - bigint::parallel::multiply(quotient, t)};
+        const auto quotient = old_r / r;
+        std::tie(old_r, r) = BezoutCoefficients{r, old_r - (quotient * r)};
+        std::tie(old_s, s) = BezoutCoefficients{s, old_s - (quotient * s)};
+        std::tie(old_t, t) = BezoutCoefficients{t, old_t - (quotient * t)};
     }
 
     return {old_r, {old_s, old_t}};
