@@ -8,12 +8,8 @@
 namespace yabil::crypto::rsa
 {
 
-std::pair<PublicKey, PrivateKey> generate_keys(unsigned bits_for_key)
+std::pair<PublicKey, PrivateKey> generate_keys(bigint::BigInt p, bigint::BigInt q)
 {
-    const auto bits_per_prime = bits_for_key / 2;
-    auto p = yabil::crypto::random::random_prime(bits_per_prime);
-    auto q = yabil::crypto::random::random_prime(bits_per_prime);
-
     const auto n = p * q;
     const auto phi = (--p) * (--q);
 

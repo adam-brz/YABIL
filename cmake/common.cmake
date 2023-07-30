@@ -23,6 +23,14 @@ macro(setup_testing)
     endif()
 endmacro()
 
+macro(skip_interface_library TARGET)
+    get_target_property(TARGET_TYPE ${TARGET} TYPE)
+    if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
+        return()
+    endif()
+endmacro()
+
+
 function(set_common_properties TARGET)
     set_target_properties(${TARGET} PROPERTIES
         CXX_STANDARD 20
@@ -32,14 +40,22 @@ function(set_common_properties TARGET)
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin$<0:>"
     )
 
+    setup_install_rule(${TARGET})
+    skip_interface_library(${TARGET})
+
     if(YABIL_ENABLE_TBB)
         target_link_libraries(${TARGET} PRIVATE TBB::tbb)
     endif()
 
-    add_coverage(${TARGET})
-    target_include_directories(${TARGET} PRIVATE src)
-    set_common_target_options(${TARGET})
+    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src)
+        target_include_directories(${TARGET} PRIVATE src)
+    endif()
 
+    add_coverage(${TARGET})
+    set_common_target_options(${TARGET})
+endfunction()
+
+function(setup_install_rule TARGET)
     get_target_property(IS_TEST_TARGET ${TARGET} IS_TEST_TARGET)
     if(NOT IS_TEST_TARGET)
         install(TARGETS ${TARGET}

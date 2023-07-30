@@ -29,9 +29,10 @@ struct PrivateKey
 };
 
 /// @brief Generate RSA public and private keys.
-/// @param bits_for_key Number of bits for generated key n (n = pq where p and q are prime numbers)
+/// @param p Prime number
+/// @param q Prime number different than q
 /// @return \p std::pair of \p PublicKey and \p PrivateKey
-std::pair<PublicKey, PrivateKey> generate_keys(unsigned bits_for_key = 1024);
+std::pair<PublicKey, PrivateKey> generate_keys(bigint::BigInt p, bigint::BigInt q);
 
 /// @brief Encrypt single byte using RSA public key.
 /// @param byte Byte to encrypt
