@@ -1,11 +1,13 @@
 #pragma once
 
 #include <cstdint>
+#include <limits>
 #include <span>
 #include <string>
 #include <type_traits>
 #include <utility>
 #include <vector>
+
 
 #ifndef BIGINT_BASE_T
 #ifdef __SIZEOF_INT128__
