@@ -8,7 +8,6 @@
 #include <utility>
 #include <vector>
 
-
 #ifndef BIGINT_BASE_T
 #ifdef __SIZEOF_INT128__
 #define BIGINT_BASE_T uint64_t
