@@ -146,7 +146,7 @@ std::vector<bigint_base_t> mul_basecase(std::span<bigint_base_t const> a, std::s
         {
             carry += result[i + j] + safe_mul((*longer)[j], (*shorter)[i]);
             result[i + j] = static_cast<bigint_base_t>(carry);
-            carry >>= sizeof(bigint_base_t) * 8;
+            carry >>= bigint_base_t_size_bits;
         }
         if (carry)
         {

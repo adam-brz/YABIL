@@ -93,7 +93,7 @@ uint64_t BigInt::to_uint() const
     uint64_t result = 0;
     for (std::size_t i = 0; (i < data.size()) && (i < sizeof(int64_t) / sizeof(bigint_base_t)); ++i)
     {
-        result |= static_cast<uint64_t>(data[i]) << (i * sizeof(bigint_base_t) * 8);
+        result |= static_cast<uint64_t>(data[i]) << (i * bigint_base_t_size_bits);
     }
     return result;
 }
@@ -179,9 +179,8 @@ bool BigInt::abs_lower(const BigInt &other) const
 
 bool BigInt::get_bit(std::size_t n) const
 {
-    constexpr auto digit_bit_size = sizeof(bigint_base_t) * 8;
-    const auto item_index = n / digit_bit_size;
-    const auto bit_index = n % digit_bit_size;
+    const auto item_index = n / bigint_base_t_size_bits;
+    const auto bit_index = n % bigint_base_t_size_bits;
 
     if (item_index >= data.size())
     {
@@ -192,9 +191,8 @@ bool BigInt::get_bit(std::size_t n) const
 
 void BigInt::set_bit(std::size_t n, bool bit_value)
 {
-    constexpr auto digit_bit_size = sizeof(bigint_base_t) * 8;
-    const auto item_index = n / digit_bit_size;
-    const auto bit_index = n % digit_bit_size;
+    const auto item_index = n / bigint_base_t_size_bits;
+    const auto bit_index = n % bigint_base_t_size_bits;
 
     if (item_index >= data.size())
     {

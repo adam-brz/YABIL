@@ -22,6 +22,9 @@ namespace yabil::bigint
 /// @brief Base type for big integer internal representation
 using bigint_base_t = BIGINT_BASE_T;
 
+/// @brief Bit-size of base type
+constexpr int bigint_base_t_size_bits = std::numeric_limits<bigint_base_t>::digits;
+
 /// @brief Sign of big integer
 enum class Sign : uint8_t
 {
@@ -83,7 +86,7 @@ public:
             data.reserve(data_item_count);
             for (std::size_t i = 0; i < data_item_count; ++i)
             {
-                data.push_back(static_cast<bigint_base_t>(number >> (i * sizeof(bigint_base_t) * 8)));
+                data.push_back(static_cast<bigint_base_t>(number >> (i * bigint_base_t_size_bits)));
             }
         }
         normalize();

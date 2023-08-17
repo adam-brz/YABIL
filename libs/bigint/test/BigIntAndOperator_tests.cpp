@@ -46,7 +46,7 @@ TEST_F(BigIntAndOperator_tests, fastTestForOddNumber)
 
 TEST_F(BigIntAndOperator_tests, andShouldLeaveCommonOnesForLongNumbers)
 {
-    const bigint_base_t bit_mask = (static_cast<uint64_t>(0xf) << (sizeof(bigint_base_t) * 8 - 4));
+    const bigint_base_t bit_mask = (static_cast<uint64_t>(0xf) << (bigint_base_t_size_bits - 4));
 
     const BigInt big_int1(std::vector<bigint_base_t>{bit_mask | 0xf, bit_mask, bit_mask});
     const BigInt big_int2(std::vector<bigint_base_t>{bit_mask | 0xf, bit_mask});

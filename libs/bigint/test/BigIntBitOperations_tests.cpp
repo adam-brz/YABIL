@@ -61,7 +61,7 @@ TEST_F(BigIntBitOperations_tests, setBitForZeroLongNumber)
 TEST_F(BigIntBitOperations_tests, setZeroForLongNumber)
 {
     BigInt big_int(std::vector<bigint_base_t>{0, 0, 0, 1});
-    big_int.set_bit(sizeof(bigint_base_t) * 8 * 3, false);
+    big_int.set_bit(bigint_base_t_size_bits * 3, false);
     ASSERT_TRUE(big_int.is_zero());
 }
 

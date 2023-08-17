@@ -67,9 +67,8 @@ BigInt BigInt::operator^(const BigInt &other) const
 
 BigInt BigInt::operator<<(uint64_t shift) const
 {
-    constexpr auto base_t_bit_size = sizeof(bigint_base_t) * 8;
-    const auto new_items_count = shift / base_t_bit_size;
-    const auto real_shift = shift % base_t_bit_size;
+    const auto new_items_count = shift / bigint_base_t_size_bits;
+    const auto real_shift = shift % bigint_base_t_size_bits;
 
     std::vector<bigint_base_t> shifted(new_items_count + data.size() + 1, 0);
     bigint_base_t shifted_val = 0;
@@ -84,7 +83,7 @@ BigInt BigInt::operator<<(uint64_t shift) const
         {
             const bigint_base_t v = data[i];
             const bigint_base_t transformed = static_cast<bigint_base_t>(v << real_shift) | shifted_val;
-            shifted_val = static_cast<bigint_base_t>(v >> (base_t_bit_size - real_shift));
+            shifted_val = static_cast<bigint_base_t>(v >> (bigint_base_t_size_bits - real_shift));
             shifted[i + new_items_count] = transformed;
         }
         shifted.back() = shifted_val;
@@ -95,9 +94,8 @@ BigInt BigInt::operator<<(uint64_t shift) const
 
 BigInt BigInt::operator>>(uint64_t shift) const
 {
-    constexpr auto base_t_bit_size = sizeof(bigint_base_t) * 8;
-    const uint64_t removed_items_count = shift / base_t_bit_size;
-    const uint64_t real_shift = shift % base_t_bit_size;
+    const uint64_t removed_items_count = shift / bigint_base_t_size_bits;
+    const uint64_t real_shift = shift % bigint_base_t_size_bits;
 
     if (removed_items_count >= data.size())
     {
@@ -117,7 +115,7 @@ BigInt BigInt::operator>>(uint64_t shift) const
                        [real_shift, &shifted_val](const bigint_base_t &v)
                        {
                            const bigint_base_t transformed = (v >> real_shift) | shifted_val;
-                           shifted_val = static_cast<bigint_base_t>(v << (base_t_bit_size - real_shift));
+                           shifted_val = static_cast<bigint_base_t>(v << (bigint_base_t_size_bits - real_shift));
                            return transformed;
                        });
     }
@@ -176,9 +174,8 @@ BigInt &BigInt::operator^=(const BigInt &other)
 
 BigInt &BigInt::operator<<=(uint64_t shift)
 {
-    constexpr auto base_t_bit_size = sizeof(bigint_base_t) * 8;
-    const uint64_t new_items_count = shift / base_t_bit_size;
-    const uint64_t real_shift = shift % base_t_bit_size;
+    const uint64_t new_items_count = shift / bigint_base_t_size_bits;
+    const uint64_t real_shift = shift % bigint_base_t_size_bits;
 
     data.resize(data.size() + new_items_count + 1);
     bigint_base_t shifted_val = 0;
@@ -188,8 +185,9 @@ BigInt &BigInt::operator<<=(uint64_t shift)
                    [real_shift, &shifted_val](const bigint_base_t &v)
                    {
                        const bigint_base_t transformed = (v << real_shift) | shifted_val;
-                       shifted_val =
-                           (real_shift == 0) ? 0 : static_cast<bigint_base_t>(v >> (base_t_bit_size - real_shift));
+                       shifted_val = (real_shift == 0)
+                                         ? 0
+                                         : static_cast<bigint_base_t>(v >> (bigint_base_t_size_bits - real_shift));
                        return transformed;
                    });
 
@@ -206,9 +204,8 @@ BigInt &BigInt::operator<<=(uint64_t shift)
 
 BigInt &BigInt::operator>>=(uint64_t shift)
 {
-    constexpr auto base_t_bit_size = sizeof(bigint_base_t) * 8;
-    const uint64_t removed_items_count = shift / base_t_bit_size;
-    const uint64_t real_shift = shift % base_t_bit_size;
+    const uint64_t removed_items_count = shift / bigint_base_t_size_bits;
+    const uint64_t real_shift = shift % bigint_base_t_size_bits;
 
     if (removed_items_count >= data.size())
     {
@@ -224,8 +221,9 @@ BigInt &BigInt::operator>>=(uint64_t shift)
                    [real_shift, &shifted_val](const bigint_base_t &v)
                    {
                        const bigint_base_t transformed = (v >> real_shift) | shifted_val;
-                       shifted_val =
-                           (real_shift == 0) ? 0 : static_cast<bigint_base_t>(v << (base_t_bit_size - real_shift));
+                       shifted_val = (real_shift == 0)
+                                         ? 0
+                                         : static_cast<bigint_base_t>(v << (bigint_base_t_size_bits - real_shift));
                        return transformed;
                    });
 
