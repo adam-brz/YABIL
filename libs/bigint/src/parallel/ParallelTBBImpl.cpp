@@ -124,8 +124,8 @@ std::vector<bigint_base_t> parallel_karatsuba(std::span<bigint_base_t const> a, 
     const auto z1 = BigInt(std::move(w_z1));
     const auto z2 = BigInt(std::move(w_z2));
 
-    const auto result =
-        (z2 << (m2 * 2UL * sizeof(bigint_base_t) * 8UL)) + ((z1 - z2 - z0) << (m2 * sizeof(bigint_base_t) * 8UL)) + z0;
+    constexpr auto digit_bit_size = std::numeric_limits<bigint_base_t>::digits;
+    const auto result = (z2 << (m2 * 2UL * digit_bit_size)) + ((z1 - z2 - z0) << (m2 * digit_bit_size)) + z0;
     return result.raw_data();
 }
 

@@ -150,7 +150,7 @@ std::vector<bigint_base_t> mul_basecase(std::span<bigint_base_t const> a, std::s
         }
         if (carry)
         {
-            result[i + j] += static_cast<bigint_base_t>(carry);
+            result[i + longer->size()] += static_cast<bigint_base_t>(carry);
         }
     }
 
@@ -179,8 +179,8 @@ std::vector<bigint_base_t> karatsuba_mul(std::span<bigint_base_t const> a, std::
     const auto z1 = BigInt(karatsuba_mul(lh1, lh2));
     const auto z2 = BigInt(karatsuba_mul(high1, high2));
 
-    auto result =
-        (z2 << (m2 * 2UL * sizeof(bigint_base_t) * 8UL)) + ((z1 - z2 - z0) << (m2 * sizeof(bigint_base_t) * 8UL)) + z0;
+    constexpr auto digit_bit_size = std::numeric_limits<bigint_base_t>::digits;
+    auto result = (z2 << (m2 * 2UL * digit_bit_size)) + ((z1 - z2 - z0) << (m2 * digit_bit_size)) + z0;
     return result.raw_data();
 }
 

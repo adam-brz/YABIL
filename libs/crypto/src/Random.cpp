@@ -159,25 +159,26 @@ yabil::bigint::BigInt random_bigint(const yabil::bigint::BigInt &min, const yabi
     return result;
 }
 
-yabil::bigint::BigInt random_prime(uint64_t number_of_bits)
+bigint::BigInt random_prime(uint64_t number_of_bits)
 {
-    constexpr unsigned max_iter = 128000;
-
     if (number_of_bits <= 2)
     {
         throw std::invalid_argument("There is no prime of 2 bits size");
     }
 
-    for (unsigned i = 0; i < max_iter; ++i)
+    // Arbitrary limit to avoid endless iteration over loop in worst cases
+    constexpr unsigned max_number_of_trials = 128000;
+
+    for (unsigned i = 0; i < max_number_of_trials; ++i)
     {
-        yabil::bigint::BigInt prime_candidate = probable_prime(number_of_bits);
+        bigint::BigInt prime_candidate = probable_prime(number_of_bits);
         if (miller_rabin_test(prime_candidate))
         {
             return prime_candidate;
         }
     }
 
-    throw std::runtime_error("Cannot generate prime in: " + std::to_string(max_iter) + " steps");
+    throw std::runtime_error("Cannot generate prime in: " + std::to_string(max_number_of_trials) + " steps");
 }
 
 }  // namespace yabil::crypto::random
