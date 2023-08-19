@@ -180,7 +180,8 @@ std::vector<bigint_base_t> karatsuba_mul(std::span<bigint_base_t const> a, std::
     const auto z2 = BigInt(karatsuba_mul(high1, high2));
 
     constexpr auto digit_bit_size = std::numeric_limits<bigint_base_t>::digits;
-    auto result = (z2 << (m2 * 2UL * digit_bit_size)) + ((z1 - z2 - z0) << (m2 * digit_bit_size)) + z0;
+    const uint64_t shift_val = static_cast<uint64_t>(m2) * digit_bit_size;
+    auto result = (z2 << (shift_val * 2UL)) + ((z1 - z2 - z0) << shift_val) + z0;
     return result.raw_data();
 }
 

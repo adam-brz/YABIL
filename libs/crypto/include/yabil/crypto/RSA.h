@@ -94,7 +94,7 @@ public:
             if (item == ' ') break;
             result.push_back(item);
         }
-        std::istringstream in_stream(std::move(result));
+        std::istringstream in_stream(result);
         in_stream >> data;
         return *this;
     }
