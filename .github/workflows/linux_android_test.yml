@@ -24,8 +24,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup conan profile
-        run: conan profile detect
+      - name: Configure
+        run: |
+          mkdir -p build
+          cmake -G "Unix Makefiles" -B build -S . \
+            -DCMAKE_TOOLCHAIN_FILE=${NDK}/build/cmake/android.toolchain.cmake \
+            -DANDROID_ABI=armeabi-v7a \
+            -DANDROID_PLATFORM=android-21
 
-      - name: Make release build
-        run: python3 scripts/build.py --preset android --build_type Release
+      - name: Build
+        run:
