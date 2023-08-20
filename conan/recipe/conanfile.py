@@ -3,30 +3,43 @@ from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import copy
 
 import os
+from pathlib import Path
 
 required_conan_version = ">=1.54.0"
 
 
 class YabilConan(ConanFile):
     name = "yabil"
-    version = "0.1"
     license = "MIT"
     url = "https://github.com/Andrew2a1/YABIL"
     description = "YABIL - Yet Another Big Integer Library"
     topics = ("bigint", "integer", "cpp20")
     settings = "os", "compiler", "build_type", "arch"
+    package_type = "library"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
         "optimizations": [True, False],
-        "tbb": [True, False]
+        "tbb": [True, False],
     }
-    default_options = {"shared": False, "fPIC": True, "optimizations": False, "tbb": False}
-    exports_sources = "../../*"
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "optimizations": False,
+        "tbb": False,
+    }
+
+    def export_sources(self):
+        sources = Path(self.recipe_folder).parent.parent
+        export_dir = Path(self.export_sources_folder)
+        copy(self, "CMakeLists.txt", sources, export_dir)
+        copy(self, "LICENSE.txt", sources, export_dir)
+        copy(self, "*", sources / "libs", export_dir / "libs")
+        copy(self, "*", sources / "cmake", export_dir / "cmake")
 
     def config_options(self):
         if self.settings.os == "Windows":
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self)
@@ -41,16 +54,7 @@ class YabilConan(ConanFile):
         tc.variables["YABIL_ENABLE_TBB"] = self.options.tbb
         tc.variables["YABIL_ENABLE_OPTIMIZATIONS"] = self.options.optimizations
         tc.generate()
-
         CMakeDeps(self).generate()
-
-        bindir = os.path.join(self.build_folder, "bin")
-        for dep in self.dependencies.values():
-            copy(self, "*.dll", dep.cpp_info.bindirs[0], bindir)
-            copy(self, "*.dylib", dep.cpp_info.libdirs[0], bindir)
-
-    # def source(self):
-    #     self.run("git clone --depth 1 https://github.com/Andrew2a1/YABIL.git .")
 
     def build(self):
         cmake = CMake(self)
@@ -83,4 +87,4 @@ class YabilConan(ConanFile):
         self.cpp_info.components["crypto"].requires = ["bigint", "math"]
 
         if self.options.tbb:
-            self.cpp_info.components["bigint"].requires.append("TBB::tbb")
+            self.cpp_info.components["bigint"].requires.append("onetbb::libtbb")

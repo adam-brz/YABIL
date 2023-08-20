@@ -55,6 +55,10 @@ set(TESTS
 add_library(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} PRIVATE utils)
 
+if(YABIL_ENABLE_TBB)
+    target_link_libraries(${PROJECT_NAME} PRIVATE TBB::tbb)
+endif()
+
 target_sources(${PROJECT_NAME}
     PRIVATE ${SOURCES}
     PUBLIC FILE_SET HEADERS

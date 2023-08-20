@@ -1,7 +1,10 @@
 #include <yabil/bigint/BigInt.h>
+#include <yabil/math/Math.h>
+#include <yabil/crypto/Random.h>
 
 #include <iostream>
 
+using namespace yabil;
 using namespace yabil::bigint;
 
 int main()
@@ -12,5 +15,7 @@ int main()
     std::cout << "b = " << b << std::endl;
     std::cout << "a*b = " << a * b << std::endl;
     std::cout << "a/b = " << a / b << std::endl;
+    std::cout << "pow(a,log2(b)) = " << math::pow(a, BigInt(math::log2_int(b))) << std::endl;
+    std::cout << "random_prime(32-bits) = " << crypto::random::random_prime(32) << std::endl;
     return 0;
 }
