@@ -9,16 +9,16 @@ results_output = "./build/results.json"
 
 os.makedirs("build", exist_ok=True)
 
-subprocess.check_call("conan export ../conan/recipe", shell=True)
+subprocess.check_call("conan export ../conan/recipe yabil/0.1@", shell=True)
 
 if platform.system() == "Linux":
-    profile="clang"
-    additional_flags="-c tools.system.package_manager:mode=install"
-    build_flags="-DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang"
+    profile = "clang"
+    additional_flags = "-c tools.system.package_manager:mode=install"
+    build_flags = "-DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang"
 elif platform.system() == "Darwin":
-    profile="macos"
-    additional_flags=""
-    build_flags=""
+    profile = "macos"
+    additional_flags = ""
+    build_flags = ""
 
 subprocess.check_call(
     f"conan install .. -of=. -pr ../../conan/profiles/{profile} -s build_type=Release --build=missing {additional_flags}",

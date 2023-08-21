@@ -15,5 +15,8 @@ CMakeDeps
 boost:zlib=False
 openssl:no_zlib=True
 cpython:with_curses=False
+cpython:with_tkinter=False
+cpython:with_gdbm=False
+cpython:with_bz2=False
 yabil:optimizations=True
 gmp:disable_assembly=False
