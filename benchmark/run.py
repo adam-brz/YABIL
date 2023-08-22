@@ -5,7 +5,7 @@ import platform
 import subprocess
 import shutil
 
-results_output = "./build/results.json"
+results_output = "./build/results"
 
 os.makedirs("build", exist_ok=True)
 
@@ -35,12 +35,11 @@ subprocess.check_call(
 
 subprocess.check_call("cmake --build ./build -j 12", shell=True)
 
-if len(sys.argv) > 1:
-    filter_flag = f"--benchmark_filter={sys.argv[1]}"
-else:
-    filter_flag = ""
 
-subprocess.check_call(
-    f"./build/yabil_benchmarks --benchmark_out={results_output} --benchmark_out_format=json {filter_flag}",
-    shell=True,
-)
+filters = ["Addition", "Subtraction", "Multiplication", "Division"]
+
+for f in filters:
+    subprocess.check_call(
+        f"./build/yabil_benchmarks --benchmark_repetitions=10 --benchmark_report_aggregates_only=true --benchmark_out={results_output}{f}.json --benchmark_out_format=json --benchmark_filter={f}",
+        shell=True,
+    )

@@ -15,8 +15,8 @@ set(SOURCES
     src/division.cpp
     src/multiplication.cpp
     src/subtraction.cpp
-    src/utils.cpp
-    src/utils.h
+    src/benchmark_utils.cpp
+    src/benchmark_utils.h
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
