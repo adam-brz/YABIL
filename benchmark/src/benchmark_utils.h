@@ -3,10 +3,9 @@
 #include <benchmark/benchmark.h>
 
 #include <cstdint>
+#include <span>
 #include <string>
 #include <utility>
-
-std::string generate_random_number_string(int64_t digits);
 
 class BaseBigIntBenchmark : public benchmark::Fixture
 {
@@ -16,11 +15,14 @@ public:
     constexpr static int step_size = number_max_size_digits / number_of_probes;
 
 public:
-    static std::pair<std::string, std::string> generate_test_numbers(int size);
+    static std::pair<std::span<const uint64_t>, std::span<const uint64_t>> generate_test_numbers(int size);
 };
+
+template <typename ResultType>
+void convertTo_(ResultType* output, std::span<const uint64_t> digits);
 
 #define REGISTER_F(FixtureName, CaseName)       \
     BENCHMARK_REGISTER_F(FixtureName, CaseName) \
-        ->DenseRange(1, BaseBigIntBenchmark::number_max_size_digits, BaseBigIntBenchmark::step_size)
+        ->DenseRange(64, BaseBigIntBenchmark::number_max_size_digits, BaseBigIntBenchmark::step_size)
 
 // #define REGISTER_F(FixtureName, CaseName) BENCHMARK_REGISTER_F(FixtureName, CaseName)->Range(1, 1000)
