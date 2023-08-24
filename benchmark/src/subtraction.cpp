@@ -34,8 +34,11 @@ BENCHMARK_DEFINE_F(Subtraction, YABIL)(benchmark::State& state)
     const int size = static_cast<int>(state.range(0));
     const auto [a_data, b_data] = generate_test_numbers(size);
 
-    yabil::bigint::BigInt a{a_data};
-    yabil::bigint::BigInt b{b_data};
+    yabil::bigint::BigInt a;
+    yabil::bigint::BigInt b;
+
+    convertTo_(&a, a_data);
+    convertTo_(&b, b_data);
 
     for (auto _ : state)
     {

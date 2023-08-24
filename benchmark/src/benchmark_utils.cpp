@@ -1,5 +1,7 @@
 #include "benchmark_utils.h"  // NOLINT
 
+#include <yabil/bigint/BigInt.h>
+
 #include <random>
 #include <span>
 #include <string>
@@ -46,6 +48,14 @@ std::pair<std::span<const uint64_t>, std::span<const uint64_t>> BaseBigIntBenchm
     static const std::vector<uint64_t> b = random_digits(number_max_size_digits / digit_bit_size);
     const auto number_of_digits = size / digit_bit_size;
     return std::make_pair(std::span(a.data(), number_of_digits), std::span(b.data(), number_of_digits));
+}
+
+template <>
+void convertTo_(yabil::bigint::BigInt* output, std::span<const uint64_t> digits)
+{
+    yabil::bigint::BigInt converted(std::span(reinterpret_cast<const yabil::bigint::bigint_base_t*>(digits.data()),
+                                              digits.size() * sizeof(uint64_t) / sizeof(yabil::bigint::bigint_base_t)));
+    *output = std::move(converted);
 }
 
 template <>
