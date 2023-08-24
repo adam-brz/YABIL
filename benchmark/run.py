@@ -4,10 +4,7 @@ import os, sys
 import platform
 import subprocess
 import shutil
-
-results_output = "./build/results"
-
-os.makedirs("build", exist_ok=True)
+import multiprocessing
 
 subprocess.check_call("conan export ../conan/recipe yabil/0.1@", shell=True)
 
@@ -20,26 +17,46 @@ elif platform.system() == "Darwin":
     additional_flags = ""
     build_flags = ""
 
-subprocess.check_call(
-    f"conan install .. -of=. -pr ../../conan/profiles/{profile} -s build_type=Release --build=missing {additional_flags}",
-    shell=True,
-    cwd="build",
-)
 
-shutil.copyfile("build/CMakePresets.json", "CMakePresets.json")
+def build(benchmark_root_dir, conanfile_case, filters):
+    build_dir = os.path.join(benchmark_root_dir, "build", conanfile_case)
+    conanfile_path = os.path.join(benchmark_root_dir, "cases", conanfile_case) + ".txt"
 
-subprocess.check_call(
-    f"cmake --preset release {build_flags} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-    shell=True,
-)
+    os.makedirs(build_dir, exist_ok=True)
 
-subprocess.check_call("cmake --build ./build -j 12", shell=True)
-
-
-filters = ["Addition", "Subtraction", "Multiplication", "Division"]
-
-for f in filters:
     subprocess.check_call(
-        f"./build/yabil_benchmarks --benchmark_repetitions=10 --benchmark_report_aggregates_only=true --benchmark_out={results_output}{f}.json --benchmark_out_format=json --benchmark_filter={f}",
+        f"conan install {conanfile_path} -of=. -pr {benchmark_root_dir}/../conan/profiles/{profile} -s build_type=Release --build=missing {additional_flags}",
+        shell=True,
+        cwd=build_dir,
+    )
+
+    shutil.copyfile(f"{build_dir}/CMakePresets.json", "CMakePresets.json")
+
+    subprocess.check_call(
+        f"cmake --preset release {build_flags} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B {build_dir}",
         shell=True,
     )
+
+    subprocess.check_call(
+        f"cmake --build {build_dir} -j {multiprocessing.cpu_count() or 1}", shell=True
+    )
+
+    for f in filters:
+        results_output = os.path.join(build_dir, f"results_{f}.json")
+        subprocess.check_call(
+            f"{build_dir}/yabil_benchmarks --benchmark_repetitions=10 --benchmark_report_aggregates_only=true --benchmark_out={results_output} --benchmark_out_format=json --benchmark_filter='{f}'",
+            shell=True,
+        )
+
+
+root = os.path.abspath(os.path.dirname(__file__))
+cases_filters = {
+    "normal": [".*"],
+    "no_optimizations": ["YABIL", "openssl", "GMP"],
+    "uint16": ["YABIL"],
+    "uint32": ["YABIL"],
+    "normal_tbb": ["YABIL"],
+}
+
+for case, filters in cases_filters.items():
+    build(root, case, filters)
