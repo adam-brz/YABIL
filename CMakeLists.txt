@@ -15,6 +15,7 @@ option(YABIL_ENABLE_TBB "Use TBB library" OFF)
 option(YABIL_ENABLE_COVERAGE "Build with coverage info" OFF)
 option(YABIL_ENABLE_OPTIMIZATIONS "Enable aggressive optimizations" OFF)
 
+set(YABIL_BIGINT_BASE_TYPE "auto" CACHE STRING "Numeric type to use as number base.")
 set(CPACK_GENERATOR "ZIP" CACHE STRING "Generators to support. Semicolon delimited list.")
 
 setup_deps()

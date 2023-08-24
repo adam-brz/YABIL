@@ -20,12 +20,14 @@ class YabilConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "optimizations": [True, False],
+        "digit_type": ["uint16_t", "uint32_t", "uint64_t", "auto"],
         "tbb": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "optimizations": False,
+        "digit_type": "auto",
         "tbb": False,
     }
 
@@ -53,6 +55,7 @@ class YabilConan(ConanFile):
         tc.variables["YABIL_ENABLE_TESTS"] = False
         tc.variables["YABIL_ENABLE_TBB"] = self.options.tbb
         tc.variables["YABIL_ENABLE_OPTIMIZATIONS"] = self.options.optimizations
+        tc.variables["YABIL_BIGINT_BASE_TYPE"] = self.options.digit_type
         tc.generate()
         CMakeDeps(self).generate()
 
@@ -85,6 +88,11 @@ class YabilConan(ConanFile):
         self.cpp_info.components["bigint"].requires = ["utils"]
         self.cpp_info.components["math"].requires = ["bigint"]
         self.cpp_info.components["crypto"].requires = ["bigint", "math"]
+
+        if self.options.digit_type != "auto":
+            self.cpp_info.components["bigint"].defines.append(
+                f"BIGINT_BASE_T={self.options.digit_type}"
+            )
 
         if self.options.tbb:
             self.cpp_info.components["bigint"].requires.append("onetbb::libtbb")
