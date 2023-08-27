@@ -55,6 +55,14 @@ set(TESTS
 add_library(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} PRIVATE utils)
 
+if(YABIL_ENABLE_TBB)
+    target_link_libraries(${PROJECT_NAME} PRIVATE TBB::tbb)
+endif()
+
+if(NOT YABIL_BIGINT_BASE_TYPE STREQUAL "auto")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC BIGINT_BASE_T=${YABIL_BIGINT_BASE_TYPE})
+endif()
+
 target_sources(${PROJECT_NAME}
     PRIVATE ${SOURCES}
     PUBLIC FILE_SET HEADERS

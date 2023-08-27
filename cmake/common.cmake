@@ -43,10 +43,6 @@ function(set_common_properties TARGET)
     setup_install_rule(${TARGET})
     skip_interface_library(${TARGET})
 
-    if(YABIL_ENABLE_TBB)
-        target_link_libraries(${TARGET} PRIVATE TBB::tbb)
-    endif()
-
     if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src)
         target_include_directories(${TARGET} PRIVATE src)
     endif()

@@ -1,46 +1,64 @@
 #!/usr/bin/python
 
-import os, sys
+import os
 import platform
 import subprocess
 import shutil
+import multiprocessing
 
-results_output = "./build/results.json"
-
-os.makedirs("build", exist_ok=True)
-
-subprocess.check_call("conan export ../conan/recipe", shell=True)
+subprocess.check_call("conan export ../conan/recipe yabil/0.1@", shell=True)
 
 if platform.system() == "Linux":
-    profile="clang"
-    additional_flags="-c tools.system.package_manager:mode=install"
-    build_flags="-DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang"
+    profile = "clang"
+    additional_flags = "-c tools.system.package_manager:mode=install"
+    build_flags = "-DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang"
 elif platform.system() == "Darwin":
-    profile="macos"
-    additional_flags=""
-    build_flags=""
+    profile = "macos"
+    additional_flags = ""
+    build_flags = ""
 
-subprocess.check_call(
-    f"conan install .. -of=. -pr ../../conan/profiles/{profile} -s build_type=Release --build=missing {additional_flags}",
-    shell=True,
-    cwd="build",
-)
 
-shutil.copyfile("build/CMakePresets.json", "CMakePresets.json")
+def build(benchmark_root_dir, conanfile_case, filters):
+    build_dir = os.path.join(benchmark_root_dir, "build", conanfile_case)
+    conanfile_path = os.path.join(benchmark_root_dir, "cases", conanfile_case) + ".txt"
 
-subprocess.check_call(
-    f"cmake --preset release {build_flags} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-    shell=True,
-)
+    os.makedirs(build_dir, exist_ok=True)
 
-subprocess.check_call("cmake --build ./build -j 12", shell=True)
+    subprocess.check_call(
+        f"conan install {conanfile_path} -of=. -pr {benchmark_root_dir}/../conan/profiles/{profile} -s build_type=Release --build=missing {additional_flags}",
+        shell=True,
+        cwd=build_dir,
+    )
 
-if len(sys.argv) > 1:
-    filter_flag = f"--benchmark_filter={sys.argv[1]}"
-else:
-    filter_flag = ""
+    shutil.copyfile(f"{build_dir}/CMakePresets.json", "CMakePresets.json")
 
-subprocess.check_call(
-    f"./build/yabil_benchmarks --benchmark_out={results_output} --benchmark_out_format=json {filter_flag}",
-    shell=True,
-)
+    subprocess.check_call(
+        f"cmake --preset release {build_flags} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B {build_dir}",
+        shell=True,
+    )
+
+    subprocess.check_call(
+        f"cmake --build {build_dir} -j {multiprocessing.cpu_count() or 1}", shell=True
+    )
+
+    for f in filters:
+        results_output = os.path.join(build_dir, f"results_{f}.json")
+        if "*" in f:
+            results_output = os.path.join(build_dir, "results_all.json")
+        subprocess.call(
+            f"{build_dir}/yabil_benchmarks --benchmark_repetitions=10 --benchmark_report_aggregates_only=true --benchmark_out={results_output} --benchmark_out_format=json --benchmark_filter='{f}'",
+            shell=True,
+        )
+
+
+root = os.path.abspath(os.path.dirname(__file__))
+cases_filters = {
+    "uint32": ["YABIL"],
+    "uint16": ["YABIL"],
+    "normal_tbb": ["YABIL"],
+    "no_optimizations": ["YABIL", "openssl", "GMP"],
+    "normal": [".*"],
+}
+
+for case, filters in cases_filters.items():
+    build(root, case, filters)

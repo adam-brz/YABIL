@@ -1,5 +1,6 @@
 #include <benchmark/benchmark.h>
 #include <yabil/bigint/BigInt.h>
+#include <yabil/bigint/BigIntGlobalConfig.h>
 #include <yabil/bigint/Parallel.h>
 
 // Boost
@@ -14,92 +15,88 @@
 // CPython
 #include <Python.h>
 
-// BigInt https://mattmccutchen.net/bigint
-#include <BigInteger.hh>
-#include <BigIntegerUtils.hh>
-
 // Utils
 #include <thread>
 
-#include "utils.h"  // NOLINT
+#include "benchmark_utils.h"  // NOLINT
 
 namespace
 {
 
-static void multiplication_YABIL(benchmark::State& state)  // NOLINT
+class Multiplication : public BaseBigIntBenchmark
 {
-    yabil::bigint::BigInt a{generate_random_number_string(state.range(0))};
-    yabil::bigint::BigInt b{generate_random_number_string(state.range(0))};
-    yabil::bigint::BigInt c;
-    for (auto _ : state)
-    {
-        c = a * b;
-        benchmark::DoNotOptimize(c);
-        benchmark::ClobberMemory();
-    }
-    static_cast<void>(c);
-}
+};
 
-static void multiplication_YABIL_parallel(benchmark::State& state)  // NOLINT
+BENCHMARK_DEFINE_F(Multiplication, YABIL)(benchmark::State& state)
 {
-    yabil::bigint::BigInt a{generate_random_number_string(state.range(0))};
-    yabil::bigint::BigInt b{generate_random_number_string(state.range(0))};
-    yabil::bigint::BigInt c;
-    for (auto _ : state)
-    {
-        c = yabil::bigint::parallel::multiply(a, b);
-        benchmark::DoNotOptimize(c);
-        benchmark::ClobberMemory();
-    }
-    static_cast<void>(c);
-}
+    const int size = static_cast<int>(state.range(0));
+    const auto [a_data, b_data] = generate_test_numbers(size);
 
-static void multiplication_GMP(benchmark::State& state)  // NOLINT
-{
-    const auto N1 = generate_random_number_string(state.range(0));
-    const auto N2 = generate_random_number_string(state.range(0));
+    yabil::bigint::BigInt a;
+    yabil::bigint::BigInt b;
 
-    mpz_t a, b, c;
-    mpz_init(a);
-    mpz_init(b);
-    mpz_init(c);
-    mpz_set_str(a, N1.c_str(), 10);
-    mpz_set_str(b, N2.c_str(), 10);
+    convertTo_(&a, a_data);
+    convertTo_(&b, b_data);
+    yabil::bigint::BigIntGlobalConfig::instance().set_parallel_algorithms_enabled(false);
 
-    for (auto _ : state)
-    {
-        mpz_mul(c, a, b);
-        benchmark::DoNotOptimize(c);
-        benchmark::ClobberMemory();
-    }
-
-    mpz_clear(a);
-    mpz_clear(b);
-    mpz_clear(c);
-}
-
-static void multiplication_BIGINT_mattmccutchen(benchmark::State& state)  // NOLINT
-{
-    const auto N1 = generate_random_number_string(state.range(0));
-    const auto N2 = generate_random_number_string(state.range(0));
-
-    BigInteger a = stringToBigInteger(N1);
-    BigInteger b = stringToBigInteger(N2);
     for (auto _ : state)
     {
         auto c = a * b;
         benchmark::DoNotOptimize(c);
         benchmark::ClobberMemory();
     }
+
+    yabil::bigint::BigIntGlobalConfig::instance().set_parallel_algorithms_enabled(true);
 }
 
-static void multiplication_boost(benchmark::State& state)  // NOLINT
+BENCHMARK_DEFINE_F(Multiplication, YABIL_parallel)(benchmark::State& state)
 {
-    const auto N1 = generate_random_number_string(state.range(0));
-    const auto N2 = generate_random_number_string(state.range(0));
+    const int size = static_cast<int>(state.range(0));
+    const auto [a_data, b_data] = generate_test_numbers(size);
 
-    boost::multiprecision::cpp_int a{N1};
-    boost::multiprecision::cpp_int b{N2};
+    yabil::bigint::BigInt a;
+    yabil::bigint::BigInt b;
+
+    convertTo_(&a, a_data);
+    convertTo_(&b, b_data);
+
+    for (auto _ : state)
+    {
+        auto c = yabil::bigint::parallel::multiply(a, b);
+        benchmark::DoNotOptimize(c);
+        benchmark::ClobberMemory();
+    }
+}
+
+BENCHMARK_DEFINE_F(Multiplication, GMP)(benchmark::State& state)
+{
+    const int size = static_cast<int>(state.range(0));
+    const auto [a_data, b_data] = generate_test_numbers(size);
+
+    mpz_t a, b, c;
+    convertTo_(a, a_data);
+    convertTo_(b, b_data);
+
+    for (auto _ : state)
+    {
+        mpz_init(c);
+        mpz_mul(c, a, b);
+        benchmark::DoNotOptimize(c);
+        benchmark::ClobberMemory();
+        mpz_clear(c);
+    }
+}
+
+BENCHMARK_DEFINE_F(Multiplication, boost)(benchmark::State& state)
+{
+    const int size = static_cast<int>(state.range(0));
+    const auto [a_data, b_data] = generate_test_numbers(size);
+
+    boost::multiprecision::cpp_int a;
+    boost::multiprecision::cpp_int b;
+    convertTo_(&a, a_data);
+    convertTo_(&b, b_data);
+
     boost::multiprecision::cpp_int c;
 
     for (auto _ : state)
@@ -112,40 +109,43 @@ static void multiplication_boost(benchmark::State& state)  // NOLINT
     static_cast<void>(c);
 }
 
-static void multiplication_openssl(benchmark::State& state)  // NOLINT
+BENCHMARK_DEFINE_F(Multiplication, openssl)(benchmark::State& state)
 {
-    const auto N1 = generate_random_number_string(state.range(0));
-    const auto N2 = generate_random_number_string(state.range(0));
+    const int size = static_cast<int>(state.range(0));
+    const auto [a_data, b_data] = generate_test_numbers(size);
 
     BN_CTX* ctx = BN_CTX_new();
     BIGNUM* a = BN_new();
     BIGNUM* b = BN_new();
-    BIGNUM* r1 = BN_new();
 
-    BN_dec2bn(&a, N1.c_str());
-    BN_dec2bn(&b, N2.c_str());
+    convertTo_(a, a_data);
+    convertTo_(b, b_data);
 
     for (auto _ : state)
     {
-        BN_mul(r1, a, b, ctx);
-        benchmark::DoNotOptimize(r1);
+        BIGNUM* c = BN_new();
+        BN_mul(c, a, b, ctx);
+        benchmark::DoNotOptimize(c);
         benchmark::ClobberMemory();
+        BN_free(c);
     }
 
     BN_free(a);
     BN_free(b);
-    BN_free(r1);
     BN_CTX_free(ctx);
 }
 
-static void multiplication_python(benchmark::State& state)  // NOLINT
+BENCHMARK_DEFINE_F(Multiplication, python)(benchmark::State& state)
 {
-    const auto N1 = generate_random_number_string(state.range(0));
-    const auto N2 = generate_random_number_string(state.range(0));
+    const int size = static_cast<int>(state.range(0));
+    const auto [a_data, b_data] = generate_test_numbers(size);
 
     Py_Initialize();
-    PyObject* a = PyLong_FromString(N1.c_str(), NULL, 10);
-    PyObject* b = PyLong_FromString(N2.c_str(), NULL, 10);
+    PyObject* a;
+    PyObject* b;
+
+    convertTo_(&a, a_data);
+    convertTo_(&b, b_data);
     PyObject* c = nullptr;
 
     for (auto _ : state)
@@ -161,14 +161,11 @@ static void multiplication_python(benchmark::State& state)  // NOLINT
     Py_Finalize();
 }
 
-static constexpr uint64_t stop = 200000ULL;
-static constexpr int step = stop / 100;
-
-BENCHMARK(multiplication_YABIL)->Range(1, stop);
-BENCHMARK(multiplication_YABIL_parallel)->Range(1, stop);
-BENCHMARK(multiplication_GMP)->Range(1, stop);
-BENCHMARK(multiplication_boost)->Range(1, stop);
-BENCHMARK(multiplication_openssl)->Range(1, stop);
-BENCHMARK(multiplication_python)->Range(1, stop);
+REGISTER_F(Multiplication, YABIL);
+REGISTER_F(Multiplication, YABIL_parallel);
+REGISTER_F(Multiplication, GMP);
+REGISTER_F(Multiplication, boost);
+REGISTER_F(Multiplication, openssl);
+REGISTER_F(Multiplication, python);
 
 }  // namespace

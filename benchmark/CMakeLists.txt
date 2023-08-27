@@ -4,7 +4,6 @@ project(yabil_benchmarks)
 find_package(benchmark REQUIRED CONFIG)
 find_package(gmp REQUIRED CONFIG)
 find_package(yabil REQUIRED CONFIG)
-find_package(bigint REQUIRED CONFIG)
 find_package(Boost REQUIRED CONFIG)
 find_package(OpenSSL REQUIRED CONFIG)
 find_package(cpython REQUIRED CONFIG)
@@ -15,8 +14,8 @@ set(SOURCES
     src/division.cpp
     src/multiplication.cpp
     src/subtraction.cpp
-    src/utils.cpp
-    src/utils.h
+    src/benchmark_utils.cpp
+    src/benchmark_utils.h
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
@@ -35,7 +34,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     yabil::bigint
     yabil::crypto
     gmp::gmp
-    bigint::bigint
     Boost::math
     OpenSSL::Crypto
     cpython::python
