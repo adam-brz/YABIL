@@ -4,7 +4,6 @@ project(yabil_benchmarks)
 find_package(benchmark REQUIRED CONFIG)
 find_package(gmp REQUIRED CONFIG)
 find_package(yabil REQUIRED CONFIG)
-find_package(bigint REQUIRED CONFIG)
 find_package(Boost REQUIRED CONFIG)
 find_package(OpenSSL REQUIRED CONFIG)
 find_package(cpython REQUIRED CONFIG)
@@ -35,7 +34,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     yabil::bigint
     yabil::crypto
     gmp::gmp
-    bigint::bigint
     Boost::math
     OpenSSL::Crypto
     cpython::python

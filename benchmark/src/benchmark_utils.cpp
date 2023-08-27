@@ -19,10 +19,6 @@
 // CPython
 #include <Python.h>
 
-// BigInt https://mattmccutchen.net/bigint
-#include <BigInteger.hh>
-#include <BigIntegerUtils.hh>
-
 std::vector<uint64_t> random_digits(uint64_t number_of_digits)
 {
     constexpr int seed = 17;
@@ -41,13 +37,15 @@ std::vector<uint64_t> random_digits(uint64_t number_of_digits)
     return generated;
 }
 
-std::pair<std::span<const uint64_t>, std::span<const uint64_t>> BaseBigIntBenchmark::generate_test_numbers(int size)
+std::pair<std::span<const uint64_t>, std::span<const uint64_t>> BaseBigIntBenchmark::generate_test_numbers(
+    int size, std::optional<int> size2)
 {
     constexpr auto digit_bit_size = sizeof(uint64_t) * 8;
     static const std::vector<uint64_t> a = random_digits(number_max_size_digits / digit_bit_size);
     static const std::vector<uint64_t> b = random_digits(number_max_size_digits / digit_bit_size);
     const auto number_of_digits = size / digit_bit_size;
-    return std::make_pair(std::span(a.data(), number_of_digits), std::span(b.data(), number_of_digits));
+    const auto number_of_digits2 = size2.value_or(size) / digit_bit_size;
+    return std::make_pair(std::span(a.data(), number_of_digits), std::span(b.data(), number_of_digits2));
 }
 
 template <>
@@ -64,13 +62,6 @@ void convertTo_(mpz_t output, std::span<const uint64_t> digits)
     output->_mp_alloc = static_cast<int>(digits.size());
     output->_mp_size = static_cast<int>(digits.size());
     output->_mp_d = const_cast<mp_limb_t*>(digits.data());
-}
-
-template <>
-void convertTo_(BigInteger* output, std::span<const uint64_t> digits)
-{
-    BigInteger converted(const_cast<uint64_t*>(digits.data()), digits.size(), BigInteger::positive);
-    *output = std::move(converted);
 }
 
 template <>
