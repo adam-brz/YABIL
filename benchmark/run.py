@@ -42,7 +42,7 @@ def build(benchmark_root_dir, conanfile_case, filters):
     )
 
     for f in filters:
-        results_output = os.path.join(build_dir, f"results_{f}.json")
+        results_output = os.path.join(build_dir, f"results_{f.replace('/', '_')}.json")
         if "*" in f:
             results_output = os.path.join(build_dir, "results_all.json")
         subprocess.call(
@@ -53,11 +53,12 @@ def build(benchmark_root_dir, conanfile_case, filters):
 
 root = os.path.abspath(os.path.dirname(__file__))
 cases_filters = {
-    "uint32": ["YABIL"],
-    "uint16": ["YABIL"],
-    "normal_tbb": ["YABIL"],
-    "no_optimizations": ["YABIL", "openssl", "GMP"],
-    "normal": [".*"],
+    # "uint32": ["YABIL"],
+    # "uint16": ["YABIL"],
+    # "normal_tbb": ["YABIL"],
+    # "no_optimizations": ["YABIL", "openssl", "GMP"],
+    # "normal": [".*"],
+    "normal": ["YABIL_parallel_thread"],
 }
 
 for case, filters in cases_filters.items():
