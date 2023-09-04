@@ -53,12 +53,11 @@ def build(benchmark_root_dir, conanfile_case, filters):
 
 root = os.path.abspath(os.path.dirname(__file__))
 cases_filters = {
-    # "uint32": ["YABIL"],
-    # "uint16": ["YABIL"],
-    # "normal_tbb": ["YABIL"],
-    # "no_optimizations": ["YABIL", "openssl", "GMP"],
-    # "normal": [".*"],
-    "normal": ["YABIL_parallel_thread"],
+    "uint32": ["YABIL"],
+    "uint16": ["YABIL"],
+    "normal_tbb": ["YABIL"],
+    "no_optimizations": ["YABIL", "openssl", "GMP"],
+    "normal": [".*"],
 }
 
 for case, filters in cases_filters.items():
