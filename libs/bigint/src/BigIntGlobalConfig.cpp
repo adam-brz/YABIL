@@ -7,7 +7,7 @@ namespace yabil::bigint
 
 BigIntGlobalConfig::BigIntGlobalConfig() : number_of_threads(static_cast<int>(parallel::get_thread_count())) {}
 
-BigIntGlobalConfig &BigIntGlobalConfig::instance()
+BigIntGlobalConfig& BigIntGlobalConfig::instance()
 {
     static BigIntGlobalConfig config;
     return config;
@@ -32,6 +32,16 @@ bool BigIntGlobalConfig::use_parallel_algorithms() const
 int BigIntGlobalConfig::get_number_of_threads() const
 {
     return number_of_threads;
+}
+
+const Thresholds& BigIntGlobalConfig::thresholds() const
+{
+    return bigint_thresholds;
+}
+
+void BigIntGlobalConfig::set_thresholds(const Thresholds& new_thresholds)
+{
+    bigint_thresholds = new_thresholds;
 }
 
 }  // namespace yabil::bigint

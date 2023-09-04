@@ -1,5 +1,7 @@
 #pragma once
 
+#include <yabil/bigint/Thresholds.h>
+
 #include <atomic>
 #include <memory>
 
@@ -13,6 +15,7 @@ class BigIntGlobalConfig
 private:
     std::atomic<int> number_of_threads;
     std::atomic<bool> parallel_algorithms_enabled = true;
+    Thresholds bigint_thresholds;
 
 public:
     BigIntGlobalConfig(const BigIntGlobalConfig &) = delete;
@@ -38,6 +41,14 @@ public:
     /// @brief Get number of threads used for parallel execution
     /// @return Number of threads used for parallel execution
     int get_number_of_threads() const;
+
+    /// @brief Get thresholds for bigint algorithms
+    /// @return \p Thresholds structure
+    const Thresholds &thresholds() const;
+
+    /// @brief Set new thresholds
+    /// @param new_thresholds \p Thresholds structure
+    void set_thresholds(const Thresholds &new_thresholds);
 
 protected:
     BigIntGlobalConfig();

@@ -12,7 +12,6 @@ set(SOURCES
     src/BigIntReleationOperators.cpp
     src/StringConversionUtils.cpp
     src/StringConversionUtils.h
-    src/Thresholds.h
     src/TypeUtils.h
     src/parallel/Parallel.cpp
     src/parallel/ParallelImpl.h
@@ -28,6 +27,7 @@ set(HEADERS
     include/yabil/bigint/BigInt.h
     include/yabil/bigint/BigIntGlobalConfig.h
     include/yabil/bigint/Parallel.h
+    include/yabil/bigint/Thresholds.h
 )
 
 set(TESTS

@@ -10,7 +10,6 @@
 #include "AVX2Utils.h"
 #include "Arithmetic.h"
 #include "StringConversionUtils.h"
-#include "Thresholds.h"
 #include "TypeUtils.h"
 
 using namespace yabil::type_utils;
@@ -20,8 +19,9 @@ namespace yabil::bigint
 
 std::pair<BigInt, BigInt> BigInt::divide_unsigned(const BigInt &other) const
 {
-    if (data.size() > thresholds::recursive_div_threshold_digits &&
-        other.data.size() > thresholds::recursive_div_threshold_digits)
+    const auto &thresholds = BigIntGlobalConfig::instance().thresholds();
+    if (data.size() > thresholds.recursive_div_threshold_digits &&
+        other.data.size() > thresholds.recursive_div_threshold_digits)
     {
         return unbalanced_div(other);
     }

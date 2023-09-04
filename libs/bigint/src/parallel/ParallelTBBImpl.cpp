@@ -1,7 +1,9 @@
+
 #include <oneapi/tbb/global_control.h>
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_invoke.h>
 #include <yabil/bigint/BigInt.h>
+#include <yabil/bigint/BigIntGlobalConfig.h>
 #include <yabil/utils/IterUtils.h>
 
 #include <algorithm>
@@ -10,7 +12,6 @@
 
 #include "Arithmetic.h"
 #include "ParallelImpl.h"
-#include "Thresholds.h"
 
 using namespace oneapi;
 
@@ -30,7 +31,8 @@ void set_thread_count(std::size_t thread_count)
 std::vector<bigint_base_t> parallel_add_unsigned(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
 {
     const auto min_s = std::min(a.size(), b.size());
-    if (min_s < thresholds::parallel_add_digits)
+    const auto& thresholds = BigIntGlobalConfig::instance().thresholds();
+    if (min_s < thresholds.parallel_add_digits)
     {
         return plain_add(a, b);
     }
@@ -96,7 +98,8 @@ std::vector<bigint_base_t> parallel_add_unsigned(std::span<bigint_base_t const> 
 
 std::vector<bigint_base_t> parallel_karatsuba(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
 {
-    if (a.size() < thresholds::karatsuba_threshold_digits || b.size() < thresholds::karatsuba_threshold_digits)
+    const auto& thresholds = BigIntGlobalConfig::instance().thresholds();
+    if (a.size() < thresholds.karatsuba_threshold_digits || b.size() < thresholds.karatsuba_threshold_digits)
     {
         return mul_basecase(a, b);
     }
