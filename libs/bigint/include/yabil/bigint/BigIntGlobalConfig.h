@@ -48,7 +48,7 @@ public:
 
     /// @brief Set new thresholds
     /// @param new_thresholds \p Thresholds structure
-    void set_thresholds(const Thresholds &new_thresholds);
+    [[maybe_unused]] void set_thresholds(const Thresholds &new_thresholds);
 
 protected:
     BigIntGlobalConfig();
