@@ -1,5 +1,6 @@
 #include <benchmark/benchmark.h>
 #include <yabil/bigint/BigInt.h>
+#include <yabil/bigint/BigIntGlobalConfig.h>
 #include <yabil/bigint/Parallel.h>
 #include <yabil/crypto/Random.h>
 
@@ -63,6 +64,30 @@ BENCHMARK_DEFINE_F(Addition, YABIL_parallel)(benchmark::State& state)
         benchmark::DoNotOptimize(c);
         benchmark::ClobberMemory();
     }
+}
+
+BENCHMARK_DEFINE_F(Addition, YABIL_parallel_thread)(benchmark::State& state)
+{
+    const int size = static_cast<int>(state.range(0));
+    const int thread_count = static_cast<int>(state.range(1));
+    const auto [a_data, b_data] = generate_test_numbers(size);
+
+    yabil::bigint::BigInt a;
+    yabil::bigint::BigInt b;
+
+    yabil::bigint::BigIntGlobalConfig::instance().set_thread_count(thread_count);
+
+    convertTo_(&a, a_data);
+    convertTo_(&b, b_data);
+
+    for (auto _ : state)
+    {
+        auto c = yabil::bigint::parallel::add(a, b);
+        benchmark::DoNotOptimize(c);
+        benchmark::ClobberMemory();
+    }
+
+    yabil::bigint::BigIntGlobalConfig::instance().set_thread_count(11);
 }
 
 BENCHMARK_DEFINE_F(Addition, GMP)(benchmark::State& state)
@@ -158,10 +183,32 @@ BENCHMARK_DEFINE_F(Addition, python)(benchmark::State& state)
 }
 
 REGISTER_F(Addition, YABIL);
-REGISTER_F(Addition, YABIL_parallel);
+REGISTER_F(Addition, YABIL_parallel)->UseRealTime();
+BENCHMARK_REGISTER_F(Addition, YABIL_parallel_thread)
+    ->UseRealTime()
+    ->ArgsProduct({benchmark::CreateDenseRange(64, BaseBigIntBenchmark::number_max_size_digits,
+                                               BaseBigIntBenchmark::step_size),
+                   {1, 2, 3, 5, 7, 9}});
+
 REGISTER_F(Addition, GMP);
 REGISTER_F(Addition, boost);
 REGISTER_F(Addition, openssl);
 REGISTER_F(Addition, python);
+
+// ----------
+// Perform addition for large inputs
+
+constexpr int extended_range_start = 0;
+constexpr int extended_range_stop = 3'000'000;
+constexpr int extended_range_step = extended_range_stop / BaseBigIntBenchmark::step_size;
+
+BENCHMARK_REGISTER_F(Addition, YABIL_parallel)
+    ->Name("Addition/YABIL_big")
+    ->DenseRange(extended_range_start, extended_range_stop, extended_range_step);
+
+BENCHMARK_REGISTER_F(Addition, YABIL_parallel_thread)
+    ->Name("Addition/YABIL_big_parallel")
+    ->UseRealTime()
+    ->ArgsProduct({benchmark::CreateDenseRange(extended_range_start, extended_range_stop, extended_range_step), {5}});
 
 }  // namespace

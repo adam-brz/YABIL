@@ -69,6 +69,8 @@ BENCHMARK_DEFINE_F(Multiplication, YABIL_parallel_thread)(benchmark::State& stat
         benchmark::DoNotOptimize(c);
         benchmark::ClobberMemory();
     }
+
+    yabil::bigint::BigIntGlobalConfig::instance().set_thread_count(11);
 }
 
 BENCHMARK_DEFINE_F(Multiplication, YABIL_parallel)(benchmark::State& state)
@@ -184,11 +186,12 @@ BENCHMARK_DEFINE_F(Multiplication, python)(benchmark::State& state)
 }
 
 REGISTER_F(Multiplication, YABIL);
-REGISTER_F(Multiplication, YABIL_parallel);
+REGISTER_F(Multiplication, YABIL_parallel)->UseRealTime();
 BENCHMARK_REGISTER_F(Multiplication, YABIL_parallel_thread)
+    ->UseRealTime()
     ->ArgsProduct({benchmark::CreateDenseRange(0, BaseBigIntBenchmark::number_max_size_digits,
                                                BaseBigIntBenchmark::step_size),
-                   {1, 2, 3, 4, 6, 8, 10, 12}});
+                   {1, 2, 3, 5, 7, 9}});
 REGISTER_F(Multiplication, GMP);
 REGISTER_F(Multiplication, boost);
 REGISTER_F(Multiplication, openssl);

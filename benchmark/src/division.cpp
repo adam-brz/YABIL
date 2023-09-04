@@ -174,7 +174,7 @@ BENCHMARK_DEFINE_F(Division, python)(benchmark::State& state)
         ->DenseRange(256, BaseBigIntBenchmark::number_max_size_digits, BaseBigIntBenchmark::step_size)
 
 REGISTER_DIV_F(Division, YABIL);
-REGISTER_DIV_F(Division, YABIL_parallel);
+REGISTER_DIV_F(Division, YABIL_parallel)->UseRealTime();
 REGISTER_DIV_F(Division, GMP);
 REGISTER_DIV_F(Division, boost);
 REGISTER_DIV_F(Division, openssl);

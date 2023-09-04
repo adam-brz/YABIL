@@ -12,7 +12,7 @@ class BaseBigIntBenchmark : public benchmark::Fixture
 {
 public:
     constexpr static int number_max_size_digits = 1'000'000;
-    constexpr static int number_of_probes = 2;
+    constexpr static int number_of_probes = 100;
     constexpr static int step_size = number_max_size_digits / number_of_probes;
 
 public:

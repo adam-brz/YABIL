@@ -2,11 +2,6 @@
 
 #include <yabil/bigint/BigInt.h>
 
-#include <random>
-#include <span>
-#include <string>
-#include <vector>
-
 // Boost
 #include <boost/multiprecision/cpp_int.hpp>
 
@@ -18,6 +13,12 @@
 
 // CPython
 #include <Python.h>
+
+#include <exception>
+#include <random>
+#include <span>
+#include <string>
+#include <vector>
 
 std::vector<uint64_t> random_digits(uint64_t number_of_digits)
 {
@@ -41,8 +42,17 @@ std::pair<std::span<const uint64_t>, std::span<const uint64_t>> BaseBigIntBenchm
     int size, std::optional<int> size2)
 {
     constexpr auto digit_bit_size = sizeof(uint64_t) * 8;
-    static const std::vector<uint64_t> a = random_digits(number_max_size_digits / digit_bit_size);
-    static const std::vector<uint64_t> b = random_digits(number_max_size_digits / digit_bit_size);
+    constexpr int number_limit_digits = static_cast<int>(4e6) / digit_bit_size;
+
+    static const std::vector<uint64_t> a = random_digits(number_limit_digits);
+    static const std::vector<uint64_t> b = random_digits(number_limit_digits);
+
+    if (size >= number_limit_digits)
+    {
+        throw std::runtime_error("Cannot generate number larger than " + std::to_string(number_limit_digits) +
+                                 " digits.");
+    }
+
     const auto number_of_digits = size / digit_bit_size;
     const auto number_of_digits2 = size2.value_or(size) / digit_bit_size;
     return std::make_pair(std::span(a.data(), number_of_digits), std::span(b.data(), number_of_digits2));
