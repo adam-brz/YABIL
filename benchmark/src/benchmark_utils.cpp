@@ -47,7 +47,7 @@ std::pair<std::span<const uint64_t>, std::span<const uint64_t>> BaseBigIntBenchm
     static const std::vector<uint64_t> a = random_digits(number_limit_digits);
     static const std::vector<uint64_t> b = random_digits(number_limit_digits);
 
-    if (size >= number_limit_digits)
+    if (size / digit_bit_size >= number_limit_digits)
     {
         throw std::runtime_error("Cannot generate number larger than " + std::to_string(number_limit_digits) +
                                  " digits.");
