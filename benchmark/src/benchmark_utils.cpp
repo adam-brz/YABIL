@@ -14,6 +14,10 @@
 // CPython
 #include <Python.h>
 
+// FLINT
+
+#include <fmpz.h>
+
 #include <exception>
 #include <random>
 #include <span>
@@ -90,4 +94,10 @@ template <>
 void convertTo_(PyObject** output, std::span<const uint64_t> digits)
 {
     *output = _PyLong_FromByteArray(reinterpret_cast<const uint8_t*>(digits.data()), digits.size() * 8, 1, 0);
+}
+
+template <>
+void convertTo_(fmpz_t output, std::span<const uint64_t> digits)
+{
+    fmpz_set_ui_array(output, digits.data(), digits.size());
 }

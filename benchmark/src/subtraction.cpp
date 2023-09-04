@@ -13,6 +13,9 @@
 // CPython
 #include <Python.h>
 
+// FLINT
+#include <fmpz.h>
+
 // Utils
 #include <thread>
 
@@ -136,10 +139,33 @@ BENCHMARK_DEFINE_F(Subtraction, python)(benchmark::State& state)
     Py_Finalize();
 }
 
+BENCHMARK_DEFINE_F(Subtraction, FLINT)(benchmark::State& state)
+{
+    const int size = static_cast<int>(state.range(0));
+    const auto [a_data, b_data] = generate_test_numbers(size);
+
+    fmpz_t a, b;
+    convertTo_(a, a_data);
+    convertTo_(b, b_data);
+
+    PyObject* c = nullptr;
+
+    for (auto _ : state)
+    {
+        fmpz_t c;
+        fmpz_init(c);
+        fmpz_sub(c, a, b);
+        benchmark::DoNotOptimize(c);
+        benchmark::ClobberMemory();
+        fmpz_clear(c);
+    }
+}
+
 REGISTER_F(Subtraction, YABIL);
 REGISTER_F(Subtraction, GMP);
 REGISTER_F(Subtraction, boost);
 REGISTER_F(Subtraction, openssl);
 REGISTER_F(Subtraction, python);
+REGISTER_F(Subtraction, FLINT);
 
 }  // namespace

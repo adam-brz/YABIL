@@ -5,6 +5,7 @@ gmp/6.2.1
 boost/1.81.0
 openssl/3.1.0
 cpython/3.10.0
+flint/2.8.1
 
 [generators]
 CMakeToolchain

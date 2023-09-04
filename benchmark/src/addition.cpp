@@ -16,6 +16,9 @@
 // CPython
 #include <Python.h>
 
+// FLINT
+#include <fmpz.h>
+
 #include <string>
 #include <thread>
 
@@ -182,6 +185,28 @@ BENCHMARK_DEFINE_F(Addition, python)(benchmark::State& state)
     Py_Finalize();
 }
 
+BENCHMARK_DEFINE_F(Addition, FLINT)(benchmark::State& state)
+{
+    const int size = static_cast<int>(state.range(0));
+    const auto [a_data, b_data] = generate_test_numbers(size);
+
+    fmpz_t a, b;
+    convertTo_(a, a_data);
+    convertTo_(b, b_data);
+
+    PyObject* c = nullptr;
+
+    for (auto _ : state)
+    {
+        fmpz_t c;
+        fmpz_init(c);
+        fmpz_add(c, a, b);
+        benchmark::DoNotOptimize(c);
+        benchmark::ClobberMemory();
+        fmpz_clear(c);
+    }
+}
+
 REGISTER_F(Addition, YABIL);
 REGISTER_F(Addition, YABIL_parallel)->UseRealTime();
 BENCHMARK_REGISTER_F(Addition, YABIL_parallel_thread)
@@ -194,6 +219,7 @@ REGISTER_F(Addition, GMP);
 REGISTER_F(Addition, boost);
 REGISTER_F(Addition, openssl);
 REGISTER_F(Addition, python);
+REGISTER_F(Addition, FLINT);
 
 // ----------
 // Perform addition for large inputs

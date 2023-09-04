@@ -7,6 +7,7 @@ find_package(yabil REQUIRED CONFIG)
 find_package(Boost REQUIRED CONFIG)
 find_package(OpenSSL REQUIRED CONFIG)
 find_package(cpython REQUIRED CONFIG)
+find_package(flint REQUIRED CONFIG)
 
 
 set(SOURCES
@@ -38,6 +39,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     OpenSSL::Crypto
     cpython::python
     cpython::embed
+    flint::flint
     benchmark::benchmark
     benchmark::benchmark_main
 )

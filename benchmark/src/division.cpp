@@ -16,6 +16,9 @@
 // CPython
 #include <Python.h>
 
+// FLINT
+#include <fmpz.h>
+
 // Utils
 #include <thread>
 
@@ -75,17 +78,20 @@ BENCHMARK_DEFINE_F(Division, GMP)(benchmark::State& state)
     const int size = static_cast<int>(state.range(0));
     const auto [a_data, b_data] = generate_test_numbers(size, size / 2);
 
-    mpz_t a, b, c;
+    mpz_t a, b, q, r;
     convertTo_(a, a_data);
     convertTo_(b, b_data);
 
     for (auto _ : state)
     {
-        mpz_init(c);
-        mpz_div(c, a, b);
-        benchmark::DoNotOptimize(c);
+        mpz_init(q);
+        mpz_init(r);
+        mpz_fdiv_qr(q, r, a, b);
+        benchmark::DoNotOptimize(q);
+        benchmark::DoNotOptimize(r);
         benchmark::ClobberMemory();
-        mpz_clear(c);
+        mpz_clear(q);
+        mpz_clear(r);
     }
 }
 
@@ -167,6 +173,31 @@ BENCHMARK_DEFINE_F(Division, python)(benchmark::State& state)
     Py_DECREF(a);
     Py_DECREF(b);
     Py_Finalize();
+}
+
+BENCHMARK_DEFINE_F(Division, FLINT)(benchmark::State& state)
+{
+    const int size = static_cast<int>(state.range(0));
+    const auto [a_data, b_data] = generate_test_numbers(size);
+
+    fmpz_t a, b;
+    convertTo_(a, a_data);
+    convertTo_(b, b_data);
+
+    PyObject* c = nullptr;
+
+    for (auto _ : state)
+    {
+        fmpz_t q, r;
+        fmpz_init(q);
+        fmpz_init(r);
+        fmpz_fdiv_qr(q, r, a, b);
+        benchmark::DoNotOptimize(q);
+        benchmark::DoNotOptimize(r);
+        benchmark::ClobberMemory();
+        fmpz_clear(q);
+        fmpz_clear(r);
+    }
 }
 
 #define REGISTER_DIV_F(FixtureName, CaseName)   \
