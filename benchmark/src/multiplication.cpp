@@ -221,6 +221,22 @@ REGISTER_F(Multiplication, GMP);
 REGISTER_F(Multiplication, boost);
 REGISTER_F(Multiplication, openssl);
 REGISTER_F(Multiplication, python);
-REGISTER_F(Multiplication, FLINT);
+REGISTER_F(Multiplication, FLINT);  // flint_set_num_threads(n)
+
+// ----------
+// Perform multiplication for large inputs
+
+constexpr int extended_range_start = 0;
+constexpr int extended_range_stop = 3'000'000;
+constexpr int extended_range_step = extended_range_stop / BaseBigIntBenchmark::step_size;
+
+BENCHMARK_REGISTER_F(Multiplication, YABIL)
+    ->Name("Multiplication/YABIL_big")
+    ->DenseRange(extended_range_start, extended_range_stop, extended_range_step);
+
+BENCHMARK_REGISTER_F(Multiplication, YABIL_parallel_thread)
+    ->Name("Multiplication/YABIL_big_parallel")
+    ->UseRealTime()
+    ->ArgsProduct({benchmark::CreateDenseRange(extended_range_start, extended_range_stop, extended_range_step), {5}});
 
 }  // namespace
