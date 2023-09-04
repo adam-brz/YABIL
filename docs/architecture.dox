@@ -1,0 +1,40 @@
+@startuml
+    !includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+    skinparam dpi 600
+
+    AddRelTag("uses", $lineColor="grey", $lineStyle = DashedLine())
+    AddRelTag("creates", $lineColor="black")
+
+    Boundary(Utils, "Utils", "Container") {
+        Component(ThreadPool, "ThreadPool", "class", "Class implementing thread pool.")
+        Component(ThreadPoolSingleton, "ThreadPoolSingleton", "class", "Singleton for single instance of thread pool.")
+        Component(IterUtils, "IterUtils", "przestrzeń nazw", "Additional utilities for iterators.")
+
+        Rel(ThreadPoolSingleton, ThreadPool, "creates", $tags="creates")
+    }
+
+    Boundary(BigInt, "BigInt", "Container") {
+        Component(BigIntClass, "BigInt", "class", "Main class for support of big integers.")
+        Component(BigIntGlobalConfig, "BigIntGlobalConfig", "class", "Singleton configuration class for big integer algorithms settings.")
+
+        Rel(BigIntClass, ThreadPoolSingleton, "uses", $tags="uses")
+        Rel(BigIntClass, IterUtils, "uses", $tags="uses")
+        Rel(BigIntClass, BigIntGlobalConfig, "uses", $tags="uses")
+    }
+
+    Boundary(Math, "Math", "Container") {
+        Component(MathNamespace, "Math", "przestrzeń nazw", "Additional math utilities.")
+        Rel(MathNamespace, BigIntClass, "uses", $tags="uses")
+    }
+
+    Boundary(Crypto, "Crypto", "Container") {
+        Component(Random, "Random", "przestrzeń nazw", "Generation of pseudorandom big integers.")
+        Component(RSA, "RSA", "przestrzeń nazw", "Basic implementation of RSA.")
+        Rel(RSA, Random, "uses", $tags="uses")
+        Rel(RSA, MathNamespace, "uses", $tags="uses")
+        Rel(RSA, BigIntClass, "uses", $tags="uses")
+        Rel(Random, BigIntClass, "uses", $tags="uses")
+    }
+
+@enduml
