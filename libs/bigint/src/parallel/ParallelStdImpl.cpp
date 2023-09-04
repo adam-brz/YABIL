@@ -87,6 +87,11 @@ std::vector<bigint_base_t> parallel_add_unsigned(std::span<bigint_base_t const> 
 std::vector<bigint_base_t> parallel_karatsuba(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
 {
     const auto &thresholds = BigIntGlobalConfig::instance().thresholds();
+    if (a.size() < thresholds.parallel_mul_digits || b.size() < thresholds.parallel_mul_digits)
+    {
+        return karatsuba_mul(a, b);
+    }
+
     if (a.size() < thresholds.karatsuba_threshold_digits || b.size() < thresholds.karatsuba_threshold_digits)
     {
         return mul_basecase(a, b);
