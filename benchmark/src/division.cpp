@@ -73,6 +73,30 @@ BENCHMARK_DEFINE_F(Division, YABIL_parallel)(benchmark::State& state)
     }
 }
 
+BENCHMARK_DEFINE_F(Division, YABIL_parallel_thread)(benchmark::State& state)
+{
+    const int size = static_cast<int>(state.range(0));
+    const int thread_count = static_cast<int>(state.range(1));
+    const auto [a_data, b_data] = generate_test_numbers(size, size / 2);
+
+    yabil::bigint::BigInt a;
+    yabil::bigint::BigInt b;
+
+    yabil::bigint::BigIntGlobalConfig::instance().set_thread_count(thread_count);
+
+    convertTo_(&a, a_data);
+    convertTo_(&b, b_data);
+
+    for (auto _ : state)
+    {
+        auto c = a / b;
+        benchmark::DoNotOptimize(c);
+        benchmark::ClobberMemory();
+    }
+
+    yabil::bigint::BigIntGlobalConfig::instance().set_thread_count(11);
+}
+
 BENCHMARK_DEFINE_F(Division, GMP)(benchmark::State& state)
 {
     const int size = static_cast<int>(state.range(0));
@@ -178,7 +202,7 @@ BENCHMARK_DEFINE_F(Division, python)(benchmark::State& state)
 BENCHMARK_DEFINE_F(Division, FLINT)(benchmark::State& state)
 {
     const int size = static_cast<int>(state.range(0));
-    const auto [a_data, b_data] = generate_test_numbers(size);
+    const auto [a_data, b_data] = generate_test_numbers(size, size / 2);
 
     fmpz_t a, b;
     convertTo_(a, a_data);
@@ -210,5 +234,36 @@ REGISTER_DIV_F(Division, GMP);
 REGISTER_DIV_F(Division, boost);
 REGISTER_DIV_F(Division, openssl);
 REGISTER_DIV_F(Division, python);
+REGISTER_DIV_F(Division, FLINT);
+
+BENCHMARK_REGISTER_F(Division, YABIL_parallel_thread)
+    ->UseRealTime()
+    ->ArgsProduct({benchmark::CreateDenseRange(256, BaseBigIntBenchmark::number_max_size_digits,
+                                               BaseBigIntBenchmark::step_size),
+                   {1, 2, 3, 5, 7, 9}});
+
+// ----------
+// Perform division for large inputs
+
+constexpr int extended_range_start = 256;
+constexpr int extended_range_stop = 4'000'000;
+constexpr int extended_range_step = extended_range_stop / BaseBigIntBenchmark::number_of_probes;
+
+BENCHMARK_REGISTER_F(Division, YABIL)
+    ->Name("Division/YABIL_big")
+    ->DenseRange(extended_range_start, extended_range_stop, extended_range_step);
+
+BENCHMARK_REGISTER_F(Division, YABIL_parallel_thread)
+    ->Name("Division/YABIL_parallel_thread_big")
+    ->UseRealTime()
+    ->ArgsProduct({benchmark::CreateDenseRange(extended_range_start, extended_range_stop, extended_range_step), {11}});
+
+BENCHMARK_REGISTER_F(Division, GMP)
+    ->Name("Division/GMP_big")
+    ->DenseRange(extended_range_start, extended_range_stop, extended_range_step);
+
+BENCHMARK_REGISTER_F(Division, boost)
+    ->Name("Division/boost_big")
+    ->DenseRange(extended_range_start, extended_range_stop, extended_range_step);
 
 }  // namespace

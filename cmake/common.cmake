@@ -76,6 +76,7 @@ function(set_common_target_options TARGET)
 
     if(YABIL_ENABLE_GPERFTOOLS)
         target_link_libraries(${TARGET} PRIVATE profiler tcmalloc)
+        list(APPEND OTHER_RELEASE_FLAGS -g)
     endif()
 
     if(YABIL_ENABLE_OPTIMIZATIONS)
@@ -148,7 +149,7 @@ function(setup_test_target TEST_TARGET)
     if (MSVC)
         set_target_properties(${TEST_TARGET} PROPERTIES LINK_FLAGS "/ignore:4099")
     else()
-        if(CMAKE_BUILD_TYPE STREQUAL "Release")
+        if(CMAKE_BUILD_TYPE STREQUAL "Release" AND NOT YABIL_ENABLE_GPERFTOOLS)
             add_custom_command(
                 TARGET ${TEST_TARGET} POST_BUILD
                 COMMAND ${CMAKE_STRIP}

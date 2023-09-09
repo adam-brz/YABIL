@@ -214,7 +214,7 @@ REGISTER_F(Multiplication, YABIL);
 REGISTER_F(Multiplication, YABIL_parallel)->UseRealTime();
 BENCHMARK_REGISTER_F(Multiplication, YABIL_parallel_thread)
     ->UseRealTime()
-    ->ArgsProduct({benchmark::CreateDenseRange(0, BaseBigIntBenchmark::number_max_size_digits,
+    ->ArgsProduct({benchmark::CreateDenseRange(64, BaseBigIntBenchmark::number_max_size_digits,
                                                BaseBigIntBenchmark::step_size),
                    {1, 2, 3, 5, 7, 9}});
 REGISTER_F(Multiplication, GMP);
@@ -226,17 +226,25 @@ REGISTER_F(Multiplication, FLINT);  // flint_set_num_threads(n)
 // ----------
 // Perform multiplication for large inputs
 
-constexpr int extended_range_start = 0;
-constexpr int extended_range_stop = 3'000'000;
-constexpr int extended_range_step = extended_range_stop / BaseBigIntBenchmark::step_size;
+constexpr int extended_range_start = 1520064;
+constexpr int extended_range_stop = 4'000'000;
+constexpr int extended_range_step = extended_range_stop / BaseBigIntBenchmark::number_of_probes;
 
 BENCHMARK_REGISTER_F(Multiplication, YABIL)
     ->Name("Multiplication/YABIL_big")
     ->DenseRange(extended_range_start, extended_range_stop, extended_range_step);
 
 BENCHMARK_REGISTER_F(Multiplication, YABIL_parallel_thread)
-    ->Name("Multiplication/YABIL_big_parallel")
+    ->Name("Multiplication/YABIL_parallel_thread_big")
     ->UseRealTime()
-    ->ArgsProduct({benchmark::CreateDenseRange(extended_range_start, extended_range_stop, extended_range_step), {5}});
+    ->ArgsProduct({benchmark::CreateDenseRange(extended_range_start, extended_range_stop, extended_range_step), {11}});
+
+BENCHMARK_REGISTER_F(Multiplication, GMP)
+    ->Name("Multiplication/GMP_big")
+    ->DenseRange(extended_range_start, extended_range_stop, extended_range_step);
+
+BENCHMARK_REGISTER_F(Multiplication, boost)
+    ->Name("Multiplication/boost_big")
+    ->DenseRange(extended_range_start, extended_range_stop, extended_range_step);
 
 }  // namespace

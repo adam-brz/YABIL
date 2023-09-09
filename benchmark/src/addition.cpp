@@ -219,21 +219,29 @@ REGISTER_F(Addition, GMP);
 REGISTER_F(Addition, boost);
 REGISTER_F(Addition, openssl);
 REGISTER_F(Addition, python);
-REGISTER_F(Addition, FLINT);
+// REGISTER_F(Addition, FLINT);
 
 // ----------
 // Perform addition for large inputs
 
-constexpr int extended_range_start = 0;
-constexpr int extended_range_stop = 3'000'000;
-constexpr int extended_range_step = extended_range_stop / BaseBigIntBenchmark::step_size;
+constexpr int extended_range_start = 256;
+constexpr int extended_range_stop = 20'000'000;
+constexpr int extended_range_step = extended_range_stop / BaseBigIntBenchmark::number_of_probes;
 
 BENCHMARK_REGISTER_F(Addition, YABIL)
     ->Name("Addition/YABIL_big")
     ->DenseRange(extended_range_start, extended_range_stop, extended_range_step);
 
+BENCHMARK_REGISTER_F(Addition, GMP)
+    ->Name("Addition/GMP_big")
+    ->DenseRange(extended_range_start, extended_range_stop, extended_range_step);
+
+BENCHMARK_REGISTER_F(Addition, boost)
+    ->Name("Addition/boost_big")
+    ->DenseRange(extended_range_start, extended_range_stop, extended_range_step);
+
 BENCHMARK_REGISTER_F(Addition, YABIL_parallel_thread)
-    ->Name("Addition/YABIL_big_parallel")
+    ->Name("Addition/YABIL_parallel_thread_big")
     ->UseRealTime()
     ->ArgsProduct({benchmark::CreateDenseRange(extended_range_start, extended_range_stop, extended_range_step), {5}});
 

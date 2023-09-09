@@ -168,4 +168,23 @@ REGISTER_F(Subtraction, openssl);
 REGISTER_F(Subtraction, python);
 REGISTER_F(Subtraction, FLINT);
 
+// ----------
+// Perform subtraction for large inputs
+
+constexpr int extended_range_start = 0;
+constexpr int extended_range_stop = 20'000'000;
+constexpr int extended_range_step = extended_range_stop / BaseBigIntBenchmark::number_of_probes;
+
+BENCHMARK_REGISTER_F(Subtraction, YABIL)
+    ->Name("Subtraction/YABIL_big")
+    ->DenseRange(extended_range_start, extended_range_stop, extended_range_step);
+
+BENCHMARK_REGISTER_F(Subtraction, GMP)
+    ->Name("Subtraction/GMP_big")
+    ->DenseRange(extended_range_start, extended_range_stop, extended_range_step);
+
+BENCHMARK_REGISTER_F(Subtraction, boost)
+    ->Name("Subtraction/boost_big")
+    ->DenseRange(extended_range_start, extended_range_stop, extended_range_step);
+
 }  // namespace

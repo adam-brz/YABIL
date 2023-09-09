@@ -88,7 +88,8 @@ void avx2_add(const bigint_base_t *a, std::size_t a_size_bytes, const bigint_bas
 {
     assert(a_size_bytes >= b_size_bytes);
 
-    const auto max_avx_iters = b_size_bytes / 32;
+    constexpr auto avx2_data_size_bytes = 256 / 8;
+    const auto max_avx_iters = b_size_bytes / avx2_data_size_bytes;
     uint32_t carry = 0;
 
     for (unsigned i = 0; i < max_avx_iters; ++i)
@@ -99,12 +100,12 @@ void avx2_add(const bigint_base_t *a, std::size_t a_size_bytes, const bigint_bas
         _mm256_storeu_si256(&(reinterpret_cast<__m256i_u *>(r)[i]), R_v);
     }
 
-    a += max_avx_iters * 32 / sizeof(*a);
-    b += max_avx_iters * 32 / sizeof(*b);
-    r += max_avx_iters * 32 / sizeof(*r);
+    a += max_avx_iters * avx2_data_size_bytes / sizeof(*a);
+    b += max_avx_iters * avx2_data_size_bytes / sizeof(*b);
+    r += max_avx_iters * avx2_data_size_bytes / sizeof(*r);
 
-    const auto a_unaligned = (a_size_bytes - max_avx_iters * 32) / sizeof(*a);
-    const auto b_unaligned = (b_size_bytes - max_avx_iters * 32) / sizeof(*b);
+    const auto a_unaligned = (a_size_bytes - max_avx_iters * avx2_data_size_bytes) / sizeof(*a);
+    const auto b_unaligned = (b_size_bytes - max_avx_iters * avx2_data_size_bytes) / sizeof(*b);
 
     add_arrays(a, a_unaligned, b, b_unaligned, r, carry);
 }
@@ -113,7 +114,8 @@ void avx2_add(const bigint_base_t *a, std::size_t a_size_bytes, const bigint_bas
 void avx2_sub(const bigint_base_t *a, std::size_t a_size_bytes, const bigint_base_t *b, std::size_t b_size_bytes,
               bigint_base_t *r)
 {
-    const auto max_avx_iters = b_size_bytes / 32;
+    constexpr auto avx2_data_size_bytes = 256 / 8;
+    const auto max_avx_iters = b_size_bytes / avx2_data_size_bytes;
     uint32_t borrow = 0;
 
     for (unsigned i = 0; i < max_avx_iters; ++i)
@@ -124,12 +126,12 @@ void avx2_sub(const bigint_base_t *a, std::size_t a_size_bytes, const bigint_bas
         _mm256_storeu_si256(&(reinterpret_cast<__m256i_u *>(r)[i]), R_v);
     }
 
-    a += max_avx_iters * 32 / sizeof(*a);
-    b += max_avx_iters * 32 / sizeof(*b);
-    r += max_avx_iters * 32 / sizeof(*r);
+    a += max_avx_iters * avx2_data_size_bytes / sizeof(*a);
+    b += max_avx_iters * avx2_data_size_bytes / sizeof(*b);
+    r += max_avx_iters * avx2_data_size_bytes / sizeof(*r);
 
-    const auto a_unaligned = (a_size_bytes - max_avx_iters * 32) / sizeof(*a);
-    const auto b_unaligned = (b_size_bytes - max_avx_iters * 32) / sizeof(*b);
+    const auto a_unaligned = (a_size_bytes - max_avx_iters * avx2_data_size_bytes) / sizeof(*a);
+    const auto b_unaligned = (b_size_bytes - max_avx_iters * avx2_data_size_bytes) / sizeof(*b);
 
     sub_arrays(a, a_unaligned, b, b_unaligned, r, borrow);
 }

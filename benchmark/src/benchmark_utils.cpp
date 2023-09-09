@@ -46,7 +46,7 @@ std::pair<std::span<const uint64_t>, std::span<const uint64_t>> BaseBigIntBenchm
     int size, std::optional<int> size2)
 {
     constexpr auto digit_bit_size = sizeof(uint64_t) * 8;
-    constexpr int number_limit_digits = static_cast<int>(4e6) / digit_bit_size;
+    constexpr uint64_t number_limit_digits = 20'800'000ULL / digit_bit_size;
 
     static const std::vector<uint64_t> a = random_digits(number_limit_digits);
     static const std::vector<uint64_t> b = random_digits(number_limit_digits);

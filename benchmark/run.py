@@ -42,9 +42,9 @@ def build(benchmark_root_dir, conanfile_case, filters):
     )
 
     for f in filters:
-        results_output = os.path.join(build_dir, f"results_{f.replace('/', '_')}.json")
-        if "*" in f:
-            results_output = os.path.join(build_dir, "results_all.json")
+        results_output = os.path.join(
+            build_dir, f"results_{f.replace('/', '_').replace('.*', 'all')}.json"
+        )
         subprocess.call(
             f"{build_dir}/yabil_benchmarks --benchmark_repetitions=10 --benchmark_report_aggregates_only=true --benchmark_out={results_output} --benchmark_out_format=json --benchmark_filter='{f}'",
             shell=True,
