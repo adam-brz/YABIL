@@ -1,6 +1,7 @@
 #include <yabil/bigint/BigInt.h>
 
 #include <algorithm>
+#include <bit>
 #include <cctype>
 #include <cmath>
 #include <functional>
@@ -31,7 +32,7 @@ BigInt::BigInt(std::span<bigint_base_t const> raw_data, Sign sign) : sign(sign)
     normalize();
 }
 
-BigInt::BigInt(const std::string_view &str, int base)
+BigInt::BigInt(const std::string_view &str, unsigned base)
 {
     if (str.size() == 0)
     {
@@ -44,7 +45,7 @@ BigInt::BigInt(const std::string_view &str, int base)
     if (!hasSign)
     {
         const int converted = get_digit_value(std::tolower(first));
-        check_conversion(first, converted, base);
+        check_conversion(first, static_cast<unsigned>(converted), base);
         data.push_back(converted);
     }
 
@@ -67,7 +68,7 @@ BigInt::BigInt(const std::string_view &str, int base)
     for (auto it = str.cbegin() + 1; it != str.cend(); ++it)
     {
         const int converted = get_digit_value(std::tolower(*it));
-        check_conversion(*it, converted, base);
+        check_conversion(*it, static_cast<unsigned>(converted), base);
         *this = base_multiplier(*this);
         *this += BigInt(converted);
     }
@@ -103,14 +104,23 @@ uint64_t BigInt::byte_size() const
     return data.size() * sizeof(bigint_base_t);
 }
 
-std::string BigInt::to_str(int base) const
+std::string BigInt::to_str(unsigned base) const
 {
     BigInt number = this->abs();
     std::string str_number;
 
+    std::function<std::pair<BigInt, BigInt>(BigInt)> divide_func;
+    const bool is_power_of_2 = std::popcount(base) == 1;
+
+    if (is_power_of_2)
+        divide_func = [base](const BigInt &number)
+        { return std::make_pair(number >> std::log2l(base), BigInt(number % base)); };
+    else
+        divide_func = [base](const BigInt &number) { return number.divide(BigInt(base)); };
+
     do
     {
-        const auto [quotient, remainder] = number.divide(BigInt(base));
+        const auto [quotient, remainder] = divide_func(number);
         number = quotient;
         str_number.append(1, get_digit_char(static_cast<int>(remainder.to_int())));
     } while (!number.is_zero());
@@ -128,6 +138,20 @@ bool BigInt::is_negative() const
 bool BigInt::is_even() const
 {
     return is_zero() || ((data.front() & 0x01) == 0);
+}
+
+bool BigInt::is_power_of_2() const
+{
+    uint64_t non_zero_bits = 0;
+    for (const auto &digit : data)
+    {
+        non_zero_bits += std::popcount(digit);
+        if (non_zero_bits > 1)
+        {
+            return false;
+        }
+    }
+    return non_zero_bits == 1;
 }
 
 BigInt BigInt::abs() const
@@ -224,14 +248,14 @@ std::istream &operator>>(std::istream &in, BigInt &bigint)
     if (!hasSign)
     {
         int converted = get_digit_value(std::tolower(first));
-        check_conversion(first, converted, base);
+        check_conversion(first, static_cast<unsigned>(converted), base);
         result = BigInt(converted);
     }
 
     for (auto it = std::istreambuf_iterator<char>(in); it != std::istreambuf_iterator<char>(); ++it)
     {
         const auto converted = get_digit_value(std::tolower(*it));
-        check_conversion(*it, converted, base);
+        check_conversion(*it, static_cast<unsigned>(converted), base);
         result *= BigInt(base);
         result += BigInt(converted);
     }

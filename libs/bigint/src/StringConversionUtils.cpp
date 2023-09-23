@@ -18,9 +18,9 @@ char get_digit_char(int digit)
     return static_cast<char>(digit + '0');
 }
 
-void check_conversion(char chr, int converted, int base)
+void check_conversion(char chr, unsigned converted, unsigned base)
 {
-    if (converted < 0 || converted > base)
+    if (converted > base)
     {
         throw std::invalid_argument("Cannot convert character: " + std::string(1, chr) +
                                     " to number of base: " + std::to_string(base));

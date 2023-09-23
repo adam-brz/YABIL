@@ -41,6 +41,7 @@ set(TESTS
     test/BigIntBitOperations_tests.cpp
     test/BigIntGreaterComparaison_tests.cpp
     test/BigIntIncrementDecrementOperator_tests.cpp
+    test/BigIntIsPowerOf2_tests.cpp
     test/BigIntLowerComparaison_tests.cpp
     test/BigIntMulOperator_tests.cpp
     test/BigIntNotOperator_tests.cpp
