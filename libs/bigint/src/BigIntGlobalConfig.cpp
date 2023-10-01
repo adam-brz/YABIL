@@ -39,7 +39,7 @@ const Thresholds& BigIntGlobalConfig::thresholds() const
     return bigint_thresholds;
 }
 
-void BigIntGlobalConfig::set_thresholds(const Thresholds& new_thresholds)
+void BigIntGlobalConfig::set_thresholds(const Thresholds& new_thresholds)  // cppcheck-suppress [unusedFunction]
 {
     bigint_thresholds = new_thresholds;
 }

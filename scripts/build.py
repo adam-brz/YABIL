@@ -30,7 +30,7 @@ def conan_install(source_dir, preset_name, build_type, output_dir):
     if not os.path.exists(preset_file):
         preset_file = "default"
 
-    profile_host = ""
+    profile_host = f"-pr:h={preset_file}"
     config = ""
     if preset_name == "android":
         profile_host = f"-pr:h={preset_file}"

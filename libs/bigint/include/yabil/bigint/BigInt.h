@@ -48,7 +48,7 @@ public:
     /// @brief Creates BigInt from string.
     /// @param str String representation of the number.
     /// @param base Number base, can be any from 2 to 16.
-    explicit BigInt(const std::string_view &str, int base = 10);
+    explicit BigInt(const std::string_view &str, unsigned base = 10);
 
     /// @brief Creates BigInt from raw data.
     /// @param raw_data \p std::vector of \p yabil::bigint::bigint_base_t
@@ -77,6 +77,12 @@ public:
     template <typename T, class = typename std::enable_if_t<std::is_unsigned_v<T>>>
     explicit BigInt(T number, Sign sign = Sign::Plus) : sign(sign)
     {
+        if (number == 0)
+        {
+            this->sign = Sign::Plus;
+            return;
+        }
+
         constexpr int data_item_count = sizeof(T) / sizeof(bigint_base_t);
         if constexpr (data_item_count < 2)
         {
@@ -110,7 +116,7 @@ public:
     /// @brief Convert number to string with specified base.
     /// @param base Base of the number string representation (can be from 2 to 16)
     /// @return \p std::string representation of the number
-    std::string to_str(int base = 10) const;
+    std::string to_str(unsigned base = 10) const;
 
     /// @brief Check if big integer can be represented as \p uint64_t
     /// @return \p true if numeric value is in \p uint64_t range and \p false otherwise
@@ -131,6 +137,10 @@ public:
     /// @brief Check is number is even.
     /// @return \p true if number is divisible by 2 and \p false otherwise
     bool is_even() const;
+
+    /// @brief Check if number is power of 2
+    /// @return \p true if number is power of 2 and \p false otherwise
+    bool is_power_of_2() const;
 
     /// @brief Return internal representation size in bytes.
     /// @return Number of bytes for number
