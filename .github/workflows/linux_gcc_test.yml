@@ -11,15 +11,15 @@ on:
 
 jobs:
   build_and_test:
-    name: Build and Test (std::thread)
+    name: Build and Test
     runs-on: ubuntu-22.04
     container:
         image: andrew2a1/cpp_analysis_tools
     strategy:
       matrix:
-        parallel_use_tbb: [true, false]
         build_type: ["Release", "Debug"]
-        native_optimizations: [true, false]
+        parallel_use_tbb: ["ENABLE_TBB=true", "ENABLE_TBB=false"]
+        native_optimizations: ["NATIVE_OPTIMIZATIONS=true", "NATIVE_OPTIMIZATIONS=false"]
 
     defaults:
       run:
@@ -43,8 +43,8 @@ jobs:
           cmake -S .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake \
             -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ \
             -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DYABIL_ENABLE_TESTS=TRUE -DYABIL_ENABLE_TBB=${{ matrix.parallel_use_tbb }} \
-            -DYABIL_ENABLE_NATIVE_OPTIMIZATIONS=${{ matrix.native_optimizations }}
+            -DYABIL_ENABLE_TESTS=TRUE -DYABIL_${{ matrix.parallel_use_tbb }} \
+            -DYABIL_ENABLE_${{ matrix.native_optimizations }}
 
       - name: Build
         working-directory: build
