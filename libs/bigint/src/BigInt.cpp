@@ -110,9 +110,9 @@ std::string BigInt::to_str(unsigned base) const
     std::string str_number;
 
     std::function<std::pair<BigInt, BigInt>(BigInt)> divide_func;
-    const bool is_power_of_2 = std::popcount(base) == 1;
+    const bool is_power_of_two = std::popcount(base) == 1;
 
-    if (is_power_of_2)
+    if (is_power_of_two)
     {
         divide_func = [base](const BigInt &number)
         { return std::make_pair(number >> static_cast<uint64_t>(std::log2l(base)), BigInt(number % base)); };
