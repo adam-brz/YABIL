@@ -10,35 +10,16 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_and_test_tbb:
-    name: Build and Test (with TBB)
-    runs-on: ubuntu-22.04
-    container:
-      image: andrew2a1/cpp_analysis_tools
-
-    defaults:
-      run:
-        shell: bash
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: setup conan profile
-        run: conan profile detect
-
-      - name: Make debug build, use TBB
-        run: python3 scripts/build.py --preset gcc --build_type Debug
-
-      - name: Run tests
-        working-directory: build/gcc_debug
-        run: ctest --verbose -j "$(nproc)"
-
-  build_and_test_std:
+  build_and_test:
     name: Build and Test (std::thread)
     runs-on: ubuntu-22.04
     container:
-      image: andrew2a1/cpp_analysis_tools
+        image: andrew2a1/cpp_analysis_tools
+    strategy:
+      matrix:
+        parallel_use_tbb: [true, false]
+        build_type: ["Release", "Debug"]
+        native_optimizations: [true, false]
 
     defaults:
       run:
@@ -54,25 +35,28 @@ jobs:
       - name: Install Conan dependencies
         run: |
           CC=gcc CXX=g++ conan install ./conan -pr=./conan/profiles/gcc \
-            -pr:b=./conan/profiles/gcc -s build_type=Debug --build=missing -of=build
+            -pr:b=./conan/profiles/gcc -s build_type=${{ matrix.build_type }} --build=missing -of=build
 
       - name: Configure
         working-directory: build
         run: |
-          cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DYABIL_ENABLE_TESTS=TRUE \
-            -DYABIL_ENABLE_TBB=FALSE -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE \
-            -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ ..
+          cmake -S .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake \
+            -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ \
+            -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DYABIL_ENABLE_TESTS=TRUE -DYABIL_ENABLE_TBB=${{ matrix.parallel_use_tbb }} \
+            -DYABIL_ENABLE_NATIVE_OPTIMIZATIONS=${{ matrix.native_optimizations }}
 
       - name: Build
         working-directory: build
         run: |
-          cmake --build . -j "$(nproc)" --config Debug
+          cmake --build . -j "$(nproc)" --config ${{ matrix.build_type }}
 
       - name: Run tests
         working-directory: build
         run: ctest --verbose -j "$(nproc)"
 
       - name: Run tests with Valgrind
+        if: matrix.parallel_use_tbb == 'false'
         working-directory: build
         run: |
           for test in $(find -iname *_tests); do
