@@ -70,7 +70,7 @@ __m256i avx_sub256(__m256i A, __m256i B, uint32_t *borrow)
     A = _mm256_xor_si256(A, _mm256_set1_epi64x(static_cast<int64_t>(0x8000000000000000)));
     const __m256i s = _mm256_sub_epi64(A, B);
     const __m256i cv = _mm256_cmpgt_epi64(s, A);
-    const __m256i mv = _mm256_cmpeq_epi64(s, _mm256_set1_epi64x(0x7fffffffffffffff));
+    const __m256i mv = _mm256_cmpeq_epi64(s, _mm256_set1_epi64x(static_cast<int64_t>(0x8000000000000000)));
     uint32_t c = _mm256_movemask_pd(_mm256_castsi256_pd(cv));
     uint32_t m = _mm256_movemask_pd(_mm256_castsi256_pd(mv));
 
@@ -114,6 +114,8 @@ void avx2_add(const bigint_base_t *a, std::size_t a_size_bytes, const bigint_bas
 void avx2_sub(const bigint_base_t *a, std::size_t a_size_bytes, const bigint_base_t *b, std::size_t b_size_bytes,
               bigint_base_t *r)
 {
+    assert(a_size_bytes >= b_size_bytes);
+
     constexpr auto avx2_data_size_bytes = 256 / 8;
     const auto max_avx_iters = b_size_bytes / avx2_data_size_bytes;
     uint32_t borrow = 0;
