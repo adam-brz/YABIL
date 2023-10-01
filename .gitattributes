@@ -37,6 +37,7 @@
 *.less text
 *.od text
 *.onlydata text
+*.py text
 *.sass text
 *.scm text
 *.log text

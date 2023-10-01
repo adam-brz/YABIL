@@ -3,8 +3,6 @@ project(bigint C CXX)
 set(SOURCES
     src/Arithmetic.cpp
     src/Arithmetic.h
-    src/AVX2Utils.cpp
-    src/AVX2Utils.h
     src/BigInt.cpp
     src/BigIntArithmeticOperators.cpp
     src/BigIntBinaryOperators.cpp
@@ -13,15 +11,11 @@ set(SOURCES
     src/StringConversionUtils.cpp
     src/StringConversionUtils.h
     src/TypeUtils.h
+    src/add_sub/AddSub.h
+    src/add_sub/AddSub.cpp
     src/parallel/Parallel.cpp
     src/parallel/ParallelImpl.h
 )
-
-if(YABIL_ENABLE_TBB)
-    list(APPEND SOURCES src/parallel/ParallelTBBImpl.cpp)
-else()
-    list(APPEND SOURCES src/parallel/ParallelStdImpl.cpp)
-endif()
 
 set(HEADERS
     include/yabil/bigint/BigInt.h
@@ -52,6 +46,20 @@ set(TESTS
     test/BigIntSubOperator_tests.cpp
     test/BigIntXorOperator_tests.cpp
 )
+
+if(YABIL_ENABLE_TBB)
+    list(APPEND SOURCES src/parallel/ParallelTBBImpl.cpp)
+else()
+    list(APPEND SOURCES src/parallel/ParallelStdImpl.cpp)
+endif()
+
+if(YABIL_HAS_AVX512)
+    list(APPEND SOURCES src/add_sub/AddSubAVX512DQImpl.cpp)
+elseif(YABIL_HAS_AVX2)
+    list(APPEND SOURCES src/add_sub/AddSubAVX2Impl.cpp)
+else()
+    list(APPEND SOURCES src/add_sub/AddSubCppImpl.cpp)
+endif()
 
 add_library(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} PRIVATE utils)

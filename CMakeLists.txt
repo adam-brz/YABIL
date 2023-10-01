@@ -9,17 +9,17 @@ endif()
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 option(YABIL_ENABLE_SANITIZER "Enable address sanitizer" OFF)
-option(YABIL_ENABLE_GPERFTOOLS "Enable gperftools profiling" OFF)
 option(YABIL_ENABLE_TESTS "Enable test targets" OFF)
 option(YABIL_ENABLE_TBB "Use TBB library" OFF)
 option(YABIL_ENABLE_COVERAGE "Build with coverage info" OFF)
-option(YABIL_ENABLE_OPTIMIZATIONS "Enable aggressive optimizations" OFF)
+option(YABIL_ENABLE_NATIVE_OPTIMIZATIONS "Enable optimizations using native instrucitons" OFF)
 
 set(YABIL_BIGINT_BASE_TYPE "auto" CACHE STRING "Numeric type to use as number base.")
 set(CPACK_GENERATOR "ZIP" CACHE STRING "Generators to support. Semicolon delimited list.")
 
 setup_deps()
 setup_testing()
+setup_compiler_options()
 
 add_subdirectory(libs)
 
