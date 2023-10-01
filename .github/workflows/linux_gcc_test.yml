@@ -56,7 +56,7 @@ jobs:
         run: ctest --verbose -j "$(nproc)"
 
       - name: Run tests with Valgrind
-        if: matrix.parallel_use_tbb == 'ENABLE_TBB=false'
+        if: matrix.parallel_use_tbb == 'ENABLE_TBB=false' && matrix.native_optimizations == 'NATIVE_OPTIMIZATIONS=false'
         working-directory: build
         run: |
           for test in $(find -iname *_tests); do
