@@ -114,7 +114,7 @@ double log2(const yabil::bigint::BigInt &number)
     }
 
     raw_fraction = (raw_fraction >> 12) | 0x3ff0000000000000;
-    const double remaining_part = *static_cast<double *>(reinterpret_cast<void *>(&raw_fraction));
+    const double remaining_part = std::bit_cast<double, uint64_t>(raw_fraction);
     return static_cast<double>(log2_int(number)) + std::log2(remaining_part);
 }
 
