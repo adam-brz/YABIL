@@ -113,10 +113,14 @@ std::string BigInt::to_str(unsigned base) const
     const bool is_power_of_2 = std::popcount(base) == 1;
 
     if (is_power_of_2)
+    {
         divide_func = [base](const BigInt &number)
-        { return std::make_pair(number >> std::log2l(base), BigInt(number % base)); };
+        { return std::make_pair(number >> static_cast<uint64_t>(std::log2l(base)), BigInt(number % base)); };
+    }
     else
+    {
         divide_func = [base](const BigInt &number) { return number.divide(BigInt(base)); };
+    }
 
     do
     {
