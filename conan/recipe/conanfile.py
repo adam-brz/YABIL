@@ -19,14 +19,14 @@ class YabilConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "optimizations": [True, False],
+        "native_optimizations": [True, False],
         "digit_type": ["uint16_t", "uint32_t", "uint64_t", "auto"],
         "tbb": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "optimizations": False,
+        "native_optimizations": False,
         "digit_type": "auto",
         "tbb": False,
     }
@@ -54,7 +54,9 @@ class YabilConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["YABIL_ENABLE_TESTS"] = False
         tc.variables["YABIL_ENABLE_TBB"] = self.options.tbb
-        tc.variables["YABIL_ENABLE_OPTIMIZATIONS"] = self.options.optimizations
+        tc.variables[
+            "YABIL_ENABLE_NATIVE_OPTIMIZATIONS"
+        ] = self.options.native_optimizations
         tc.variables["YABIL_BIGINT_BASE_TYPE"] = self.options.digit_type
         tc.generate()
         CMakeDeps(self).generate()

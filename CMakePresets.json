@@ -16,6 +16,8 @@
                 "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/build/${presetName}/conan_toolchain.cmake",
                 "CMAKE_C_COMPILER": "gcc",
                 "CMAKE_CXX_COMPILER": "g++",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_VERBOSE_MAKEFILE": true,
                 "YABIL_ENABLE_TESTS": true,
                 "YABIL_ENABLE_TBB": true
             }
@@ -38,16 +40,11 @@
         },
         {
             "name": "clang",
+            "inherits": "gcc",
             "hidden": true,
-            "binaryDir": "${sourceDir}/build/${presetName}",
-            "generator": "Unix Makefiles",
             "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/${presetName}/install",
-                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/build/${presetName}/conan_toolchain.cmake",
                 "CMAKE_C_COMPILER": "clang",
-                "CMAKE_CXX_COMPILER": "clang++",
-                "YABIL_ENABLE_TESTS": true,
-                "YABIL_ENABLE_TBB": true
+                "CMAKE_CXX_COMPILER": "clang++"
             }
         },
         {
@@ -61,13 +58,11 @@
         {
             "name": "clang_dev",
             "inherits": "clang_debug",
-            "displayName": "Clang [Debug] [Export compile commands]",
+            "displayName": "Clang [Debug] [Address sanitizer]",
             "cacheVariables": {
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_VERBOSE_MAKEFILE": true,
-                "CMAKE_CXX_FLAGS": "-march=native",
                 "YABIL_ENABLE_SANITIZER": true,
-                "YABIL_SANITIZER_TO_USE": "address"
+                "YABIL_SANITIZER_TYPE": "address",
+                "YABIL_ENABLE_NATIVE_OPTIMIZATIONS": true
             }
         },
         {
@@ -76,17 +71,7 @@
             "displayName": "Clang [Release]",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
-                "YABIL_ENABLE_OPTIMIZATIONS": true,
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
-            }
-        },
-        {
-            "name": "clang_prof",
-            "inherits": "clang_release",
-            "displayName": "Clang [Release] [Profiling]",
-            "cacheVariables": {
-                "CMAKE_VERBOSE_MAKEFILE": true,
-                "YABIL_ENABLE_GPERFTOOLS": true
+                "YABIL_ENABLE_NATIVE_OPTIMIZATIONS": true
             }
         },
         {
@@ -94,7 +79,6 @@
             "inherits": "clang_debug",
             "displayName": "Coverage (Clang [Debug])",
             "cacheVariables": {
-                "YABIL_ENABLE_SANITIZER": false,
                 "YABIL_ENABLE_COVERAGE": true,
                 "BUILD_SHARED_LIBS": true
             }
@@ -160,7 +144,7 @@
             "displayName": "Apple Clang [Release]",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
-                "YABIL_ENABLE_OPTIMIZATIONS": true
+                "YABIL_ENABLE_NATIVE_OPTIMIZATIONS": true
             }
         },
         {
@@ -191,18 +175,6 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug"
             }
-        }
-    ],
-    "buildPresets": [
-        {
-            "name": "vs_release",
-            "configurePreset": "vs_release",
-            "configuration": "Release"
-        },
-        {
-            "name": "vs_debug",
-            "configurePreset": "vs_debug",
-            "configuration": "Debug"
         }
     ]
 }

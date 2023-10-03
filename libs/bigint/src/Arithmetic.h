@@ -15,12 +15,6 @@ void remove_trailing_zeros(std::vector<bigint_base_t> &data);
 
 bool is_normalized_for_division(const BigInt &n);
 
-void add_arrays(const bigint_base_t *a, std::size_t a_size, const bigint_base_t *b, std::size_t b_size,
-                bigint_base_t *r, bigint_base_t carry = 0);
-
-void sub_arrays(const bigint_base_t *a, std::size_t a_size, const bigint_base_t *b, std::size_t b_size,
-                bigint_base_t *r, bigint_base_t borrow = 0);
-
 std::pair<const BigInt *, const BigInt *> get_longer_shorter(const BigInt &a, const BigInt &b);
 std::pair<std::span<bigint_base_t const> *, std::span<bigint_base_t const> *> get_longer_shorter(
     std::span<bigint_base_t const> *a, std::span<bigint_base_t const> *b);

@@ -8,7 +8,7 @@
 #include <limits>
 #include <vector>
 
-#include "AVX2Utils.h"
+#include "add_sub/AddSub.h"
 
 using namespace yabil::type_utils;
 
@@ -53,83 +53,18 @@ std::pair<const BigInt *, const BigInt *> get_greater_lower(const BigInt &a, con
     return std::make_pair(&a, &b);
 }
 
-void add_arrays(const bigint_base_t *a, std::size_t a_size, const bigint_base_t *b, std::size_t b_size,
-                bigint_base_t *r, bigint_base_t carry)
-{
-    assert(a_size >= b_size);
-
-    std::size_t i;
-    for (i = 0; i < b_size; ++i)
-    {
-        const bigint_base_t tmp1 = a[i] + carry;
-        carry = static_cast<bigint_base_t>(tmp1 < carry);
-        const bigint_base_t tmp2 = (tmp1 + b[i]);
-        carry += static_cast<bigint_base_t>(tmp2 < tmp1);
-        r[i] = tmp2;
-    }
-
-    for (; i < a_size; ++i)
-    {
-        const bigint_base_t tmp = a[i] + carry;
-        carry = static_cast<bigint_base_t>(tmp < carry);
-        r[i] = tmp;
-    }
-
-    if (carry)
-    {
-        r[i] = carry;
-    }
-}
-
-void sub_arrays(const bigint_base_t *a, std::size_t a_size, const bigint_base_t *b, std::size_t b_size,
-                bigint_base_t *r, bigint_base_t borrow)
-{
-    assert(a_size >= b_size);
-    std::size_t i;
-
-    for (i = 0; i < b_size; ++i)
-    {
-        const bigint_base_t tmp1 = a[i];
-        const bigint_base_t tmp2 = b[i];
-        r[i] = (tmp1 - tmp2 - borrow);
-        if (tmp1 != tmp2)
-        {
-            borrow = static_cast<bigint_base_t>(tmp1 < tmp2);
-        }
-    }
-
-    for (; i < a_size; ++i)
-    {
-        const bigint_base_t tmp = a[i];
-        r[i] = (tmp - borrow);
-        borrow &= static_cast<bigint_base_t>(tmp == 0);
-    }
-}
-
 std::vector<bigint_base_t> plain_add(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
 {
     const auto [longer, shorter] = get_longer_shorter(&a, &b);
     std::vector<bigint_base_t> result_data(longer->size() + 1);
-
-#ifdef __AVX2__
-    avx2_add(longer->data(), longer->size() * sizeof(bigint_base_t), shorter->data(),
-             shorter->size() * sizeof(bigint_base_t), result_data.data());
-#else
     add_arrays(longer->data(), longer->size(), shorter->data(), shorter->size(), result_data.data());
-#endif
-
     return result_data;
 }
 
 std::vector<bigint_base_t> plain_sub(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
 {
     std::vector<bigint_base_t> result_data(a.size());
-#ifdef __AVX2__
-    avx2_sub(a.data(), a.size() * sizeof(bigint_base_t), b.data(), b.size() * sizeof(bigint_base_t),
-             result_data.data());
-#else
     sub_arrays(a.data(), a.size(), b.data(), b.size(), result_data.data());
-#endif
     return result_data;
 }
 

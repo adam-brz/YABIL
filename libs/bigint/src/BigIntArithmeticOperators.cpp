@@ -7,10 +7,10 @@
 #include <iostream>
 #include <limits>
 
-#include "AVX2Utils.h"
 #include "Arithmetic.h"
 #include "StringConversionUtils.h"
 #include "TypeUtils.h"
+#include "add_sub/AddSub.h"
 
 using namespace yabil::type_utils;
 
@@ -389,13 +389,7 @@ BigInt &BigInt::inplace_plain_add(const BigInt &other)
 {
     const auto max_size = std::max(data.size(), other.data.size());
     data.resize(max_size + 1);
-
-#ifdef __AVX2__
-    avx2_add(data.data(), byte_size(), other.data.data(), other.byte_size(), data.data());
-#else
     add_arrays(data.data(), data.size(), other.data.data(), other.data.size(), data.data());
-#endif
-
     normalize();
     return *this;
 }
@@ -412,13 +406,7 @@ BigInt &BigInt::inplace_plain_sub(const BigInt &other)
     }
 
     data.resize(longer->data.size());
-
-#ifdef __AVX2__
-    avx2_sub(longer->data.data(), longer->byte_size(), shorter->data.data(), shorter->byte_size(), data.data());
-#else
     sub_arrays(longer->data.data(), longer->data.size(), shorter->data.data(), shorter->data.size(), data.data());
-#endif
-
     normalize();
     return *this;
 }

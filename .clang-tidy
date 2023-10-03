@@ -8,5 +8,6 @@ Checks: >
   -misc-no-recursion,
   -bugprone-sizeof-expression,
   -bugprone-easily-swappable-parameters,
-  -bugprone-forwarding-reference-overload
+  -bugprone-forwarding-reference-overload,
+  -portability-simd-intrinsics
 WarningsAsErrors: "*"

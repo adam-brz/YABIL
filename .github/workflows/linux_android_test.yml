@@ -1,4 +1,4 @@
-name: Build for Android (NDK r25c, clang 14.0.7)
+name: Build for Android (NDK r26, clang 17.0.2)
 
 on:
   pull_request:
