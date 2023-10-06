@@ -1,6 +1,7 @@
 #pragma once
 
 #include <yabil/utils/ThreadPool.h>
+#include <yabil/visibility/Visibility.h>
 
 #include <memory>
 
@@ -15,7 +16,7 @@ private:
 
 public:
     /// @brief Get \p ThreadPool instance, creates new instance on first invocation.
-    static ThreadPool &instance();
+    YABIL_PUBLIC static ThreadPool &instance();
 };
 
 }  // namespace yabil::utils

@@ -76,48 +76,50 @@ function(setup_install_rule TARGET)
 endfunction()
 
 function(set_common_target_options TARGET)
-    set(MSVC_DEBUG_FLAGS /Zi /Od)
-    set(MSVC_RELEASE_FLAGS /O2)
-    set(OTHER_DEBUG_FLAGS -O0 -g -Wno-pragmas)
-    set(OTHER_RELEASE_FLAGS -O3 -Wno-pragmas)
+    set(MSVC_FLAGS /W4 /wd4068)
+    set(OTHER_FLAGS -Wall -Wextra -Wpedantic -Wno-pragmas)
     set(OTHER_DEBUG_LINK_FLAGS "")
 
     if(YABIL_ENABLE_SANITIZER)
         set(YABIL_SANITIZER_TYPE "address" CACHE STRING "Sanitizer to use (eg. address, thread, memory)")
-        set(OTHER_DEBUG_FLAGS ${OTHER_DEBUG_FLAGS} -fsanitize=${YABIL_SANITIZER_TYPE} -fno-omit-frame-pointer)
-        set(OTHER_DEBUG_LINK_FLAGS ${OTHER_DEBUG_LINK_FLAGS} -fsanitize=${YABIL_SANITIZER_TYPE})
+        set(SANITIZER_COMPILE_FLAGS -fsanitize=${YABIL_SANITIZER_TYPE} -fno-omit-frame-pointer)
+        set(SANITIZER_LINK_FLAGS -fsanitize=${YABIL_SANITIZER_TYPE})
     endif()
 
     if(YABIL_MNATIVE_SUPPORTED)
-        target_compile_options(${TARGET} PRIVATE -march=native)
+        set(MNATIVE_FLAG -march=native)
     endif()
 
-    if (MSVC)
-        target_compile_options(${TARGET} PRIVATE /W4 /wd4068)
-    else()
-        target_compile_options(${TARGET} PRIVATE -Wall -Wextra -Wpedantic)
-    endif()
+    set(YABIL_MSVC_DEBUG_FLAGS /Zi /Od ${MSVC_FLAGS} CACHE STRING "Additional MSVC compile flags for Debug configuration.")
+    set(YABIL_MSVC_RELEASE_FLAGS ${MSVC_FLAGS} CACHE STRING "Additional MSVC compile flags for Release configuration.")
+    set(YABIL_DEBUG_FLAGS -O0 -g ${OTHER_FLAGS} ${SANITIZER_COMPILE_FLAGS} ${MNATIVE_FLAG} CACHE STRING "Additional compile flags for Debug configuration.")
+    set(YABIL_RELEASE_FLAGS -O3 ${OTHER_FLAGS} ${SANITIZER_COMPILE_FLAGS} ${MNATIVE_FLAG} CACHE STRING "Additional compile flags for Release configuration.")
+    set(YABIL_LINK_FLAGS ${SANITIZER_LINK_FLAGS} CACHE STRING "Additional compile flags for Release configuration.")
 
     if(CMAKE_CONFIGURATION_TYPES)
         if (MSVC)
-            target_compile_options(${TARGET} PRIVATE $<$<CONFIG:Debug>:${MSVC_DEBUG_FLAGS}>)
+            target_compile_options(${TARGET} PRIVATE
+                $<$<CONFIG:Release>:${YABIL_MSVC_RELEASE_FLAGS}>
+                $<$<CONFIG:Debug>:${YABIL_MSVC_DEBUG_FLAGS}>
+            )
         else()
             target_compile_options(${TARGET} PRIVATE
-                $<$<CONFIG:Release>:${OTHER_RELEASE_FLAGS}>
-                $<$<CONFIG:Debug>:${OTHER_DEBUG_FLAGS}>
+                $<$<CONFIG:Release>:${YABIL_RELEASE_FLAGS}>
+                $<$<CONFIG:Debug>:${YABIL_DEBUG_FLAGS}>
             )
         endif()
     else()
         if(CMAKE_BUILD_TYPE STREQUAL "Release")
-            target_compile_options(${TARGET} PRIVATE ${OTHER_RELEASE_FLAGS})
+            target_compile_options(${TARGET} PRIVATE ${YABIL_RELEASE_FLAGS})
         else()
-            target_compile_options(${TARGET} PRIVATE ${OTHER_DEBUG_FLAGS})
-            target_link_options(${TARGET} PRIVATE ${OTHER_DEBUG_LINK_FLAGS})
+            target_compile_options(${TARGET} PRIVATE ${YABIL_DEBUG_FLAGS})
         endif()
+        target_link_options(${TARGET} PRIVATE ${YABIL_LINK_FLAGS})
     endif()
 
-    if(BUILD_SHARED_LIBS AND MSVC)
-        set_target_properties(${TARGET} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+    if(BUILD_SHARED_LIBS)
+        target_compile_definitions(${TARGET} PUBLIC YABIL_DLL)
+        target_compile_definitions(${TARGET} PRIVATE YABIL_DLL_EXPORTS)
     endif()
 endfunction()
 
