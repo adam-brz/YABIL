@@ -19,7 +19,7 @@ cpython:with_tkinter=False
 cpython:with_gdbm=False
 cpython:with_bz2=False
 
-yabil:optimizations=False
+yabil:native_optimizations=False
 yabil:digit_type=auto
 openssl:no_asm=True
 gmp:disable_assembly=True

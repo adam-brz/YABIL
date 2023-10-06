@@ -18,13 +18,15 @@ import numpy as np
 
 data_dir = "generated/raw"
 
+
 def load_case(case_name):
     case_dir = os.path.join(data_dir, case_name)
     results = {}
     for data_filename in os.listdir(case_dir):
-        with open(os.path.join(case_dir, data_filename), 'r') as data_file:
+        with open(os.path.join(case_dir, data_filename), "r") as data_file:
             results[os.path.splitext(data_filename)[0]] = json.load(data_file)
     return results
+
 
 cases = {}
 for case in os.listdir(data_dir):
@@ -38,6 +40,7 @@ for case in os.listdir(data_dir):
 import re
 
 PARALLEL_PATTERN = re.compile("YABIL_parallel_thread_(\d+)_threads")
+
 
 def tr(text):
     translation_map = {
@@ -54,7 +57,7 @@ def tr(text):
         "YABIL_parallel_thread_2_threads": "własne [2 wątki]",
         "YABIL_parallel_thread_3_threads": "własne [3 wątki]",
         "YABIL_parallel_thread_4_threads": "własne [4 wątki]",
-        "YABIL_parallel_6_threads": "własne [6 wątków]"
+        "YABIL_parallel_6_threads": "własne [6 wątków]",
     }
 
     text = text.replace("_big", "")
@@ -71,6 +74,7 @@ def tr(text):
 import numpy as np
 import seaborn as sns
 import colorcet as cc
+
 
 def load(data):
     plot_data = {}
@@ -111,13 +115,15 @@ def get_color(data_label):
         "uint16": "#42d4f4",
         "uint32": "#911eb4",
         "uint64": "#4363d8",
-        "uint64 [Bez AVX]": "#469990"
+        "uint64 [Bez AVX]": "#469990",
+        "tbb": "red",
+        "tbb2": "purple",
     }
 
     palette = sns.color_palette(cc.glasbey_dark, n_colors=14)
     for i in range(1, 13):
-        colors[f"YABIL_parallel_thread_{i}_threads"] = palette[i-1]
-        colors[f"YABIL_parallel_{i}_threads"] = palette[i-1]
+        colors[f"YABIL_parallel_thread_{i}_threads"] = palette[i - 1]
+        colors[f"YABIL_parallel_{i}_threads"] = palette[i - 1]
 
     data_label = data_label.replace("_big", "")
     return colors[data_label]
@@ -128,7 +134,14 @@ def plot_internal(operation_name, operation_data, exclude=[], yscale="linear"):
         if any((excluded in lib_name) for excluded in exclude):
             continue
         x, y = np.array(list(lib_data.keys())), np.array(list(lib_data.values()))
-        plt.plot(x/1000, y/1000, "--", marker=".", markersize=5, color=get_color(lib_name))
+        plt.plot(
+            x / 1000,
+            y / 1000,
+            "--",
+            marker=".",
+            markersize=5,
+            color=get_color(lib_name),
+        )
 
     plt.legend(
         [
@@ -147,12 +160,15 @@ def plot_internal(operation_name, operation_data, exclude=[], yscale="linear"):
         plt.ylim(0)
         plt.gca().ticklabel_format(style="plain")
 
+
 def save(operation_name):
-    plt.savefig(
-        f"generated/{operation_name}_{uuid.uuid4().hex}.png",
-        bbox_inches="tight",
-        dpi=300,
-    )
+    return
+    # plt.savefig(
+    # f"generated/{operation_name}_{uuid.uuid4().hex}.png",
+    # bbox_inches="tight",
+    # dpi=300,
+    # )
+
 
 def plot_common(operation_name, operation_data, exclude=[], yscale="linear"):
     plot_internal(operation_name, operation_data, exclude, yscale)
@@ -169,7 +185,11 @@ all_data = cases["normal"]["results_all"]["benchmarks"]
 data = load(all_data)
 
 for operation, operation_data in data.items():
-    plot_common(operation, operation_data, ["BIGINT_mattmccutchen", "YABIL_parallel", "_big", "FLINT"])
+    plot_common(
+        operation,
+        operation_data,
+        ["BIGINT_mattmccutchen", "YABIL_parallel", "_big", "FLINT"],
+    )
 
 
 # In[21]:
@@ -212,6 +232,7 @@ for operation, operation_data in normal.items():
 
 # All YABIL options
 
+
 def rearrange(data, new="YABIL", old="YABIL"):
     res = {}
     for op, lib_data in data.items():
@@ -222,8 +243,11 @@ def rearrange(data, new="YABIL", old="YABIL"):
         #     res[op][f"{new}_parallel"] = lib_data["YABIL_parallel"]
     return res
 
+
 all_data = rearrange(load(cases["normal"]["results_all"]["benchmarks"]), "uint64")
-no_avx = rearrange(load(cases["no_optimizations"]["results_YABIL"]["benchmarks"]), "uint64 [Bez AVX]")
+no_avx = rearrange(
+    load(cases["no_optimizations"]["results_YABIL"]["benchmarks"]), "uint64 [Bez AVX]"
+)
 # tbb = rearrange(load(cases["normal_tbb"]["results_YABIL"]["benchmarks"]), "uint64 [TBB]")
 uint16 = rearrange(load(cases["uint16"]["results_YABIL"]["benchmarks"]), "uint16")
 uint32 = rearrange(load(cases["uint32"]["results_YABIL"]["benchmarks"]), "uint32")
@@ -243,7 +267,13 @@ for operation, operation_data in all_data.items():
 
 all_data = load(cases["parallel"]["results_YABIL_parallel_thread"]["benchmarks"])
 # mul_12_threads = {"YABIL_parallel_thread_12_threads": load(cases["normal"]["results_all"]["benchmarks"])["Multiplication"]["YABIL_parallel"]}
-mul_1_threads = {"Multiplication" : {"YABIL_parallel_thread_1_threads": load(cases["normal"]["results_all"]["benchmarks"])["Multiplication"]["YABIL"]}}
+mul_1_threads = {
+    "Multiplication": {
+        "YABIL_parallel_thread_1_threads": load(
+            cases["normal"]["results_all"]["benchmarks"]
+        )["Multiplication"]["YABIL"]
+    }
+}
 
 mul_1_threads["Multiplication"].update(all_data["Multiplication"])
 # mul_1_threads["Multiplication"].update(mul_12_threads)
@@ -256,8 +286,18 @@ for operation, operation_data in mul_1_threads.items():
 
 
 all_data = load(cases["parallel"]["results_YABIL_parallel_thread"]["benchmarks"])
-mul_12_threads = {"YABIL_parallel_thread_12_threads": load(cases["normal"]["results_all"]["benchmarks"])["Division"]["YABIL_parallel"]}
-mul_1_threads = {"Division" : {"YABIL_parallel_thread_1_threads": load(cases["normal"]["results_all"]["benchmarks"])["Division"]["YABIL"]}}
+mul_12_threads = {
+    "YABIL_parallel_thread_12_threads": load(
+        cases["normal"]["results_all"]["benchmarks"]
+    )["Division"]["YABIL_parallel"]
+}
+mul_1_threads = {
+    "Division": {
+        "YABIL_parallel_thread_1_threads": load(
+            cases["normal"]["results_all"]["benchmarks"]
+        )["Division"]["YABIL"]
+    }
+}
 
 mul_1_threads["Division"].update(all_data["Division"])
 mul_1_threads["Division"].update(mul_12_threads)
@@ -270,8 +310,18 @@ for operation, operation_data in mul_1_threads.items():
 
 
 all_data = load(cases["parallel"]["results_YABIL_parallel_thread"]["benchmarks"])
-mul_12_threads = {"YABIL_parallel_thread_12_threads": load(cases["normal"]["results_all"]["benchmarks"])["Addition"]["YABIL_parallel"]}
-mul_1_threads = {"Addition" : {"YABIL_parallel_thread_1_threads": load(cases["normal"]["results_all"]["benchmarks"])["Addition"]["YABIL"]}}
+mul_12_threads = {
+    "YABIL_parallel_thread_12_threads": load(
+        cases["normal"]["results_all"]["benchmarks"]
+    )["Addition"]["YABIL_parallel"]
+}
+mul_1_threads = {
+    "Addition": {
+        "YABIL_parallel_thread_1_threads": load(
+            cases["normal"]["results_all"]["benchmarks"]
+        )["Addition"]["YABIL"]
+    }
+}
 
 mul_1_threads["Addition"].update(all_data["Addition"])
 mul_1_threads["Addition"].update(mul_12_threads)
@@ -281,7 +331,6 @@ for operation, operation_data in mul_1_threads.items():
 
 
 # In[27]:
-
 
 
 # parallel_6 = load(cases["parallel"]["results_YABIL_parallel_thread"]["benchmarks"])["Addition"]["YABIL_parallel_thread_6_threads"]
@@ -336,30 +385,62 @@ all_data = load(cases["normal"]["results_all"]["benchmarks"])
 operation_limits = {"Addition": 1.8e7, "Division": 4e6, "Multiplication": 4e6}
 
 for operation, operation_data in all_data.items():
-    plot_internal(operation, {k: v for k,v in operation_data.items() if "_big" in k }) # operation_data
-    plt.xlim(0, operation_limits[operation]/1000)
+    plot_internal(
+        operation, {k: v for k, v in operation_data.items() if "_big" in k}
+    )  # operation_data
+    plt.xlim(0, operation_limits[operation] / 1000)
     # plt.ylim(0, 1400)
     save(operation)
     plt.show()
 
 operation, operation_data = "Addition", all_data["Addition"]
-plot_internal(operation, {k: v for k,v in operation_data.items() if "_big" in k}) # operation_data
+plot_internal(
+    operation, {k: v for k, v in operation_data.items() if "_big" in k}
+)  # operation_data
 plt.xlim(0, 6e3)
 plt.ylim(0, 400)
 save(operation)
 plt.show()
 
 operation, operation_data = "Multiplication", all_data["Multiplication"]
-plot_internal(operation, {k: v for k,v in operation_data.items() if "_big" in k}) # operation_data
+plot_internal(
+    operation, {k: v for k, v in operation_data.items() if "_big" in k}
+)  # operation_data
 # plt.xlim(0, 4e3)
 plt.ylim(0, 40000)
 save(operation)
 plt.show()
 
 operation, operation_data = "Division", all_data["Division"]
-plot_internal(operation, {k: v for k,v in operation_data.items() if "_big" in k}) # operation_data
+plot_internal(
+    operation, {k: v for k, v in operation_data.items() if "_big" in k}
+)  # operation_data
 # plt.xlim(0, 4e3)
 plt.ylim(0, 80000)
 save(operation)
 plt.show()
 
+# In[29]:
+# TBB
+all_data = load(cases["normal"]["results_all"]["benchmarks"])
+tbb = rearrange(
+    load(cases["normal_tbb"]["results_YABIL_parallel"]["benchmarks"]),
+    "tbb",
+    "YABIL_parallel",
+)
+tbb2 = rearrange(
+    load(cases["normal_tbb"]["results_YABIL_parallel2"]["benchmarks"]),
+    "tbb2",
+    "YABIL_parallel",
+)
+
+for k in all_data:
+    all_data[k].update(tbb[k])
+    all_data[k].update(tbb2[k])
+
+for operation, operation_data in all_data.items():
+    plot_internal(operation, operation_data)
+    plt.ylim(0, 100)
+    plt.show()
+
+# %%
