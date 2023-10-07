@@ -6,11 +6,13 @@ include(CheckCXXCompilerFlag)
 include(CheckCXXSymbolExists)
 
 macro(setup_deps)
+    set(REQUIRED_FIND_PACKAGES_LIST "")
     if(YABIL_ENABLE_TESTS)
-        find_package(GTest REQUIRED CONFIG)
+        find_package(GTest REQUIRED)
     endif()
     if(YABIL_ENABLE_TBB)
-        find_package(TBB REQUIRED CONFIG)
+        find_package(TBB REQUIRED)
+        list(APPEND REQUIRED_FIND_PACKAGES_LIST "find_package(TBB REQUIRED)\n")
     endif()
 endmacro()
 
@@ -178,6 +180,7 @@ function(setup_test_target TEST_TARGET)
 endfunction()
 
 function(setup_install)
+    string(REPLACE ";" " " REQUIRED_FIND_PACKAGES "${REQUIRED_FIND_PACKAGES_LIST}")
     install(EXPORT "${CMAKE_PROJECT_NAME}Targets"
         FILE "${CMAKE_PROJECT_NAME}Targets.cmake"
         NAMESPACE ${CMAKE_PROJECT_NAME}::
