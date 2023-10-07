@@ -80,8 +80,7 @@
             "displayName": "Coverage (Clang [Debug])",
             "cacheVariables": {
                 "YABIL_ENABLE_COVERAGE": true,
-                "BUILD_SHARED_LIBS": true,
-                "CMAKE_CXX_VISIBILITY_PRESET": "hidden"
+                "BUILD_SHARED_LIBS": true
             }
         },
         {
@@ -92,7 +91,6 @@
             "toolset": "host=x64",
             "architecture": "x64",
             "cacheVariables": {
-                "CMAKE_VERBOSE_MAKEFILE": true,
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/${presetName}/install",
                 "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/build/${presetName}/conan_toolchain.cmake",
                 "CMAKE_C_COMPILER": "cl.exe",
@@ -115,15 +113,6 @@
             "displayName": "Visual Studio 17 [Release]",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
-            }
-        },
-        {
-            "name": "vs_release_shared",
-            "inherits": "vs",
-            "displayName": "Visual Studio 17 [Release, Shared]",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
-                "BUILD_SHARED_LIBS": true
             }
         },
         {
