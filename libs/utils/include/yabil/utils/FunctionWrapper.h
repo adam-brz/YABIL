@@ -1,5 +1,7 @@
 #pragma once
 
+#include <yabil/visibility/Visibility.h>
+
 #include <functional>
 #include <memory>
 #include <utility>
@@ -36,14 +38,14 @@ private:
 
 public:
     /// @brief Creates empty function wrapper
-    FunctionWrapper();
+    YABIL_PUBLIC FunctionWrapper();
 
     /// @brief Move constructor
     /// @param other \p FunctionWrapper
-    FunctionWrapper(FunctionWrapper &&other) noexcept;
+    YABIL_PUBLIC FunctionWrapper(FunctionWrapper &&other) noexcept;
 
-    FunctionWrapper(const FunctionWrapper &) = delete;
-    FunctionWrapper(FunctionWrapper &) = delete;
+    YABIL_PUBLIC FunctionWrapper(const FunctionWrapper &) = delete;
+    YABIL_PUBLIC FunctionWrapper(FunctionWrapper &) = delete;
 
     /// @brief Creates function wrapper for specified function
     /// @tparam F function type
@@ -54,10 +56,10 @@ public:
     }
 
     /// @brief Invoke underlying function
-    void call() const;
+    YABIL_PUBLIC void call() const;
 
-    FunctionWrapper &operator=(FunctionWrapper &&other) noexcept;
-    FunctionWrapper &operator=(const FunctionWrapper &) = delete;
+    YABIL_PUBLIC FunctionWrapper &operator=(FunctionWrapper &&other) noexcept;
+    YABIL_PUBLIC FunctionWrapper &operator=(const FunctionWrapper &) = delete;
 };
 
 }  // namespace yabil::utils

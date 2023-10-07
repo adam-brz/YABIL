@@ -18,7 +18,7 @@ set(TESTS
 )
 
 add_library(${PROJECT_NAME})
-target_link_libraries(${PROJECT_NAME} PUBLIC bigint PRIVATE math)
+target_link_libraries(${PROJECT_NAME} PUBLIC bigint visibility PRIVATE math)
 
 target_sources(${PROJECT_NAME}
     PRIVATE ${SOURCES}

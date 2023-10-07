@@ -1,6 +1,7 @@
 #pragma once
 
 #include <yabil/utils/FunctionWrapper.h>
+#include <yabil/visibility/Visibility.h>
 
 #include <atomic>
 #include <condition_variable>
@@ -32,33 +33,33 @@ private:
 public:
     /// @brief Creates ThreadPool instance with given concurrency.
     /// @param concurrency Number of threads to use with pool. Value <= 0 means automatic detection of available cores
-    explicit ThreadPool(int concurrency = 0);
+    YABIL_PUBLIC explicit ThreadPool(int concurrency = 0);
 
     /// @brief Stops all threads from the pool and waits for their end.
-    virtual ~ThreadPool();
+    YABIL_PUBLIC virtual ~ThreadPool();
 
-    ThreadPool(const ThreadPool &) = delete;
-    ThreadPool(ThreadPool &) = delete;
+    YABIL_PUBLIC ThreadPool(const ThreadPool &) = delete;
+    YABIL_PUBLIC ThreadPool(ThreadPool &) = delete;
 
     /// @brief Get thread count.
     /// @return Number of threads in \p ThreadPool
-    std::size_t thread_count() const;
+    YABIL_PUBLIC std::size_t thread_count() const;
 
     /// @brief Get number of tasks which are currently running.
     /// @return Number of currently running tasks
-    unsigned currently_running_tasks_count() const;
+    YABIL_PUBLIC unsigned currently_running_tasks_count() const;
 
     /// @brief Checks if threads are active.
     /// @return \p true if threads are active and \p false otherwise
-    bool is_active() const;
+    YABIL_PUBLIC bool is_active() const;
 
     /// @brief Stops all threads from the pool.
-    void stop();
+    YABIL_PUBLIC void stop();
 
     /// @brief Resize thread pool to given number of threads.
     /// @details Costly operation, use only when really needed.
     /// @param new_size New number of threads
-    void resize(std::size_t new_size);
+    YABIL_PUBLIC void resize(std::size_t new_size);
 
     /// @brief Submit task for execution. Task will be executed as soon as free thread is available
     /// @tparam FunctionType Type of function to submit

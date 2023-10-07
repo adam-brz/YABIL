@@ -19,7 +19,7 @@ set(TESTS
 )
 
 add_library(${PROJECT_NAME})
-target_link_libraries(${PROJECT_NAME} PUBLIC bigint)
+target_link_libraries(${PROJECT_NAME} PUBLIC bigint visibility)
 
 target_sources(${PROJECT_NAME}
     PRIVATE ${SOURCES}

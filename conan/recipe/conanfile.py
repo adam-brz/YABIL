@@ -72,8 +72,9 @@ class YabilConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "yabil")
+        all_components = ["bigint", "math", "crypto", "utils"]
 
-        for conan_component in ["bigint", "math", "crypto", "utils"]:
+        for conan_component in all_components:
             self.cpp_info.components[conan_component].set_property(
                 "cmake_target_name", f"yabil::{conan_component}"
             )
@@ -95,6 +96,9 @@ class YabilConan(ConanFile):
             self.cpp_info.components["bigint"].defines.append(
                 f"BIGINT_BASE_T={self.options.digit_type}"
             )
+        if self.options.shared:
+            for conan_component in all_components:
+                self.cpp_info.components[conan_component].defines.append("YABIL_DLL")
 
         if self.options.tbb:
             self.cpp_info.components["bigint"].requires.append("onetbb::libtbb")

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <yabil/bigint/BigInt.h>
+#include <yabil/visibility/Visibility.h>
 
 #include <algorithm>
 #include <ostream>
@@ -32,19 +33,19 @@ struct PrivateKey
 /// @param p Prime number
 /// @param q Prime number different than q
 /// @return \p std::pair of \p PublicKey and \p PrivateKey
-std::pair<PublicKey, PrivateKey> generate_keys(bigint::BigInt p, bigint::BigInt q);
+YABIL_PUBLIC std::pair<PublicKey, PrivateKey> generate_keys(bigint::BigInt p, bigint::BigInt q);
 
 /// @brief Encrypt single byte using RSA public key.
 /// @param byte Byte to encrypt
 /// @param pub_key RSA Public Key
 /// @return \p BigInt result of encryption
-yabil::bigint::BigInt encrypt(uint8_t byte, const PublicKey &pub_key);
+YABIL_PUBLIC yabil::bigint::BigInt encrypt(uint8_t byte, const PublicKey &pub_key);
 
 /// @brief Decrypt single item using RSA private key.
 /// @param encrypted Encrypted item to decrypt
 /// @param private_key RSA private key
 /// @return \p BigInt result of decryption
-yabil::bigint::BigInt decrypt(const yabil::bigint::BigInt &encrypted, const PrivateKey &private_key);
+YABIL_PUBLIC yabil::bigint::BigInt decrypt(const yabil::bigint::BigInt &encrypted, const PrivateKey &private_key);
 
 class EncryptionStreamWrapper
 {
@@ -53,11 +54,11 @@ private:
     const PublicKey &pub_key;
 
 public:
-    EncryptionStreamWrapper(std::ostream &out, const PublicKey &pub_key);
-    EncryptionStreamWrapper(std::ostream &out, PublicKey &&pub_key);
+    YABIL_PUBLIC EncryptionStreamWrapper(std::ostream &out, const PublicKey &pub_key);
+    YABIL_PUBLIC EncryptionStreamWrapper(std::ostream &out, PublicKey &&pub_key);
 
     template <typename T>
-    EncryptionStreamWrapper &operator<<(T data)
+    YABIL_PUBLIC EncryptionStreamWrapper &operator<<(T data)
     {
         std::ostringstream converted_data;
         converted_data << data;
@@ -81,8 +82,9 @@ private:
     const PrivateKey &private_key;
 
 public:
-    DecryptionStreamWrapper(std::istream &in, const PrivateKey &private_key);
-    DecryptionStreamWrapper(std::istream &in, PrivateKey &&private_key);
+    YABIL_PUBLIC DecryptionStreamWrapper(std::istream &in, const PrivateKey &private_key);
+    YABIL_PUBLIC DecryptionStreamWrapper(std::istream &in, PrivateKey &&private_key);
+    YABIL_PUBLIC std::string read_all();
 
     template <typename T>
     DecryptionStreamWrapper &operator>>(T &data)
@@ -99,10 +101,8 @@ public:
         return *this;
     }
 
-    std::string read_all();
-
 private:
-    char read_single_encoded_item();
+    YABIL_PUBLIC char read_single_encoded_item();
 };
 
 }  // namespace yabil::crypto::rsa
