@@ -1,5 +1,6 @@
 #pragma once
 
+#include <yabil/bigint/BigIntBase.h>
 #include <yabil/visibility/Visibility.h>
 
 #include <cstdint>
@@ -10,20 +11,9 @@
 #include <utility>
 #include <vector>
 
-#ifndef BIGINT_BASE_T
-#ifdef __SIZEOF_INT128__
-#define BIGINT_BASE_T uint64_t
-#else
-#define BIGINT_BASE_T uint32_t
-#endif
-#endif
-
 /// @brief BigInt core functionalities
 namespace yabil::bigint
 {
-
-/// @brief Base type for big integer internal representation
-using bigint_base_t = BIGINT_BASE_T;
 
 /// @brief Bit-size of base type
 constexpr int bigint_base_t_size_bits = std::numeric_limits<bigint_base_t>::digits;

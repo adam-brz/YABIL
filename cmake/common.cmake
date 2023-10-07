@@ -22,10 +22,10 @@ function(set_common_properties TARGET)
 
     if(YABIL_ENABLE_CUDA)
         enable_language(CUDA)
-        set_target_properties(${TARGET} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-        if(APPLE)
-            set_target_properties(${TARGET} PROPERTIES BUILD_RPATH ${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES})
-        endif()
+        set_target_properties(${TARGET} PROPERTIES
+            # CUDA_SEPARABLE_COMPILATION ON
+            CUDA_RESOLVE_DEVICE_SYMBOLS ON
+        )
     endif()
 
     add_coverage(${TARGET})
@@ -66,22 +66,26 @@ function(set_common_target_options TARGET)
     if(CMAKE_CONFIGURATION_TYPES)
         if (MSVC)
             target_compile_options(${TARGET} PRIVATE
-                $<$<CONFIG:Release>:${YABIL_MSVC_RELEASE_FLAGS}>
-                $<$<CONFIG:Debug>:${YABIL_MSVC_DEBUG_FLAGS}>
+                $<$<COMPILE_LANGUAGE:CXX>:
+                    $<$<CONFIG:Release>:${YABIL_MSVC_RELEASE_FLAGS}>
+                    $<$<CONFIG:Debug>:${YABIL_MSVC_DEBUG_FLAGS}>
+                >
             )
         else()
             target_compile_options(${TARGET} PRIVATE
-                $<$<CONFIG:Release>:${YABIL_RELEASE_FLAGS}>
-                $<$<CONFIG:Debug>:${YABIL_DEBUG_FLAGS}>
+                $<$<COMPILE_LANGUAGE:CXX>:
+                    $<$<CONFIG:Release>:${YABIL_RELEASE_FLAGS}>
+                    $<$<CONFIG:Debug>:${YABIL_DEBUG_FLAGS}>
+                >
             )
         endif()
     else()
         if(CMAKE_BUILD_TYPE STREQUAL "Release")
-            target_compile_options(${TARGET} PRIVATE ${YABIL_RELEASE_FLAGS})
+            target_compile_options(${TARGET} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${YABIL_RELEASE_FLAGS}>)
         else()
-            target_compile_options(${TARGET} PRIVATE ${YABIL_DEBUG_FLAGS})
+            target_compile_options(${TARGET} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${YABIL_DEBUG_FLAGS}>)
         endif()
-        target_link_options(${TARGET} PRIVATE ${YABIL_LINK_FLAGS})
+        target_link_options(${TARGET} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${YABIL_LINK_FLAGS}>)
     endif()
 
     if(BUILD_SHARED_LIBS)
@@ -95,8 +99,8 @@ function(add_coverage TARGET)
         if(NOT (CMAKE_CXX_COMPILER MATCHES "clang"))
             message(ERROR "Currently coverage is only supported for clang compiler")
         endif()
-        target_compile_options(${TARGET} PRIVATE -fprofile-instr-generate -fcoverage-mapping)
-        target_link_options(${TARGET} PRIVATE -fprofile-instr-generate)
+        target_compile_options(${TARGET} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fprofile-instr-generate -fcoverage-mapping>)
+        target_link_options(${TARGET} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fprofile-instr-generate>)
     endif()
 endfunction()
 
@@ -107,7 +111,7 @@ function(add_test_target TARGET)
 
     set(TEST_TARGET ${TARGET}_tests)
     add_executable(${TEST_TARGET} ${ARGN})
-    target_link_libraries(${TEST_TARGET} PRIVATE ${TARGET} GTest::gtest GTest::gtest_main)
+    target_link_libraries(${TEST_TARGET} PRIVATE ${TARGET} GTest::gtest GTest::gtest_main CUDA::cudart)
 
     set_target_properties(${TEST_TARGET} PROPERTIES IS_TEST_TARGET TRUE)
     setup_test_target(${TEST_TARGET})
@@ -127,6 +131,12 @@ function(setup_test_target TEST_TARGET)
     endif()
 
     set_common_properties(${TEST_TARGET})
+
+    if(YABIL_ENABLE_CUDA)
+        if(APPLE)
+            set_target_properties(${TEST_TARGET} PROPERTIES BUILD_RPATH ${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES})
+        endif()
+    endif()
 
     if(CMAKE_CROSSCOMPILING)
         return()

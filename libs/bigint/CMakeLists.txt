@@ -19,6 +19,7 @@ set(SOURCES
 
 set(HEADERS
     include/yabil/bigint/BigInt.h
+    include/yabil/bigint/BigIntBase.h
     include/yabil/bigint/BigIntGlobalConfig.h
     include/yabil/bigint/Parallel.h
     include/yabil/bigint/Thresholds.h
@@ -53,7 +54,9 @@ else()
     list(APPEND SOURCES src/parallel/ParallelStdImpl.cpp)
 endif()
 
-if(YABIL_HAS_AVX512)
+if(YABIL_ENABLE_CUDA)
+    list(APPEND SOURCES src/add_sub/AddSubCUDAImpl.cu)
+elseif(YABIL_HAS_AVX512)
     list(APPEND SOURCES src/add_sub/AddSubAVX512DQImpl.cpp)
 elseif(YABIL_HAS_AVX2)
     list(APPEND SOURCES src/add_sub/AddSubAVX2Impl.cpp)

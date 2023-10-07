@@ -93,6 +93,7 @@
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/${presetName}/install",
                 "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/build/${presetName}/conan_toolchain.cmake",
+                "CMAKE_VERBOSE_MAKEFILE": true,
                 "CMAKE_C_COMPILER": "cl.exe",
                 "CMAKE_CXX_COMPILER": "cl.exe",
                 "YABIL_ENABLE_TESTS": true,
