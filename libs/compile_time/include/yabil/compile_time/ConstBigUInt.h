@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <iterator>
 #include <ranges>
 #include <span>
 #include <string>
@@ -29,20 +30,25 @@ public:
     std::array<base_t, InternalSize> data;
 
 public:
-    constexpr ConstBigUInt()
+    consteval ConstBigUInt()
     {
         data.fill(0);
     };
 
-    constexpr ConstBigUInt(std::array<base_t, InternalSize> raw_data) : data(raw_data){};
+    consteval ConstBigUInt(const std::array<base_t, InternalSize> &raw_data) : data(raw_data){};
 
-    constexpr bool is_zero() const
+    consteval ConstBigUInt(const auto &raw_data)
     {
-        return std::all_of(data.cbegin(), data.cend(), [](const auto &it) { return it == 0; });
+        std::ranges::copy(raw_data, data.begin());
+    };
+
+    consteval bool is_zero() const
+    {
+        return std::ranges::all_of(data, [](const auto &digit) { return digit == 0; });
     }
 
     template <ConstBigIntType OtherType>
-    constexpr bool operator==(const OtherType &other) const
+    consteval bool operator==(const OtherType &other) const
     {
         return std::ranges::equal(data, other.data);
     }
@@ -70,14 +76,13 @@ public:
     // bool operator>=(const BigInt &other) const;
 
     template <std::size_t OtherSize>
-    constexpr auto operator+(const ConstBigUInt<OtherSize> &other) const
+    consteval auto operator+(const ConstBigUInt<OtherSize> &other) const
     {
         constexpr int min_size = std::min(InternalSize, OtherSize);
         constexpr int max_size = std::max(InternalSize, OtherSize);
         constexpr int result_size = max_size + 1;
 
         std::array<base_t, result_size> result{};
-        result.fill(0);
 
         base_t carry = 0;
         std::size_t i;
@@ -98,7 +103,40 @@ public:
         }
 
         result[i] = carry;
-        return result;
+        return ConstBigUInt(normalize(result));
+    }
+
+    // template <std::size_t LhsSize, std::size_t RhsSize>
+    // static consteval auto add_base(const ConstBigUInt<LhsSize> &lhs, const ConstBigUInt<RhsSize> &rhs)
+    // {
+    //     constexpr int min_size = std::min(LhsSize, RhsSize);
+    //     constexpr int max_size = std::max(LhsSize, RhsSize);
+    //     constexpr int result_size = max_size + 1;
+
+    //     std::array<base_t, max_size> lhs_aligned{};
+    //     std::array<base_t, max_size> rhs_aligned{};
+    //     std::array<base_t, result_size> result{};
+
+    //     std::ranges::copy_n(lhs.cbegin(), LhsSize, lhs_aligned.begin());
+    //     std::ranges::copy_n(rhs.cbegin(), RhsSize, rhs_aligned.begin());
+
+    //     base_t carry = 0;
+    //     for (std::size_t i = 0; i < max_size; ++i)
+    //     {
+    //         const base_t tmp1 = lhs_aligned[i] + carry;
+    //         carry = static_cast<base_t>(tmp1 < carry);
+    //         const base_t tmp2 = (tmp1 + rhs_aligned[i]);
+    //         carry += static_cast<base_t>(tmp2 < tmp1);
+    //         result[i] = tmp2;
+    //     }
+
+    //     result[i] = carry;
+    //     return ConstBigUInt(normalize(result));
+    // }
+
+    consteval auto normalize(const auto &number) const
+    {
+        return std::ranges::take_while_view(number, [](const auto &digit) { return digit != 0; });
     }
 
     // /// @brief Get numbers difference
