@@ -6,6 +6,5 @@ compiler.libcxx=libstdc++11
 compiler.version=14
 compiler.cppstd=gnu20
 os=Linux
-[buildenv]
-CC=clang
-CXX=clang++
+[conf]
+tools.build:compiler_executables={"c": "clang", "cpp": "clang++"}

@@ -36,25 +36,29 @@ jobs:
 
       - name: Setup Conan
         run: |
-          python -m pip install conan==1.59
+          python -m pip install conan==2.2.3
+          conan profile detect
 
       - name: Prepare build directory
         run: mkdir build
 
       - name: Install conan dependencies
-        working-directory: build
-        run: conan install ../conan -pr:b=default -s build_type=Debug -of=. --build=missing
+        run: |
+          conan install .
+            -pr:b=default \
+            -pr:h=default \
+            -s build_type=Debug \
+            -o yabil/*:with_tests=True \
+            -o yabil/*:with_tbb=True \
+            --build=missing
 
       - name: Configure
-        working-directory: build
-        run: cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=FALSE
-          -DYABIL_ENABLE_TESTS=TRUE -DYABIL_ENABLE_TBB=TRUE -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE
-          -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake
+        run: cmake --preset conan-debug -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE
 
       - name: Build
-        working-directory: build
+        working-directory: build/Debug
         run: cmake --build . -j $(nproc) --config Debug
 
       - name: Run tests
-        working-directory: build
+        working-directory: build/Debug
         run: ctest --verbose -j $(nproc)

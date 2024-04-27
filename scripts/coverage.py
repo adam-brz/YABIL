@@ -1,24 +1,15 @@
 import os
 import glob
-import multiprocessing
 import subprocess
 
 from argparse import ArgumentParser
-from build import conan_install, cmake_config, cmake_build
 from github_tools import GitHubLogger
 
 
 def generate_coverage_report(llvm_profdata, llvm_cov, output_line_coverage_percent):
     source_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     build_type = "Debug"
-    build_dir = f"{source_dir}/build/coverage"
-
-    conan_install(source_dir, "clang", build_type, build_dir)
-    cmake_config("coverage")
-    cmake_build(build_dir, build_type)
-
-    run_tests(build_dir)
-
+    build_dir = f"{source_dir}/build/{build_type}"
     binary_dir = f"{build_dir}/bin"
     lib_dir = f"{build_dir}/lib"
     output_dir = f"{build_dir}/coverage_report"
@@ -32,16 +23,6 @@ def generate_coverage_report(llvm_profdata, llvm_cov, output_line_coverage_perce
         output_dir,
         output_line_coverage_percent,
     )
-
-
-def run_tests(build_dir):
-    GitHubLogger.print("::group::Run tests")
-    subprocess.check_call(
-        f"ctest -C Debug -j {multiprocessing.cpu_count()}",
-        shell=True,
-        cwd=build_dir,
-    )
-    GitHubLogger.print("::endgroup::")
 
 
 def merge_raw_profiles(llvm_profdata, binary_dir):

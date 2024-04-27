@@ -28,7 +28,6 @@ function(set_common_properties TARGET)
         )
     endif()
 
-    add_coverage(${TARGET})
     set_common_target_options(${TARGET})
 endfunction()
 
@@ -45,7 +44,6 @@ endfunction()
 function(set_common_target_options TARGET)
     set(MSVC_FLAGS /W4 /wd4068)
     set(OTHER_FLAGS -Wall -Wextra -Wpedantic -Wno-pragmas)
-    set(OTHER_DEBUG_LINK_FLAGS "")
 
     if(YABIL_ENABLE_SANITIZER)
         set(YABIL_SANITIZER_TYPE "address" CACHE STRING "Sanitizer to use (eg. address, thread, memory)")
@@ -57,28 +55,27 @@ function(set_common_target_options TARGET)
         set(MNATIVE_FLAG -march=native)
     endif()
 
-    set(YABIL_MSVC_DEBUG_FLAGS /Zi /Od ${MSVC_FLAGS} CACHE STRING "Additional MSVC compile flags for Debug configuration.")
-    set(YABIL_MSVC_RELEASE_FLAGS ${MSVC_FLAGS} CACHE STRING "Additional MSVC compile flags for Release configuration.")
-    set(YABIL_DEBUG_FLAGS -O0 -g ${OTHER_FLAGS} ${SANITIZER_COMPILE_FLAGS} ${MNATIVE_FLAG} CACHE STRING "Additional compile flags for Debug configuration.")
-    set(YABIL_RELEASE_FLAGS -O3 ${OTHER_FLAGS} ${SANITIZER_COMPILE_FLAGS} ${MNATIVE_FLAG} CACHE STRING "Additional compile flags for Release configuration.")
-    set(YABIL_LINK_FLAGS ${SANITIZER_LINK_FLAGS} CACHE STRING "Additional compile flags for Release configuration.")
+    setup_coverage_variables()
 
+    if (MSVC)
+        set(YABIL_DEBUG_FLAGS /Zi /Od ${MSVC_FLAGS} ${SANITIZER_COMPILE_FLAGS} ${MNATIVE_FLAG} CACHE STRING "Additional compile flags for Debug configuration.")
+        set(YABIL_RELEASE_FLAGS ${MSVC_FLAGS} ${SANITIZER_COMPILE_FLAGS} ${MNATIVE_FLAG} CACHE STRING "Additional compile flags for Release configuration.")
+        set(YABIL_LINK_FLAGS "" CACHE STRING "Additional compile flags for Release configuration.")
+    else()
+        set(YABIL_DEBUG_FLAGS -O0 -g ${OTHER_FLAGS} ${SANITIZER_COMPILE_FLAGS} ${MNATIVE_FLAG} ${COVERAGE_COMPILE_FLAGS} CACHE STRING "Additional compile flags for Debug configuration.")
+        set(YABIL_RELEASE_FLAGS -O3 ${OTHER_FLAGS} ${SANITIZER_COMPILE_FLAGS} ${MNATIVE_FLAG} ${COVERAGE_COMPILE_FLAGS} CACHE STRING "Additional compile flags for Release configuration.")
+        set(YABIL_LINK_FLAGS ${SANITIZER_LINK_FLAGS} ${COVERAGE_LINK_FLAGS} CACHE STRING "Additional compile flags for Release configuration.")
+    endif()
+
+    message(STATUS "Setting up target: ${TARGET}")
     if(CMAKE_CONFIGURATION_TYPES)
-        if (MSVC)
-            target_compile_options(${TARGET} PRIVATE
-                $<$<COMPILE_LANGUAGE:CXX>:
-                    $<$<CONFIG:Release>:${YABIL_MSVC_RELEASE_FLAGS}>
-                    $<$<CONFIG:Debug>:${YABIL_MSVC_DEBUG_FLAGS}>
-                >
-            )
-        else()
-            target_compile_options(${TARGET} PRIVATE
-                $<$<COMPILE_LANGUAGE:CXX>:
-                    $<$<CONFIG:Release>:${YABIL_RELEASE_FLAGS}>
-                    $<$<CONFIG:Debug>:${YABIL_DEBUG_FLAGS}>
-                >
-            )
-        endif()
+        target_compile_options(${TARGET} PRIVATE
+            $<$<COMPILE_LANGUAGE:CXX>:
+                $<$<CONFIG:Release>:${YABIL_RELEASE_FLAGS}>
+                $<$<CONFIG:Debug>:${YABIL_DEBUG_FLAGS}>
+            >
+        )
+        target_link_options(${TARGET} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${YABIL_LINK_FLAGS}>)
     else()
         if(CMAKE_BUILD_TYPE STREQUAL "Release")
             target_compile_options(${TARGET} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${YABIL_RELEASE_FLAGS}>)
@@ -94,15 +91,15 @@ function(set_common_target_options TARGET)
     endif()
 endfunction()
 
-function(add_coverage TARGET)
+macro(setup_coverage_variables)
     if(YABIL_ENABLE_COVERAGE)
         if(NOT (CMAKE_CXX_COMPILER MATCHES "clang"))
             message(ERROR "Currently coverage is only supported for clang compiler")
         endif()
-        target_compile_options(${TARGET} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fprofile-instr-generate -fcoverage-mapping>)
-        target_link_options(${TARGET} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fprofile-instr-generate>)
+        set(COVERAGE_COMPILE_FLAGS -fprofile-instr-generate -fcoverage-mapping)
+        set(COVERAGE_LINK_FLAGS -fprofile-instr-generate)
     endif()
-endfunction()
+endmacro()
 
 function(add_test_target TARGET)
     if(NOT YABIL_ENABLE_TESTS OR NOT ARGN)
@@ -111,7 +108,11 @@ function(add_test_target TARGET)
 
     set(TEST_TARGET ${TARGET}_tests)
     add_executable(${TEST_TARGET} ${ARGN})
-    target_link_libraries(${TEST_TARGET} PRIVATE ${TARGET} GTest::gtest GTest::gtest_main CUDA::cudart)
+    target_link_libraries(${TEST_TARGET} PRIVATE ${TARGET} GTest::gtest GTest::gtest_main)
+
+    if(YABIL_ENABLE_CUDA)
+        target_link_libraries(${TEST_TARGET} PRIVATE CUDA::cudart)
+    endif()
 
     set_target_properties(${TEST_TARGET} PROPERTIES IS_TEST_TARGET TRUE)
     setup_test_target(${TEST_TARGET})
@@ -121,7 +122,7 @@ function(setup_test_target TEST_TARGET)
     if (MSVC)
         set_target_properties(${TEST_TARGET} PROPERTIES LINK_FLAGS "/ignore:4099")
     else()
-        if(CMAKE_BUILD_TYPE STREQUAL "Release" AND NOT YABIL_ENABLE_GPERFTOOLS)
+        if(CMAKE_BUILD_TYPE STREQUAL "Release")
             add_custom_command(
                 TARGET ${TEST_TARGET} POST_BUILD
                 COMMAND ${CMAKE_STRIP}

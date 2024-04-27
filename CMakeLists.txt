@@ -30,3 +30,8 @@ setup_install()
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
+
+message(STATUS "Additional configuration (cache): ")
+message(STATUS "  YABIL_DEBUG_FLAGS:   ${YABIL_DEBUG_FLAGS}")
+message(STATUS "  YABIL_RELEASE_FLAGS: ${YABIL_RELEASE_FLAGS}")
+message(STATUS "  YABIL_LINK_FLAGS:    ${YABIL_LINK_FLAGS}")
