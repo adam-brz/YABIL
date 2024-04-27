@@ -50,7 +50,8 @@ jobs:
         run: |
           cmake --preset conan-release \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-            -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE
+            -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE \
+            -DCMAKE_VERBOSE_MAKEFILE=TRUE
 
       - name: Run Clang-tidy
         run: |

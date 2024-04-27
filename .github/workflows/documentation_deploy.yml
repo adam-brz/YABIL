@@ -44,7 +44,7 @@ jobs:
             -o yabil/*:shared=True \
             --build=missing
 
-          cmake --preset conan-debug -DYABIL_ENABLE_COVERAGE=True
+          cmake --preset conan-debug -DYABIL_ENABLE_COVERAGE=True -DCMAKE_VERBOSE_MAKEFILE=TRUE
 
           cd build/Debug
           cmake --build . --config Debug -j $(nproc)

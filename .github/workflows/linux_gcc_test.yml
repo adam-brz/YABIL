@@ -48,8 +48,8 @@ jobs:
           BUILD_TYPE: ${{ matrix.build_type }}
         run: |
           cmake --preset conan-${BUILD_TYPE,,} \
-            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-            -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE
+            -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE \
+            -DCMAKE_VERBOSE_MAKEFILE=TRUE
 
       - name: Build
         working-directory: build/${{ matrix.build_type }}

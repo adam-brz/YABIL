@@ -44,7 +44,7 @@ jobs:
 
       - name: Install conan dependencies
         run: |
-          conan install .
+          conan install . \
             -pr:b=default \
             -pr:h=default \
             -s build_type=Debug \
@@ -53,7 +53,7 @@ jobs:
             --build=missing
 
       - name: Configure
-        run: cmake --preset conan-debug -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE
+        run: cmake --preset conan-debug -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE -DCMAKE_VERBOSE_MAKEFILE=TRUE
 
       - name: Build
         working-directory: build/Debug
