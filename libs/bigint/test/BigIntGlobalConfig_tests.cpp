@@ -1,8 +1,6 @@
 #include <gtest/gtest.h>
 #include <yabil/bigint/BigIntGlobalConfig.h>
 
-#include <stdexcept>
-
 using namespace yabil::bigint;
 
 class BigIntGlobalConfig_tests : public ::testing::Test

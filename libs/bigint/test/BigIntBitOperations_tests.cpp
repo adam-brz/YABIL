@@ -1,8 +1,6 @@
 #include <gtest/gtest.h>
 #include <yabil/bigint/BigInt.h>
 
-#include <limits>
-
 using namespace yabil::bigint;
 
 class BigIntBitOperations_tests : public ::testing::Test

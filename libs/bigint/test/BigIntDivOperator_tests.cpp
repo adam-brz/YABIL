@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <yabil/bigint/BigInt.h>
 
-#include <limits>
 #include <stdexcept>
 
 using namespace yabil::bigint;

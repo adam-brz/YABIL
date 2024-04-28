@@ -2,7 +2,6 @@
 
 #include <yabil/bigint/BigIntBase.h>
 
-#include <cstdint>
 #include <cstdlib>
 
 namespace yabil

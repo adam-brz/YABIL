@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <yabil/utils/IterUtils.h>
 
-#include <span>
 #include <vector>
 
 using namespace yabil::utils;

@@ -8,6 +8,7 @@
 #include <limits>
 #include <vector>
 
+#include "TypeUtils.h"
 #include "add_sub/AddSub.h"
 
 using namespace yabil::type_utils;

@@ -6,8 +6,6 @@
 #include <utility>
 #include <vector>
 
-#include "TypeUtils.h"
-
 namespace yabil::bigint
 {
 
