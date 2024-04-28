@@ -3,6 +3,7 @@
 #include <yabil/crypto/Random.h>
 #include <yabil/math/Math.h>
 
+#include <algorithm>
 #include <cstring>
 
 namespace yabil::crypto::rsa

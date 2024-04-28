@@ -1,12 +1,12 @@
 #pragma once
 
-#include <yabil/visibility/Visibility.h>
+#include <yabil/bigint/bigint_export.h>
 
 namespace yabil::bigint
 {
 
 /// @brief Structure containing all Thresholds for bigint algorithms
-struct YABIL_PUBLIC Thresholds
+struct YABIL_BIGINT_EXPORT Thresholds
 {
     unsigned karatsuba_threshold_digits = 64;
     unsigned recursive_div_threshold_digits = 1200;

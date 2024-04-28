@@ -1,5 +1,7 @@
 # common.cmake
 
+include(GenerateExportHeader)
+
 function(set_common_properties TARGET)
     set_target_properties(${TARGET} PROPERTIES
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib$<0:>"
@@ -26,6 +28,7 @@ function(set_common_properties TARGET)
         )
     endif()
 
+    setup_export_header(${TARGET})
     set_common_target_options(${TARGET})
 endfunction()
 
@@ -36,6 +39,22 @@ function(setup_install_rule TARGET)
             EXPORT "${CMAKE_PROJECT_NAME}Targets"
             FILE_SET HEADERS
         )
+    endif()
+endfunction()
+
+function(setup_export_header TARGET)
+    get_target_property(IS_TEST_TARGET ${TARGET} IS_TEST_TARGET)
+    if(NOT IS_TEST_TARGET)
+        set(EXPORT_FILE_DIR "${CMAKE_PROJECT_NAME}/${TARGET}")
+        set(EXPORT_FILE_NAME "${CMAKE_PROJECT_NAME}/${TARGET}/${TARGET}_export.h")
+        string(TOUPPER "${CMAKE_PROJECT_NAME}_" EXPORT_MACRO_PREFIX)
+        generate_export_header(${TARGET} PREFIX_NAME ${EXPORT_MACRO_PREFIX} EXPORT_FILE_NAME ${EXPORT_FILE_NAME})
+        target_include_directories(${TARGET}
+            PUBLIC
+            $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+            $<INSTALL_INTERFACE:include>
+        )
+        install(FILES ${PROJECT_BINARY_DIR}/${EXPORT_FILE_NAME} DESTINATION include/${EXPORT_FILE_DIR})
     endif()
 endfunction()
 

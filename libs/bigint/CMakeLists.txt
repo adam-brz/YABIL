@@ -65,7 +65,7 @@ else()
 endif()
 
 add_library(${PROJECT_NAME})
-target_link_libraries(${PROJECT_NAME} PUBLIC visibility PRIVATE utils)
+target_link_libraries(${PROJECT_NAME} PRIVATE utils)
 
 if(YABIL_ENABLE_TBB)
     target_link_libraries(${PROJECT_NAME} PRIVATE TBB::tbb)
