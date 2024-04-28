@@ -2,8 +2,6 @@
 
 function(set_common_properties TARGET)
     set_target_properties(${TARGET} PROPERTIES
-        CXX_STANDARD 20
-        CXX_STANDARD_REQUIRED TRUE
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib$<0:>"
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib$<0:>"
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin$<0:>"
@@ -42,6 +40,8 @@ function(setup_install_rule TARGET)
 endfunction()
 
 function(set_common_target_options TARGET)
+    message(STATUS "Setting up target: ${TARGET}")
+
     set(MSVC_FLAGS /W4 /wd4068)
     set(OTHER_FLAGS -Wall -Wextra -Wpedantic -Wno-pragmas)
 
@@ -67,7 +67,6 @@ function(set_common_target_options TARGET)
         set(YABIL_LINK_FLAGS ${SANITIZER_LINK_FLAGS} ${COVERAGE_LINK_FLAGS} CACHE STRING "Additional compile flags for Release configuration.")
     endif()
 
-    message(STATUS "Setting up target: ${TARGET}")
     if(CMAKE_CONFIGURATION_TYPES)
         target_compile_options(${TARGET} PRIVATE
             $<$<COMPILE_LANGUAGE:CXX>:

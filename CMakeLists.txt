@@ -8,6 +8,10 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type" FORCE)
 endif()
 
+if(NOT CMAKE_CXX_STANDARD)
+    set(CMAKE_CXX_STANDARD "20" CACHE STRING "Required c++ standard." FORCE)
+endif()
+
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 option(YABIL_ENABLE_SANITIZER "Enable address sanitizer" OFF)
 option(YABIL_ENABLE_TESTS "Enable test targets" OFF)
