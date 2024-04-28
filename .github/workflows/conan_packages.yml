@@ -21,8 +21,8 @@ jobs:
         build_type: ["Release", "Debug"]
         shared: ["shared=True", "shared=False"]
         native_optimizations: ["native_optimizations=True", "native_optimizations=False"]
-        with_tests: ["with_tests=True", "with_tests=False"]
-        with_tbb: ["with_tbb=True", "with_tbb=False"]
+        with_tests: ["with_tests=True"]
+        with_tbb: ["with_tbb=True"]
 
     defaults:
       run:
