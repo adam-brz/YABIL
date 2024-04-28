@@ -6,7 +6,7 @@ from conan.tools.build import cppstd_flag, supported_cppstd, check_min_cppstd
 import shutil
 from pathlib import Path
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.2.0"
 
 
 class YabilConan(ConanFile):

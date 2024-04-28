@@ -10,7 +10,7 @@ RUN curl -o cmake.sh -L "https://github.com/Kitware/CMake/releases/download/v3.2
     chmod +x cmake.sh; \
     ./cmake.sh --skip-license --prefix=/usr/local
 
-RUN python3 -m pip install conan==2.0.7; \
+RUN python3 -m pip install conan==2.2.3; \
     conan profile detect
 
 RUN curl -o android_ndk.zip -L "https://dl.google.com/android/repository/android-ndk-r26-linux.zip"; \
