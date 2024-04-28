@@ -47,6 +47,7 @@ jobs:
           conan install . \
             -pr:b=default \
             -pr:h=default \
+            -s compiler.cppstd=20 \
             -s build_type=Debug \
             -o yabil/*:with_tests=True \
             -o yabil/*:with_tbb=True \
