@@ -35,9 +35,7 @@ jobs:
           python-version: '3.10'
 
       - name: Setup Conan
-        run: |
-          python -m pip install conan==2.2.3
-          conan profile detect
+        run: python -m pip install conan==2.2.3
 
       - name: Cache Conan packages
         uses: actions/cache@v4
@@ -47,6 +45,7 @@ jobs:
 
       - name: Install conan dependencies
         run: |
+          CONAN_HOME="$GITHUB_WORKSPACE/.conan2" conan profile detect || true
           CONAN_HOME="$GITHUB_WORKSPACE/.conan2" conan install . \
             -pr:b=default \
             -pr:h=default \
