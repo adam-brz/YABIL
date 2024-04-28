@@ -34,7 +34,7 @@ jobs:
 
       - name: Create Conan package
         run: |
-          conan create . \
+          conan create . --version 0.1 \
             -pr:h=./conan/profiles/${{ matrix.profile }} \
             -pr:b=./conan/profiles/${{ matrix.profile }} \
             -s build_type=${{ matrix.build_type }} \
