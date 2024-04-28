@@ -35,12 +35,12 @@ jobs:
       - name: Cache Conan packages
         uses: actions/cache@v4
         with:
-          path: /github/home/.conan2
+          path: .conan2
           key: ${{ runner.os }}-${{ matrix.profile }}-${{ matrix.build_type }}
 
       - name: Create Conan package
         run: |
-          conan create . --version 0.1 \
+          CONAN_HOME="$GITHUB_WORKSPACE/.conan2" conan create . --version 0.1 \
             -pr:h=./conan/profiles/${{ matrix.profile }} \
             -pr:b=./conan/profiles/${{ matrix.profile }} \
             -s build_type=${{ matrix.build_type }} \

@@ -36,12 +36,12 @@ jobs:
       - name: Cache Conan packages
         uses: actions/cache@v4
         with:
-          path: /github/home/.conan2
+          path: .conan2
           key: ${{ runner.os }}-clang-Debug
 
       - name: Prepare coverage build
         run: |
-          conan install . \
+          CONAN_HOME="$GITHUB_WORKSPACE/.conan2" conan install . \
             -pr:h=./conan/profiles/clang \
             -pr:b=./conan/profiles/clang \
             -s build_type=Debug \

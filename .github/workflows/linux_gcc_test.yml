@@ -32,12 +32,12 @@ jobs:
       - name: Cache Conan packages
         uses: actions/cache@v4
         with:
-          path: /github/home/.conan2
+          path: .conan2
           key: ${{ runner.os }}-gcc-${{ matrix.build_type }}
 
       - name: Install Conan dependencies
         run: |
-          conan install . \
+          CONAN_HOME="$GITHUB_WORKSPACE/.conan2" conan install . \
             -pr:h=./conan/profiles/gcc \
             -pr:b=./conan/profiles/gcc \
             -s build_type=${{ matrix.build_type }} \
