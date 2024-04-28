@@ -1,4 +1,3 @@
-add_subdirectory(visibility)
 add_subdirectory(utils)
 add_subdirectory(bigint)
 add_subdirectory(math)

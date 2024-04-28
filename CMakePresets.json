@@ -93,6 +93,7 @@
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/${presetName}/install",
                 "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/build/${presetName}/conan_toolchain.cmake",
+                "CMAKE_VERBOSE_MAKEFILE": true,
                 "CMAKE_C_COMPILER": "cl.exe",
                 "CMAKE_CXX_COMPILER": "cl.exe",
                 "YABIL_ENABLE_TESTS": true,
@@ -105,6 +106,17 @@
             "displayName": "Visual Studio 17 [Debug]",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "vs_debug_cuda",
+            "inherits": "vs",
+            "displayName": "Visual Studio 17 [Debug, CUDA]",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "YABIL_ENABLE_CUDA": true,
+                "CMAKE_CUDA_ARCHITECTURES": "86",
+                "CMAKE_CUDA_STANDARD": "20"
             }
         },
         {

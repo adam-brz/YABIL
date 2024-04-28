@@ -21,7 +21,6 @@ set(TESTS
 )
 
 add_library(${PROJECT_NAME})
-target_link_libraries(${PROJECT_NAME} PUBLIC visibility)
 
 target_sources(${PROJECT_NAME}
     PRIVATE ${SOURCES}

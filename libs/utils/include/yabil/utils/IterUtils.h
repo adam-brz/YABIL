@@ -1,6 +1,6 @@
 #pragma once
 
-#include <yabil/visibility/Visibility.h>
+#include <yabil/utils/utils_export.h>
 
 #include <algorithm>
 #include <span>
@@ -16,7 +16,7 @@ namespace yabil::utils
 /// @param end End iterator
 /// @return std::span view over range between begin and end
 template <typename BeginIter, typename EndIter>
-YABIL_PUBLIC constexpr auto make_span(BeginIter begin, EndIter end)
+YABIL_UTILS_EXPORT constexpr auto make_span(BeginIter begin, EndIter end)
 {
     using begin_data_t = std::remove_pointer_t<typename BeginIter::pointer>;
     using end_data_t = std::remove_pointer_t<typename EndIter::pointer>;
@@ -40,7 +40,7 @@ YABIL_PUBLIC constexpr auto make_span(BeginIter begin, EndIter end)
 /// @param amount Advance value
 /// @param container Container to which iterator belongs to
 template <typename Iterator, typename Container>
-YABIL_PUBLIC constexpr auto safe_advance(Iterator iter, int amount, Container &container)
+YABIL_UTILS_EXPORT constexpr auto safe_advance(Iterator iter, int amount, Container &container)
 {
     if (amount < 0)
     {

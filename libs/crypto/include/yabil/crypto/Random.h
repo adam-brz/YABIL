@@ -1,7 +1,7 @@
 #pragma once
 
 #include <yabil/bigint/BigInt.h>
-#include <yabil/visibility/Visibility.h>
+#include <yabil/crypto/crypto_export.h>
 
 #include <cstdint>
 
@@ -14,18 +14,19 @@ namespace yabil::crypto::random
 /// @param top_two Force most-significant bit to value of 1
 /// @param bottom_odd Force least-significant bit to value of 1
 /// @return Pseudo-random \p BigInt
-YABIL_PUBLIC yabil::bigint::BigInt random_bigint(uint64_t number_of_bits = 64, bool top_two = false,
-                                                 bool bottom_odd = false);
+YABIL_CRYPTO_EXPORT yabil::bigint::BigInt random_bigint(uint64_t number_of_bits = 64, bool top_two = false,
+                                                        bool bottom_odd = false);
 
 /// @brief Generate large pseudo-random integer.
 /// @param min Minimum value to generate
 /// @param max Maximum value to generate
 /// @return Pseudo-random \p BigInt
-YABIL_PUBLIC yabil::bigint::BigInt random_bigint(const yabil::bigint::BigInt &min, const yabil::bigint::BigInt &max);
+YABIL_CRYPTO_EXPORT yabil::bigint::BigInt random_bigint(const yabil::bigint::BigInt &min,
+                                                        const yabil::bigint::BigInt &max);
 
 /// @brief Generate large random prime number.
 /// @param number_of_bits Number of bits for prime number
 /// @return Pseudo-random prime \p BigInt
-YABIL_PUBLIC yabil::bigint::BigInt random_prime(uint64_t number_of_bits = 1024);
+YABIL_CRYPTO_EXPORT yabil::bigint::BigInt random_prime(uint64_t number_of_bits = 1024);
 
 }  // namespace yabil::crypto::random

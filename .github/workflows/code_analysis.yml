@@ -22,13 +22,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Prepare build directory
-        run: mkdir build
-
-      - name: Set safe.directory git config
-        run: git config --global --add safe.directory $GITHUB_WORKSPACE
+        uses: actions/checkout@v4
 
       - name: Run clang-format
         run: |
@@ -39,32 +33,46 @@ jobs:
             exit 1
           fi
 
+      - name: Cache Conan packages
+        uses: actions/cache@v4
+        with:
+          path: .conan2
+          key: ${{ runner.os }}-clang-Release
+
       - name: Install Conan dependencies
         run: |
-          CC=clang CXX=clang++ conan install ./conan -pr=./conan/profiles/clang \
-            -pr:b=./conan/profiles/clang -s build_type=Release --build=missing -of=build
+          CONAN_HOME="$GITHUB_WORKSPACE/.conan2" conan install . \
+            -pr:h=./conan/profiles/clang \
+            -pr:b=./conan/profiles/clang \
+            -s build_type=Release \
+            -o yabil/*:with_tests=True \
+            -o yabil/*:with_tbb=True \
+            --build=missing
 
       - name: Configure
-        working-directory: build
         run: |
-          cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DYABIL_ENABLE_TESTS=TRUE -DYABIL_ENABLE_TBB=TRUE -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE \
-            -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
+          cmake --preset conan-release \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE \
+            -DCMAKE_VERBOSE_MAKEFILE=TRUE
 
       - name: Run Clang-tidy
-        run: clang-tidy -format-style=file -header-filter=.* -p build $(find libs -iname "*.cpp" -not -path "*/ParallelStdImpl.cpp" -or -iname "*.h")
+        run: |
+          find libs -iname "*.cpp" -not -path "*/ParallelStdImpl.cpp" -or -iname "*.h" -print0 \
+            | parallel -0 clang-tidy -format-style=file -header-filter=.* -p build/Release {}
 
       - name: Run CppLint
         run: cpplint $(find libs -iname *.cpp) $(find libs -iname *.h)
 
       - name: Run CppCheck
         run: |
-          cppcheck --project=build/compile_commands.json \
+          cppcheck --project=build/Release/compile_commands.json \
             --enable=all --error-exitcode=1 --suppress=missingInclude:* --inline-suppr
 
       - name: Compile project
-        working-directory: build
+        working-directory: build/Release
         run: cmake --build . -j $(nproc) --config Release
 
       - name: Run tests
-        working-directory: build
-        run: ctest --verbose -j "$(nproc)"
+        working-directory: build/Release
+        run: ctest -C Release --verbose -j "$(nproc)"

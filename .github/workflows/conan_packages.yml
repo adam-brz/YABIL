@@ -1,0 +1,51 @@
+name: Check Conan packages
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  package:
+    name: Create package
+    runs-on: ubuntu-22.04
+    container:
+      image: andrew2a1/cpp_analysis_tools
+    strategy:
+      matrix:
+        profile: ["gcc", "clang"]
+        build_type: ["Release", "Debug"]
+        shared: ["shared=True", "shared=False"]
+        native_optimizations: ["native_optimizations=True", "native_optimizations=False"]
+        with_tests: ["with_tests=True", "with_tests=False"]
+        with_tbb: ["with_tbb=True", "with_tbb=False"]
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Conan packages
+        uses: actions/cache@v4
+        with:
+          path: .conan2
+          key: ${{ runner.os }}-${{ matrix.profile }}-${{ matrix.build_type }}
+
+      - name: Create Conan package
+        run: |
+          CONAN_HOME="$GITHUB_WORKSPACE/.conan2" conan create . --version 0.1 \
+            -pr:h=./conan/profiles/${{ matrix.profile }} \
+            -pr:b=./conan/profiles/${{ matrix.profile }} \
+            -s build_type=${{ matrix.build_type }} \
+            -o yabil/*:${{ matrix.shared }} \
+            -o yabil/*:${{ matrix.native_optimizations }} \
+            -o yabil/*:${{ matrix.with_tests }} \
+            -o yabil/*:${{ matrix.with_tbb }} \
+            --build=missing

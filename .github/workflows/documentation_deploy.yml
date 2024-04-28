@@ -31,12 +31,37 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Cache Conan packages
+        uses: actions/cache@v4
+        with:
+          path: .conan2
+          key: ${{ runner.os }}-clang-Debug
+
+      - name: Prepare coverage build
+        run: |
+          CONAN_HOME="$GITHUB_WORKSPACE/.conan2" conan install . \
+            -pr:h=./conan/profiles/clang \
+            -pr:b=./conan/profiles/clang \
+            -s build_type=Debug \
+            -o yabil/*:with_tests=True \
+            -o yabil/*:with_tbb=True \
+            -o yabil/*:shared=True \
+            --build=missing
+
+          cmake --preset conan-debug -DYABIL_ENABLE_COVERAGE=True -DCMAKE_VERBOSE_MAKEFILE=TRUE
+
+          cd build/Debug
+          cmake --build . --config Debug -j $(nproc)
+          ctest -C Debug -j $(nproc)
 
       - name: Create coverage report
         run: |
-          conan profile detect
-          python3 ./scripts/coverage.py --llvm_cov "llvm-cov-14" --llvm_profdata "llvm-profdata-14" --output_line_coverage_percent "coverage_percent.txt"
+          python3 ./scripts/coverage.py \
+            --llvm_cov "llvm-cov-14" \
+            --llvm_profdata "llvm-profdata-14" \
+            --output_line_coverage_percent "coverage_percent.txt"
 
       - name: Parse coverage results
         run: |
@@ -50,8 +75,8 @@ jobs:
             color="yellow"
           fi
 
-          curl -o build/coverage/coverage_report/badge.svg -L "https://img.shields.io/badge/Coverage-${coverage}%25-${color}"
-          chmod 0755 -R 'build/coverage/coverage_report'
+          curl -o build/Debug/coverage_report/badge.svg -L "https://img.shields.io/badge/Coverage-${coverage}%25-${color}"
+          chmod 0755 -R 'build/Debug/coverage_report'
 
       - name: Generate documentation
         run: |
@@ -62,7 +87,7 @@ jobs:
           fi
 
       - name: Move documentation files
-        run: mv build/coverage/coverage_report build/docs/html/coverage_report
+        run: mv build/Debug/coverage_report build/docs/html/coverage_report
 
       - name: Setup Pages
         uses: actions/configure-pages@v3

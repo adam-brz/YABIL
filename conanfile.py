@@ -1,11 +1,12 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import copy
+from conan.tools.build import cppstd_flag, supported_cppstd, check_min_cppstd
 
-import os
+import shutil
 from pathlib import Path
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.2.0"
 
 
 class YabilConan(ConanFile):
@@ -21,18 +22,22 @@ class YabilConan(ConanFile):
         "fPIC": [True, False],
         "native_optimizations": [True, False],
         "digit_type": ["uint16_t", "uint32_t", "uint64_t", "auto"],
-        "tbb": [True, False],
+        "with_tbb": [True, False],
+        "with_tests": [True, False],
+        "with_cuda": [True, False],  # experimental
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "native_optimizations": False,
+        "native_optimizations": True,
         "digit_type": "auto",
-        "tbb": False,
+        "with_tbb": True,
+        "with_tests": False,
+        "with_cuda": False,
     }
 
     def export_sources(self):
-        sources = Path(self.recipe_folder).parent.parent
+        sources = Path(self.recipe_folder)
         export_dir = Path(self.export_sources_folder)
         copy(self, "CMakeLists.txt", sources, export_dir)
         copy(self, "LICENSE.txt", sources, export_dir)
@@ -43,28 +48,57 @@ class YabilConan(ConanFile):
         if self.settings.os == "Windows":
             self.options.rm_safe("fPIC")
 
+    def configure(self):
+        if not cppstd_flag(self):
+            supported = supported_cppstd(self)
+            if "gnu20" in supported:
+                self.settings.compiler.cppstd = "gnu20"
+            elif "20" in supported:
+                self.settings.compiler.cppstd = "20"
+            self.output.info(
+                f"Setting compiler.cppstd = {self.settings.compiler.cppstd}"
+            )
+
+    def validate(self):
+        check_min_cppstd(self, "20")
+
     def layout(self):
         cmake_layout(self)
 
     def requirements(self):
-        if self.options.tbb:
+        if self.options.with_tbb:
             self.requires("onetbb/[>=2021.9.0]")
+        if self.options.with_tests:
+            self.test_requires("gtest/[>=1.13.0]")
 
     def generate(self):
+        self._import_dependencies()
         tc = CMakeToolchain(self)
-        tc.variables["YABIL_ENABLE_TESTS"] = False
-        tc.variables["YABIL_ENABLE_TBB"] = self.options.tbb
-        tc.variables[
-            "YABIL_ENABLE_NATIVE_OPTIMIZATIONS"
-        ] = self.options.native_optimizations
+        tc.variables["YABIL_ENABLE_TESTS"] = self.options.with_tests
+        tc.variables["YABIL_ENABLE_TBB"] = self.options.with_tbb
+        tc.variables["YABIL_ENABLE_NATIVE_OPTIMIZATIONS"] = (
+            self.options.native_optimizations
+        )
+        tc.variables["YABIL_ENABLE_CUDA"] = self.options.with_cuda
         tc.variables["YABIL_BIGINT_BASE_TYPE"] = self.options.digit_type
         tc.generate()
         CMakeDeps(self).generate()
+
+    def _import_dependencies(self):
+        bin_dir = Path(self.build_folder) / "bin"
+        for dep in self.dependencies.values():
+            copy(self, "*.dylib", dep.cpp_info.bindirs[0], bin_dir)
+            copy(self, "*.dll", dep.cpp_info.bindirs[0], bin_dir)
+            copy(self, "*.so*", dep.cpp_info.bindirs[0], bin_dir)
 
     def build(self):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
+
+        if self.options.with_tests:
+            if ctest := shutil.which("ctest"):
+                self.run(f"{ctest} -C {self.settings.build_type} --output-on-failure")
 
     def package(self):
         cmake = CMake(self)
@@ -96,9 +130,10 @@ class YabilConan(ConanFile):
             self.cpp_info.components["bigint"].defines.append(
                 f"BIGINT_BASE_T={self.options.digit_type}"
             )
+
         if self.options.shared:
             for conan_component in all_components:
                 self.cpp_info.components[conan_component].defines.append("YABIL_DLL")
 
-        if self.options.tbb:
+        if self.options.with_tbb:
             self.cpp_info.components["bigint"].requires.append("onetbb::libtbb")

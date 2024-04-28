@@ -18,8 +18,8 @@ jobs:
     strategy:
       matrix:
         build_type: ["Release", "Debug"]
-        parallel_use_tbb: ["ENABLE_TBB=true", "ENABLE_TBB=false"]
-        native_optimizations: ["NATIVE_OPTIMIZATIONS=true", "NATIVE_OPTIMIZATIONS=false"]
+        parallel_use_tbb: ["with_tbb=True", "with_tbb=False"]
+        native_optimizations: ["native_optimizations=True", "native_optimizations=False"]
 
     defaults:
       run:
@@ -27,37 +27,45 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: setup conan profile
-        run: conan profile detect
+      - name: Cache Conan packages
+        uses: actions/cache@v4
+        with:
+          path: .conan2
+          key: ${{ runner.os }}-gcc-${{ matrix.build_type }}
 
       - name: Install Conan dependencies
         run: |
-          CC=gcc CXX=g++ conan install ./conan -pr=./conan/profiles/gcc \
-            -pr:b=./conan/profiles/gcc -s build_type=${{ matrix.build_type }} --build=missing -of=build
+          CONAN_HOME="$GITHUB_WORKSPACE/.conan2" conan install . \
+            -pr:h=./conan/profiles/gcc \
+            -pr:b=./conan/profiles/gcc \
+            -s build_type=${{ matrix.build_type }} \
+            -o yabil/*:${{ matrix.parallel_use_tbb }} \
+            -o yabil/*:${{ matrix.native_optimizations }} \
+            -o yabil/*:with_tests=True \
+            --build=missing
 
       - name: Configure
-        working-directory: build
+        env:
+          BUILD_TYPE: ${{ matrix.build_type }}
         run: |
-          cmake -S .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake \
-            -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ \
-            -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DYABIL_ENABLE_TESTS=TRUE -DYABIL_${{ matrix.parallel_use_tbb }} \
-            -DYABIL_ENABLE_${{ matrix.native_optimizations }}
+          cmake --preset conan-${BUILD_TYPE,,} \
+            -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE \
+            -DCMAKE_VERBOSE_MAKEFILE=TRUE
 
       - name: Build
-        working-directory: build
+        working-directory: build/${{ matrix.build_type }}
         run: |
           cmake --build . -j "$(nproc)" --config ${{ matrix.build_type }}
 
       - name: Run tests
-        working-directory: build
+        working-directory: build/${{ matrix.build_type }}
         run: ctest --verbose -j "$(nproc)"
 
       - name: Run tests with Valgrind
-        if: matrix.parallel_use_tbb == 'ENABLE_TBB=false' && matrix.native_optimizations == 'NATIVE_OPTIMIZATIONS=false'
-        working-directory: build
+        if: matrix.parallel_use_tbb == 'with_tbb=False' && matrix.native_optimizations == 'native_optimizations=False'
+        working-directory: build/${{ matrix.build_type }}
         run: |
           for test in $(find -iname *_tests); do
             valgrind -s --exit-on-first-error=yes --error-exitcode=1 \

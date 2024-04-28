@@ -28,7 +28,7 @@ RUN curl -o valgrind.tar.bz2 -L https://sourceware.org/pub/valgrind/valgrind-3.2
     cd ..; \
     rm -rf valgrind-3.21.0
 
-RUN python3 -m pip install conan==2.0.1; \
+RUN python3 -m pip install conan==2.2.3; \
     conan profile detect
 
 RUN apt-get install -y libc6-dbg
@@ -42,5 +42,4 @@ RUN git clone --branch "Release_1_9_6" --depth 1 https://github.com/doxygen/doxy
     cd ..; \
     rm -rf doxygen
 
-RUN apt-get update; \
-    apt-get install -y pkg-config
+RUN apt-get install -y pkg-config parallel
