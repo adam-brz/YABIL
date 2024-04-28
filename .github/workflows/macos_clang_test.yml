@@ -36,8 +36,11 @@ jobs:
           python -m pip install conan==2.2.3
           conan profile detect
 
-      - name: Prepare build directory
-        run: mkdir build
+      - name: Cache Conan packages
+        uses: actions/cache@v4
+        with:
+          path: /Users/runner/.conan2
+          key: ${{ runner.os }}-default-Debug
 
       - name: Install conan dependencies
         run: |

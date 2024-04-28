@@ -29,10 +29,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Cache Conan packages
+        uses: actions/cache@v4
+        with:
+          path: /github/home/.conan2
+          key: ${{ runner.os }}-gcc-${{ matrix.build_type }}
+
       - name: Install Conan dependencies
-        env:
-          CC: gcc
-          CXX: g++
         run: |
           conan install . \
             -pr:h=./conan/profiles/gcc \

@@ -33,10 +33,13 @@ jobs:
             exit 1
           fi
 
+      - name: Cache Conan packages
+        uses: actions/cache@v4
+        with:
+          path: /github/home/.conan2
+          key: ${{ runner.os }}-clang-Release
+
       - name: Install Conan dependencies
-        env:
-          CC: clang
-          CXX: clang++
         run: |
           conan install . \
             -pr:h=./conan/profiles/clang \

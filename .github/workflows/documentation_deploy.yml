@@ -33,6 +33,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Cache Conan packages
+        uses: actions/cache@v4
+        with:
+          path: /github/home/.conan2
+          key: ${{ runner.os }}-clang-Debug
+
       - name: Prepare coverage build
         run: |
           conan install . \
