@@ -53,12 +53,12 @@ jobs:
             --build=missing
 
       - name: Configure
-        run: cmake --preset conan-debug -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE -DCMAKE_VERBOSE_MAKEFILE=TRUE
+        run: cmake --preset conan-default -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE -DCMAKE_VERBOSE_MAKEFILE=TRUE
 
       - name: Build
-        working-directory: build/Debug
+        working-directory: build
         run: cmake --build . -j $(nproc) --config Debug
 
       - name: Run tests
-        working-directory: build/Debug
+        working-directory: build
         run: ctest --verbose -j $(nproc)
