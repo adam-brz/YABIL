@@ -45,6 +45,7 @@ jobs:
             -pr:b=default \
             -pr:h=default \
             -s build_type=Debug \
+            -s compiler.cppstd=gnu20 \
             -o yabil/*:with_tests=True \
             -o yabil/*:with_tbb=True \
             -c yabil/*:tools.cmake.cmaketoolchain:generator=xcode \
