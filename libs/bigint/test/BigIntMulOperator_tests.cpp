@@ -17,24 +17,11 @@ struct EnabledParallelism
     std::optional<Thresholds> thresholds;
 };
 
-struct EnabledParallelismLowThresholds
-{
-    bool parallelism_enabled = true;
-    std::optional<Thresholds> thresholds = Thresholds{.karatsuba_threshold_digits = 4, .parallel_mul_digits = 8};
-};
-
 struct DisabledParallelism
 {
     bool parallelism_enabled = false;
     std::optional<Thresholds> thresholds;
 };
-
-struct DisabledParallelismLowThresholds
-{
-    bool parallelism_enabled = false;
-    std::optional<Thresholds> thresholds = Thresholds{.karatsuba_threshold_digits = 4, .parallel_mul_digits = 8};
-};
-
 }  // namespace
 
 template <typename ParallelSettings>
@@ -45,28 +32,18 @@ protected:
 
     [[maybe_unused]] void SetUp() override  // cppcheck-suppress [unusedFunction]
     {
-        const auto new_settings = ParallelSettings{};
         auto &config = BigIntGlobalConfig::instance();
-
-        config.set_parallel_algorithms_enabled(new_settings.parallelism_enabled);
-        stored_thresholds = config.thresholds();
-
-        if (new_settings.thresholds.has_value())
-        {
-            config.set_thresholds(new_settings.thresholds.value());
-        }
+        config.set_parallel_algorithms_enabled(ParallelSettings{}.parallelism_enabled);
     }
 
     [[maybe_unused]] void TearDown() override  // cppcheck-suppress [unusedFunction]
     {
         auto &config = BigIntGlobalConfig::instance();
         config.set_parallel_algorithms_enabled(true);
-        config.set_thresholds(stored_thresholds);
     }
 };
 
-using parallel_settings = ::testing::Types<EnabledParallelism, EnabledParallelismLowThresholds, DisabledParallelism,
-                                           DisabledParallelismLowThresholds>;
+using parallel_settings = ::testing::Types<EnabledParallelism, DisabledParallelism>;
 TYPED_TEST_SUITE(BigIntMulOperator_tests, parallel_settings);
 
 TYPED_TEST(BigIntMulOperator_tests, mulTwoZeros)

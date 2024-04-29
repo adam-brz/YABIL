@@ -17,9 +17,8 @@ namespace yabil::bigint
 
 std::pair<BigInt, BigInt> BigInt::divide_unsigned(const BigInt &other) const
 {
-    const auto &thresholds = BigIntGlobalConfig::instance().thresholds();
-    if (data.size() > thresholds.recursive_div_threshold_digits &&
-        other.data.size() > thresholds.recursive_div_threshold_digits)
+    if (data.size() > BigIntGlobalConfig::thresholds().recursive_div_threshold_digits &&
+        other.data.size() > BigIntGlobalConfig::thresholds().recursive_div_threshold_digits)
     {
         return unbalanced_div(other);
     }

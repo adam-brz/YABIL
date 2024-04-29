@@ -95,8 +95,8 @@ std::vector<bigint_base_t> mul_basecase(std::span<bigint_base_t const> a, std::s
 
 std::vector<bigint_base_t> karatsuba_mul(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
 {
-    const auto &thresholds = BigIntGlobalConfig::instance().thresholds();
-    if (a.size() < thresholds.karatsuba_threshold_digits || b.size() < thresholds.karatsuba_threshold_digits)
+    if (a.size() < BigIntGlobalConfig::thresholds().karatsuba_threshold_digits ||
+        b.size() < BigIntGlobalConfig::thresholds().karatsuba_threshold_digits)
     {
         return mul_basecase(a, b);
     }

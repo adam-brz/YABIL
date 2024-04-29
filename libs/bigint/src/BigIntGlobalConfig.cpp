@@ -34,14 +34,4 @@ int BigIntGlobalConfig::get_number_of_threads() const
     return number_of_threads;
 }
 
-const Thresholds& BigIntGlobalConfig::thresholds() const
-{
-    return bigint_thresholds;
-}
-
-void BigIntGlobalConfig::set_thresholds(const Thresholds& new_thresholds)  // cppcheck-suppress [unusedFunction]
-{
-    bigint_thresholds = new_thresholds;
-}
-
 }  // namespace yabil::bigint

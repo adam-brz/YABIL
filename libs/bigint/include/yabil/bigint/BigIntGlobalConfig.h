@@ -15,7 +15,6 @@ class BigIntGlobalConfig
 private:
     std::atomic<int> number_of_threads;
     std::atomic<bool> parallel_algorithms_enabled = true;
-    Thresholds bigint_thresholds;
 
 public:
     YABIL_BIGINT_EXPORT BigIntGlobalConfig(const BigIntGlobalConfig &) = delete;
@@ -42,13 +41,32 @@ public:
     /// @return Number of threads used for parallel execution
     YABIL_BIGINT_EXPORT int get_number_of_threads() const;
 
+#if YABIL_CONFIG_CONSTEVAL_THRESHOLDS == 1
     /// @brief Get thresholds for bigint algorithms
     /// @return \p Thresholds structure
-    YABIL_BIGINT_EXPORT const Thresholds &thresholds() const;
+    static inline consteval Thresholds thresholds()
+    {
+        return Thresholds{};
+    }
+#else
+private:
+    Thresholds bigint_thresholds;
+
+public:
+    /// @brief Get thresholds for bigint algorithms
+    /// @return \p Thresholds structure
+    static inline Thresholds thresholds()
+    {
+        return instance().bigint_thresholds;
+    }
 
     /// @brief Set new thresholds
     /// @param new_thresholds \p Thresholds structure
-    YABIL_BIGINT_EXPORT void set_thresholds(const Thresholds &new_thresholds);
+    static inline void set_thresholds(const Thresholds &new_thresholds)
+    {
+        instance().bigint_thresholds = new_thresholds;
+    }
+#endif
 
 protected:
     BigIntGlobalConfig();
