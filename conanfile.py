@@ -128,12 +128,8 @@ class YabilConan(ConanFile):
 
         if self.options.digit_type != "auto":
             self.cpp_info.components["bigint"].defines.append(
-                f"BIGINT_BASE_T={self.options.digit_type}"
+                f"YABIL_BIGINT_BASE_T={self.options.digit_type}"
             )
-
-        if self.options.shared:
-            for conan_component in all_components:
-                self.cpp_info.components[conan_component].defines.append("YABIL_DLL")
 
         if self.options.with_tbb:
             self.cpp_info.components["bigint"].requires.append("onetbb::libtbb")

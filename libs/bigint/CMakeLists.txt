@@ -72,7 +72,7 @@ if(YABIL_ENABLE_TBB)
 endif()
 
 if(NOT YABIL_BIGINT_BASE_TYPE STREQUAL "auto")
-    target_compile_definitions(${PROJECT_NAME} PUBLIC BIGINT_BASE_T=${YABIL_BIGINT_BASE_TYPE})
+    target_compile_definitions(${PROJECT_NAME} PUBLIC YABIL_BIGINT_BASE_T=${YABIL_BIGINT_BASE_TYPE})
 endif()
 
 setup_algorithms_config_file()
@@ -81,7 +81,7 @@ target_sources(${PROJECT_NAME}
     PRIVATE ${SOURCES}
     PUBLIC FILE_SET HEADERS
     BASE_DIRS ${PROJECT_SOURCE_DIR}/include
-    FILES ${HEADERS}
+FILES ${HEADERS}
 )
 
 set_common_properties(${PROJECT_NAME})
