@@ -26,7 +26,7 @@ void set_thread_count(std::size_t thread_count)
 std::vector<bigint_base_t> parallel_add_unsigned(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
 {
     const auto min_s = std::min(a.size(), b.size());
-    const auto &thresholds = BigIntGlobalConfig::instance().thresholds();
+    const auto &thresholds = BigIntGlobalConfig::thresholds();
     if (min_s < thresholds.parallel_add_digits)
     {
         return plain_add(a, b);
@@ -86,7 +86,7 @@ std::vector<bigint_base_t> parallel_add_unsigned(std::span<bigint_base_t const> 
 
 std::vector<bigint_base_t> parallel_karatsuba(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
 {
-    const auto &thresholds = BigIntGlobalConfig::instance().thresholds();
+    const auto &thresholds = BigIntGlobalConfig::thresholds();
     if (a.size() < thresholds.parallel_mul_digits || b.size() < thresholds.parallel_mul_digits)
     {
         return karatsuba_mul(a, b);
