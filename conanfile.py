@@ -81,7 +81,6 @@ class YabilConan(ConanFile):
         )
         tc.variables["YABIL_ENABLE_CUDA"] = self.options.with_cuda
         tc.variables["YABIL_BIGINT_BASE_TYPE"] = self.options.digit_type
-        tc.variables["CMAKE_VERBOSE_MAKEFILE"] = True
         tc.generate()
         CMakeDeps(self).generate()
 
@@ -94,7 +93,7 @@ class YabilConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure()
+        cmake.configure(variables={"CMAKE_VERBOSE_MAKEFILE": True})
         cmake.build()
 
         if self.options.with_tests:
