@@ -2,9 +2,7 @@
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/BigIntGlobalConfig.h>
 #include <yabil/bigint/Thresholds.h>
-
-#include <limits>
-#include <optional>
+#include <yabil/bigint/algorithms_config.h>
 
 using namespace yabil::bigint;
 
@@ -14,13 +12,11 @@ namespace
 struct EnabledParallelism
 {
     bool parallelism_enabled = true;
-    std::optional<Thresholds> thresholds;
 };
 
 struct DisabledParallelism
 {
     bool parallelism_enabled = false;
-    std::optional<Thresholds> thresholds;
 };
 }  // namespace
 
@@ -28,19 +24,17 @@ template <typename ParallelSettings>
 class BigIntMulOperator_tests : public ::testing::Test
 {
 protected:
-    Thresholds stored_thresholds;
-
-    [[maybe_unused]] void SetUp() override  // cppcheck-suppress [unusedFunction]
+#if !YABIL_CONFIG_USE_CONSTEVAL_AUTO_PARALLEL
+    BigIntMulOperator_tests()
     {
-        auto &config = BigIntGlobalConfig::instance();
-        config.set_parallel_algorithms_enabled(ParallelSettings{}.parallelism_enabled);
+        BigIntGlobalConfig::set_auto_parallel_enabled(ParallelSettings{}.parallelism_enabled);
     }
 
-    [[maybe_unused]] void TearDown() override  // cppcheck-suppress [unusedFunction]
+    ~BigIntMulOperator_tests()
     {
-        auto &config = BigIntGlobalConfig::instance();
-        config.set_parallel_algorithms_enabled(true);
+        BigIntGlobalConfig::set_auto_parallel_enabled(true);
     }
+#endif
 };
 
 using parallel_settings = ::testing::Types<EnabledParallelism, DisabledParallelism>;

@@ -156,7 +156,7 @@ BigInt BigInt::operator-(const BigInt &other) const
 
 BigInt BigInt::operator*(const BigInt &other) const
 {
-    if (BigIntGlobalConfig::instance().use_parallel_algorithms())
+    if (BigIntGlobalConfig::is_auto_parallel_enabled())
     {
         return parallel::multiply(*this, other);
     }

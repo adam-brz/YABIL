@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <yabil/bigint/BigIntGlobalConfig.h>
+#include <yabil/bigint/algorithms_config.h>
 
 using namespace yabil::bigint;
 
@@ -7,34 +8,28 @@ class BigIntGlobalConfig_tests : public ::testing::Test
 {
 };
 
-TEST_F(BigIntGlobalConfig_tests, createsOnlyOneConfigInstance)
-{
-    const auto &a = BigIntGlobalConfig::instance();
-    const auto &b = BigIntGlobalConfig::instance();
-    EXPECT_EQ(&a, &b);
-}
-
+#if !YABIL_CONFIG_USE_CONSTEVAL_AUTO_PARALLEL
 TEST_F(BigIntGlobalConfig_tests, canDisableAndEnableParallelism)
 {
-    auto &config = BigIntGlobalConfig::instance();
+    BigIntGlobalConfig::set_auto_parallel_enabled(false);
+    EXPECT_FALSE(BigIntGlobalConfig::is_auto_parallel_enabled());
 
-    config.set_parallel_algorithms_enabled(false);
-    EXPECT_FALSE(config.use_parallel_algorithms());
-
-    config.set_parallel_algorithms_enabled(true);
-    EXPECT_TRUE(config.use_parallel_algorithms());
+    BigIntGlobalConfig::set_auto_parallel_enabled(true);
+    EXPECT_TRUE(BigIntGlobalConfig::is_auto_parallel_enabled());
 }
+#endif
 
 TEST_F(BigIntGlobalConfig_tests, canUseDifferentNumberOfThreads)
 {
-    auto &config = BigIntGlobalConfig::instance();
-    const auto default_no_threads = config.get_number_of_threads();
+    const auto default_no_threads = BigIntGlobalConfig::get_thread_count();
 
-    config.set_thread_count(1);
-    EXPECT_EQ(config.get_number_of_threads(), 1);
+    BigIntGlobalConfig::set_thread_count(1);
+    EXPECT_EQ(BigIntGlobalConfig::get_thread_count(), 1);
 
-    config.set_thread_count(4);
-    EXPECT_EQ(config.get_number_of_threads(), 4);
+#if !YABIL_CONFIG_PARALLEL_DISABLED
+    BigIntGlobalConfig::set_thread_count(4);
+    EXPECT_EQ(BigIntGlobalConfig::get_thread_count(), 4);
+#endif
 
-    config.set_thread_count(default_no_threads);
+    BigIntGlobalConfig::set_thread_count(default_no_threads);
 }
