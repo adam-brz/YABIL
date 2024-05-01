@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <bit>
 #include <limits>
+#include <stdexcept>
 
 #include "Arithmetic.h"
 #include "TypeUtils.h"
