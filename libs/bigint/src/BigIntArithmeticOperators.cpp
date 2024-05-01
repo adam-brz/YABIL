@@ -4,11 +4,10 @@
 
 #include <algorithm>
 #include <bit>
-#include <iostream>
 #include <limits>
+#include <stdexcept>
 
 #include "Arithmetic.h"
-#include "StringConversionUtils.h"
 #include "TypeUtils.h"
 #include "add_sub/AddSub.h"
 
@@ -19,9 +18,8 @@ namespace yabil::bigint
 
 std::pair<BigInt, BigInt> BigInt::divide_unsigned(const BigInt &other) const
 {
-    const auto &thresholds = BigIntGlobalConfig::instance().thresholds();
-    if (data.size() > thresholds.recursive_div_threshold_digits &&
-        other.data.size() > thresholds.recursive_div_threshold_digits)
+    if (data.size() > BigIntGlobalConfig::thresholds().recursive_div_threshold_digits &&
+        other.data.size() > BigIntGlobalConfig::thresholds().recursive_div_threshold_digits)
     {
         return unbalanced_div(other);
     }
@@ -159,7 +157,7 @@ BigInt BigInt::operator-(const BigInt &other) const
 
 BigInt BigInt::operator*(const BigInt &other) const
 {
-    if (BigIntGlobalConfig::instance().use_parallel_algorithms())
+    if (BigIntGlobalConfig::is_auto_parallel_enabled())
     {
         return parallel::multiply(*this, other);
     }

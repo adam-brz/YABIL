@@ -2,7 +2,6 @@
 
 #include <yabil/bigint/BigInt.h>
 
-#include <cstdint>
 #include <span>
 #include <vector>
 

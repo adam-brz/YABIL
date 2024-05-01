@@ -5,10 +5,8 @@
 
 #include <atomic>
 #include <condition_variable>
-#include <cstdint>
 #include <future>
 #include <list>
-#include <memory>
 #include <mutex>
 #include <thread>
 #include <utility>

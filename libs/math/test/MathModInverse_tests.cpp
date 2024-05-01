@@ -3,7 +3,6 @@
 #include <yabil/math/Math.h>
 
 #include <cmath>
-#include <limits>
 #include <stdexcept>
 
 using namespace yabil::math;

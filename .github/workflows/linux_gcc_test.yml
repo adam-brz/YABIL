@@ -52,7 +52,12 @@ jobs:
         run: |
           cmake --preset conan-${BUILD_TYPE,,} \
             -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE \
-            -DCMAKE_VERBOSE_MAKEFILE=TRUE
+            -DCMAKE_VERBOSE_MAKEFILE=TRUE \
+            -DYABIL_CONFIG_KARATSUBA_THRESHOLD=4 \
+            -DYABIL_CONFIG_RECURSIVE_DIV_THRESHOLD=4 \
+            -DYABIL_CONFIG_PARALLEL_ADD_THRESHOLD=8 \
+            -DYABIL_CONFIG_PARALLEL_MUL_THRESHOLD=8 \
+            -DYABIL_CONFIG_PARALLEL_DIV_THRESHOLD=8
 
       - name: Build
         working-directory: build/${{ matrix.build_type }}
