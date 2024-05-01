@@ -102,9 +102,9 @@ function(set_common_target_options TARGET)
         target_link_options(${TARGET} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${YABIL_LINK_FLAGS}>)
     endif()
 
-    if(BUILD_SHARED_LIBS)
-        target_compile_definitions(${TARGET} PUBLIC YABIL_DLL)
-        target_compile_definitions(${TARGET} PRIVATE YABIL_DLL_EXPORTS)
+    if(NOT BUILD_SHARED_LIBS)
+        string(TOUPPER "${TARGET}" UPPER_TARGET_NAME)
+        target_compile_definitions(${TARGET} PUBLIC YABIL_${UPPER_TARGET_NAME}_STATIC_DEFINE)
     endif()
 endfunction()
 

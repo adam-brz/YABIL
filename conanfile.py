@@ -81,6 +81,7 @@ class YabilConan(ConanFile):
         )
         tc.variables["YABIL_ENABLE_CUDA"] = self.options.with_cuda
         tc.variables["YABIL_BIGINT_BASE_TYPE"] = self.options.digit_type
+        tc.variables["CMAKE_VERBOSE_MAKEFILE"] = True
         tc.generate()
         CMakeDeps(self).generate()
 
@@ -117,6 +118,9 @@ class YabilConan(ConanFile):
             )
 
             self.cpp_info.components[conan_component].libs = [conan_component]
+
+            if not self.options.shared:
+                self.cpp_info.components[conan_component].defines.append(f"YABIL_{conan_component.upper()}_STATIC_DEFINE")
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["utils"].system_libs = ["pthread"]
