@@ -50,7 +50,14 @@ jobs:
             -o yabil/*:shared=True \
             --build=missing
 
-          cmake --preset conan-debug -DYABIL_ENABLE_COVERAGE=True -DCMAKE_VERBOSE_MAKEFILE=TRUE
+          cmake --preset conan-debug \
+            -DCMAKE_VERBOSE_MAKEFILE=True \
+            -DYABIL_ENABLE_COVERAGE=True \
+            -DYABIL_CONFIG_KARATSUBA_THRESHOLD=4 \
+            -DYABIL_CONFIG_RECURSIVE_DIV_THRESHOLD=4 \
+            -DYABIL_CONFIG_PARALLEL_ADD_THRESHOLD=8 \
+            -DYABIL_CONFIG_PARALLEL_MUL_THRESHOLD=8 \
+            -DYABIL_CONFIG_PARALLEL_DIV_THRESHOLD=8
 
           cd build/Debug
           cmake --build . --config Debug -j $(nproc)
