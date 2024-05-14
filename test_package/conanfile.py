@@ -19,7 +19,7 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure()
+        cmake.configure(variables={"CMAKE_VERBOSE_MAKEFILE": True})
         cmake.build()
 
     def test(self):

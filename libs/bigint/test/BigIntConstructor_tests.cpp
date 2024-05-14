@@ -69,7 +69,7 @@ TEST_F(BigIntConstructorTest, longStringToBigIntWithSign)
         EXPECT_EQ(expected, big_int1.raw_data());
     }
 
-#if defined(__SIZEOF_INT128__) && !defined(BIGINT_BASE_T)
+#if defined(__SIZEOF_INT128__) && !defined(YABIL_BIGINT_BASE_T)
     if constexpr (sizeof(bigint_base_t) == 8)
     {
         const BigInt big_int1("-1424112908491024712973012389");
@@ -90,7 +90,7 @@ TEST_F(BigIntConstructorTest, longStringInBase2ToBigIntWithSign)
         EXPECT_EQ(expected, big_int1.raw_data());
     }
 
-#if defined(__SIZEOF_INT128__) && !defined(BIGINT_BASE_T)
+#if defined(__SIZEOF_INT128__) && !defined(YABIL_BIGINT_BASE_T)
     if constexpr (sizeof(bigint_base_t) == 8)
     {
         const BigInt big_int1("-101010110111100101110101010101010101010");
@@ -111,7 +111,7 @@ TEST_F(BigIntConstructorTest, longStringInBase16ToBigIntWithSign)
         EXPECT_EQ(expected, big_int1.raw_data());
     }
 
-#if defined(__SIZEOF_INT128__) && !defined(BIGINT_BASE_T)
+#if defined(__SIZEOF_INT128__) && !defined(YABIL_BIGINT_BASE_T)
     if constexpr (sizeof(bigint_base_t) == 8)
     {
         const BigInt big_int1("+abcd18782172918aafffbab", 16);

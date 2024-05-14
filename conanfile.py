@@ -93,7 +93,7 @@ class YabilConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure()
+        cmake.configure(variables={"CMAKE_VERBOSE_MAKEFILE": True})
         cmake.build()
 
         if self.options.with_tests:
@@ -118,6 +118,9 @@ class YabilConan(ConanFile):
 
             self.cpp_info.components[conan_component].libs = [conan_component]
 
+            if not self.options.shared:
+                self.cpp_info.components[conan_component].defines.append(f"YABIL_{conan_component.upper()}_STATIC_DEFINE")
+
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["utils"].system_libs = ["pthread"]
             self.cpp_info.components["bigint"].requires = ["omp"]
@@ -128,12 +131,8 @@ class YabilConan(ConanFile):
 
         if self.options.digit_type != "auto":
             self.cpp_info.components["bigint"].defines.append(
-                f"BIGINT_BASE_T={self.options.digit_type}"
+                f"YABIL_BIGINT_BASE_T={self.options.digit_type}"
             )
-
-        if self.options.shared:
-            for conan_component in all_components:
-                self.cpp_info.components[conan_component].defines.append("YABIL_DLL")
 
         if self.options.with_tbb:
             self.cpp_info.components["bigint"].requires.append("onetbb::libtbb")

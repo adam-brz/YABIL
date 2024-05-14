@@ -1,8 +1,6 @@
 #include <gtest/gtest.h>
 #include <yabil/utils/ThreadPoolSingleton.h>
 
-#include <atomic>
-
 using namespace yabil::utils;
 
 class ThreadPoolSingleton_tests : public ::testing::Test

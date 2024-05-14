@@ -2,8 +2,6 @@
 #include <yabil/bigint/BigInt.h>
 #include <yabil/math/Math.h>
 
-#include <limits>
-
 using namespace yabil::math;
 
 class MathFactorial_tests : public ::testing::Test

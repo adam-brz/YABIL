@@ -2,7 +2,6 @@
 #include <yabil/bigint/BigInt.h>
 #include <yabil/math/Math.h>
 
-#include <limits>
 #include <stdexcept>
 
 using namespace yabil::bigint;

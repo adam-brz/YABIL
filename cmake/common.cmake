@@ -49,8 +49,7 @@ function(setup_export_header TARGET)
         set(EXPORT_FILE_NAME "${CMAKE_PROJECT_NAME}/${TARGET}/${TARGET}_export.h")
         string(TOUPPER "${CMAKE_PROJECT_NAME}_" EXPORT_MACRO_PREFIX)
         generate_export_header(${TARGET} PREFIX_NAME ${EXPORT_MACRO_PREFIX} EXPORT_FILE_NAME ${EXPORT_FILE_NAME})
-        target_include_directories(${TARGET}
-            PUBLIC
+        target_include_directories(${TARGET} PUBLIC
             $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
             $<INSTALL_INTERFACE:include>
         )
@@ -103,9 +102,9 @@ function(set_common_target_options TARGET)
         target_link_options(${TARGET} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${YABIL_LINK_FLAGS}>)
     endif()
 
-    if(BUILD_SHARED_LIBS)
-        target_compile_definitions(${TARGET} PUBLIC YABIL_DLL)
-        target_compile_definitions(${TARGET} PRIVATE YABIL_DLL_EXPORTS)
+    if(NOT BUILD_SHARED_LIBS)
+        string(TOUPPER "${TARGET}" UPPER_TARGET_NAME)
+        target_compile_definitions(${TARGET} PUBLIC YABIL_${UPPER_TARGET_NAME}_STATIC_DEFINE)
     endif()
 endfunction()
 
@@ -171,4 +170,28 @@ function(setup_test_target TEST_TARGET)
     else()
         gtest_discover_tests(${TEST_TARGET} DISCOVERY_TIMEOUT 30)
     endif()
+endfunction()
+
+function(setup_algorithms_config_file)
+    set(YABIL_CONFIG_KARATSUBA_THRESHOLD "64" CACHE STRING "")
+    set(YABIL_CONFIG_RECURSIVE_DIV_THRESHOLD "1200" CACHE STRING "")
+    set(YABIL_CONFIG_PARALLEL_ADD_THRESHOLD "2000" CACHE STRING "")
+    set(YABIL_CONFIG_PARALLEL_MUL_THRESHOLD "256" CACHE STRING "")
+    set(YABIL_CONFIG_PARALLEL_DIV_THRESHOLD "1800" CACHE STRING "")
+
+    set(YABIL_CONFIG_CONSTEVAL_THRESHOLDS "1" CACHE STRING "Boolean value indicating if algorithm configuration should only be known in compile time.")
+    set(YABIL_CONFIG_USE_CONSTEVAL_AUTO_PARALLEL "0" CACHE STRING "Boolean value indicating if parallel configuration should only be known in compile time.")
+    set(YABIL_CONFIG_AUTO_PARALLEL_ENABLED "1" CACHE STRING "Boolean value indicating if parallel algorithms should be enabled when parallel is fixed in compile time.")
+
+    set(CONFIG_FILE_DIR ${CMAKE_PROJECT_NAME}/${PROJECT_NAME})
+    set(FULL_CONFIG_PATH ${PROJECT_BINARY_DIR}/${CONFIG_FILE_DIR}/algorithms_config.h)
+
+    configure_file(${CMAKE_SOURCE_DIR}/cmake/algorithms_config.h.in ${FULL_CONFIG_PATH})
+
+    target_include_directories(${PROJECT_NAME} PUBLIC
+        $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+        $<INSTALL_INTERFACE:include>
+    )
+    install(FILES ${FULL_CONFIG_PATH} DESTINATION include/${CONFIG_FILE_DIR})
+
 endfunction()
