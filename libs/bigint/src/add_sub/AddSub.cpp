@@ -3,9 +3,6 @@
 #include <yabil/bigint/BigInt.h>
 
 #include <cassert>
-#include <cstdint>
-
-#include "Arithmetic.h"
 
 namespace yabil::bigint
 {

@@ -1,21 +1,22 @@
 #pragma once
 
+#include <yabil/bigint/BigIntBase.h>
 #include <yabil/compile_time/Concepts.h>
 
 #include <algorithm>
+#include <array>
 #include <cstdint>
-#include <iterator>
+#include <ostream>
 #include <ranges>
-#include <span>
-#include <string>
 #include <type_traits>
-#include <utility>
-#include <vector>
 
 namespace yabil::compile_time
 {
 
-using base_t = uint32_t;
+inline consteval auto normalize(const auto &number)
+{
+    return std::ranges::take_while_view(number, [](const auto &digit) { return digit != 0; });
+}
 
 /// @brief Big integer class for arbitrary size unsigned integer numbers.
 /// @details All computations can be performed in compile time.
@@ -27,6 +28,7 @@ public:
     using is_bigint = std::true_type;
 
 public:
+    using base_t = bigint::bigint_base_t;
     std::array<base_t, InternalSize> data;
 
 public:
@@ -50,10 +52,14 @@ public:
     template <ConstBigIntType OtherType>
     consteval bool operator==(const OtherType &other) const
     {
-        return std::ranges::equal(data, other.data);
+        return std::ranges::equal(normalize(data), normalize(other.data));
     }
 
-    // bool operator!=(const BigInt &other) const;
+    template <ConstBigIntType OtherType>
+    consteval bool operator!=(const OtherType &other) const
+    {
+        return !(*this == other);
+    }
 
     // /// @brief Check if number have lower value.
     // /// @param other \p BigInt to compare
@@ -75,35 +81,16 @@ public:
     // /// @return \p true if number is greater or equal and \p false otherwise
     // bool operator>=(const BigInt &other) const;
 
-    template <std::size_t OtherSize>
-    consteval auto operator+(const ConstBigUInt<OtherSize> &other) const
+    consteval base_t getDigit(uint64_t pos) const
     {
-        constexpr int min_size = std::min(InternalSize, OtherSize);
-        constexpr int max_size = std::max(InternalSize, OtherSize);
-        constexpr int result_size = max_size + 1;
-
-        std::array<base_t, result_size> result{};
-
-        base_t carry = 0;
-        std::size_t i;
-        for (i = 0; i < min_size; ++i)
+        if (pos < InternalSize)
         {
-            const base_t tmp1 = data[i] + carry;
-            carry = static_cast<base_t>(tmp1 < carry);
-            const base_t tmp2 = (tmp1 + other.data[i]);
-            carry += static_cast<base_t>(tmp2 < tmp1);
-            result[i] = tmp2;
+            return data[pos];
         }
-
-        for (; i < max_size; ++i)
+        else
         {
-            const base_t tmp = data[i] + carry;
-            carry = static_cast<base_t>(tmp < carry);
-            result[i] = tmp;
+            return 0;
         }
-
-        result[i] = carry;
-        return ConstBigUInt(normalize(result));
     }
 
     // template <std::size_t LhsSize, std::size_t RhsSize>
@@ -134,9 +121,15 @@ public:
     //     return ConstBigUInt(normalize(result));
     // }
 
-    consteval auto normalize(const auto &number) const
+    consteval auto normalized() const
     {
-        return std::ranges::take_while_view(number, [](const auto &digit) { return digit != 0; });
+        return normalize(this->data);
+    }
+
+    friend std::ostream &operator<<(std::ostream &os, const ConstBigUInt<InternalSize> &num)
+    {
+        std::ranges::copy(num.data, std::ostream_iterator<int>(os, " "));
+        return os;
     }
 
     // /// @brief Get numbers difference
@@ -159,5 +152,30 @@ public:
     // /// @return \p BigInt remainder of the division result
     // BigInt operator%(const BigInt &other) const;
 };
+
+template <std::size_t SelfSize, std::size_t OtherSize>
+consteval auto operator+(const ConstBigUInt<SelfSize> &self, const ConstBigUInt<OtherSize> &other)
+{
+    using base_t = bigint::bigint_base_t;
+
+    constexpr int max_size = std::max(SelfSize, OtherSize);
+    constexpr int result_size = max_size + 1;
+
+    std::array<base_t, result_size> result{};
+
+    base_t carry = 0;
+    std::size_t i;
+    for (i = 0; i < max_size; ++i)
+    {
+        const base_t tmp1 = self.getDigit(i) + carry;
+        carry = static_cast<base_t>(tmp1 < carry);
+        const base_t tmp2 = (tmp1 + other.getDigit(i));
+        carry += static_cast<base_t>(tmp2 < tmp1);
+        result[i] = tmp2;
+    }
+
+    result[i] = carry;
+    return ConstBigUInt<result_size>(result);
+}
 
 }  // namespace yabil::compile_time
