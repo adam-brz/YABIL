@@ -88,6 +88,13 @@ TEST_F(CompileTimeBigUInt_tests, canShiftNumberLeft)
     constexpr ConstBigUInt b(std::array<digit_type, 2>{1, 1});
     constexpr ConstBigUInt expected(std::array<digit_type, 3>{0, 1, 1});
     constexpr auto result = b << std::integral_constant<uint64_t, 64>();
-    // static_assert(result == expected);
+    static_assert(result == expected);
     EXPECT_TRUE(result == expected) << "result: " << result << ", expected: " << expected;
+}
+
+TEST_F(CompileTimeBigUInt_tests, canConvertToNumber)
+{
+    constexpr ConstBigUInt b(std::array<digit_type, 1>{145});
+    static_assert(b.to_uint() == 145);
+    EXPECT_EQ(b.to_uint(), 145);
 }

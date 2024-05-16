@@ -2,7 +2,6 @@
 
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/BigIntBase.h>
-#include <yabil/compile_time/Concepts.h>
 
 #include <algorithm>
 #include <array>
@@ -26,10 +25,10 @@ template <std::size_t InternalSize>
 class ConstBigUInt
 {
 public:
-    using is_bigint = std::true_type;
+    using base_t = bigint::bigint_base_t;
 
 public:
-    using base_t = bigint::bigint_base_t;
+    static inline constexpr auto base_t_size_bits = bigint::bigint_base_t_size_bits;
     std::array<base_t, InternalSize> data;
 
 public:
@@ -39,6 +38,22 @@ public:
     };
 
     consteval ConstBigUInt(const std::array<base_t, InternalSize> &raw_data) : data(raw_data){};
+
+    // consteval int64_t to_int() const
+    // {
+    //     const int64_t result = static_cast<int64_t>(to_uint());
+    //     return is_negative() ? -result : result;
+    // }
+
+    consteval uint64_t to_uint() const
+    {
+        uint64_t result = 0;
+        for (std::size_t i = 0; (i < data.size()) && (i < sizeof(uint64_t) / sizeof(base_t)); ++i)
+        {
+            result |= static_cast<uint64_t>(data[i]) << (i * base_t_size_bits);
+        }
+        return result;
+    }
 
     // consteval ConstBigUInt(const auto &raw_data)
     // {
@@ -50,14 +65,14 @@ public:
         return std::ranges::all_of(data, [](const auto &digit) { return digit == 0; });
     }
 
-    template <ConstBigIntType OtherType>
-    consteval bool operator==(const OtherType &other) const
+    template <std::size_t OtherSize>
+    consteval bool operator==(const ConstBigUInt<OtherSize> &other) const
     {
         return std::ranges::equal(normalize(data), normalize(other.data));
     }
 
-    template <ConstBigIntType OtherType>
-    consteval bool operator!=(const OtherType &other) const
+    template <std::size_t OtherSize>
+    consteval bool operator!=(const ConstBigUInt<OtherSize> &other) const
     {
         return !(*this == other);
     }
@@ -82,7 +97,7 @@ public:
     // /// @return \p true if number is greater or equal and \p false otherwise
     // bool operator>=(const BigInt &other) const;
 
-    consteval base_t getDigit(uint64_t pos) const
+    consteval base_t digit(uint64_t pos) const
     {
         if (pos < InternalSize)
         {
@@ -163,14 +178,14 @@ consteval auto operator+(const ConstBigUInt<SelfSize> &self, const ConstBigUInt<
     constexpr int result_size = max_size + 1;
 
     std::array<base_t, result_size> result{};
-
     base_t carry = 0;
+
     std::size_t i;
     for (i = 0; i < max_size; ++i)
     {
-        const base_t tmp1 = self.getDigit(i) + carry;
+        const base_t tmp1 = self.digit(i) + carry;
         carry = static_cast<base_t>(tmp1 < carry);
-        const base_t tmp2 = (tmp1 + other.getDigit(i));
+        const base_t tmp2 = (tmp1 + other.digit(i));
         carry += static_cast<base_t>(tmp2 < tmp1);
         result[i] = tmp2;
     }
@@ -200,7 +215,7 @@ consteval auto operator<<(const ConstBigUInt<SelfSize> &self, const std::integra
     {
         for (std::size_t i = 0; i < SelfSize; ++i)
         {
-            const base_t v = self.getDigit(i);
+            const base_t v = self.digit(i);
             const base_t transformed = static_cast<base_t>(v << real_shift) | shifted_val;
             shifted_val = static_cast<base_t>(v >> (bigint_base_t_size_bits - real_shift));
             shifted[i + new_items_count] = transformed;
