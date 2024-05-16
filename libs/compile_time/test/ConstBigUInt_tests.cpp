@@ -82,3 +82,12 @@ TEST_F(CompileTimeBigUInt_tests, canAddLongerNumberToShorter)
     static_assert(sum == expected);
     EXPECT_TRUE(sum == expected) << "sum: " << sum << ", expected: " << expected;
 }
+
+TEST_F(CompileTimeBigUInt_tests, canShiftNumberLeft)
+{
+    constexpr ConstBigUInt b(std::array<digit_type, 2>{1, 1});
+    constexpr ConstBigUInt expected(std::array<digit_type, 3>{0, 1, 1});
+    constexpr auto result = b << std::integral_constant<uint64_t, 64>();
+    // static_assert(result == expected);
+    EXPECT_TRUE(result == expected) << "result: " << result << ", expected: " << expected;
+}
