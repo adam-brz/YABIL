@@ -1,11 +1,12 @@
 #include <ranges>
 
-namespace yabil::compile_time
+namespace yabil::compile_time::detail
 {
 
 inline consteval auto normalize(const auto &number)
 {
-    return std::ranges::take_while_view(number, [](const auto &digit) { return digit != 0; });
+    return std::ranges::reverse_view(
+        std::ranges::drop_while_view(std::ranges::reverse_view(number), [](const auto &digit) { return digit == 0; }));
 }
 
-}  // namespace yabil::compile_time
+}  // namespace yabil::compile_time::detail

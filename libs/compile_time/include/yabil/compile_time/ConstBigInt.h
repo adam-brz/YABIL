@@ -8,8 +8,11 @@
 
 #include <algorithm>
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <ostream>
+#include <ranges>
+#include <type_traits>
 
 namespace yabil::compile_time
 {
@@ -35,10 +38,28 @@ public:
         data.fill(0);
     };
 
+    template <std::size_t OtherSize>
+    consteval ConstBigInt(const ConstBigInt<OtherSize> &other)
+    {
+        std::ranges::copy_n(other.data.cbegin(), std::min(InternalSize, OtherSize), data.begin());
+    };
+
     consteval ConstBigInt(const std::array<bigint_base_t, InternalSize> &raw_data, const Sign sign = Sign::Plus)
         : data(raw_data),
           sign(sign)
     {
+    }
+
+    template <bigint_base_t value>
+    consteval ConstBigInt(const std::integral_constant<bigint_base_t, value> &digitValue)
+        : data(std::array<bigint_base_t, 1>{digitValue}),
+          sign(Sign::Plus)
+    {
+    }
+
+    consteval std::size_t real_size() const
+    {
+        return std::ranges::size(normalized_data());
     }
 
     // template <typename T, class = typename std::enable_if_t<std::is_signed_v<T>>>
@@ -99,7 +120,7 @@ public:
     template <std::size_t OtherSize>
     consteval bool operator==(const ConstBigInt<OtherSize> &other) const
     {
-        return std::ranges::equal(normalize(data), normalize(other.data)) && sign == other.sign;
+        return std::ranges::equal(detail::normalize(data), detail::normalize(other.data)) && sign == other.sign;
     }
 
     template <std::size_t OtherSize>
@@ -168,11 +189,6 @@ public:
     //     return ConstBigInt(normalize(result));
     // }
 
-    consteval auto normalized() const
-    {
-        return normalize(this->data);
-    }
-
     friend std::ostream &operator<<(std::ostream &os, const ConstBigInt<InternalSize> &num)
     {
         std::ranges::copy(num.data, std::ostream_iterator<int>(os, " "));
@@ -198,6 +214,12 @@ public:
     // /// @param other \p BigInt divisor
     // /// @return \p BigInt remainder of the division result
     // BigInt operator%(const BigInt &other) const;
+
+private:
+    consteval auto normalized_data() const
+    {
+        return detail::normalize(this->data);
+    }
 };
 
 }  // namespace yabil::compile_time
