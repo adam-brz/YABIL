@@ -10,14 +10,30 @@ namespace yabil::compile_time::literals
 
 template <char... Args>
 consteval auto operator""_bi()
-// -> ConstBigInt<static_cast<std::size_t>(std::ceil(sizeof...(Args) / (bigint_base_t_size_bits * std::log2(10))))>
 {
-    return detail::StrToConstBigIntConverter<Args...>::template convert<10>();
+    constexpr int base = 10;
+    return detail::StrToConstBigIntConverter<Args...>::template convert<base>();
 }
 
-// inline consteval auto operator""_bi(const char* str, std::size_t size)
-// {
-//     return ConstBigInt<0>();
-// }
+template <char... Args>
+consteval auto operator""_bi2()
+{
+    constexpr int base = 2;
+    return detail::StrToConstBigIntConverter<Args...>::template convert<base>();
+}
+
+template <char... Args>
+consteval auto operator""_bi8()
+{
+    constexpr int base = 8;
+    return detail::StrToConstBigIntConverter<Args...>::template convert<base>();
+}
+
+template <char... Args>
+consteval auto operator""_bi16()
+{
+    constexpr int base = 16;
+    return detail::StrToConstBigIntConverter<Args...>::template convert<base>();
+}
 
 }  // namespace yabil::compile_time::literals

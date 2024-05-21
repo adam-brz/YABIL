@@ -25,7 +25,7 @@ consteval auto MulPow10(const ConstBigInt<Digits> &number, const std::integral_c
 {
     if constexpr (PowValue == 0)
     {
-        return ConstBigInt<1>(std::integral_constant<uint64_t, 1>());
+        return number;
     }
     else if constexpr (PowValue == 1)
     {

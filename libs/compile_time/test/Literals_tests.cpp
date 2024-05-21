@@ -6,8 +6,6 @@
 #include <array>
 #include <type_traits>
 
-#include "yabil/bigint/BigInt.h"
-
 namespace yabil::compile_time
 {
 
@@ -67,13 +65,14 @@ TEST_F(ConstBigIntLiterals_tests, canCreateNonZeroSmallPositiveNumber)
 
 TEST_F(ConstBigIntLiterals_tests, canCreateNonZeroBigPositiveNumber)
 {
-    constexpr auto a = 18446744073709551616_bi;  // 2**64
-    constexpr ConstBigInt expected(std::array<bigint_base_t, 2>{0, 1});
+    if constexpr (bigint_base_t_size_bits == 64)
+    {
+        constexpr auto a = 18446744073709551617_bi;  // 2**64 + 1
+        constexpr ConstBigInt expected(std::array<bigint_base_t, 2>{1, 1});
 
-    const bigint::BigInt num("18446744073709551616");
-
-    EXPECT_TRUE(a == expected) << a << " != " << expected;
-    EXPECT_EQ(a.real_size(), 2);
+        EXPECT_TRUE(a == expected) << a << " != " << expected;
+        EXPECT_EQ(a.real_size(), 2);
+    }
 }
 
 }  // namespace yabil::compile_time

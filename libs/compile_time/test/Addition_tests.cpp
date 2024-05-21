@@ -1,9 +1,12 @@
 #include <gtest/gtest.h>
 #include <yabil/bigint/BigIntBase.h>
 #include <yabil/compile_time/ConstBigInt.h>
+#include <yabil/compile_time/Literals.h>
 
 namespace yabil::compile_time
 {
+
+using namespace yabil::compile_time::literals;
 
 class ConstBigIntAddition_tests : public ::testing::Test
 {
@@ -38,6 +41,11 @@ TEST_F(ConstBigIntAddition_tests, canAddLongerNumberToShorter)
     constexpr auto sum = a + b;
     static_assert(sum == expected);
     EXPECT_TRUE(sum == expected) << "sum: " << sum << ", expected: " << expected;
+}
+
+TEST_F(ConstBigIntAddition_tests, canAddTwoBigintNumbers)
+{
+    EXPECT_TRUE(218446744073709551617_bi + 52551646840974400987_bi == 270998390914683952604_bi);
 }
 
 }  // namespace yabil::compile_time
