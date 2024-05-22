@@ -3,6 +3,7 @@ project(compile_time C CXX)
 set(HEADERS
     include/yabil/compile_time/ConstBigInt.h
     include/yabil/compile_time/Literals.h
+    include/yabil/compile_time/Math.h
     include/yabil/compile_time/impl/ArithmeticOperators.h
     include/yabil/compile_time/impl/BitwiseOperators.h
 )
@@ -13,6 +14,7 @@ set(TESTS
     test/Constructor_tests.cpp
     test/Conversion_tests.cpp
     test/Literals_tests.cpp
+    test/Multiplication_tests.cpp
     test/ShiftOperators_tests.cpp
 )
 

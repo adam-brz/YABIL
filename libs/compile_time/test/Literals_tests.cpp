@@ -4,7 +4,6 @@
 #include <yabil/compile_time/impl/StringConversion.h>
 
 #include <array>
-#include <type_traits>
 
 namespace yabil::compile_time
 {
@@ -20,38 +19,6 @@ TEST_F(ConstBigIntLiterals_tests, canCreateZero)
     constexpr auto a = 0_bi;
     EXPECT_TRUE(a.is_zero());
     EXPECT_TRUE(a == 0_bi);
-}
-
-TEST_F(ConstBigIntLiterals_tests, canMultiplyBy10)
-{
-    {
-        constexpr ConstBigInt<1> a(std::array<bigint_base_t, 1>{1});
-        constexpr ConstBigInt<1> expected(std::array<bigint_base_t, 1>{10});
-        constexpr auto b = detail::Mul10(a);
-        EXPECT_TRUE(b == expected);
-    }
-    {
-        constexpr ConstBigInt<0> a;
-        constexpr auto b = detail::Mul10(a);
-        EXPECT_TRUE(b == ConstBigInt<0>());
-        EXPECT_EQ(b.real_size(), 0);
-    }
-    {
-        constexpr ConstBigInt<1> a(std::array<bigint_base_t, 1>{24});
-        constexpr ConstBigInt<1> expected(std::array<bigint_base_t, 1>{240});
-        constexpr auto b = detail::Mul10(a);
-        EXPECT_TRUE(b == expected);
-    }
-}
-
-TEST_F(ConstBigIntLiterals_tests, calculatesPow10)
-{
-    {
-        constexpr ConstBigInt<1> a(std::array<bigint_base_t, 1>{3});
-        constexpr ConstBigInt<1> expected(std::array<bigint_base_t, 1>{300});
-        constexpr auto b = detail::MulPow10(a, std::integral_constant<int, 2>());
-        EXPECT_TRUE(b == expected);
-    }
 }
 
 TEST_F(ConstBigIntLiterals_tests, canCreateNonZeroSmallPositiveNumber)

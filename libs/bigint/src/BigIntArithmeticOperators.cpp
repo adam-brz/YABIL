@@ -1,6 +1,7 @@
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/BigIntGlobalConfig.h>
 #include <yabil/bigint/Parallel.h>
+#include <yabil/bigint/TypeUtils.h>
 
 #include <algorithm>
 #include <bit>
@@ -8,7 +9,6 @@
 #include <stdexcept>
 
 #include "Arithmetic.h"
-#include "TypeUtils.h"
 #include "add_sub/AddSub.h"
 
 using namespace yabil::type_utils;

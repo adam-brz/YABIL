@@ -2,6 +2,7 @@
 
 #include <yabil/bigint/BigIntBase.h>
 #include <yabil/compile_time/ConstBigInt.h>
+#include <yabil/compile_time/Math.h>
 
 #include <algorithm>
 #include <array>
@@ -14,28 +15,28 @@
 namespace yabil::compile_time::detail
 {
 
-template <std::size_t Digits>
-consteval auto Mul10(const ConstBigInt<Digits> &number)
-{
-    return (number << std::integral_constant<uint64_t, 3>()) + (number << std::integral_constant<uint64_t, 1>());
-}
+// template <std::size_t Digits>
+// consteval auto Mul10(const ConstBigInt<Digits> &number)
+// {
+//     return (number << std::integral_constant<uint64_t, 3>()) + (number << std::integral_constant<uint64_t, 1>());
+// }
 
-template <std::size_t Digits, int PowValue>
-consteval auto MulPow10(const ConstBigInt<Digits> &number, const std::integral_constant<int, PowValue> &)
-{
-    if constexpr (PowValue == 0)
-    {
-        return number;
-    }
-    else if constexpr (PowValue == 1)
-    {
-        return Mul10(number);
-    }
-    else
-    {
-        return Mul10(MulPow10(number, std::integral_constant<int, PowValue - 1>()));
-    }
-}
+// template <std::size_t Digits, int PowValue>
+// consteval auto MulPow10(const ConstBigInt<Digits> &number, const std::integral_constant<int, PowValue> &)
+// {
+//     if constexpr (PowValue == 0)
+//     {
+//         return number;
+//     }
+//     else if constexpr (PowValue == 1)
+//     {
+//         return Mul10(number);
+//     }
+//     else
+//     {
+//         return Mul10(MulPow10(number, std::integral_constant<int, PowValue - 1>()));
+//     }
+// }
 
 template <char... Args>
 struct StrToConstBigIntConverter;
@@ -86,10 +87,10 @@ struct StrToConstBigIntConverter<First, Second, Args...>
         constexpr auto result_size_estimate = static_cast<std::size_t>(
             (sizeof...(Args) + 2) / static_cast<double>(bigint_base_t_size_bits) * log2_base + 1);
 
-        return ConstBigInt<result_size_estimate>(MulPow10(StrToConstBigIntConverter<First>::template convert<base>(),
-                                                          std::integral_constant<int, sizeof...(Args) + 1>()) +
-                                                 MulPow10(StrToConstBigIntConverter<Second>::template convert<base>(),
-                                                          std::integral_constant<int, sizeof...(Args)>()) +
+        return ConstBigInt<result_size_estimate>(StrToConstBigIntConverter<First>::template convert<base>() *
+                                                     math::pow<1, sizeof...(Args) + 1>(ConstBigInt<1>::create<10>()) +
+                                                 StrToConstBigIntConverter<Second>::template convert<base>() *
+                                                     math::pow<1, sizeof...(Args)>(ConstBigInt<1>::create<10>()) +
                                                  StrToConstBigIntConverter<Args...>::template convert<base>());
     }
 };

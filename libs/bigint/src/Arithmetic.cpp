@@ -1,6 +1,7 @@
 #include "Arithmetic.h"
 
 #include <yabil/bigint/BigIntGlobalConfig.h>
+#include <yabil/bigint/TypeUtils.h>
 #include <yabil/utils/IterUtils.h>
 
 #include <algorithm>
@@ -8,7 +9,6 @@
 #include <limits>
 #include <vector>
 
-#include "TypeUtils.h"
 #include "add_sub/AddSub.h"
 
 using namespace yabil::type_utils;

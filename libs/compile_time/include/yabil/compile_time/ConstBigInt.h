@@ -29,6 +29,8 @@ template <std::size_t InternalSize>
 class ConstBigInt
 {
 public:
+    static inline constexpr std::size_t internal_size = InternalSize;
+
     std::array<bigint_base_t, InternalSize> data;
     Sign sign = Sign::Plus;
 
@@ -55,6 +57,12 @@ public:
         : data(std::array<bigint_base_t, 1>{digitValue}),
           sign(Sign::Plus)
     {
+    }
+
+    template <bigint_base_t value>
+    static consteval auto create()
+    {
+        return ConstBigInt<1>(std::integral_constant<bigint_base_t, value>());
     }
 
     consteval std::size_t real_size() const
@@ -149,7 +157,7 @@ public:
     // /// @return \p true if number is greater or equal and \p false otherwise
     // bool operator>=(const BigInt &other) const;
 
-    consteval bigint_base_t digit(uint64_t pos) const
+    consteval bigint_base_t digit(const uint64_t pos) const
     {
         if (pos < InternalSize)
         {
