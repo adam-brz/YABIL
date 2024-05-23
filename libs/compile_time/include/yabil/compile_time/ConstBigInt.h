@@ -25,14 +25,14 @@ static inline constexpr auto bigint_base_t_size_bits = bigint::bigint_base_t_siz
 /// @brief Big integer class for arbitrary size unsigned integer numbers.
 /// @details All computations can be performed in compile time.
 /// @headerfile ConstBigInt.h <yabil/compile_time/ConstBigInt.h>
-template <std::size_t InternalSize>
+template <Sign NumberSign = Sign::Plus, std::size_t InternalSize = 1>
 class ConstBigInt
 {
 public:
     static inline constexpr std::size_t internal_size = InternalSize;
+    static inline constexpr Sign sign = NumberSign;
 
     std::array<bigint_base_t, InternalSize> data;
-    Sign sign = Sign::Plus;
 
 public:
     consteval ConstBigInt()
@@ -40,29 +40,24 @@ public:
         data.fill(0);
     };
 
-    template <std::size_t OtherSize>
-    consteval ConstBigInt(const ConstBigInt<OtherSize> &other)
+    template <Sign OtherSign, std::size_t OtherSize>
+    consteval ConstBigInt(const ConstBigInt<OtherSign, OtherSize> &other)
     {
         std::ranges::copy_n(other.data.cbegin(), std::min(InternalSize, OtherSize), data.begin());
     };
 
-    consteval ConstBigInt(const std::array<bigint_base_t, InternalSize> &raw_data, const Sign sign = Sign::Plus)
-        : data(raw_data),
-          sign(sign)
-    {
-    }
+    consteval ConstBigInt(const std::array<bigint_base_t, InternalSize> &raw_data) : data(raw_data) {}
 
     template <bigint_base_t value>
     consteval ConstBigInt(const std::integral_constant<bigint_base_t, value> &digitValue)
-        : data(std::array<bigint_base_t, 1>{digitValue}),
-          sign(Sign::Plus)
+        : data(std::array<bigint_base_t, 1>{digitValue})
     {
     }
 
-    template <bigint_base_t value>
+    template <bigint_base_t value, Sign sign = Sign::Plus>
     static consteval auto create()
     {
-        return ConstBigInt<1>(std::integral_constant<bigint_base_t, value>());
+        return ConstBigInt<sign, 1>(std::integral_constant<bigint_base_t, value>());
     }
 
     consteval std::size_t real_size() const
@@ -125,14 +120,20 @@ public:
         return std::ranges::all_of(data, [](const auto &digit) { return digit == 0; });
     }
 
-    template <std::size_t OtherSize>
-    consteval bool operator==(const ConstBigInt<OtherSize> &other) const
+    consteval bool is_negative() const
     {
-        return std::ranges::equal(detail::normalize(data), detail::normalize(other.data)) && sign == other.sign;
+        return !is_zero() && (sign == Sign::Minus);
     }
 
-    template <std::size_t OtherSize>
-    consteval bool operator!=(const ConstBigInt<OtherSize> &other) const
+    template <Sign OtherSign, std::size_t OtherSize>
+    consteval bool operator==(const ConstBigInt<OtherSign, OtherSize> &other) const
+    {
+        return (is_zero() && other.is_zero()) ||
+               (std::ranges::equal(detail::normalize(data), detail::normalize(other.data)) && sign == other.sign);
+    }
+
+    template <Sign OtherSign, std::size_t OtherSize>
+    consteval bool operator!=(const ConstBigInt<OtherSign, OtherSize> &other) const
     {
         return !(*this == other);
     }
@@ -196,12 +197,6 @@ public:
     //     result[i] = carry;
     //     return ConstBigInt(normalize(result));
     // }
-
-    friend std::ostream &operator<<(std::ostream &os, const ConstBigInt<InternalSize> &num)
-    {
-        std::ranges::copy(num.data, std::ostream_iterator<int>(os, " "));
-        return os;
-    }
 
     // /// @brief Get numbers difference
     // /// @param other \p BigInt to subtract

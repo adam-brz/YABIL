@@ -8,11 +8,13 @@
 namespace yabil::compile_time
 {
 
-template <std::size_t InternalSize>
+using bigint::Sign;
+
+template <Sign sign, std::size_t InternalSize>
 class ConstBigInt;
 
-template <std::size_t SelfSize, std::size_t OtherSize>
-consteval auto operator+(const ConstBigInt<SelfSize> &self, const ConstBigInt<OtherSize> &other)
+template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
+consteval auto operator+(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other)
 {
     using base_t = bigint::bigint_base_t;
 
@@ -33,11 +35,11 @@ consteval auto operator+(const ConstBigInt<SelfSize> &self, const ConstBigInt<Ot
     }
 
     result[i] = carry;
-    return ConstBigInt<result_size>(result);
+    return ConstBigInt<Sign::Plus, result_size>(result);
 }
 
-template <std::size_t SelfSize, std::size_t OtherSize>
-consteval auto operator*(const ConstBigInt<SelfSize> &self, const ConstBigInt<OtherSize> &other)
+template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
+consteval auto operator*(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other)
 {
     using base_t = bigint::bigint_base_t;
     constexpr int result_size = SelfSize + OtherSize;
@@ -58,7 +60,7 @@ consteval auto operator*(const ConstBigInt<SelfSize> &self, const ConstBigInt<Ot
             result[i + OtherSize] += static_cast<base_t>(carry);
         }
     }
-    return ConstBigInt<result_size>(result);
+    return ConstBigInt<Sign::Plus, result_size>(result);
 }
 
 }  // namespace yabil::compile_time

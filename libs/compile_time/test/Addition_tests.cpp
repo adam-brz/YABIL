@@ -25,7 +25,7 @@ TEST_F(ConstBigIntAddition_tests, canAddTwoNumbers)
 TEST_F(ConstBigIntAddition_tests, canAddZeroAndNonZero)
 {
     constexpr ConstBigInt a(std::array<bigint_base_t, 2>{1, 1});
-    constexpr ConstBigInt<0> b;
+    constexpr ConstBigInt<> b;
     constexpr ConstBigInt expected(a);
     constexpr auto sum = a + b;
     static_assert(sum == expected);
@@ -35,12 +35,12 @@ TEST_F(ConstBigIntAddition_tests, canAddZeroAndNonZero)
 
 TEST_F(ConstBigIntAddition_tests, canAddLongerNumberToShorter)
 {
-    constexpr ConstBigInt<0> a;
+    constexpr ConstBigInt<> a;
     constexpr ConstBigInt b(std::array<bigint_base_t, 2>{1, 1});
     constexpr ConstBigInt expected(b);
     constexpr auto sum = a + b;
     static_assert(sum == expected);
-    EXPECT_TRUE(sum == expected) << "sum: " << sum << ", expected: " << expected;
+    EXPECT_TRUE(sum == expected);
 }
 
 TEST_F(ConstBigIntAddition_tests, canAddTwoBigintNumbers)

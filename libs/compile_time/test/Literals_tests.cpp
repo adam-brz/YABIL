@@ -24,9 +24,9 @@ TEST_F(ConstBigIntLiterals_tests, canCreateZero)
 TEST_F(ConstBigIntLiterals_tests, canCreateNonZeroSmallPositiveNumber)
 {
     constexpr auto a = 113_bi;
-    constexpr ConstBigInt<1> expected(std::array<bigint_base_t, 1>{113});
+    constexpr ConstBigInt<> expected(std::array<bigint_base_t, 1>{113});
 
-    EXPECT_TRUE(a == expected) << a << " != " << expected;
+    EXPECT_TRUE(a == expected);
     EXPECT_FALSE(a.is_zero());
 }
 
@@ -37,7 +37,7 @@ TEST_F(ConstBigIntLiterals_tests, canCreateNonZeroBigPositiveNumber)
         constexpr auto a = 18446744073709551617_bi;  // 2**64 + 1
         constexpr ConstBigInt expected(std::array<bigint_base_t, 2>{1, 1});
 
-        EXPECT_TRUE(a == expected) << a << " != " << expected;
+        EXPECT_TRUE(a == expected);
         EXPECT_EQ(a.real_size(), 2);
     }
 }

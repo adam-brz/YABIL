@@ -10,12 +10,12 @@ namespace yabil::compile_time::math
 namespace detail
 {
 
-template <int Pow, std::size_t NumberSize>
-consteval auto pow_recursive(const ConstBigInt<NumberSize> &number)
+template <int Pow, Sign NumberSign, std::size_t NumberSize>
+consteval auto pow_recursive(const ConstBigInt<NumberSign, NumberSize> &number)
 {
     if constexpr (Pow == 0)
     {
-        return ConstBigInt<1>::create<1>();
+        return ConstBigInt<>::create<1>();
     }
     else if constexpr (Pow == 1)
     {
@@ -33,8 +33,8 @@ consteval auto pow_recursive(const ConstBigInt<NumberSize> &number)
 
 }  // namespace detail
 
-template <int Pow, std::size_t NumberSize>
-consteval auto pow(const ConstBigInt<NumberSize> &number)
+template <int Pow, Sign NumberSign, std::size_t NumberSize>
+consteval auto pow(const ConstBigInt<NumberSign, NumberSize> &number)
 {
     return detail::pow_recursive<Pow>(number);
 }

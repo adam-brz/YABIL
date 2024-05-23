@@ -15,7 +15,7 @@ TEST_F(ConstBigIntShift_tests, canShiftByFullDigitSize)
     constexpr ConstBigInt expected(std::array<bigint_base_t, 3>{0, 1, 1});
     constexpr auto result = b << std::integral_constant<uint64_t, 64>();
     static_assert(result == expected);
-    EXPECT_TRUE(result == expected) << "result: " << result << ", expected: " << expected;
+    EXPECT_TRUE(result == expected);
 }
 
 }  // namespace yabil::compile_time

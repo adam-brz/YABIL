@@ -7,11 +7,14 @@
 namespace yabil::compile_time
 {
 
-template <std::size_t InternalSize>
+using bigint::Sign;
+
+template <Sign sign, std::size_t InternalSize>
 class ConstBigInt;
 
-template <std::size_t SelfSize, uint64_t shift_value>
-consteval auto operator<<(const ConstBigInt<SelfSize> &self, const std::integral_constant<uint64_t, shift_value> shift)
+template <std::size_t SelfSize, Sign SelfSign, uint64_t shift_value>
+consteval auto operator<<(const ConstBigInt<SelfSign, SelfSize> &self,
+                          const std::integral_constant<uint64_t, shift_value> shift)
 {
     using base_t = bigint::bigint_base_t;
     constexpr auto bigint_base_t_size_bits = bigint::bigint_base_t_size_bits;
@@ -39,7 +42,7 @@ consteval auto operator<<(const ConstBigInt<SelfSize> &self, const std::integral
         shifted.back() = shifted_val;
     }
 
-    return ConstBigInt<result_size>(shifted);
+    return ConstBigInt<Sign::Plus, result_size>(shifted);
 }
 
 }  // namespace yabil::compile_time

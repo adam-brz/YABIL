@@ -8,7 +8,6 @@
 #include <array>
 #include <cmath>
 #include <cstddef>
-#include <type_traits>
 #include <utility>
 
 namespace yabil::compile_time::detail
@@ -20,27 +19,27 @@ struct StrToConstBigIntConverter;
 template <>
 struct StrToConstBigIntConverter<>
 {
-    template <int base>
+    template <int, Sign sign = Sign::Plus>
     static consteval auto convert()
     {
-        return ConstBigInt<0>();
+        return ConstBigInt<Sign::Plus, 0>();
     }
 };
 
 template <char First>
 struct StrToConstBigIntConverter<First>
 {
-    template <int base>
+    template <int base, Sign sign = Sign::Plus>
     static consteval auto convert()
     {
         static_assert(base >= 2 && base <= 16, "Can convert only digits for base between 2 and 16.");
         if constexpr (First >= 'a' && First <= 'f')
         {
-            return ConstBigInt<1>(std::integral_constant<bigint_base_t, First - 'a' + 10>());
+            return ConstBigInt<>::create<First - 'a' + 10>();
         }
         else
         {
-            return ConstBigInt<1>(std::integral_constant<bigint_base_t, First - '0'>());
+            return ConstBigInt<>::create<First - '0'>();
         }
     }
 };
@@ -48,10 +47,15 @@ struct StrToConstBigIntConverter<First>
 template <char First, char Second, char... Args>
 struct StrToConstBigIntConverter<First, Second, Args...>
 {
-    template <int base>
+    template <int base, Sign sign = Sign::Plus>
     static consteval auto convert()
     {
         static_assert(base == 2 || base == 8 || base == 10 || base == 16, "Unsupported decimal string base.");
+
+        if constexpr (First == '-')
+        {
+            return StrToConstBigIntConverter<Second, Args...>::template convert<base, Sign::Minus>();
+        }
 
         if constexpr (First == '0' && Second == 'x')
         {
@@ -69,11 +73,12 @@ struct StrToConstBigIntConverter<First, Second, Args...>
         constexpr auto result_size_estimate = static_cast<std::size_t>(
             (sizeof...(Args) + 2) / static_cast<double>(bigint_base_t_size_bits) * log2_base + 1);
 
-        return ConstBigInt<result_size_estimate>(StrToConstBigIntConverter<First>::template convert<base>() *
-                                                     math::pow<sizeof...(Args) + 1>(ConstBigInt<1>::create<base>()) +
-                                                 StrToConstBigIntConverter<Second>::template convert<base>() *
-                                                     math::pow<sizeof...(Args)>(ConstBigInt<1>::create<base>()) +
-                                                 StrToConstBigIntConverter<Args...>::template convert<base>());
+        return ConstBigInt<sign, result_size_estimate>(
+            StrToConstBigIntConverter<First>::template convert<base>() *
+                math::pow<sizeof...(Args) + 1>(ConstBigInt<>::create<base>()) +
+            StrToConstBigIntConverter<Second>::template convert<base>() *
+                math::pow<sizeof...(Args)>(ConstBigInt<>::create<base>()) +
+            StrToConstBigIntConverter<Args...>::template convert<base>());
     }
 };
 

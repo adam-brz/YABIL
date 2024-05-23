@@ -12,11 +12,11 @@ class ConstBigIntConstruction_tests : public ::testing::Test
 TEST_F(ConstBigIntConstruction_tests, canCreateForValueZero)
 {
     {
-        constexpr ConstBigInt<4> a;
+        constexpr ConstBigInt<Sign::Plus, 4> a;
         EXPECT_TRUE(a.is_zero());
     }
     {
-        constexpr ConstBigInt<0> a;
+        constexpr ConstBigInt<Sign::Plus, 0> a;
         EXPECT_TRUE(a.is_zero());
     }
 }
