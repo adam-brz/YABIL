@@ -29,8 +29,15 @@ TEST_F(ConstBigIntMultiplication_tests, canMulTwoSmallNumbers)
 
 TEST_F(ConstBigIntMultiplication_tests, canMulTwoBigNumbers)
 {
-    constexpr auto val = 198552133531985521335389841673462708984167346270_bi * 2174981279412490_bi;
-    EXPECT_TRUE(val == 431847173378937075718369239667992912300_bi);
+    // It requires increasing limit of -fconstexpr-steps
+    {
+        constexpr auto val = 198552133531985521335389841673462708984167346270_bi * 2174981279412490_bi;
+        EXPECT_TRUE(val == 431847173419477426164136693502190378937075718369239667992912300_bi);
+    }
+    {
+        constexpr auto val = 2174981279412490_bi * 198552133531985521335389841673462708984167346270_bi;
+        EXPECT_TRUE(val == 431847173419477426164136693502190378937075718369239667992912300_bi);
+    }
 }
 
 }  // namespace yabil::compile_time

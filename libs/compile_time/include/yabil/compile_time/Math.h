@@ -33,7 +33,7 @@ consteval auto pow_recursive(const ConstBigInt<NumberSize> &number)
 
 }  // namespace detail
 
-template <std::size_t NumberSize, int Pow>
+template <int Pow, std::size_t NumberSize>
 consteval auto pow(const ConstBigInt<NumberSize> &number)
 {
     return detail::pow_recursive<Pow>(number);

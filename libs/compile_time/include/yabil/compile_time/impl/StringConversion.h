@@ -8,35 +8,11 @@
 #include <array>
 #include <cmath>
 #include <cstddef>
-#include <cstdint>
 #include <type_traits>
 #include <utility>
 
 namespace yabil::compile_time::detail
 {
-
-// template <std::size_t Digits>
-// consteval auto Mul10(const ConstBigInt<Digits> &number)
-// {
-//     return (number << std::integral_constant<uint64_t, 3>()) + (number << std::integral_constant<uint64_t, 1>());
-// }
-
-// template <std::size_t Digits, int PowValue>
-// consteval auto MulPow10(const ConstBigInt<Digits> &number, const std::integral_constant<int, PowValue> &)
-// {
-//     if constexpr (PowValue == 0)
-//     {
-//         return number;
-//     }
-//     else if constexpr (PowValue == 1)
-//     {
-//         return Mul10(number);
-//     }
-//     else
-//     {
-//         return Mul10(MulPow10(number, std::integral_constant<int, PowValue - 1>()));
-//     }
-// }
 
 template <char... Args>
 struct StrToConstBigIntConverter;
@@ -77,6 +53,12 @@ struct StrToConstBigIntConverter<First, Second, Args...>
     {
         static_assert(base == 2 || base == 8 || base == 10 || base == 16, "Unsupported decimal string base.");
 
+        if constexpr (First == '0' && Second == 'x')
+        {
+            static_assert(base == 16, "0x prefix can be used only with hexadecimal conversion.");
+            return StrToConstBigIntConverter<Args...>::template convert<16>();
+        }
+
         constexpr std::array<std::pair<int, double>, 4> precomputed_log2{
             {{2, 1}, {8, 3}, {10, 3.321928094887362}, {16, 4}}};
 
@@ -88,9 +70,9 @@ struct StrToConstBigIntConverter<First, Second, Args...>
             (sizeof...(Args) + 2) / static_cast<double>(bigint_base_t_size_bits) * log2_base + 1);
 
         return ConstBigInt<result_size_estimate>(StrToConstBigIntConverter<First>::template convert<base>() *
-                                                     math::pow<1, sizeof...(Args) + 1>(ConstBigInt<1>::create<10>()) +
+                                                     math::pow<sizeof...(Args) + 1>(ConstBigInt<1>::create<base>()) +
                                                  StrToConstBigIntConverter<Second>::template convert<base>() *
-                                                     math::pow<1, sizeof...(Args)>(ConstBigInt<1>::create<10>()) +
+                                                     math::pow<sizeof...(Args)>(ConstBigInt<1>::create<base>()) +
                                                  StrToConstBigIntConverter<Args...>::template convert<base>());
     }
 };
