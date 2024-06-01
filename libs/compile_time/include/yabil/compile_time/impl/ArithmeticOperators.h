@@ -2,6 +2,8 @@
 
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/TypeUtils.h>
+#include <yabil/compile_time/impl/RelationOperators.h>
+#include <yabil/compile_time/impl/Utils.h>
 
 #include <cstddef>
 
@@ -13,8 +15,11 @@ using bigint::Sign;
 template <Sign sign, std::size_t InternalSize>
 class ConstBigInt;
 
+namespace detail
+{
+
 template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
-consteval auto operator+(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other)
+consteval auto add_unsigned(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other)
 {
     using base_t = bigint::bigint_base_t;
 
@@ -35,7 +40,81 @@ consteval auto operator+(const ConstBigInt<SelfSign, SelfSize> &self, const Cons
     }
 
     result[i] = carry;
-    return ConstBigInt<Sign::Plus, result_size>(result);
+    return ConstBigInt<SelfSign, result_size>(result);
+}
+
+template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
+consteval auto sub_unsigned(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other)
+{
+    using base_t = bigint::bigint_base_t;
+    constexpr int result_size = std::max(SelfSize, OtherSize);
+
+    std::array<base_t, result_size> result{};
+    base_t borrow = 0;
+
+    std::size_t i;
+    for (i = 0; i < result_size; ++i)
+    {
+        const base_t tmp1 = self.digit(i);
+        const base_t tmp2 = other.digit(i);
+        result[i] = (tmp1 - tmp2 - borrow);
+        if (tmp1 != tmp2)
+        {
+            borrow = static_cast<base_t>(tmp1 < tmp2);
+        }
+    }
+
+    return ConstBigInt<SelfSign, result_size>(result);
+}
+
+}  // namespace detail
+
+template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
+consteval auto operator+(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other)
+{
+    if constexpr (SelfSign == OtherSign)
+    {
+        return detail::add_unsigned(self, other);
+    }
+    else
+    {
+        constexpr bool is_self_greater = detail::abs_greater(self, other);
+        constexpr Sign new_sign = ((is_self_greater) == (SelfSign == Sign::Plus)) ? Sign::Plus : Sign::Minus;
+        if constexpr (is_self_greater)
+        {
+            constexpr auto result = detail::sub_unsigned(self, other);
+            return ConstBigInt<new_sign, std::ranges::size(result.data)>(result.data);
+        }
+        else
+        {
+            constexpr auto result = detail::sub_unsigned(other, self);
+            return ConstBigInt<new_sign, std::ranges::size(result.data)>(result.data);
+        }
+    }
+}
+
+template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
+consteval auto operator-(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other)
+{
+    if constexpr (SelfSign != OtherSign)
+    {
+        return detail::add_unsigned(self, other);
+    }
+    else
+    {
+        constexpr bool is_self_greater = detail::abs_greater(self, other);
+        constexpr Sign new_sign = ((is_self_greater) == (SelfSign == Sign::Plus)) ? Sign::Plus : Sign::Minus;
+        if constexpr (is_self_greater)
+        {
+            constexpr auto result = detail::sub_unsigned(self, other);
+            return ConstBigInt<new_sign, std::ranges::size(result.data)>(result.data);
+        }
+        else
+        {
+            constexpr auto result = detail::sub_unsigned(other, self);
+            return ConstBigInt<new_sign, std::ranges::size(result.data)>(result.data);
+        }
+    }
 }
 
 template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>

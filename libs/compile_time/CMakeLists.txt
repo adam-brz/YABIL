@@ -6,6 +6,9 @@ set(HEADERS
     include/yabil/compile_time/Math.h
     include/yabil/compile_time/impl/ArithmeticOperators.h
     include/yabil/compile_time/impl/BitwiseOperators.h
+    include/yabil/compile_time/impl/RelationOperators.h
+    include/yabil/compile_time/impl/StringConversion.h
+    include/yabil/compile_time/impl/Utils.h
 )
 
 set(TESTS

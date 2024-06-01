@@ -1,3 +1,5 @@
+#pragma once
+
 #include <ranges>
 
 namespace yabil::compile_time::detail

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/BigIntBase.h>
 #include <yabil/compile_time/ConstBigInt.h>
 #include <yabil/compile_time/Math.h>
@@ -12,6 +13,8 @@
 
 namespace yabil::compile_time::detail
 {
+
+using bigint::Sign;
 
 template <char... Args>
 struct StrToConstBigIntConverter;

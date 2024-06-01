@@ -10,7 +10,6 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <ostream>
 #include <ranges>
 #include <type_traits>
 
@@ -62,7 +61,7 @@ public:
 
     consteval std::size_t real_size() const
     {
-        return std::ranges::size(normalized_data());
+        return std::ranges::size(detail::normalize(data));
     }
 
     // template <typename T, class = typename std::enable_if_t<std::is_signed_v<T>>>
@@ -123,19 +122,6 @@ public:
     consteval bool is_negative() const
     {
         return !is_zero() && (sign == Sign::Minus);
-    }
-
-    template <Sign OtherSign, std::size_t OtherSize>
-    consteval bool operator==(const ConstBigInt<OtherSign, OtherSize> &other) const
-    {
-        return (is_zero() && other.is_zero()) ||
-               (std::ranges::equal(detail::normalize(data), detail::normalize(other.data)) && sign == other.sign);
-    }
-
-    template <Sign OtherSign, std::size_t OtherSize>
-    consteval bool operator!=(const ConstBigInt<OtherSign, OtherSize> &other) const
-    {
-        return !(*this == other);
     }
 
     // /// @brief Check if number have lower value.
@@ -217,12 +203,6 @@ public:
     // /// @param other \p BigInt divisor
     // /// @return \p BigInt remainder of the division result
     // BigInt operator%(const BigInt &other) const;
-
-private:
-    consteval auto normalized_data() const
-    {
-        return detail::normalize(this->data);
-    }
 };
 
 }  // namespace yabil::compile_time
