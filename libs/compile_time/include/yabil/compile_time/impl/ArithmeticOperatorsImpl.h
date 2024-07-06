@@ -2,18 +2,15 @@
 
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/TypeUtils.h>
-#include <yabil/compile_time/impl/RelationOperators.h>
+#include <yabil/compile_time/ConstBigInt.h>
 #include <yabil/compile_time/impl/Utils.h>
+#include <yabil/compile_time/operators/ArithmeticOperators.h>
+#include <yabil/compile_time/operators/RelationOperators.h>
 
 #include <cstddef>
 
 namespace yabil::compile_time
 {
-
-using bigint::Sign;
-
-template <Sign sign, std::size_t InternalSize>
-class ConstBigInt;
 
 namespace detail
 {
@@ -78,7 +75,7 @@ consteval auto operator+(const ConstBigInt<SelfSign, SelfSize> &self, const Cons
     }
     else
     {
-        constexpr bool is_self_greater = detail::abs_greater(self, other);
+        constexpr bool is_self_greater = abs_greater(self, other);
         constexpr Sign new_sign = ((is_self_greater) == (SelfSign == Sign::Plus)) ? Sign::Plus : Sign::Minus;
         if constexpr (is_self_greater)
         {
@@ -102,7 +99,7 @@ consteval auto operator-(const ConstBigInt<SelfSign, SelfSize> &self, const Cons
     }
     else
     {
-        constexpr bool is_self_greater = detail::abs_greater(self, other);
+        constexpr bool is_self_greater = abs_greater(self, other);
         constexpr Sign new_sign = ((is_self_greater) == (SelfSign == Sign::Plus)) ? Sign::Plus : Sign::Minus;
         if constexpr (is_self_greater)
         {
@@ -115,6 +112,13 @@ consteval auto operator-(const ConstBigInt<SelfSign, SelfSize> &self, const Cons
             return ConstBigInt<new_sign, std::ranges::size(result.data)>(result.data);
         }
     }
+}
+
+template <std::size_t SelfSize, Sign SelfSign>
+consteval auto operator-(const ConstBigInt<SelfSign, SelfSize> &self)
+{
+    constexpr Sign new_sign = (SelfSign == Sign::Plus) ? Sign::Minus : Sign::Plus;
+    return ConstBigInt<new_sign, SelfSize>(self.data);
 }
 
 template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>

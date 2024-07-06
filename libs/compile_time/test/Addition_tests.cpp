@@ -48,4 +48,9 @@ TEST_F(ConstBigIntAddition_tests, canAddTwoBigintNumbers)
     EXPECT_TRUE(218446744073709551617_bi + 52551646840974400987_bi == 270998390914683952604_bi);
 }
 
+// TEST_F(ConstBigIntAddition_tests, canAddPositiveToNegative)
+// {
+//     EXPECT_TRUE(270998390914683952604_bi + -52551646840974400987_bi == 218446744073709551617_bi);
+// }
+
 }  // namespace yabil::compile_time

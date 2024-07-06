@@ -1,20 +1,13 @@
 #pragma once
 
-#include <yabil/bigint/BigInt.h>
+#include <yabil/compile_time/ConstBigInt.h>
 #include <yabil/compile_time/impl/Utils.h>
+#include <yabil/compile_time/operators/RelationOperators.h>
 
 #include <algorithm>
 #include <cstddef>
 
 namespace yabil::compile_time
-{
-
-using bigint::Sign;
-
-template <Sign sign, std::size_t InternalSize>
-class ConstBigInt;
-
-namespace detail
 {
 
 template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
@@ -30,8 +23,6 @@ consteval bool abs_greater(const ConstBigInt<SelfSign, SelfSize> &self, const Co
 {
     return abs_lower(other, self);
 }
-
-}  // namespace detail
 
 template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
 consteval bool operator==(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other)
