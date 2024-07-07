@@ -3,6 +3,8 @@
 #include <yabil/compile_time/ConstBigInt.h>
 #include <yabil/compile_time/Literals.h>
 
+#include "yabil/compile_time/BigIntData.h"
+
 namespace yabil::compile_time
 {
 
@@ -14,9 +16,9 @@ class ConstBigIntAddition_tests : public ::testing::Test
 
 TEST_F(ConstBigIntAddition_tests, canAddTwoNumbers)
 {
-    constexpr ConstBigInt a(std::array<bigint_base_t, 3>{1, 1, 1});
-    constexpr ConstBigInt b(std::array<bigint_base_t, 2>{1, 1});
-    constexpr ConstBigInt expected(std::array<bigint_base_t, 3>{2, 2, 1});
+    constexpr ConstBigInt a = make_bigint<3, BigIntData<3>{1, 1, 1}>();
+    constexpr ConstBigInt b = make_bigint<2, BigIntData<2>{1, 1}>();
+    constexpr ConstBigInt expected = make_bigint<3, BigIntData<3>{2, 2, 1}>();
     constexpr auto sum = a + b;
     static_assert(sum == expected);
     EXPECT_TRUE(sum == expected);

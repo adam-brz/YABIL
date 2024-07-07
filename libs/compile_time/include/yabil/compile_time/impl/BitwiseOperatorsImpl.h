@@ -5,11 +5,16 @@
 
 #include <cstddef>
 
+#include "yabil/compile_time/BigIntData.h"
+
 namespace yabil::compile_time
 {
 
-template <std::size_t SelfSize, Sign SelfSign, uint64_t shift_value>
-consteval auto operator<<(const ConstBigInt<SelfSign, SelfSize> &self,
+namespace impl
+{
+
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData, uint64_t shift_value>
+consteval auto shift_left(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
                           const std::integral_constant<uint64_t, shift_value> shift)
 {
     using base_t = bigint::bigint_base_t;
@@ -38,12 +43,12 @@ consteval auto operator<<(const ConstBigInt<SelfSign, SelfSize> &self,
         shifted.back() = shifted_val;
     }
 
-    return ConstBigInt<SelfSign, result_size>(shifted);
+    return shifted;
 }
 
-template <std::size_t SelfSize, Sign SelfSign, uint64_t shift_value>
-consteval auto operator>>(const ConstBigInt<SelfSign, SelfSize> &self,
-                          const std::integral_constant<uint64_t, shift_value> shift)
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData, uint64_t shift_value>
+consteval auto shift_right(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
+                           const std::integral_constant<uint64_t, shift_value> shift)
 {
     using base_t = bigint::bigint_base_t;
 
@@ -53,7 +58,7 @@ consteval auto operator>>(const ConstBigInt<SelfSign, SelfSize> &self,
 
     if constexpr (removed_items_count >= SelfSize)
     {
-        return ConstBigInt<Sign::Plus, 1>{};
+        return BigIntData<1>{};
     }
 
     constexpr auto result_size = SelfSize - removed_items_count;
@@ -75,7 +80,23 @@ consteval auto operator>>(const ConstBigInt<SelfSign, SelfSize> &self,
                        });
     }
 
-    return ConstBigInt<SelfSign, result_size>(shifted);
+    return shifted;
+}
+
+}  // namespace impl
+
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData, uint64_t shift_value>
+consteval auto operator<<(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
+                          const std::integral_constant<uint64_t, shift_value> shift)
+{
+    return make_bigint(SelfSign, impl::shift_left(self, shift));
+}
+
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData, uint64_t shift_value>
+consteval auto operator>>(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
+                          const std::integral_constant<uint64_t, shift_value> shift)
+{
+    return make_bigint(SelfSign, impl::shift_right(self, shift));
 }
 
 }  // namespace yabil::compile_time

@@ -10,35 +10,45 @@
 namespace yabil::compile_time
 {
 
-template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
-consteval bool abs_lower(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other)
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval bool abs_lower(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
+                         const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
 {
     return SelfSize < OtherSize ||
            (SelfSize == OtherSize && std::lexicographical_compare(self.data.crbegin(), self.data.crend(),
                                                                   other.data.crbegin(), other.data.crend()));
 }
 
-template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
-consteval bool abs_greater(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other)
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval bool abs_greater(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
+                           const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
 {
     return abs_lower(other, self);
 }
 
-template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
-consteval bool operator==(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other)
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval bool operator==(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
+                          const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
 {
     return (self.is_zero() && other.is_zero()) ||
            (std::ranges::equal(detail::normalize(self.data), detail::normalize(other.data)) && SelfSign == OtherSign);
 }
 
-template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
-consteval bool operator!=(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other)
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval bool operator!=(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
+                          const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
 {
     return !(self == other);
 }
 
-template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
-consteval bool operator<(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other)
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval bool operator<(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
+                         const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
 {
     if constexpr (SelfSign == Sign::Minus && OtherSign == Sign::Minus)
     {
@@ -58,14 +68,18 @@ consteval bool operator<(const ConstBigInt<SelfSign, SelfSize> &self, const Cons
     }
 }
 
-template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
-consteval bool operator<=(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other)
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval bool operator<=(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
+                          const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
 {
     return (self < other) || (self == other);
 }
 
-template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
-consteval bool operator>(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other)
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval bool operator>(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
+                         const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
 {
     if constexpr (SelfSign == Sign::Minus && OtherSign == Sign::Minus)
     {
@@ -85,8 +99,10 @@ consteval bool operator>(const ConstBigInt<SelfSign, SelfSize> &self, const Cons
     }
 }
 
-template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
-consteval bool operator>=(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other)
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval bool operator>=(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
+                          const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
 {
     return (self > other) || (self == other);
 }

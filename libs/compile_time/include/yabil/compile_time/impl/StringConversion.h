@@ -11,10 +11,22 @@
 #include <cstddef>
 #include <utility>
 
+#include "yabil/compile_time/BigIntData.h"
+
 namespace yabil::compile_time::detail
 {
 
 using bigint::Sign;
+
+template <std::size_t DataSize, std::size_t NewDataSize>
+consteval auto concat_array(const BigIntData<DataSize> &data)
+{
+    static_assert(NewDataSize < DataSize);
+
+    BigIntData<NewDataSize> newData;
+    std::ranges::copy_n(data, NewDataSize, newData);
+    return newData;
+}
 
 template <char... Args>
 struct StrToConstBigIntConverter;
@@ -25,7 +37,7 @@ struct StrToConstBigIntConverter<>
     template <int, Sign sign = Sign::Plus>
     static consteval auto convert()
     {
-        return ConstBigInt<Sign::Plus, 0>();
+        return bigint_v<0>;
     }
 };
 
@@ -38,11 +50,11 @@ struct StrToConstBigIntConverter<First>
         static_assert(base >= 2 && base <= 16, "Can convert only digits for base between 2 and 16.");
         if constexpr (First >= 'a' && First <= 'f')
         {
-            return ConstBigInt<>::create<First - 'a' + 10>();
+            return bigint_v<First - 'a' + 10>;
         }
         else
         {
-            return ConstBigInt<>::create<First - '0'>();
+            return bigint_v<First - '0'>;
         }
     }
 };
@@ -76,12 +88,14 @@ struct StrToConstBigIntConverter<First, Second, Args...>
         constexpr auto result_size_estimate = static_cast<std::size_t>(
             (sizeof...(Args) + 2) / static_cast<double>(bigint_base_t_size_bits) * log2_base + 1);
 
-        return ConstBigInt<sign, result_size_estimate>(
+        constexpr auto raw_conversion_result =
             StrToConstBigIntConverter<First>::template convert<base>() *
-                math::pow<sizeof...(Args) + 1>(ConstBigInt<>::create<base>()) +
-            StrToConstBigIntConverter<Second>::template convert<base>() *
-                math::pow<sizeof...(Args)>(ConstBigInt<>::create<base>()) +
-            StrToConstBigIntConverter<Args...>::template convert<base>());
+                math::pow<sizeof...(Args) + 1>(bigint_v<base>) +
+            StrToConstBigIntConverter<Second>::template convert<base>() * math::pow<sizeof...(Args)>(bigint_v<base>) +
+            StrToConstBigIntConverter<Args...>::template convert<base>();
+
+        return make_bigint(
+            sign, concat_array<raw_conversion_result.data.size(), result_size_estimate>(raw_conversion_result.data));
     }
 };
 

@@ -7,15 +7,15 @@
 namespace yabil::compile_time::math
 {
 
-namespace detail
+namespace impl
 {
 
-template <int Pow, Sign NumberSign, std::size_t NumberSize>
-consteval auto pow_recursive(const ConstBigInt<NumberSign, NumberSize> &number)
+template <int Pow, Sign NumberSign, std::size_t NumberSize, BigIntData<NumberSize> NumberData>
+consteval auto pow_recursive(const ConstBigInt<NumberSign, NumberSize, NumberData> &number)
 {
     if constexpr (Pow == 0)
     {
-        return ConstBigInt<>::create<1>();
+        return bigint_v<1>;
     }
     else if constexpr (Pow == 1)
     {
@@ -31,12 +31,13 @@ consteval auto pow_recursive(const ConstBigInt<NumberSign, NumberSize> &number)
     }
 }
 
-}  // namespace detail
+}  // namespace impl
 
-template <int Pow, Sign NumberSign, std::size_t NumberSize>
-consteval auto pow(const ConstBigInt<NumberSign, NumberSize> &number)
+template <int Pow, Sign NumberSign, std::size_t NumberSize, BigIntData<NumberSize> NumberData>
+consteval auto pow(const ConstBigInt<NumberSign, NumberSize, NumberData> &number)
 {
-    return detail::pow_recursive<Pow>(number);
+    constexpr auto sign = (Pow % 2 == 0) ? Sign::Plus : NumberSign;
+    return make_bigint(sign, impl::pow_recursive<Pow>(number).data);
 }
 
 }  // namespace yabil::compile_time::math

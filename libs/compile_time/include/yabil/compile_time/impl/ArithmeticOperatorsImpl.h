@@ -12,11 +12,13 @@
 namespace yabil::compile_time
 {
 
-namespace detail
+namespace impl
 {
 
-template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
-consteval auto add_unsigned(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other)
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval auto add_unsigned(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
+                            const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
 {
     using base_t = bigint::bigint_base_t;
 
@@ -37,11 +39,13 @@ consteval auto add_unsigned(const ConstBigInt<SelfSign, SelfSize> &self, const C
     }
 
     result[i] = carry;
-    return ConstBigInt<SelfSign, result_size>(result);
+    return result;
 }
 
-template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
-consteval auto sub_unsigned(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other)
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval auto sub_unsigned(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
+                            const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
 {
     using base_t = bigint::bigint_base_t;
     constexpr int result_size = std::max(SelfSize, OtherSize);
@@ -61,68 +65,13 @@ consteval auto sub_unsigned(const ConstBigInt<SelfSign, SelfSize> &self, const C
         }
     }
 
-    return ConstBigInt<SelfSign, result_size>(result);
+    return result;
 }
 
-}  // namespace detail
-
-template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
-consteval auto operator+(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other)
-{
-    if constexpr (SelfSign == OtherSign)
-    {
-        return detail::add_unsigned(self, other);
-    }
-    else
-    {
-        constexpr bool is_self_greater = abs_greater(self, other);
-        constexpr Sign new_sign = ((is_self_greater) == (SelfSign == Sign::Plus)) ? Sign::Plus : Sign::Minus;
-        if constexpr (is_self_greater)
-        {
-            constexpr auto result = detail::sub_unsigned(self, other);
-            return ConstBigInt<new_sign, std::ranges::size(result.data)>(result.data);
-        }
-        else
-        {
-            constexpr auto result = detail::sub_unsigned(other, self);
-            return ConstBigInt<new_sign, std::ranges::size(result.data)>(result.data);
-        }
-    }
-}
-
-template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
-consteval auto operator-(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other)
-{
-    if constexpr (SelfSign != OtherSign)
-    {
-        return detail::add_unsigned(self, other);
-    }
-    else
-    {
-        constexpr bool is_self_greater = abs_greater(self, other);
-        constexpr Sign new_sign = ((is_self_greater) == (SelfSign == Sign::Plus)) ? Sign::Plus : Sign::Minus;
-        if constexpr (is_self_greater)
-        {
-            constexpr auto result = detail::sub_unsigned(self, other);
-            return ConstBigInt<new_sign, std::ranges::size(result.data)>(result.data);
-        }
-        else
-        {
-            constexpr auto result = detail::sub_unsigned(other, self);
-            return ConstBigInt<new_sign, std::ranges::size(result.data)>(result.data);
-        }
-    }
-}
-
-template <std::size_t SelfSize, Sign SelfSign>
-consteval auto operator-(const ConstBigInt<SelfSign, SelfSize> &self)
-{
-    constexpr Sign new_sign = (SelfSign == Sign::Plus) ? Sign::Minus : Sign::Plus;
-    return ConstBigInt<new_sign, SelfSize>(self.data);
-}
-
-template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
-consteval auto operator*(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other)
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval auto mul_unsigned(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
+                            const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
 {
     using base_t = bigint::bigint_base_t;
     constexpr int result_size = SelfSize + OtherSize;
@@ -143,7 +92,75 @@ consteval auto operator*(const ConstBigInt<SelfSign, SelfSize> &self, const Cons
             result[i + OtherSize] += static_cast<base_t>(carry);
         }
     }
-    return ConstBigInt<Sign::Plus, result_size>(result);
+
+    return result;
+}
+
+}  // namespace impl
+
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval auto operator+(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
+                         const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
+{
+    if constexpr (SelfSign == OtherSign)
+    {
+        constexpr auto result = impl::add_unsigned(self, other);
+        return make_bigint<SelfSign, result.size(), result>();
+    }
+    else
+    {
+        constexpr bool is_self_greater = abs_greater(self, other);
+        constexpr Sign new_sign = ((is_self_greater) == (SelfSign == Sign::Plus)) ? Sign::Plus : Sign::Minus;
+        if constexpr (is_self_greater)
+        {
+            return make_bigint(new_sign, impl::sub_unsigned(self, other));
+        }
+        else
+        {
+            return make_bigint(new_sign, impl::sub_unsigned(other, self));
+        }
+    }
+}
+
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval auto operator-(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
+                         const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
+{
+    if constexpr (SelfSign != OtherSign)
+    {
+        return make_bigint(SelfSign, impl::add_unsigned(self, other));
+    }
+    else
+    {
+        constexpr auto is_self_greater = abs_greater(self, other);
+        constexpr auto new_sign = ((is_self_greater) == (SelfSign == Sign::Plus)) ? Sign::Plus : Sign::Minus;
+        if constexpr (is_self_greater)
+        {
+            return make_bigint(new_sign, impl::sub_unsigned(self, other));
+        }
+        else
+        {
+            return make_bigint(new_sign, impl::sub_unsigned(other, self));
+        }
+    }
+}
+
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData>
+consteval auto operator-(const ConstBigInt<SelfSign, SelfSize, SelfData> &)
+{
+    constexpr Sign new_sign = (SelfSign == Sign::Plus) ? Sign::Minus : Sign::Plus;
+    return ConstBigInt<new_sign, SelfSize, SelfData>();
+}
+
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval auto operator*(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
+                         const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
+{
+    constexpr auto new_sign = (SelfSign == OtherSign) ? Sign::Plus : Sign::Minus;
+    return make_bigint(new_sign, impl::mul_unsigned(self, other));
 }
 
 }  // namespace yabil::compile_time

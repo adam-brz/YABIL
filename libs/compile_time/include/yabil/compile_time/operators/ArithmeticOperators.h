@@ -1,27 +1,28 @@
 #pragma once
 
 #include <yabil/bigint/BigInt.h>
+#include <yabil/compile_time/BigIntData.h>
 
 #include <cstddef>
 
 namespace yabil::compile_time
 {
 
-using bigint::Sign;
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval auto operator+(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
+                         const ConstBigInt<OtherSign, OtherSize, OtherData> &other);
 
-template <Sign sign, std::size_t InternalSize>
-class ConstBigInt;
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval auto operator-(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
+                         const ConstBigInt<OtherSign, OtherSize, OtherData> &other);
 
-template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
-consteval auto operator+(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other);
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData>
+consteval auto operator-(const ConstBigInt<SelfSign, SelfSize, SelfData> &self);
 
-template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
-consteval auto operator-(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other);
-
-template <std::size_t SelfSize, Sign SelfSign>
-consteval auto operator-(const ConstBigInt<SelfSign, SelfSize> &self);
-
-template <std::size_t SelfSize, Sign SelfSign, std::size_t OtherSize, Sign OtherSign>
-consteval auto operator*(const ConstBigInt<SelfSign, SelfSize> &self, const ConstBigInt<OtherSign, OtherSize> &other);
-
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval auto operator*(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
+                         const ConstBigInt<OtherSign, OtherSize, OtherData> &other);
 }  // namespace yabil::compile_time

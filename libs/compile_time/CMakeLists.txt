@@ -23,6 +23,7 @@ set(TESTS
     test/Multiplication_tests.cpp
     test/RelationOperators_tests.cpp
     test/ShiftOperators_tests.cpp
+    test/Subtraction_tests.cpp
 )
 
 add_library(${PROJECT_NAME} INTERFACE)

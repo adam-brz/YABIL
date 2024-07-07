@@ -2,13 +2,13 @@
 
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/BigIntBase.h>
+#include <yabil/compile_time/BigIntData.h>
 #include <yabil/compile_time/impl/Utils.h>
 #include <yabil/compile_time/operators/ArithmeticOperators.h>
 #include <yabil/compile_time/operators/BitwiseOperators.h>
 #include <yabil/compile_time/operators/RelationOperators.h>
 
 #include <algorithm>
-#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <ranges>
@@ -25,45 +25,16 @@ static inline constexpr auto bigint_base_t_size_bits = bigint::bigint_base_t_siz
 /// @brief Big integer class for arbitrary size unsigned integer numbers.
 /// @details All computations can be performed in compile time.
 /// @headerfile ConstBigInt.h <yabil/compile_time/ConstBigInt.h>
-template <Sign NumberSign = Sign::Plus, std::size_t InternalSize = 1>
+template <Sign NumberSign = Sign::Plus, std::size_t InternalSize = 1,
+          BigIntData<InternalSize> InternalData = BigIntData<InternalSize>{}>
 class ConstBigInt
 {
 public:
-    static inline constexpr std::size_t internal_size = InternalSize;
+    static inline constexpr std::size_t size = InternalSize;
     static inline constexpr Sign sign = NumberSign;
-
-    std::array<bigint_base_t, InternalSize> data;
+    static inline constexpr BigIntData<InternalSize> data{InternalData};
 
 public:
-    consteval ConstBigInt()
-    {
-        data.fill(0);
-    };
-
-    template <Sign OtherSign, std::size_t OtherSize>
-    consteval ConstBigInt(const ConstBigInt<OtherSign, OtherSize> &other)
-    {
-        std::ranges::copy_n(other.data.cbegin(), std::min(InternalSize, OtherSize), data.begin());
-    };
-
-    consteval ConstBigInt(const std::array<bigint_base_t, InternalSize> &raw_data) : data(raw_data) {}
-
-    consteval ConstBigInt(const uint64_t number)
-    {
-        data[0] = number;
-    }
-
-    template <bigint_base_t value>
-    consteval ConstBigInt(const std::integral_constant<bigint_base_t, value> &digitValue)
-        : data(std::array<bigint_base_t, 1>{digitValue})
-    {
-    }
-
-    template <bigint_base_t value, Sign sign = Sign::Plus>
-    static consteval auto create()
-    {
-        return ConstBigInt<sign, 1>(std::integral_constant<bigint_base_t, value>());
-    }
     consteval std::size_t real_size() const
     {
         return std::ranges::size(detail::normalize(data));
@@ -128,24 +99,43 @@ public:
     // BigInt operator%(const BigInt &other) const;
 };
 
-template <int64_t number>
-constexpr auto make_bigint()
+template <Sign sign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>
+static inline consteval auto make_bigint(const Sign &, const BigIntData<InternalSize> &)
 {
-    if constexpr (number < 0)
-    {
-        return ConstBigInt<Sign::Minus, 1>{static_cast<uint64_t>(-number)};
-    }
-    else
-    {
-        return ConstBigInt<Sign::Plus, 1>{static_cast<uint64_t>(number)};
-    }
+    return ConstBigInt<sign, InternalSize, InternalData>();
 }
 
-template <int64_t number>
-static inline constexpr auto make_bigint_v = make_bigint<number>();
+template <std::size_t InternalSize, BigIntData<InternalSize> InternalData>
+static inline consteval auto make_bigint(const BigIntData<InternalSize> &)
+{
+    return ConstBigInt<Sign::Plus, InternalSize, InternalData>();
+}
+
+template <std::size_t InternalSize, BigIntData<InternalSize> InternalData>
+static inline consteval auto make_bigint()
+{
+    return ConstBigInt<Sign::Plus, InternalSize, InternalData>();
+}
+
+template <Sign sign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>
+static inline consteval auto make_bigint()
+{
+    return ConstBigInt<sign, InternalSize, InternalData>();
+}
+
+template <int64_t value>
+static inline consteval auto make_bigint()
+{
+    constexpr auto sign = (value < 0) ? Sign::Minus : Sign::Plus;
+    constexpr auto abs_value = static_cast<uint64_t>((value < 0) ? -value : value);
+    return make_bigint<sign, 1, BigIntData<1>{abs_value}>();
+}
 
 template <uint64_t shift>
-static inline constexpr auto make_shift_v = std::integral_constant<uint64_t, shift>{};
+static inline constexpr auto shift_v = std::integral_constant<uint64_t, shift>{};
+
+template <int64_t value>
+static inline constexpr auto bigint_v = make_bigint<value>();
 
 }  // namespace yabil::compile_time
 
