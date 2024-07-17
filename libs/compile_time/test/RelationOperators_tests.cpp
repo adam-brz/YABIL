@@ -17,6 +17,7 @@ TEST_F(RelationOperators_tests, canCompareAbsLower)
     EXPECT_TRUE(abs_lower(10_bi, -20_bi));
     EXPECT_TRUE(abs_lower(1012983901238_bi, -21012983901238_bi));
     EXPECT_TRUE(abs_lower(912983901231012983901238_bi, -2912983901231012983901238_bi));
+    EXPECT_FALSE(abs_lower(10_bi, 10_bi));
 }
 
 TEST_F(RelationOperators_tests, canCompareAbsGreater)
@@ -25,6 +26,7 @@ TEST_F(RelationOperators_tests, canCompareAbsGreater)
     EXPECT_TRUE(abs_greater(-20_bi, 10_bi));
     EXPECT_TRUE(abs_greater(-21012983901238_bi, 1012983901238_bi));
     EXPECT_TRUE(abs_greater(-2912983901231012983901238_bi, 912983901231012983901238_bi));
+    EXPECT_FALSE(abs_greater(20_bi, 20_bi));
 }
 
 TEST_F(RelationOperators_tests, canCompareEqual)

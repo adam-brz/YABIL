@@ -35,82 +35,50 @@ public:
     static inline constexpr BigIntData<InternalSize> data{InternalData};
 
 public:
-    consteval std::size_t real_size() const
+    static consteval std::size_t real_size()
     {
-        return std::ranges::size(detail::normalize(data));
+        return std::ranges::size(impl::normalize(InternalData));
     }
 
-    consteval int64_t to_int() const
+    static consteval int64_t to_int()
     {
         const int64_t result = static_cast<int64_t>(to_uint());
         return is_negative() ? -result : result;
     }
 
-    consteval uint64_t to_uint() const
+    static consteval uint64_t to_uint()
     {
         uint64_t result = 0;
-        for (std::size_t i = 0; (i < data.size()) && (i < sizeof(uint64_t) / sizeof(bigint_base_t)); ++i)
+        for (std::size_t i = 0; (i < InternalData.size()) && (i < sizeof(uint64_t) / sizeof(bigint_base_t)); ++i)
         {
-            result |= static_cast<uint64_t>(data[i]) << (i * bigint_base_t_size_bits);
+            result |= static_cast<uint64_t>(InternalData[i]) << (i * bigint_base_t_size_bits);
         }
         return result;
     }
 
-    consteval bool is_zero() const
+    static consteval bool is_zero()
     {
-        return std::ranges::all_of(data, [](const auto &digit) { return digit == 0; });
+        return std::ranges::all_of(InternalData, [](const auto &digit) { return digit == 0; });
     }
 
-    consteval bool is_negative() const
+    static consteval bool is_negative()
     {
         return !is_zero() && (sign == Sign::Minus);
     }
 
-    consteval bigint_base_t digit(const uint64_t pos) const
+    static consteval bigint_base_t digit(const uint64_t pos)
     {
         if (pos < InternalSize)
         {
-            return data[pos];
+            return InternalData[pos];
         }
         else
         {
             return 0;
         }
     }
-
-    // /// @brief Get numbers difference
-    // /// @param other \p BigInt to subtract
-    // /// @return \p BigInt subtraction result
-    // BigInt operator-(const BigInt &other) const;
-
-    // /// @brief Get product of the numbers.
-    // /// @param other \p BigInt to multiply
-    // /// @return \p BigInt multiplication result
-    // BigInt operator*(const BigInt &other) const;
-
-    // /// @brief Get quotient of the division.
-    // /// @param other \p BigInt divisor
-    // /// @return \p BigInt quotient of the division result
-    // BigInt operator/(const BigInt &other) const;
-
-    // /// @brief Get remainder of the division.
-    // /// @param other \p BigInt divisor
-    // /// @return \p BigInt remainder of the division result
-    // BigInt operator%(const BigInt &other) const;
 };
 
-template <Sign sign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>
-static inline consteval auto make_bigint(const Sign &, const BigIntData<InternalSize> &)
-{
-    return ConstBigInt<sign, InternalSize, InternalData>();
-}
-
-template <std::size_t InternalSize, BigIntData<InternalSize> InternalData>
-static inline consteval auto make_bigint(const BigIntData<InternalSize> &)
-{
-    return ConstBigInt<Sign::Plus, InternalSize, InternalData>();
-}
-
 template <std::size_t InternalSize, BigIntData<InternalSize> InternalData>
 static inline consteval auto make_bigint()
 {
@@ -121,10 +89,22 @@ template <Sign sign, std::size_t InternalSize, BigIntData<InternalSize> Internal
 static inline consteval auto make_bigint()
 {
     return ConstBigInt<sign, InternalSize, InternalData>();
+}
+
+template <Sign sign, uint64_t... digits>
+static inline consteval auto make_bigint()
+{
+    return make_bigint<sign, sizeof...(digits), BigIntData<sizeof...(digits)>{digits...}>();
+}
+
+template <uint64_t... digits>
+static inline consteval auto make_bigint()
+{
+    return make_bigint<Sign::Plus, digits...>();
 }
 
 template <int64_t value>
-static inline consteval auto make_bigint()
+static inline consteval auto make_signed_bigint()
 {
     constexpr auto sign = (value < 0) ? Sign::Minus : Sign::Plus;
     constexpr auto abs_value = static_cast<uint64_t>((value < 0) ? -value : value);
@@ -135,7 +115,7 @@ template <uint64_t shift>
 static inline constexpr auto shift_v = std::integral_constant<uint64_t, shift>{};
 
 template <int64_t value>
-static inline constexpr auto bigint_v = make_bigint<value>();
+static inline constexpr auto bigint_v = make_signed_bigint<value>();
 
 }  // namespace yabil::compile_time
 

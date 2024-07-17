@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <yabil/bigint/BigIntBase.h>
+#include <yabil/compile_time/BigIntData.h>
 #include <yabil/compile_time/ConstBigInt.h>
 
 namespace yabil::compile_time
@@ -23,8 +24,8 @@ TEST_F(ConstBigIntConstruction_tests, canCreateForValueZero)
 
 TEST_F(ConstBigIntConstruction_tests, canCreateForAnArray)
 {
-    constexpr std::array<bigint_base_t, 3> data{0, 1, 0};
-    constexpr ConstBigInt a(data);
+    constexpr BigIntData<3> data{0, 1, 0};
+    constexpr ConstBigInt<Sign::Plus, 3, data> a;
     EXPECT_FALSE(a.is_zero());
 }
 

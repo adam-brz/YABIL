@@ -11,8 +11,9 @@ namespace impl
 {
 
 template <int Pow, Sign NumberSign, std::size_t NumberSize, BigIntData<NumberSize> NumberData>
-consteval auto pow_recursive(const ConstBigInt<NumberSign, NumberSize, NumberData> &number)
+consteval auto pow_recursive()
 {
+    constexpr auto number = make_bigint<NumberSign, NumberSize, NumberData>();
     if constexpr (Pow == 0)
     {
         return bigint_v<1>;
@@ -23,21 +24,24 @@ consteval auto pow_recursive(const ConstBigInt<NumberSign, NumberSize, NumberDat
     }
     else if constexpr (Pow % 2 == 0)
     {
-        return pow_recursive<Pow / 2>(number * number);
+        constexpr auto numberSquaredData = (number * number).data;
+        return pow_recursive<Pow / 2, NumberSign, numberSquaredData.size(), numberSquaredData>();
     }
     else
     {
-        return pow_recursive<Pow / 2>(number * number) * number;
+        constexpr auto numberSquaredData = (number * number).data;
+        return pow_recursive<Pow / 2, NumberSign, numberSquaredData.size(), numberSquaredData>() * number;
     }
 }
 
 }  // namespace impl
 
 template <int Pow, Sign NumberSign, std::size_t NumberSize, BigIntData<NumberSize> NumberData>
-consteval auto pow(const ConstBigInt<NumberSign, NumberSize, NumberData> &number)
+consteval auto pow()
 {
     constexpr auto sign = (Pow % 2 == 0) ? Sign::Plus : NumberSign;
-    return make_bigint(sign, impl::pow_recursive<Pow>(number).data);
+    constexpr auto powData = impl::pow_recursive<Pow, NumberSign, NumberSize, NumberData>().data;
+    return make_bigint<sign, powData.size(), powData>();
 }
 
 }  // namespace yabil::compile_time::math

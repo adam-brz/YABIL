@@ -3,9 +3,9 @@
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/TypeUtils.h>
 #include <yabil/compile_time/ConstBigInt.h>
+#include <yabil/compile_time/impl/RelationOperatorsImpl.h>
 #include <yabil/compile_time/impl/Utils.h>
 #include <yabil/compile_time/operators/ArithmeticOperators.h>
-#include <yabil/compile_time/operators/RelationOperators.h>
 
 #include <cstddef>
 
@@ -17,8 +17,7 @@ namespace impl
 
 template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
           Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
-consteval auto add_unsigned(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
-                            const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
+consteval auto add_unsigned()
 {
     using base_t = bigint::bigint_base_t;
 
@@ -31,9 +30,9 @@ consteval auto add_unsigned(const ConstBigInt<SelfSign, SelfSize, SelfData> &sel
     std::size_t i;
     for (i = 0; i < max_size; ++i)
     {
-        const base_t tmp1 = self.digit(i) + carry;
+        const base_t tmp1 = get_digit(i, SelfData) + carry;
         carry = static_cast<base_t>(tmp1 < carry);
-        const base_t tmp2 = (tmp1 + other.digit(i));
+        const base_t tmp2 = (tmp1 + get_digit(i, OtherData));
         carry += static_cast<base_t>(tmp2 < tmp1);
         result[i] = tmp2;
     }
@@ -44,8 +43,7 @@ consteval auto add_unsigned(const ConstBigInt<SelfSign, SelfSize, SelfData> &sel
 
 template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
           Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
-consteval auto sub_unsigned(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
-                            const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
+consteval auto sub_unsigned()
 {
     using base_t = bigint::bigint_base_t;
     constexpr int result_size = std::max(SelfSize, OtherSize);
@@ -56,8 +54,8 @@ consteval auto sub_unsigned(const ConstBigInt<SelfSign, SelfSize, SelfData> &sel
     std::size_t i;
     for (i = 0; i < result_size; ++i)
     {
-        const base_t tmp1 = self.digit(i);
-        const base_t tmp2 = other.digit(i);
+        const base_t tmp1 = get_digit(i, SelfData);
+        const base_t tmp2 = get_digit(i, OtherData);
         result[i] = (tmp1 - tmp2 - borrow);
         if (tmp1 != tmp2)
         {
@@ -70,8 +68,7 @@ consteval auto sub_unsigned(const ConstBigInt<SelfSign, SelfSize, SelfData> &sel
 
 template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
           Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
-consteval auto mul_unsigned(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
-                            const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
+consteval auto mul_unsigned()
 {
     using base_t = bigint::bigint_base_t;
     constexpr int result_size = SelfSize + OtherSize;
@@ -83,7 +80,7 @@ consteval auto mul_unsigned(const ConstBigInt<SelfSign, SelfSize, SelfData> &sel
         std::size_t j;
         for (j = 0; j < OtherSize; ++j)
         {
-            carry += result[i + j] + type_utils::safe_mul(other.digit(j), self.digit(i));
+            carry += result[i + j] + type_utils::safe_mul(get_digit(j, OtherData), get_digit(i, SelfData));
             result[i + j] = static_cast<base_t>(carry);
             carry >>= sizeof(base_t) * 8;
         }
@@ -100,49 +97,58 @@ consteval auto mul_unsigned(const ConstBigInt<SelfSign, SelfSize, SelfData> &sel
 
 template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
           Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
-consteval auto operator+(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
-                         const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
+consteval auto operator+(const ConstBigInt<SelfSign, SelfSize, SelfData> &,
+                         const ConstBigInt<OtherSign, OtherSize, OtherData> &)
 {
     if constexpr (SelfSign == OtherSign)
     {
-        constexpr auto result = impl::add_unsigned(self, other);
+        constexpr auto result = impl::add_unsigned<SelfSign, SelfSize, SelfData, OtherSign, OtherSize, OtherData>();
         return make_bigint<SelfSign, result.size(), result>();
     }
     else
     {
-        constexpr bool is_self_greater = abs_greater(self, other);
+        constexpr bool is_self_greater = abs_greater<SelfSign, SelfSize, SelfData, OtherSign, OtherSize, OtherData>();
         constexpr Sign new_sign = ((is_self_greater) == (SelfSign == Sign::Plus)) ? Sign::Plus : Sign::Minus;
         if constexpr (is_self_greater)
         {
-            return make_bigint(new_sign, impl::sub_unsigned(self, other));
+            constexpr auto sub_result =
+                impl::sub_unsigned<SelfSign, SelfSize, SelfData, OtherSign, OtherSize, OtherData>();  // self - other
+            return make_bigint<new_sign, sub_result.size(), sub_result>();
         }
         else
         {
-            return make_bigint(new_sign, impl::sub_unsigned(other, self));
+            constexpr auto sub_result =
+                impl::sub_unsigned<OtherSign, OtherSize, OtherData, SelfSign, SelfSize, SelfData>();  // other - self
+            return make_bigint<new_sign, sub_result.size(), sub_result>();
         }
     }
 }
 
 template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
           Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
-consteval auto operator-(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
-                         const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
+consteval auto operator-(const ConstBigInt<SelfSign, SelfSize, SelfData> &,
+                         const ConstBigInt<OtherSign, OtherSize, OtherData> &)
 {
     if constexpr (SelfSign != OtherSign)
     {
-        return make_bigint(SelfSign, impl::add_unsigned(self, other));
+        constexpr auto result = impl::add_unsigned<SelfSign, SelfSize, SelfData, OtherSign, OtherSize, OtherData>();
+        return make_bigint<SelfSign, result.size(), result>();
     }
     else
     {
-        constexpr auto is_self_greater = abs_greater(self, other);
+        constexpr auto is_self_greater = abs_greater<SelfSign, SelfSize, SelfData, OtherSign, OtherSize, OtherData>();
         constexpr auto new_sign = ((is_self_greater) == (SelfSign == Sign::Plus)) ? Sign::Plus : Sign::Minus;
         if constexpr (is_self_greater)
         {
-            return make_bigint(new_sign, impl::sub_unsigned(self, other));
+            constexpr auto sub_result =
+                impl::sub_unsigned<SelfSign, SelfSize, SelfData, OtherSign, OtherSize, OtherData>();  // self - other
+            return make_bigint<new_sign, sub_result.size(), sub_result>();
         }
         else
         {
-            return make_bigint(new_sign, impl::sub_unsigned(other, self));
+            constexpr auto sub_result =
+                impl::sub_unsigned<OtherSign, OtherSize, OtherData, SelfSign, SelfSize, SelfData>();  // other - self
+            return make_bigint<new_sign, sub_result.size(), sub_result>();
         }
     }
 }
@@ -156,11 +162,12 @@ consteval auto operator-(const ConstBigInt<SelfSign, SelfSize, SelfData> &)
 
 template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
           Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
-consteval auto operator*(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
-                         const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
+consteval auto operator*(const ConstBigInt<SelfSign, SelfSize, SelfData> &,
+                         const ConstBigInt<OtherSign, OtherSize, OtherData> &)
 {
     constexpr auto new_sign = (SelfSign == OtherSign) ? Sign::Plus : Sign::Minus;
-    return make_bigint(new_sign, impl::mul_unsigned(self, other));
+    constexpr auto resultData = impl::mul_unsigned<SelfSign, SelfSize, SelfData, OtherSign, OtherSize, OtherData>();
+    return make_bigint<new_sign, resultData.size(), resultData>();
 }
 
 }  // namespace yabil::compile_time

@@ -1,9 +1,8 @@
 #include <gtest/gtest.h>
 #include <yabil/bigint/BigIntBase.h>
+#include <yabil/compile_time/BigIntData.h>
 #include <yabil/compile_time/ConstBigInt.h>
 #include <yabil/compile_time/Literals.h>
-
-#include "yabil/compile_time/BigIntData.h"
 
 namespace yabil::compile_time
 {
@@ -16,9 +15,9 @@ class ConstBigIntAddition_tests : public ::testing::Test
 
 TEST_F(ConstBigIntAddition_tests, canAddTwoNumbers)
 {
-    constexpr ConstBigInt a = make_bigint<3, BigIntData<3>{1, 1, 1}>();
-    constexpr ConstBigInt b = make_bigint<2, BigIntData<2>{1, 1}>();
-    constexpr ConstBigInt expected = make_bigint<3, BigIntData<3>{2, 2, 1}>();
+    constexpr ConstBigInt a = make_bigint<1, 1, 1>();
+    constexpr ConstBigInt b = make_bigint<1, 1>();
+    constexpr ConstBigInt expected = make_bigint<2, 2, 1>();
     constexpr auto sum = a + b;
     static_assert(sum == expected);
     EXPECT_TRUE(sum == expected);
@@ -26,7 +25,7 @@ TEST_F(ConstBigIntAddition_tests, canAddTwoNumbers)
 
 TEST_F(ConstBigIntAddition_tests, canAddZeroAndNonZero)
 {
-    constexpr ConstBigInt a(std::array<bigint_base_t, 2>{1, 1});
+    constexpr ConstBigInt a = make_bigint<1, 1>();
     constexpr ConstBigInt<> b;
     constexpr ConstBigInt expected(a);
     constexpr auto sum = a + b;
@@ -38,7 +37,7 @@ TEST_F(ConstBigIntAddition_tests, canAddZeroAndNonZero)
 TEST_F(ConstBigIntAddition_tests, canAddLongerNumberToShorter)
 {
     constexpr ConstBigInt<> a;
-    constexpr ConstBigInt b(std::array<bigint_base_t, 2>{1, 1});
+    constexpr ConstBigInt b = make_bigint<1, 1>();
     constexpr ConstBigInt expected(b);
     constexpr auto sum = a + b;
     static_assert(sum == expected);
@@ -50,9 +49,9 @@ TEST_F(ConstBigIntAddition_tests, canAddTwoBigintNumbers)
     EXPECT_TRUE(218446744073709551617_bi + 52551646840974400987_bi == 270998390914683952604_bi);
 }
 
-// TEST_F(ConstBigIntAddition_tests, canAddPositiveToNegative)
-// {
-//     EXPECT_TRUE(270998390914683952604_bi + -52551646840974400987_bi == 218446744073709551617_bi);
-// }
+TEST_F(ConstBigIntAddition_tests, canAddPositiveToNegative)
+{
+    EXPECT_TRUE(270998390914683952604_bi + -52551646840974400987_bi == 218446744073709551617_bi);
+}
 
 }  // namespace yabil::compile_time

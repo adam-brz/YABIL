@@ -12,20 +12,33 @@ namespace yabil::compile_time
 
 template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
           Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
-consteval bool abs_lower(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
-                         const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
+consteval bool abs_lower()
 {
     return SelfSize < OtherSize ||
-           (SelfSize == OtherSize && std::lexicographical_compare(self.data.crbegin(), self.data.crend(),
-                                                                  other.data.crbegin(), other.data.crend()));
+           (SelfSize == OtherSize &&
+            std::lexicographical_compare(SelfData.crbegin(), SelfData.crend(), OtherData.crbegin(), OtherData.crend()));
 }
 
 template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
           Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
-consteval bool abs_greater(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
-                           const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
+consteval bool abs_greater()
 {
-    return abs_lower(other, self);
+    return abs_lower<OtherSign, OtherSize, OtherData, SelfSign, SelfSize, SelfData>();
+}
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval bool abs_lower(const ConstBigInt<SelfSign, SelfSize, SelfData> &,
+                         const ConstBigInt<OtherSign, OtherSize, OtherData> &)
+{
+    return abs_lower<SelfSign, SelfSize, SelfData, OtherSign, OtherSize, OtherData>();
+}
+
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval bool abs_greater(const ConstBigInt<SelfSign, SelfSize, SelfData> &,
+                           const ConstBigInt<OtherSign, OtherSize, OtherData> &)
+{
+    return abs_lower<OtherSign, OtherSize, OtherData, SelfSign, SelfSize, SelfData>();
 }
 
 template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
@@ -34,7 +47,7 @@ consteval bool operator==(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
                           const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
 {
     return (self.is_zero() && other.is_zero()) ||
-           (std::ranges::equal(detail::normalize(self.data), detail::normalize(other.data)) && SelfSign == OtherSign);
+           (std::ranges::equal(impl::normalize(SelfData), impl::normalize(OtherData)) && SelfSign == OtherSign);
 }
 
 template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
