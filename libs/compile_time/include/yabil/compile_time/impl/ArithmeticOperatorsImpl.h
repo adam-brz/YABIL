@@ -7,6 +7,7 @@
 #include <yabil/compile_time/impl/Utils.h>
 #include <yabil/compile_time/operators/ArithmeticOperators.h>
 
+#include <algorithm>
 #include <cstddef>
 
 namespace yabil::compile_time

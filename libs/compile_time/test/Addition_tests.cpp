@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <yabil/bigint/BigIntBase.h>
 #include <yabil/compile_time/BigIntData.h>
 #include <yabil/compile_time/ConstBigInt.h>
 #include <yabil/compile_time/Literals.h>
@@ -44,14 +43,33 @@ TEST_F(ConstBigIntAddition_tests, canAddLongerNumberToShorter)
     EXPECT_TRUE(sum == expected);
 }
 
-TEST_F(ConstBigIntAddition_tests, canAddTwoBigintNumbers)
+TEST_F(ConstBigIntAddition_tests, canAddSmallNumbers)
 {
-    EXPECT_TRUE(218446744073709551617_bi + 52551646840974400987_bi == 270998390914683952604_bi);
+    EXPECT_TRUE(0_bi + 0_bi == 0_bi);
+    EXPECT_TRUE(0_bi + 123_bi == 123_bi);
+    EXPECT_TRUE(0_bi + -123_bi == -123_bi);
+    EXPECT_TRUE(123_bi + 0_bi == 123_bi);
+    EXPECT_TRUE(-123_bi + 0_bi == -123_bi);
+    EXPECT_TRUE(123_bi + 456_bi == 579_bi);
+    EXPECT_TRUE(-123_bi + -456_bi == -579_bi);
+    EXPECT_TRUE(123_bi + -456_bi == -333_bi);
+    EXPECT_TRUE(-123_bi + 456_bi == 333_bi);
 }
 
-TEST_F(ConstBigIntAddition_tests, canAddPositiveToNegative)
+TEST_F(ConstBigIntAddition_tests, canAddLargeNumbers)
 {
+    EXPECT_TRUE(218446744073709551617_bi + 52551646840974400987_bi == 270998390914683952604_bi);
     EXPECT_TRUE(270998390914683952604_bi + -52551646840974400987_bi == 218446744073709551617_bi);
+    EXPECT_TRUE(-270998390914683952604_bi + 52551646840974400987_bi == -218446744073709551617_bi);
+    EXPECT_TRUE(-270998390914683952604_bi + -52551646840974400987_bi ==
+                -(270998390914683952604_bi + 52551646840974400987_bi));
+}
+
+TEST_F(ConstBigIntAddition_tests, canAddMixedNumbers)
+{
+    EXPECT_TRUE(218446744073709551617_bi + 0_bi == 218446744073709551617_bi);
+    EXPECT_TRUE(123_bi + -52551646840974400987_bi == -52551646840974400864_bi);
+    EXPECT_TRUE(-456_bi + 52551646840974400987_bi == 52551646840974400531_bi);
 }
 
 }  // namespace yabil::compile_time

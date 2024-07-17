@@ -54,4 +54,29 @@ TEST_F(ConstBigIntSubtraction_tests, canSubPositiveToNegative)
     EXPECT_TRUE(270998390914683952604_bi - 218446744073709551617_bi == 52551646840974400987_bi);
 }
 
+TEST_F(ConstBigIntSubtraction_tests, canSubtractSmallNumbers)
+{
+    EXPECT_TRUE(100_bi - 50_bi == 50_bi);
+    EXPECT_TRUE(50_bi - 100_bi == -50_bi);
+    EXPECT_TRUE((-100_bi) - (-50_bi) == -50_bi);
+    EXPECT_TRUE(50_bi - 50_bi == 0_bi);
+    EXPECT_TRUE(123456789_bi - 123456789_bi == 0_bi);
+    EXPECT_TRUE(0_bi - 100_bi == -100_bi);
+    EXPECT_TRUE(100_bi - 0_bi == 100_bi);
+}
+
+TEST_F(ConstBigIntSubtraction_tests, canSubtractLargeNumbers)
+{
+    EXPECT_TRUE(218446744073709551617_bi - 52551646840974400987_bi == 165895097232735150630_bi);
+    EXPECT_TRUE(270998390914683952604_bi - 52551646840974400987_bi == 218446744073709551617_bi);
+    EXPECT_TRUE(-270998390914683952604_bi - 52551646840974400987_bi == -323550037755658353591_bi);
+    EXPECT_TRUE(-270998390914683952604_bi - -52551646840974400987_bi == -218446744073709551617_bi);
+}
+
+TEST_F(ConstBigIntSubtraction_tests, canSubtractMixedNumbers)
+{
+    EXPECT_TRUE(218446744073709551617_bi - 0_bi == 218446744073709551617_bi);
+    EXPECT_TRUE(123_bi - -52551646840974400987_bi == 52551646840974401110_bi);
+}
+
 }  // namespace yabil::compile_time
