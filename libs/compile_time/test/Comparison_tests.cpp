@@ -44,126 +44,127 @@ TEST_F(ConstBigIntComparisonTests, canCheckIfTwoBigIntsAreEqual)
         EXPECT_EQ(a.real_size(), 2);
     }
 }
-TEST_F(ConstBigIntComparisonTests, TestEquality)
+
+TEST_F(ConstBigIntComparisonTests, testEquality)
 {
     constexpr auto num1 = 123_bi;
     constexpr auto num2 = 123_bi;
     EXPECT_TRUE(num1 == num2);
 }
 
-TEST_F(ConstBigIntComparisonTests, TestInequality)
+TEST_F(ConstBigIntComparisonTests, testInequality)
 {
     constexpr auto num1 = 123_bi;
     constexpr auto num2 = 124_bi;
     EXPECT_TRUE(num1 != num2);
 }
 
-TEST_F(ConstBigIntComparisonTests, TestLessThan)
+TEST_F(ConstBigIntComparisonTests, testLessThan)
 {
     constexpr auto num1 = 123_bi;
     constexpr auto num2 = 124_bi;
     EXPECT_TRUE(num1 < num2);
 }
 
-TEST_F(ConstBigIntComparisonTests, TestGreaterThan)
+TEST_F(ConstBigIntComparisonTests, testGreaterThan)
 {
     constexpr auto num1 = 125_bi;
     constexpr auto num2 = 124_bi;
     EXPECT_TRUE(num1 > num2);
 }
 
-TEST_F(ConstBigIntComparisonTests, TestLessThanOrEqualTrue)
+TEST_F(ConstBigIntComparisonTests, testLessThanOrEqualTrue)
 {
     constexpr auto num1 = 123_bi;
     constexpr auto num2 = 123_bi;
     EXPECT_TRUE(num1 <= num2);
 }
 
-TEST_F(ConstBigIntComparisonTests, TestLessThanOrEqualFalse)
+TEST_F(ConstBigIntComparisonTests, testLessThanOrEqualFalse)
 {
     constexpr auto num1 = 123_bi;
     constexpr auto num2 = 122_bi;
     EXPECT_FALSE(num1 <= num2);
 }
 
-TEST_F(ConstBigIntComparisonTests, TestGreaterThanOrEqualTrue)
+TEST_F(ConstBigIntComparisonTests, testGreaterThanOrEqualTrue)
 {
     constexpr auto num1 = 124_bi;
     constexpr auto num2 = 124_bi;
     EXPECT_TRUE(num1 >= num2);
 }
 
-TEST_F(ConstBigIntComparisonTests, TestGreaterThanOrEqualFalse)
+TEST_F(ConstBigIntComparisonTests, testGreaterThanOrEqualFalse)
 {
     constexpr auto num1 = 123_bi;
     constexpr auto num2 = 124_bi;
     EXPECT_FALSE(num1 >= num2);
 }
 
-TEST_F(ConstBigIntComparisonTests, NegativeNumbersEquality)
+TEST_F(ConstBigIntComparisonTests, negativeNumbersEquality)
 {
     constexpr auto num1 = -123_bi;
     constexpr auto num2 = -123_bi;
     EXPECT_TRUE(num1 == num2);
 }
 
-TEST_F(ConstBigIntComparisonTests, NegativePositiveInequality)
+TEST_F(ConstBigIntComparisonTests, negativePositiveInequality)
 {
     constexpr auto num1 = -123_bi;
     constexpr auto num2 = 123_bi;
     EXPECT_TRUE(num1 != num2);
 }
 
-TEST_F(ConstBigIntComparisonTests, NegativeLessThanPositive)
+TEST_F(ConstBigIntComparisonTests, negativeLessThanPositive)
 {
     constexpr auto num1 = -124_bi;
     constexpr auto num2 = 123_bi;
     EXPECT_TRUE(num1 < num2);
 }
 
-TEST_F(ConstBigIntComparisonTests, NegativeGreaterThanMoreNegative)
+TEST_F(ConstBigIntComparisonTests, negativeGreaterThanMoreNegative)
 {
     constexpr auto num1 = -123_bi;
     constexpr auto num2 = -124_bi;
     EXPECT_TRUE(num1 > num2);
 }
 
-TEST_F(ConstBigIntComparisonTests, NegativeLessThanOrEqualMoreNegative)
+TEST_F(ConstBigIntComparisonTests, negativeLessThanOrEqualMoreNegative)
 {
     constexpr auto num1 = -124_bi;
     constexpr auto num2 = -123_bi;
     EXPECT_TRUE(num1 <= num2);
 }
 
-TEST_F(ConstBigIntComparisonTests, NegativeGreaterThanOrEqualLessNegative)
+TEST_F(ConstBigIntComparisonTests, negativeGreaterThanOrEqualLessNegative)
 {
     constexpr auto num1 = -123_bi;
     constexpr auto num2 = -124_bi;
     EXPECT_TRUE(num1 >= num2);
 }
 
-TEST_F(ConstBigIntComparisonTests, VeryLargeNumberEquality)
+TEST_F(ConstBigIntComparisonTests, veryLargeNumberEquality)
 {
     constexpr auto num1 = 218446744073709551616_bi;
     constexpr auto num2 = 218446744073709551616_bi;
     EXPECT_TRUE(num1 == num2);
 }
 
-TEST_F(ConstBigIntComparisonTests, VeryLargeNumberInequality)
+TEST_F(ConstBigIntComparisonTests, veryLargeNumberInequality)
 {
     constexpr auto num1 = 1616_bi;
     constexpr auto num2 = 218446744073709551617_bi;
     EXPECT_TRUE(num1 != num2);
 }
 
-TEST_F(ConstBigIntComparisonTests, VeryLargeNumberLessThan)
+TEST_F(ConstBigIntComparisonTests, veryLargeNumberLessThan)
 {
     constexpr auto num1 = 12618374452099416065_bi;
     constexpr auto num2 = 436893488147419103232_bi;
     EXPECT_TRUE(num1 < num2);
 }
 
-TEST_F(ConstBigIntComparisonTests, VeryLargeNumberGreaterThan)
+TEST_F(ConstBigIntComparisonTests, veryLargeNumberGreaterThan)
 {
     constexpr auto num1 = 436893488147419103232_bi;
     constexpr auto num2 = -918446744073709551616_bi;
