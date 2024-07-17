@@ -146,6 +146,14 @@ endfunction()
 function(setup_test_target TEST_TARGET)
     if (MSVC)
         set_target_properties(${TEST_TARGET} PROPERTIES LINK_FLAGS "/ignore:4099")
+    elseif(APPLE)
+        if(CMAKE_BUILD_TYPE STREQUAL "Release")
+            add_custom_command(
+                TARGET ${TEST_TARGET} POST_BUILD
+                COMMAND ${CMAKE_STRIP}
+                ARGS -nu $<TARGET_FILE:${TEST_TARGET}>
+            )
+        endif()
     else()
         if(CMAKE_BUILD_TYPE STREQUAL "Release")
             add_custom_command(
