@@ -25,6 +25,7 @@ consteval bool abs_greater()
 {
     return abs_lower<OtherSign, OtherSize, OtherData, SelfSign, SelfSize, SelfData>();
 }
+
 template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
           Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
 consteval bool abs_lower(const ConstBigInt<SelfSign, SelfSize, SelfData> &,
@@ -73,7 +74,7 @@ consteval bool operator<(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
     }
     else if constexpr (SelfSign == Sign::Minus && OtherSign == Sign::Plus)
     {
-        return true;
+        return !(self.is_zero() && other.is_zero());
     }
     else
     {
@@ -104,7 +105,7 @@ consteval bool operator>(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
     }
     else if constexpr (SelfSign == Sign::Plus && OtherSign == Sign::Minus)
     {
-        return !self.is_zero() || !other.is_zero();
+        return !(self.is_zero() && other.is_zero());
     }
     else
     {
