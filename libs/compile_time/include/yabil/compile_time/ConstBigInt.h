@@ -9,6 +9,7 @@
 #include <yabil/compile_time/operators/RelationOperators.h>
 
 #include <algorithm>
+#include <concepts>
 #include <cstddef>
 #include <cstdint>
 #include <ranges>
@@ -40,20 +41,29 @@ public:
         return std::ranges::size(impl::normalize(InternalData));
     }
 
-    static consteval int64_t to_int()
+    template <std::signed_integral OutType>
+    static consteval OutType to()
     {
-        const int64_t result = static_cast<int64_t>(to_uint());
+        const OutType result = static_cast<OutType>(to<std::make_unsigned_t<OutType>>());
         return is_negative() ? -result : result;
     }
 
-    static consteval uint64_t to_uint()
+    template <std::unsigned_integral OutType>
+    static consteval OutType to()
     {
-        uint64_t result = 0;
-        for (std::size_t i = 0; (i < InternalData.size()) && (i < sizeof(uint64_t) / sizeof(bigint_base_t)); ++i)
+        if constexpr (sizeof(OutType) < sizeof(bigint_base_t))
         {
-            result |= static_cast<uint64_t>(InternalData[i]) << (i * bigint_base_t_size_bits);
+            return InternalData[0];
         }
-        return result;
+        else
+        {
+            OutType result = 0;
+            for (std::size_t i = 0; (i < InternalData.size()) && (i < sizeof(OutType) / sizeof(bigint_base_t)); ++i)
+            {
+                result |= static_cast<OutType>(InternalData[i]) << (i * bigint_base_t_size_bits);
+            }
+            return result;
+        }
     }
 
     static consteval bool is_zero()
@@ -79,46 +89,12 @@ public:
     }
 };
 
-template <std::size_t InternalSize, BigIntData<InternalSize> InternalData>
-static inline consteval auto make_bigint()
-{
-    return ConstBigInt<Sign::Plus, InternalSize, InternalData>();
-}
-
-template <Sign sign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>
-static inline consteval auto make_bigint()
-{
-    return ConstBigInt<sign, InternalSize, InternalData>();
-}
-
-template <Sign sign, uint64_t... digits>
-static inline consteval auto make_bigint()
-{
-    return make_bigint<sign, sizeof...(digits), BigIntData<sizeof...(digits)>{digits...}>();
-}
-
-template <uint64_t... digits>
-static inline consteval auto make_bigint()
-{
-    return make_bigint<Sign::Plus, digits...>();
-}
-
-template <int64_t value>
-static inline consteval auto make_signed_bigint()
-{
-    constexpr auto sign = (value < 0) ? Sign::Minus : Sign::Plus;
-    constexpr auto abs_value = static_cast<uint64_t>((value < 0) ? -value : value);
-    return make_bigint<sign, 1, BigIntData<1>{abs_value}>();
-}
-
-template <uint64_t shift>
-static inline constexpr auto shift_v = std::integral_constant<uint64_t, shift>{};
-
-template <int64_t value>
-static inline constexpr auto bigint_v = make_signed_bigint<value>();
-
 }  // namespace yabil::compile_time
 
+// --- Implementation ---
+#include <yabil/compile_time/impl/MakeConstBigInt.h>
+// ---
 #include <yabil/compile_time/impl/ArithmeticOperatorsImpl.h>
 #include <yabil/compile_time/impl/BitwiseOperatorsImpl.h>
 #include <yabil/compile_time/impl/RelationOperatorsImpl.h>
+// ---

@@ -1,17 +1,21 @@
 project(compile_time C CXX)
 
 set(HEADERS
-    include/yabil/compile_time/Math.h
-    include/yabil/compile_time/Literals.h
+    include/yabil/compile_time/BigIntData.h
     include/yabil/compile_time/ConstBigInt.h
-    include/yabil/compile_time/impl/ArithmeticOperatorsImpl.h
-    include/yabil/compile_time/impl/RelationOperatorsImpl.h
-    include/yabil/compile_time/impl/Utils.h
-    include/yabil/compile_time/impl/StringConversion.h
-    include/yabil/compile_time/impl/BitwiseOperatorsImpl.h
+    include/yabil/compile_time/Literals.h
+    include/yabil/compile_time/Math.h
+
     include/yabil/compile_time/operators/ArithmeticOperators.h
     include/yabil/compile_time/operators/BitwiseOperators.h
     include/yabil/compile_time/operators/RelationOperators.h
+
+    include/yabil/compile_time/impl/ArithmeticOperatorsImpl.h
+    include/yabil/compile_time/impl/BitwiseOperatorsImpl.h
+    include/yabil/compile_time/impl/MakeConstBigInt.h
+    include/yabil/compile_time/impl/RelationOperatorsImpl.h
+    include/yabil/compile_time/impl/StringConversion.h
+    include/yabil/compile_time/impl/Utils.h
 )
 
 set(TESTS
