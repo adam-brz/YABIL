@@ -39,4 +39,24 @@ TEST_F(ConstBigIntMultiplication_tests, canMulTwoBigNumbers)
     }
 }
 
+TEST_F(ConstBigIntMultiplication_tests, canMulNegativeAndPositive)
+{
+    EXPECT_TRUE((-125_bi) * 100_bi == -12500_bi);
+}
+
+TEST_F(ConstBigIntMultiplication_tests, canMulTwoNegativeNumbers)
+{
+    EXPECT_TRUE((-91289123_bi) * (-2174981279412490_bi) == 198552133538984167346270_bi);
+}
+
+TEST_F(ConstBigIntMultiplication_tests, canMulNegativeAndZero)
+{
+    EXPECT_TRUE((-125_bi) * 0_bi == 0_bi);
+}
+
+TEST_F(ConstBigIntMultiplication_tests, canMulZeroAndNegative)
+{
+    EXPECT_TRUE(0_bi * (-125_bi) == 0_bi);
+}
+
 }  // namespace yabil::compile_time

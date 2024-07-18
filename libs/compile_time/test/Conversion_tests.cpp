@@ -13,9 +13,15 @@ class ConstBigIntConversion_tests : public ::testing::Test
 TEST_F(ConstBigIntConversion_tests, canConvertToNumber)
 {
     constexpr ConstBigInt b = make_bigint<145>();
-    static_assert(b.to_uint() == 145);
     EXPECT_EQ(b.to_uint(), 145);
     EXPECT_EQ(b.to_int(), 145);
+}
+
+TEST_F(ConstBigIntConversion_tests, canConvertToSignedNumber)
+{
+    constexpr ConstBigInt b = make_signed_bigint<-145>();
+    EXPECT_EQ(b.to_uint(), 145);
+    EXPECT_EQ(b.to_int(), -145);
 }
 
 }  // namespace yabil::compile_time

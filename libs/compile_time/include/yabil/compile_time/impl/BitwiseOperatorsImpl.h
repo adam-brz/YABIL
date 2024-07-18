@@ -57,27 +57,30 @@ consteval auto shift_right()
     {
         return BigIntData<1>{};
     }
-
-    constexpr auto result_size = SelfSize - removed_items_count;
-    std::array<base_t, result_size> shifted{};
-
-    if constexpr (real_shift == 0)
-    {
-        std::copy(SelfData.cbegin() + static_cast<int>(removed_items_count), SelfData.cend(), shifted.begin());
-    }
     else
     {
-        base_t shifted_val = 0;
-        std::transform(SelfData.crbegin(), SelfData.crend() - static_cast<int>(removed_items_count), shifted.rbegin(),
-                       [&shifted_val](const base_t &v)
-                       {
-                           const base_t transformed = (v >> real_shift) | shifted_val;
-                           shifted_val = static_cast<base_t>(v << (bigint_base_t_size_bits - real_shift));
-                           return transformed;
-                       });
-    }
+        constexpr auto result_size = SelfSize - removed_items_count;
+        std::array<base_t, result_size> shifted{};
 
-    return shifted;
+        if constexpr (real_shift == 0)
+        {
+            std::copy(SelfData.cbegin() + static_cast<int>(removed_items_count), SelfData.cend(), shifted.begin());
+        }
+        else
+        {
+            base_t shifted_val = 0;
+            std::transform(SelfData.crbegin(), SelfData.crend() - static_cast<int>(removed_items_count),
+                           shifted.rbegin(),
+                           [&shifted_val](const base_t &v)
+                           {
+                               const base_t transformed = (v >> real_shift) | shifted_val;
+                               shifted_val = static_cast<base_t>(v << (bigint_base_t_size_bits - real_shift));
+                               return transformed;
+                           });
+        }
+
+        return shifted;
+    }
 }
 
 }  // namespace impl
