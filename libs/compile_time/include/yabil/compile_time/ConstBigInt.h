@@ -41,6 +41,11 @@ public:
         return std::ranges::size(impl::normalize(InternalData));
     }
 
+    static consteval std::size_t byte_size()
+    {
+        return real_size() * sizeof(bigint_base_t);
+    }
+
     template <std::signed_integral OutType>
     static consteval OutType to()
     {
@@ -63,6 +68,22 @@ public:
                 result |= static_cast<OutType>(InternalData[i]) << (i * bigint_base_t_size_bits);
             }
             return result;
+        }
+    }
+
+    template <std::size_t n>
+    static consteval bool get_bit()
+    {
+        constexpr auto item_index = n / bigint_base_t_size_bits;
+        constexpr auto bit_index = n % bigint_base_t_size_bits;
+
+        if constexpr (item_index >= data.size())
+        {
+            return 0;
+        }
+        else
+        {
+            return (data[item_index] >> bit_index) & 0x01;
         }
     }
 

@@ -1,20 +1,22 @@
 #pragma once
 
 #include <yabil/compile_time/BigIntData.h>
+#include <yabil/compile_time/impl/Utils.h>
 
 namespace yabil::compile_time
 {
 
-template <std::size_t InternalSize, BigIntData<InternalSize> InternalData>
-static inline consteval auto make_bigint()
-{
-    return ConstBigInt<Sign::Plus, InternalSize, InternalData>();
-}
-
 template <Sign sign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>
 static inline consteval auto make_bigint()
 {
-    return ConstBigInt<sign, InternalSize, InternalData>();
+    constexpr auto normalized_data = impl::normalize<InternalSize, InternalData>();
+    return ConstBigInt<sign, normalized_data.size(), normalized_data>();
+}
+
+template <std::size_t InternalSize, BigIntData<InternalSize> InternalData>
+static inline consteval auto make_bigint()
+{
+    return make_bigint<Sign::Plus, InternalSize, InternalData>();
 }
 
 template <Sign sign, uint64_t... digits>

@@ -1,14 +1,18 @@
 #pragma once
 
-#include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/TypeUtils.h>
+#include <yabil/compile_time/BigIntData.h>
 #include <yabil/compile_time/ConstBigInt.h>
+#include <yabil/compile_time/impl/MakeConstBigInt.h>
 #include <yabil/compile_time/impl/RelationOperatorsImpl.h>
 #include <yabil/compile_time/impl/Utils.h>
 #include <yabil/compile_time/operators/ArithmeticOperators.h>
 
 #include <algorithm>
+#include <array>
+#include <bit>
 #include <cstddef>
+#include <utility>
 
 namespace yabil::compile_time
 {
@@ -94,6 +98,147 @@ consteval auto mul_unsigned()
     return result;
 }
 
+template <std::size_t SelfSize, BigIntData<SelfSize> SelfData>
+consteval bool is_normalized_for_division()
+{
+    constexpr auto number = make_bigint<SelfSize, SelfData>();
+    constexpr std::size_t last_bit_index = number.byte_size() * 8 - 1;
+    return number.template get_bit<last_bit_index>();
+}
+
+template <std::size_t SelfSize, BigIntData<SelfSize> SelfData,     //
+          std::size_t OtherSize, BigIntData<OtherSize> OtherData,  //
+          Sign ASign, std::size_t ASize, BigIntData<ASize> AData,  //
+          std::size_t n, std::size_t m, std::size_t OutSize, int i>
+consteval auto div_recursive_iter(BigIntData<OutSize> &q)
+{
+    if constexpr (i < 0)
+    {
+        return std::make_pair(q, AData);
+    }
+    else if constexpr (ASign == Sign::Minus)
+    {
+        q[i] -= 1;
+        constexpr auto A = ConstBigInt<Sign::Plus, ASize, AData>{};
+        constexpr auto B = ConstBigInt<Sign::Plus, OtherSize, OtherData>{};
+        constexpr auto newA = A + (B << shift_v<bigint_base_t_size_bits * i>);
+        return div_recursive_iter<SelfSize, SelfData, OtherSize, OtherData,  //
+                                  newA.sign, newA.data.size(), newA.data,    //
+                                  n, m, OutSize, i>(q);
+    }
+    else
+    {
+        constexpr auto top_two_digits =
+            (static_cast<type_utils::double_width_t<bigint_base_t>>(get_digit(n + i, SelfData))
+             << bigint_base_t_size_bits) |
+            static_cast<type_utils::double_width_t<bigint_base_t>>(get_digit(n + i - 1, SelfData));
+
+        constexpr auto last_data_digit = get_digit(n - 1, OtherData);
+
+        if constexpr (last_data_digit == 0)
+        {
+            return div_recursive_iter<SelfSize, SelfData, OtherSize, OtherData,  //
+                                      ASign, ASize, AData,                       //
+                                      n, m, OutSize, i - 1>(q);
+        }
+        else
+        {
+            constexpr auto quotient_part = top_two_digits / last_data_digit;
+
+            constexpr bigint_base_t q_i =
+                std::min(quotient_part,
+                         (static_cast<type_utils::double_width_t<bigint_base_t>>(1) << bigint_base_t_size_bits) - 1);
+            q[i] = q_i;
+
+            constexpr auto A = ConstBigInt<Sign::Plus, ASize, AData>{};
+            constexpr auto B = ConstBigInt<Sign::Plus, OtherSize, OtherData>{};
+            constexpr auto newA = A - ((bigint_v<q_i> * B) << shift_v<bigint_base_t_size_bits * i>);
+
+            return div_recursive_iter<SelfSize, SelfData, OtherSize, OtherData,  //
+                                      newA.sign, newA.data.size(), newA.data,    //
+                                      n, m, OutSize, i - 1>(q);
+        }
+    }
+}
+
+template <std::size_t SelfSize, BigIntData<SelfSize> SelfData,     //
+          std::size_t OtherSize, BigIntData<OtherSize> OtherData,  //
+          int q_m = 0>
+consteval auto div_unsigned()
+{
+    constexpr int n = static_cast<int>(OtherSize);
+    constexpr int m = static_cast<int>(SelfSize) - n;
+
+    if constexpr (m < 0)
+    {
+        return std::make_pair(ConstBigInt<>{}.data, SelfData);
+    }
+    else
+    {
+        constexpr auto A = ConstBigInt<Sign::Plus, SelfSize, SelfData>{};
+        constexpr auto B = ConstBigInt<Sign::Plus, OtherSize, OtherData>{};
+        constexpr auto B_m = ConstBigInt<Sign::Plus, OtherSize, OtherData>{}
+                             << shift_v<static_cast<uint64_t>(bigint_base_t_size_bits) * m>;
+
+        if constexpr (q_m == 0 && A >= B_m)
+        {
+            constexpr auto diff = A - B;
+            return div_unsigned<diff.data.size(), diff.data, OtherSize, OtherData, 1>();
+        }
+        else
+        {
+            BigIntData<m + 1> q{};
+            q[m] = q_m;
+            return div_recursive_iter<SelfSize, SelfData, OtherSize, OtherData, Sign::Plus, SelfSize, SelfData, n, m,
+                                      m + 1, m - 1>(q);
+        }
+    }
+}
+
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval auto div()
+{
+    constexpr auto self = ConstBigInt<SelfSign, SelfSize, SelfData>{};
+    constexpr auto other = ConstBigInt<OtherSign, OtherSize, OtherData>{};
+
+    static_assert(!other.is_zero(), "Cannot divide by 0");
+
+    if constexpr (self.is_zero())
+    {
+        return std::make_pair(make_bigint<0>(), make_bigint<0>());
+    }
+    else if constexpr (!is_normalized_for_division<OtherSize, OtherData>())
+    {
+        constexpr auto k = std::countl_zero(other.data[other.real_size() - 1]);
+        constexpr auto shifted_self = self << shift_v<k>;
+        constexpr auto shifted_other = other << shift_v<k>;
+
+        constexpr auto quotientAndRemainder = div<SelfSign, shifted_self.data.size(), shifted_self.data,  //
+                                                  OtherSign, shifted_other.data.size(), shifted_other.data>();
+        constexpr auto quotient = std::get<0>(quotientAndRemainder);
+        constexpr auto shifted_remainder = std::get<1>(quotientAndRemainder);
+        constexpr auto quotient_number = make_bigint<quotient.data.size(), quotient.data>();
+        constexpr auto remainder_number =
+            make_bigint<shifted_remainder.data.size(), shifted_remainder.data>() >> shift_v<k>;
+        return std::make_pair(quotient_number, remainder_number);
+    }
+    else
+    {
+        constexpr auto quotientAndRemainder = div_unsigned<SelfSize, SelfData, OtherSize, OtherData>();
+        constexpr auto quotient = std::get<0>(quotientAndRemainder);
+        constexpr auto remainder = std::get<1>(quotientAndRemainder);
+
+        constexpr auto quotient_sign = self.is_negative() ^ other.is_negative() ? Sign::Minus : Sign::Plus;
+        constexpr auto remainder_sign = self.is_negative() ? Sign::Minus : Sign::Plus;
+
+        constexpr auto quotient_number = make_bigint<quotient_sign, quotient.size(), quotient>();
+        constexpr auto remainder_number = make_bigint<remainder_sign, remainder.size(), remainder>();
+
+        return std::make_pair(quotient_number, remainder_number);
+    }
+}
+
 }  // namespace impl
 
 template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
@@ -169,6 +314,22 @@ consteval auto operator*(const ConstBigInt<SelfSign, SelfSize, SelfData> &,
     constexpr auto new_sign = (SelfSign == OtherSign) ? Sign::Plus : Sign::Minus;
     constexpr auto resultData = impl::mul_unsigned<SelfSign, SelfSize, SelfData, OtherSign, OtherSize, OtherData>();
     return make_bigint<new_sign, resultData.size(), resultData>();
+}
+
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval auto operator/(const ConstBigInt<SelfSign, SelfSize, SelfData> &,
+                         const ConstBigInt<OtherSign, OtherSize, OtherData> &)
+{
+    return impl::div<SelfSign, SelfSize, SelfData, OtherSign, OtherSize, OtherData>().first;
+}
+
+template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
+          Sign OtherSign, std::size_t OtherSize, BigIntData<OtherSize> OtherData>
+consteval auto operator%(const ConstBigInt<SelfSign, SelfSize, SelfData> &,
+                         const ConstBigInt<OtherSign, OtherSize, OtherData> &)
+{
+    return impl::div<SelfSign, SelfSize, SelfData, OtherSign, OtherSize, OtherData>().second;
 }
 
 }  // namespace yabil::compile_time

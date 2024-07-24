@@ -6,26 +6,12 @@
 #include <yabil/compile_time/ConstBigInt.h>
 #include <yabil/compile_time/Math.h>
 
-#include <algorithm>
-#include <array>
 #include <cmath>
-#include <cstddef>
-#include <utility>
 
-namespace yabil::compile_time::detail
+namespace yabil::compile_time::impl
 {
 
 using bigint::Sign;
-
-template <std::size_t DataSize, std::size_t NewDataSize>
-consteval auto concat_array(const BigIntData<DataSize> &data)
-{
-    static_assert(NewDataSize < DataSize);
-
-    BigIntData<NewDataSize> newData;
-    std::ranges::copy_n(data.cbegin(), NewDataSize, newData.begin());
-    return newData;
-}
 
 template <char... Args>
 struct StrToConstBigIntConverter;
@@ -77,17 +63,7 @@ struct StrToConstBigIntConverter<First, Second, Args...>
         }
         else
         {
-            constexpr std::array<std::pair<int, double>, 4> precomputed_log2{
-                {{2, 1}, {8, 3}, {10, 3.321928094887362}, {16, 4}}};
-
-            constexpr double log2_base =
-                std::ranges::find_if(precomputed_log2, [](const auto &base_value) { return base_value.first == base; })
-                    ->second;
-
-            constexpr auto result_size_estimate = static_cast<std::size_t>(
-                (sizeof...(Args) + 2) / static_cast<double>(bigint_base_t_size_bits) * log2_base + 1);
-
-            constexpr auto base_data = (bigint_v<base>).data;
+            constexpr auto base_data = bigint_v<base>.data;
 
             constexpr auto raw_conversion_result =
                 StrToConstBigIntConverter<First>::template convert<base>() *
@@ -96,12 +72,9 @@ struct StrToConstBigIntConverter<First, Second, Args...>
                     math::pow<sizeof...(Args), sign, base_data.size(), base_data>() +
                 StrToConstBigIntConverter<Args...>::template convert<base>();
 
-            constexpr auto cropped_data =
-                concat_array<raw_conversion_result.data.size(), result_size_estimate>(raw_conversion_result.data);
-
-            return make_bigint<sign, cropped_data.size(), cropped_data>();
+            return make_bigint<sign, raw_conversion_result.data.size(), raw_conversion_result.data>();
         }
     }
 };
 
-}  // namespace yabil::compile_time::detail
+}  // namespace yabil::compile_time::impl

@@ -23,6 +23,7 @@ set(TESTS
     test/Comparison_tests.cpp
     test/Constructor_tests.cpp
     test/Conversion_tests.cpp
+    test/Division_tests.cpp
     test/Literals_tests.cpp
     test/Multiplication_tests.cpp
     test/RelationOperators_tests.cpp
