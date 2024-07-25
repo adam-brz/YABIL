@@ -32,6 +32,15 @@ set(TESTS
     test/Subtraction_tests.cpp
 )
 
+set(GENERATED_TESTS
+    test/generated/AdditionGeneratedTests.cpp
+    test/generated/BitOperationsGeneratedTests.cpp
+    test/generated/DivisionGeneratedTests.cpp
+    test/generated/MultiplicationGeneratedTests.cpp
+    test/generated/RelationGeneratedTests.cpp
+    test/generated/SubtractionGeneratedTests.cpp
+)
+
 add_library(${PROJECT_NAME} INTERFACE)
 target_link_libraries(${PROJECT_NAME} INTERFACE bigint)
 
@@ -42,4 +51,6 @@ target_sources(${PROJECT_NAME}
 )
 
 set_common_properties(${PROJECT_NAME})
+
 add_test_target(${PROJECT_NAME} ${TESTS})
+add_test_target(${PROJECT_NAME}_generated ${GENERATED_TESTS})
