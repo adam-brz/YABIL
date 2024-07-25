@@ -12,6 +12,7 @@ set(HEADERS
 
     include/yabil/compile_time/impl/ArithmeticOperatorsImpl.h
     include/yabil/compile_time/impl/BitwiseOperatorsImpl.h
+    include/yabil/compile_time/impl/DivisionImpl.h
     include/yabil/compile_time/impl/MakeConstBigInt.h
     include/yabil/compile_time/impl/RelationOperatorsImpl.h
     include/yabil/compile_time/impl/StringConversion.h

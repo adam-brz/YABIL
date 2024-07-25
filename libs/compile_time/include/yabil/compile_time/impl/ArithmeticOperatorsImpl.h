@@ -161,7 +161,7 @@ template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData>
 consteval auto operator-(const ConstBigInt<SelfSign, SelfSize, SelfData> &)
 {
     constexpr Sign new_sign = (SelfSign == Sign::Plus) ? Sign::Minus : Sign::Plus;
-    return ConstBigInt<new_sign, SelfSize, SelfData>();
+    return make_bigint<new_sign, SelfSize, SelfData>();
 }
 
 template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //

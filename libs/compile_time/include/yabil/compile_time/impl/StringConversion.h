@@ -50,8 +50,6 @@ struct StrToConstBigIntConverter<First, Second, Args...>
     template <int base, Sign sign = Sign::Plus>
     static consteval auto convert()
     {
-        static_assert(base == 2 || base == 8 || base == 10 || base == 16, "Unsupported decimal string base.");
-
         if constexpr (First == '-')
         {
             return StrToConstBigIntConverter<Second, Args...>::template convert<base, Sign::Minus>();
