@@ -11,7 +11,6 @@
 #include <algorithm>
 #include <concepts>
 #include <cstddef>
-#include <cstdint>
 #include <ranges>
 #include <type_traits>
 
@@ -46,31 +45,6 @@ public:
         return real_size() * sizeof(bigint_base_t);
     }
 
-    template <std::signed_integral OutType>
-    static consteval OutType to()
-    {
-        const OutType result = static_cast<OutType>(to<std::make_unsigned_t<OutType>>());
-        return is_negative() ? -result : result;
-    }
-
-    template <std::unsigned_integral OutType>
-    static consteval OutType to()
-    {
-        if constexpr (sizeof(OutType) < sizeof(bigint_base_t))
-        {
-            return InternalData[0];
-        }
-        else
-        {
-            OutType result = 0;
-            for (std::size_t i = 0; (i < InternalData.size()) && (i < sizeof(OutType) / sizeof(bigint_base_t)); ++i)
-            {
-                result |= static_cast<OutType>(InternalData[i]) << (i * bigint_base_t_size_bits);
-            }
-            return result;
-        }
-    }
-
     template <std::size_t n>
     static consteval bool get_bit()
     {
@@ -97,16 +71,39 @@ public:
         return !is_zero() && (sign == Sign::Minus);
     }
 
-    static consteval bigint_base_t digit(const uint64_t pos)
+    template <std::signed_integral OutType>
+    static consteval OutType to()
     {
-        if (pos < InternalSize)
+        const OutType result = static_cast<OutType>(to<std::make_unsigned_t<OutType>>());
+        return is_negative() ? -result : result;
+    }
+
+    template <std::unsigned_integral OutType>
+    static consteval OutType to()
+    {
+        if constexpr (sizeof(OutType) < sizeof(bigint_base_t))
         {
-            return InternalData[pos];
+            return InternalData[0];
         }
         else
         {
-            return 0;
+            OutType result = 0;
+            for (std::size_t i = 0; (i < InternalData.size()) && (i < sizeof(OutType) / sizeof(bigint_base_t)); ++i)
+            {
+                result |= static_cast<OutType>(InternalData[i]) << (i * bigint_base_t_size_bits);
+            }
+            return result;
         }
+    }
+
+    static bigint::BigInt to_bigint()
+    {
+        return bigint::BigInt(data, sign);
+    }
+
+    operator bigint::BigInt() const
+    {
+        return to_bigint();
     }
 };
 
