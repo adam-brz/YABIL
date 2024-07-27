@@ -25,12 +25,6 @@ static inline consteval auto make_bigint()
     return make_bigint<sign, sizeof...(digits), BigIntData<sizeof...(digits)>{digits...}>();
 }
 
-template <uint64_t... digits>
-static inline consteval auto make_bigint()
-{
-    return make_bigint<Sign::Plus, digits...>();
-}
-
 template <int64_t value>
 static inline consteval auto make_signed_bigint()
 {
@@ -42,7 +36,7 @@ static inline consteval auto make_signed_bigint()
 template <uint64_t shift>
 static inline constexpr auto shift_v = std::integral_constant<uint64_t, shift>{};
 
-template <int64_t value>
-static inline constexpr auto bigint_v = make_signed_bigint<value>();
+template <uint64_t... digits>
+static inline constexpr auto bigint_v = make_bigint<Sign::Plus, digits...>();
 
 }  // namespace yabil::compile_time

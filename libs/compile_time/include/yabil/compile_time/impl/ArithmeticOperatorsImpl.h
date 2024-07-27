@@ -25,8 +25,8 @@ consteval auto add_unsigned()
 {
     using base_t = bigint::bigint_base_t;
 
-    constexpr int max_size = std::max(SelfSize, OtherSize);
-    constexpr int result_size = max_size + 1;
+    constexpr auto max_size = std::max(SelfSize, OtherSize);
+    constexpr auto result_size = max_size + 1;
 
     std::array<base_t, result_size> result{};
     base_t carry = 0;
@@ -50,7 +50,7 @@ template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  /
 consteval auto sub_unsigned()
 {
     using base_t = bigint::bigint_base_t;
-    constexpr int result_size = std::max(SelfSize, OtherSize);
+    constexpr auto result_size = std::max(SelfSize, OtherSize);
 
     std::array<base_t, result_size> result{};
     base_t borrow = 0;

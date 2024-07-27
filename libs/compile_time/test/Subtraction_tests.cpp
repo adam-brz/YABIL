@@ -15,8 +15,8 @@ class ConstBigIntSubtraction_tests : public ::testing::Test
 
 TEST_F(ConstBigIntSubtraction_tests, canSubtractTwoNumbers)
 {
-    constexpr ConstBigInt a = make_bigint<1, 1, 1>();
-    constexpr ConstBigInt b = make_bigint<2, 2, 1>();
+    constexpr ConstBigInt a = bigint_v<1, 1, 1>;
+    constexpr ConstBigInt b = bigint_v<2, 2, 1>;
     constexpr ConstBigInt expected = make_bigint<Sign::Minus, 2, BigIntData<2>{1, 1}>();
     constexpr auto sum = a - b;
     static_assert(sum == expected);
@@ -25,7 +25,7 @@ TEST_F(ConstBigIntSubtraction_tests, canSubtractTwoNumbers)
 
 TEST_F(ConstBigIntSubtraction_tests, canSubtractZeroAndNonZero)
 {
-    constexpr ConstBigInt a = make_bigint<1, 1>();
+    constexpr ConstBigInt a = bigint_v<1, 1>;
     constexpr ConstBigInt<> b;
     constexpr ConstBigInt expected(a);
     constexpr auto sum = a - b;
@@ -37,7 +37,7 @@ TEST_F(ConstBigIntSubtraction_tests, canSubtractZeroAndNonZero)
 TEST_F(ConstBigIntSubtraction_tests, canSubtractLongerNumberFromShorter)
 {
     constexpr ConstBigInt<> a;
-    constexpr ConstBigInt b = make_bigint<1, 1>();
+    constexpr ConstBigInt b = bigint_v<1, 1>;
     constexpr ConstBigInt expected(-b);
     constexpr auto sum = a - b;
     static_assert(sum == expected);

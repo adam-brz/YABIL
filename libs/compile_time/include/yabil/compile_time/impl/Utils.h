@@ -11,7 +11,7 @@ namespace yabil::compile_time::impl
 {
 
 template <std::size_t DataSize>
-consteval uint64_t get_digit(const int idx, BigIntData<DataSize> data)
+consteval bigint_base_t get_digit(const std::size_t idx, BigIntData<DataSize> data)
 {
     if (idx < DataSize)
     {
@@ -45,9 +45,16 @@ template <std::size_t DataSize, BigIntData<DataSize> Data>
 inline consteval auto normalize()
 {
     constexpr auto new_size = normalized_size<DataSize, Data>();
-    BigIntData<new_size> normalized;
-    std::copy_n(Data.cbegin(), new_size, normalized.begin());
-    return normalized;
+    if constexpr (new_size == 0)
+    {
+        return BigIntData<1>{};
+    }
+    else
+    {
+        BigIntData<new_size> normalized;
+        std::copy_n(Data.cbegin(), new_size, normalized.begin());
+        return normalized;
+    }
 }
 
 }  // namespace yabil::compile_time::impl

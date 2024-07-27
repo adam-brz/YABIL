@@ -58,13 +58,12 @@ consteval auto div_recursive_iter(BigIntData<OutSize> &q)
 
         constexpr auto quotient_part = top_two_digits / OtherData[n - 1];
 
-        constexpr bigint_base_t q_i = std::min(
-            quotient_part, (static_cast<type_utils::double_width_t<bigint_base_t>>(1) << bigint_base_t_size_bits) - 1);
+        constexpr bigint_base_t q_i = static_cast<bigint_base_t>(std::min(
+            quotient_part, (static_cast<type_utils::double_width_t<bigint_base_t>>(1) << bigint_base_t_size_bits) - 1));
 
         constexpr auto A = make_bigint<ASize, AData>();
         constexpr auto B = make_bigint<OtherSize, OtherData>();
-        constexpr auto newA =
-            A - ((make_bigint<q_i>() * B) << shift_v<bigint_base_t_size_bits *static_cast<uint64_t>(i)>);
+        constexpr auto newA = A - ((bigint_v<q_i> * B) << shift_v<bigint_base_t_size_bits *static_cast<uint64_t>(i)>);
 
         constexpr auto compensated_A_and_q_i =
             compensate_A_for_division<newA.sign, newA.data.size(), newA.data, OtherSize, OtherData, i, q_i>();
@@ -124,7 +123,7 @@ consteval auto div()
 
     if constexpr (self.is_zero())
     {
-        return std::make_pair(make_bigint<0>(), make_bigint<0>());
+        return std::make_pair(bigint_v<0>, bigint_v<0>);
     }
     else if constexpr (!is_normalized_for_division<OtherSize, OtherData>())
     {

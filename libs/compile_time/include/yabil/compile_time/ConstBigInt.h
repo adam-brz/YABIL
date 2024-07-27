@@ -83,7 +83,7 @@ public:
     {
         if constexpr (sizeof(OutType) < sizeof(bigint_base_t))
         {
-            return InternalData[0];
+            return static_cast<OutType>(InternalData[0]);
         }
         else
         {

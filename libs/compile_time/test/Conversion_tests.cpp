@@ -33,7 +33,7 @@ TEST_F(ConstBigIntConversion_tests, canConvertToNumber)
 
 TEST_F(ConstBigIntConversion_tests, canConvertToSignedNumber)
 {
-    constexpr auto b = bigint_v<-145>;
+    constexpr auto b = make_signed_bigint<-145>();
     EXPECT_EQ(b.to<uint64_t>(), 145);
     EXPECT_EQ(b.to<uint32_t>(), 145);
     EXPECT_EQ(b.to<uint16_t>(), 145);

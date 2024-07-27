@@ -14,9 +14,9 @@ class ConstBigIntAddition_tests : public ::testing::Test
 
 TEST_F(ConstBigIntAddition_tests, canAddTwoNumbers)
 {
-    constexpr ConstBigInt a = make_bigint<1, 1, 1>();
-    constexpr ConstBigInt b = make_bigint<1, 1>();
-    constexpr ConstBigInt expected = make_bigint<2, 2, 1>();
+    constexpr ConstBigInt a = bigint_v<1, 1, 1>;
+    constexpr ConstBigInt b = bigint_v<1, 1>;
+    constexpr ConstBigInt expected = bigint_v<2, 2, 1>;
     constexpr auto sum = a + b;
     static_assert(sum == expected);
     EXPECT_TRUE(sum == expected);
@@ -24,7 +24,7 @@ TEST_F(ConstBigIntAddition_tests, canAddTwoNumbers)
 
 TEST_F(ConstBigIntAddition_tests, canAddZeroAndNonZero)
 {
-    constexpr ConstBigInt a = make_bigint<1, 1>();
+    constexpr ConstBigInt a = bigint_v<1, 1>;
     constexpr ConstBigInt<> b;
     constexpr ConstBigInt expected(a);
     constexpr auto sum = a + b;
@@ -36,7 +36,7 @@ TEST_F(ConstBigIntAddition_tests, canAddZeroAndNonZero)
 TEST_F(ConstBigIntAddition_tests, canAddLongerNumberToShorter)
 {
     constexpr ConstBigInt<> a;
-    constexpr ConstBigInt b = make_bigint<1, 1>();
+    constexpr ConstBigInt b = bigint_v<1, 1>;
     constexpr ConstBigInt expected(b);
     constexpr auto sum = a + b;
     static_assert(sum == expected);

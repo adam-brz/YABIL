@@ -16,7 +16,6 @@ template <uint64_t shift_value, Sign SelfSign, std::size_t SelfSize, BigIntData<
 consteval auto shift_left()
 {
     using base_t = bigint::bigint_base_t;
-    constexpr auto bigint_base_t_size_bits = bigint::bigint_base_t_size_bits;
 
     constexpr auto new_items_count = shift_value / bigint_base_t_size_bits;
     constexpr auto real_shift = shift_value % bigint_base_t_size_bits;
@@ -25,7 +24,7 @@ consteval auto shift_left()
     std::array<base_t, result_size> shifted{};
     base_t shifted_val = 0;
 
-    if (real_shift == 0)
+    if constexpr (real_shift == 0)
     {
         std::copy(SelfData.cbegin(), SelfData.cend(), shifted.begin() + static_cast<int>(new_items_count));
     }
@@ -49,7 +48,6 @@ consteval auto shift_right()
 {
     using base_t = bigint::bigint_base_t;
 
-    constexpr auto bigint_base_t_size_bits = bigint::bigint_base_t_size_bits;
     constexpr auto removed_items_count = shift_value / bigint_base_t_size_bits;
     constexpr auto real_shift = shift_value % bigint_base_t_size_bits;
 

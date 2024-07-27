@@ -51,7 +51,7 @@ TEST_F(ConstBigIntConstruction_tests, canNormalizeNumber)
     {
         constexpr BigIntData<5> data{};
         constexpr auto normalized = impl::normalize<data.size(), data>();
-        EXPECT_EQ(normalized.size(), 0);
+        EXPECT_EQ(normalized.size(), 1);
     }
 }
 

@@ -17,8 +17,8 @@ class ConstBigIntShift_tests : public ::testing::Test
 
 TEST_F(ConstBigIntShift_tests, canShiftLeftByFullDigitSize)
 {
-    constexpr ConstBigInt b = make_bigint<1, 1>();
-    constexpr ConstBigInt expected = make_bigint<0, 1, 1>();
+    constexpr ConstBigInt b = bigint_v<1, 1>;
+    constexpr ConstBigInt expected = bigint_v<0, 1, 1>;
     constexpr auto result = b << shift_v<bigint_base_t_size_bits>;
     static_assert(result == expected);
     EXPECT_TRUE(result == expected);
@@ -32,7 +32,7 @@ TEST_F(ConstBigIntShift_tests, canShiftLeftBigInt)
 
 TEST_F(ConstBigIntShift_tests, canShiftRightByFullDigitSize)
 {
-    constexpr ConstBigInt b = make_bigint<1, 1>();
+    constexpr ConstBigInt b = bigint_v<1, 1>;
     constexpr ConstBigInt expected = bigint_v<1>;
     constexpr auto result = b >> shift_v<bigint_base_t_size_bits>;
     static_assert(result == expected);
@@ -46,7 +46,7 @@ TEST_F(ConstBigIntShift_tests, canShiftRightBigInt)
 
 TEST_F(ConstBigIntShift_tests, canShiftLeftByZero)
 {
-    constexpr ConstBigInt b = make_bigint<2, 3>();
+    constexpr ConstBigInt b = bigint_v<2, 3>;
     constexpr ConstBigInt expected = b;
     constexpr auto result = b << shift_v<0>;
     static_assert(result == expected);
@@ -55,7 +55,7 @@ TEST_F(ConstBigIntShift_tests, canShiftLeftByZero)
 
 TEST_F(ConstBigIntShift_tests, canShiftRightByZero)
 {
-    constexpr ConstBigInt b = make_bigint<4, 5>();
+    constexpr ConstBigInt b = bigint_v<4, 5>;
     constexpr ConstBigInt expected = b;
     constexpr auto result = b >> shift_v<0>;
     static_assert(result == expected);
@@ -64,8 +64,8 @@ TEST_F(ConstBigIntShift_tests, canShiftRightByZero)
 
 TEST_F(ConstBigIntShift_tests, shiftRightProducesZeroWhenShiftingMoreThanSize)
 {
-    constexpr ConstBigInt b = make_bigint<1, 1>();
-    constexpr ConstBigInt expected = make_bigint<0>();
+    constexpr ConstBigInt b = bigint_v<1, 1>;
+    constexpr ConstBigInt expected = bigint_v<0>;
     constexpr auto result = b >> shift_v<2ULL * bigint_base_t_size_bits>;
     static_assert(result == expected);
     EXPECT_TRUE(result == expected);
@@ -73,8 +73,8 @@ TEST_F(ConstBigIntShift_tests, shiftRightProducesZeroWhenShiftingMoreThanSize)
 
 TEST_F(ConstBigIntShift_tests, canShiftRightAndLoseLeastSignificantDigit)
 {
-    constexpr ConstBigInt b = make_bigint<0, 0, 1>();
-    constexpr ConstBigInt expected = make_bigint<0, 1>();
+    constexpr ConstBigInt b = bigint_v<0, 0, 1>;
+    constexpr ConstBigInt expected = bigint_v<0, 1>;
     constexpr auto result = b >> shift_v<bigint_base_t_size_bits>;
     static_assert(result == expected);
     EXPECT_TRUE(result == expected);
