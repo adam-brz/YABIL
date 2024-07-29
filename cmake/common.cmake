@@ -135,8 +135,6 @@ function(add_test_target TARGET)
 
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         target_compile_options(${TEST_TARGET} PRIVATE -fconstexpr-backtrace-limit=0 -fconstexpr-steps=4194304)
-    elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-        target_compile_options(${TEST_TARGET} PRIVATE -fconstexpr-steps=4194304)
     elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
         target_compile_options(${TEST_TARGET} PRIVATE /constexpr:steps4194304)
     endif()
