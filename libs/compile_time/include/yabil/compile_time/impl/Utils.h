@@ -1,6 +1,6 @@
 #pragma once
 
-#include <yabil/compile_time/BigIntData.h>
+#include <yabil/compile_time/detail/BigIntData.h>
 
 #include <algorithm>
 #include <cstddef>
@@ -18,12 +18,6 @@ consteval bigint_base_t get_digit(const std::size_t idx, BigIntData<DataSize> da
         return data[idx];
     }
     return 0;
-}
-
-inline consteval auto normalize(const auto &number_data)
-{
-    return std::ranges::reverse_view(std::ranges::drop_while_view(std::ranges::reverse_view(number_data),
-                                                                  [](const auto &digit) { return digit == 0; }));
 }
 
 template <std::size_t DataSize, BigIntData<DataSize> Data>
@@ -47,7 +41,7 @@ inline consteval auto normalize()
     constexpr auto new_size = normalized_size<DataSize, Data>();
     if constexpr (new_size == 0)
     {
-        return BigIntData<1>{};
+        return BigIntData<1>{0};
     }
     else
     {

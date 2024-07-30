@@ -1,20 +1,23 @@
 project(compile_time C CXX)
 
 set(HEADERS
-    include/yabil/compile_time/BigIntData.h
     include/yabil/compile_time/ConstBigInt.h
     include/yabil/compile_time/Literals.h
     include/yabil/compile_time/Math.h
 
-    include/yabil/compile_time/operators/ArithmeticOperators.h
-    include/yabil/compile_time/operators/BitwiseOperators.h
-    include/yabil/compile_time/operators/RelationOperators.h
+    include/yabil/compile_time/detail/BigIntData.h
+    include/yabil/compile_time/detail/ConstBigInt.h
+    include/yabil/compile_time/detail/operators/ArithmeticOperators.h
+    include/yabil/compile_time/detail/operators/BitwiseOperators.h
+    include/yabil/compile_time/detail/operators/RelationOperators.h
 
-    include/yabil/compile_time/impl/ArithmeticOperatorsImpl.h
-    include/yabil/compile_time/impl/BitwiseOperatorsImpl.h
-    include/yabil/compile_time/impl/DivisionImpl.h
+    include/yabil/compile_time/impl/ConstBigIntImpl.h
     include/yabil/compile_time/impl/MakeConstBigInt.h
-    include/yabil/compile_time/impl/RelationOperatorsImpl.h
+    include/yabil/compile_time/impl/MathImpl.h
+    include/yabil/compile_time/impl/operators/ArithmeticOperatorsImpl.h
+    include/yabil/compile_time/impl/operators/BitwiseOperatorsImpl.h
+    include/yabil/compile_time/impl/operators/DivisionImpl.h
+    include/yabil/compile_time/impl/operators/RelationOperatorsImpl.h
     include/yabil/compile_time/impl/StringConversion.h
     include/yabil/compile_time/impl/Utils.h
 )

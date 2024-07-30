@@ -1,9 +1,9 @@
 #pragma once
 
-#include <yabil/compile_time/BigIntData.h>
-#include <yabil/compile_time/ConstBigInt.h>
-#include <yabil/compile_time/operators/BitwiseOperators.h>
+#include <yabil/compile_time/detail/ConstBigInt.h>
+#include <yabil/compile_time/detail/operators/BitwiseOperators.h>
 
+#include <algorithm>
 #include <cstddef>
 
 namespace yabil::compile_time

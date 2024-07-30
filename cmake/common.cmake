@@ -124,13 +124,11 @@ function(add_test_target TARGET)
     endif()
 
     set(TEST_TARGET ${TARGET}_tests)
-    set(EXCLUDE_TARGET_FROM_ALL "")
     if(${TARGET} MATCHES ".*_generated")
         string(REGEX REPLACE "(.*)_generated" "\\1" TARGET "${TARGET}")
-        set(EXCLUDE_TARGET_FROM_ALL "EXCLUDE_FROM_ALL")
     endif()
 
-    add_executable(${TEST_TARGET} ${EXCLUDE_TARGET_FROM_ALL} ${ARGN})
+    add_executable(${TEST_TARGET} ${ARGN})
     target_link_libraries(${TEST_TARGET} PRIVATE ${TARGET} GTest::gtest GTest::gtest_main)
 
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")

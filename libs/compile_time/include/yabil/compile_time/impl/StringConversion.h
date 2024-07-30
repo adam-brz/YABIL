@@ -1,17 +1,13 @@
 #pragma once
 
-#include <yabil/bigint/BigInt.h>
-#include <yabil/bigint/BigIntBase.h>
-#include <yabil/compile_time/BigIntData.h>
-#include <yabil/compile_time/ConstBigInt.h>
 #include <yabil/compile_time/Math.h>
+#include <yabil/compile_time/detail/ConstBigInt.h>
+#include <yabil/compile_time/impl/MakeConstBigInt.h>
 
 #include <cmath>
 
 namespace yabil::compile_time::impl
 {
-
-using bigint::Sign;
 
 template <char... Args>
 struct StrToConstBigIntConverter;

@@ -8,13 +8,9 @@
 namespace yabil::compile_time
 {
 
-using bigint::bigint_base_t;
-using bigint::Sign;
+using bigint_base_t = bigint::bigint_base_t;
 
 template <std::size_t InternalSize>
 using BigIntData = std::array<bigint_base_t, InternalSize>;
-
-template <Sign NumberSign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>
-class ConstBigInt;
 
 }  // namespace yabil::compile_time

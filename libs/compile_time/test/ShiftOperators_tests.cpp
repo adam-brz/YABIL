@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <yabil/bigint/BigIntBase.h>
-#include <yabil/compile_time/BigIntData.h>
 #include <yabil/compile_time/ConstBigInt.h>
 #include <yabil/compile_time/Literals.h>
+#include <yabil/compile_time/detail/BigIntData.h>
 
 #include <type_traits>
 

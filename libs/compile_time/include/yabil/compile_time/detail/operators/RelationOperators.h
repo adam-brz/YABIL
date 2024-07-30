@@ -1,7 +1,6 @@
 #pragma once
 
-#include <yabil/bigint/BigInt.h>
-#include <yabil/compile_time/BigIntData.h>
+#include <yabil/compile_time/detail/ConstBigInt.h>
 
 #include <cstddef>
 

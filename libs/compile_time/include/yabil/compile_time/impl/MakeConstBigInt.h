@@ -1,6 +1,6 @@
 #pragma once
 
-#include <yabil/compile_time/BigIntData.h>
+#include <yabil/compile_time/detail/ConstBigInt.h>
 #include <yabil/compile_time/impl/Utils.h>
 
 namespace yabil::compile_time

@@ -1,9 +1,6 @@
 #pragma once
 
-#include <yabil/compile_time/ConstBigInt.h>
 #include <yabil/compile_time/impl/StringConversion.h>
-
-#include <cmath>
 
 namespace yabil::compile_time::literals
 {

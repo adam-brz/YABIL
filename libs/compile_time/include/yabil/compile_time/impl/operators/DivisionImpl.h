@@ -1,10 +1,11 @@
+#pragma once
+
 #include <yabil/bigint/TypeUtils.h>
-#include <yabil/compile_time/BigIntData.h>
-#include <yabil/compile_time/ConstBigInt.h>
+#include <yabil/compile_time/detail/ConstBigInt.h>
+#include <yabil/compile_time/detail/operators/ArithmeticOperators.h>
 #include <yabil/compile_time/impl/MakeConstBigInt.h>
-#include <yabil/compile_time/impl/RelationOperatorsImpl.h>
 #include <yabil/compile_time/impl/Utils.h>
-#include <yabil/compile_time/operators/ArithmeticOperators.h>
+#include <yabil/compile_time/impl/operators/RelationOperatorsImpl.h>
 
 #include <algorithm>
 #include <bit>

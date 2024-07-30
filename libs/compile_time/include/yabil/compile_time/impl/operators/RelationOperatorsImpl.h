@@ -1,8 +1,8 @@
 #pragma once
 
-#include <yabil/compile_time/ConstBigInt.h>
+#include <yabil/compile_time/detail/ConstBigInt.h>
+#include <yabil/compile_time/detail/operators/RelationOperators.h>
 #include <yabil/compile_time/impl/Utils.h>
-#include <yabil/compile_time/operators/RelationOperators.h>
 
 #include <algorithm>
 #include <cstddef>
@@ -47,8 +47,16 @@ template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  /
 consteval bool operator==(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
                           const ConstBigInt<OtherSign, OtherSize, OtherData> &other)
 {
-    return (self.is_zero() && other.is_zero()) ||
-           (std::ranges::equal(impl::normalize(SelfData), impl::normalize(OtherData)) && SelfSign == OtherSign);
+    constexpr auto normalized_self = impl::normalize<SelfSize, SelfData>();
+    constexpr auto normalized_other = impl::normalize<OtherSize, OtherData>();
+    if constexpr (normalized_self.size() != normalized_other.size())
+    {
+        return false;
+    }
+    else
+    {
+        return (self.is_zero() && other.is_zero()) || (normalized_self == normalized_other && SelfSign == OtherSign);
+    }
 }
 
 template <Sign SelfSign, std::size_t SelfSize, BigIntData<SelfSize> SelfData,  //
