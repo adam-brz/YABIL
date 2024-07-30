@@ -59,7 +59,7 @@ jobs:
       - name: Run Clang-tidy
         run: |
           find libs -iname "*.cpp" -not -path "*/ParallelStdImpl.cpp" -or -iname "*.h" -print0 \
-            | parallel -0 clang-tidy -format-style=file -header-filter=.* -p build/Release {}
+            | parallel -0 clang-tidy -format-style=file -header-filter=.* -p build/Release -extra-arg=-I$(pwd)/libs/compile_time/include {}
 
       - name: Run CppLint
         run: cpplint $(find libs -iname *.cpp) $(find libs -iname *.h)

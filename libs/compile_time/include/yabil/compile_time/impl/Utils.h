@@ -11,7 +11,7 @@ namespace yabil::compile_time::impl
 {
 
 template <std::size_t DataSize>
-consteval bigint_base_t get_digit(const std::size_t idx, BigIntData<DataSize> data)
+constexpr bigint_base_t get_digit(const std::size_t idx, BigIntData<DataSize> data)
 {
     if (idx < DataSize)
     {
