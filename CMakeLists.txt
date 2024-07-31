@@ -6,10 +6,12 @@ include(cmake/common.cmake)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type" FORCE)
+    message(STATUS "Setting CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
 endif()
 
 if(NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD "20" CACHE STRING "Required c++ standard." FORCE)
+    message(STATUS "Setting CMAKE_CXX_STANDARD = ${CMAKE_CXX_STANDARD}")
 endif()
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
@@ -22,6 +24,11 @@ option(YABIL_ENABLE_NATIVE_OPTIMIZATIONS "Enable optimizations using native inst
 
 set(YABIL_BIGINT_BASE_TYPE "auto" CACHE STRING "Numeric type to use as number base.")
 set(CPACK_GENERATOR "ZIP" CACHE STRING "Generators to support. Semicolon delimited list.")
+
+if(YABIL_ENABLE_CUDA AND NOT CMAKE_CUDA_STANDARD)
+    set(CMAKE_CUDA_STANDARD "17" CACHE STRING "CUDA standard" FORCE)
+    message(STATUS "Setting CMAKE_CUDA_STANDARD = ${CMAKE_CUDA_STANDARD}")
+endif()
 
 setup_deps()
 setup_testing()

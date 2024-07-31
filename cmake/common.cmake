@@ -124,8 +124,18 @@ function(add_test_target TARGET)
     endif()
 
     set(TEST_TARGET ${TARGET}_tests)
+    if(${TARGET} MATCHES ".*_generated")
+        string(REGEX REPLACE "(.*)_generated" "\\1" TARGET "${TARGET}")
+    endif()
+
     add_executable(${TEST_TARGET} ${ARGN})
     target_link_libraries(${TEST_TARGET} PRIVATE ${TARGET} GTest::gtest GTest::gtest_main)
+
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        target_compile_options(${TEST_TARGET} PRIVATE -fconstexpr-backtrace-limit=0 -fconstexpr-steps=4194304)
+    elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+        target_compile_options(${TEST_TARGET} PRIVATE /constexpr:steps4194304)
+    endif()
 
     if(YABIL_ENABLE_CUDA)
         target_link_libraries(${TEST_TARGET} PRIVATE CUDA::cudart)
@@ -138,6 +148,14 @@ endfunction()
 function(setup_test_target TEST_TARGET)
     if (MSVC)
         set_target_properties(${TEST_TARGET} PROPERTIES LINK_FLAGS "/ignore:4099")
+    elseif(APPLE)
+        if(CMAKE_BUILD_TYPE STREQUAL "Release")
+            add_custom_command(
+                TARGET ${TEST_TARGET} POST_BUILD
+                COMMAND ${CMAKE_STRIP}
+                ARGS -nu $<TARGET_FILE:${TEST_TARGET}>
+            )
+        endif()
     else()
         if(CMAKE_BUILD_TYPE STREQUAL "Release")
             add_custom_command(

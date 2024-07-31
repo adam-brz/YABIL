@@ -1,4 +1,5 @@
 add_subdirectory(utils)
+add_subdirectory(compile_time)
 add_subdirectory(bigint)
 add_subdirectory(math)
 add_subdirectory(crypto)
