@@ -37,5 +37,5 @@ TEST_F(MathSqrt_tests, sqrtAcceptanceTests)
 
 TEST_F(MathSqrt_tests, sqrtOfNegativeShouldThrow)
 {
-    ASSERT_THROW({ sqrt(BigInt(-1)); }, std::invalid_argument);
+    ASSERT_THROW({ std::ignore = sqrt(BigInt(-1)); }, std::invalid_argument);
 }

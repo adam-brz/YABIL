@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <ranges>
 
 namespace yabil::compile_time::impl
 {

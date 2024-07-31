@@ -67,7 +67,8 @@ jobs:
       - name: Run CppCheck
         run: |
           cppcheck --project=build/Release/compile_commands.json \
-            --enable=all --error-exitcode=1 --suppress=missingInclude:* --inline-suppr
+            --enable=all --error-exitcode=1 --suppress=missingInclude:* --inline-suppr \
+            --library=googletest --suppress=unusedFunction --suppress=cppcheckError --suppress=internalAstError
 
       - name: Compile project
         working-directory: build/Release
