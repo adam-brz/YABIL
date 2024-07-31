@@ -1,7 +1,13 @@
 #pragma once
 
+#include <yabil/bigint/BigInt.h>
+#include <yabil/compile_time/detail/BigIntData.h>
 #include <yabil/compile_time/detail/ConstBigInt.h>
 #include <yabil/compile_time/impl/Utils.h>
+
+#include <concepts>
+#include <cstddef>
+#include <type_traits>
 
 namespace yabil::compile_time
 {
@@ -38,7 +44,7 @@ consteval bool ConstBigInt<NumberSign, InternalSize, InternalData>::get_bit()
 template <Sign NumberSign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>
 consteval bool ConstBigInt<NumberSign, InternalSize, InternalData>::is_zero()
 {
-    return std::ranges::all_of(InternalData, [](const auto &digit) { return digit == 0; });
+    return std::all_of(InternalData.cbegin(), InternalData.cend(), [](const auto &digit) { return digit == 0; });
 }
 
 template <Sign NumberSign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>
@@ -85,4 +91,5 @@ ConstBigInt<NumberSign, InternalSize, InternalData>::operator bigint::BigInt() c
 {
     return to_bigint();
 }
+
 }  // namespace yabil::compile_time
