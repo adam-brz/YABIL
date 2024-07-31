@@ -35,7 +35,7 @@ RUN apt-get install -y libc6-dbg
 
 RUN apt-get install -y bison flex
 
-RUN git clone --branch "Release_1_9_6" --depth 1 https://github.com/doxygen/doxygen.git; \
+RUN git clone --branch "Release_1_11_0" --depth 1 https://github.com/doxygen/doxygen.git; \
     cd doxygen; \
     cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release; \
     cmake --build . --target install -j $(nproc); \
