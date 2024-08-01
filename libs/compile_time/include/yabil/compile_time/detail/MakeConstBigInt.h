@@ -20,7 +20,9 @@ template <Sign sign, std::size_t InternalSize, BigIntData<InternalSize> Internal
 static inline consteval auto make_bigint()
 {
     constexpr auto normalized_data = impl::normalize<InternalSize, InternalData>();
-    return ConstBigInt<sign, normalized_data.size(), normalized_data>();
+    constexpr bool is_zero = normalized_data.size() <= 1 && impl::get_digit(0, normalized_data) == 0;
+    constexpr auto new_sign = is_zero ? Sign::Plus : sign;
+    return ConstBigInt<new_sign, normalized_data.size(), normalized_data>();
 }
 
 /// @brief Creates a positive compile-time big integer number.
