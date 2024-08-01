@@ -81,6 +81,20 @@ consteval OutType ConstBigInt<NumberSign, InternalSize, InternalData>::to()
 }
 
 template <Sign NumberSign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>
+template <std::signed_integral OutType>
+consteval OutType ConstBigInt<NumberSign, InternalSize, InternalData>::is()
+{
+    return is<std::make_unsigned_t<OutType>>() && !get_bit(sizeof(OutType) * 8 - 1);
+}
+
+template <Sign NumberSign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>
+template <std::unsigned_integral OutType>
+consteval OutType ConstBigInt<NumberSign, InternalSize, InternalData>::is()
+{
+    return byte_size() <= sizeof(OutType);
+}
+
+template <Sign NumberSign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>
 bigint::BigInt ConstBigInt<NumberSign, InternalSize, InternalData>::to_bigint()
 {
     return bigint::BigInt(data, sign);
