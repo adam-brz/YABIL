@@ -1,7 +1,7 @@
 #pragma once
 
 #include <yabil/compile_time/detail/ConstBigInt.h>
-#include <yabil/compile_time/impl/MakeConstBigInt.h>
+#include <yabil/compile_time/detail/MakeConstBigInt.h>
 
 #include <cstddef>
 

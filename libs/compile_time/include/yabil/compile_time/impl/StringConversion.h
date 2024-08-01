@@ -2,9 +2,7 @@
 
 #include <yabil/compile_time/Math.h>
 #include <yabil/compile_time/detail/ConstBigInt.h>
-#include <yabil/compile_time/impl/MakeConstBigInt.h>
-
-#include <cmath>
+#include <yabil/compile_time/detail/MakeConstBigInt.h>
 
 namespace yabil::compile_time::impl
 {
