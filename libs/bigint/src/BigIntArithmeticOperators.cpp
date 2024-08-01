@@ -1,7 +1,7 @@
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/BigIntGlobalConfig.h>
 #include <yabil/bigint/Parallel.h>
-#include <yabil/bigint/TypeUtils.h>
+#include <yabil/utils/TypeUtils.h>
 
 #include <algorithm>
 #include <bit>
@@ -10,8 +10,7 @@
 
 #include "Arithmetic.h"
 #include "add_sub/AddSub.h"
-
-using namespace yabil::type_utils;
+#include "yabil/utils/TypeUtils.h"
 
 namespace yabil::bigint
 {
@@ -113,12 +112,12 @@ std::pair<BigInt, BigInt> BigInt::base_div(const BigInt &other) const
     for (int i = m - 1; i >= 0; --i)
     {
         const auto top_two_digits =
-            (static_cast<double_width_t<bigint_base_t>>(A.data[n + i]) << bigint_base_t_size_bits) |
-            static_cast<double_width_t<bigint_base_t>>(A.data[n + i - 1]);
+            (static_cast<utils::double_width_t<bigint_base_t>>(A.data[n + i]) << bigint_base_t_size_bits) |
+            static_cast<utils::double_width_t<bigint_base_t>>(A.data[n + i - 1]);
 
         const auto quotient_part = top_two_digits / B.data[n - 1];
-        auto q_i =
-            std::min(quotient_part, (static_cast<double_width_t<bigint_base_t>>(1) << bigint_base_t_size_bits) - 1);
+        auto q_i = std::min(quotient_part,
+                            (static_cast<utils::double_width_t<bigint_base_t>>(1) << bigint_base_t_size_bits) - 1);
         A -= (BigInt(q_i) * B) << (digit_bit_size * i);
         while (A.is_negative())
         {
@@ -190,7 +189,7 @@ BigInt BigInt::operator%(const BigInt &other) const
     }
 
     if (other.data.size() == 1 && other.sign == Sign::Plus &&
-        other.data.front() < std::numeric_limits<half_width_t<bigint_base_t>>::max())
+        other.data.front() < std::numeric_limits<utils::half_width_t<bigint_base_t>>::max())
     {
         return BigInt((*this) % other.data.front());
     }
@@ -210,7 +209,7 @@ bigint_base_t BigInt::operator%(bigint_base_t other) const
     {
         const bigint_base_t digit = *it;
         constexpr auto shift_val = bigint_base_t_size_bits / 2;
-        constexpr auto mask = std::numeric_limits<half_width_t<bigint_base_t>>::max();
+        constexpr auto mask = std::numeric_limits<utils::half_width_t<bigint_base_t>>::max();
         ret = ((ret << shift_val) | ((digit >> shift_val) & mask)) % other;
         ret = ((ret << shift_val) | (digit & mask)) % other;
     }

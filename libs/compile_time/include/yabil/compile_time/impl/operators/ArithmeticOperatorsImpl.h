@@ -1,12 +1,12 @@
 #pragma once
 
-#include <yabil/bigint/TypeUtils.h>
 #include <yabil/compile_time/detail/ConstBigInt.h>
 #include <yabil/compile_time/detail/operators/ArithmeticOperators.h>
 #include <yabil/compile_time/impl/MakeConstBigInt.h>
 #include <yabil/compile_time/impl/Utils.h>
 #include <yabil/compile_time/impl/operators/DivisionImpl.h>
 #include <yabil/compile_time/impl/operators/RelationOperatorsImpl.h>
+#include <yabil/utils/TypeUtils.h>
 
 #include <algorithm>
 #include <array>
@@ -79,11 +79,11 @@ consteval auto mul_unsigned()
     std::array<base_t, result_size> result{};
     for (std::size_t i = 0; i < SelfSize; ++i)
     {
-        type_utils::double_width_t<base_t> carry = 0;
+        utils::double_width_t<base_t> carry = 0;
         std::size_t j;
         for (j = 0; j < OtherSize; ++j)
         {
-            carry += result[i + j] + type_utils::safe_mul(get_digit(j, OtherData), get_digit(i, SelfData));
+            carry += result[i + j] + utils::safe_mul(get_digit(j, OtherData), get_digit(i, SelfData));
             result[i + j] = static_cast<base_t>(carry);
             carry >>= sizeof(base_t) * 8;
         }
