@@ -1,8 +1,8 @@
 #include "Arithmetic.h"
 
 #include <yabil/bigint/BigIntGlobalConfig.h>
-#include <yabil/bigint/TypeUtils.h>
 #include <yabil/utils/IterUtils.h>
+#include <yabil/utils/TypeUtils.h>
 
 #include <algorithm>
 #include <cassert>
@@ -10,8 +10,6 @@
 #include <vector>
 
 #include "add_sub/AddSub.h"
-
-using namespace yabil::type_utils;
 
 namespace yabil::bigint
 {
@@ -76,11 +74,11 @@ std::vector<bigint_base_t> mul_basecase(std::span<bigint_base_t const> a, std::s
 
     for (std::size_t i = 0; i < shorter->size(); ++i)
     {
-        double_width_t<bigint_base_t> carry = 0;
+        utils::double_width_t<bigint_base_t> carry = 0;
         std::size_t j;
         for (j = 0; j < longer->size(); ++j)
         {
-            carry += result[i + j] + safe_mul((*longer)[j], (*shorter)[i]);
+            carry += result[i + j] + utils::safe_mul((*longer)[j], (*shorter)[i]);
             result[i + j] = static_cast<bigint_base_t>(carry);
             carry >>= bigint_base_t_size_bits;
         }

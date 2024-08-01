@@ -11,6 +11,7 @@ set(HEADERS
     include/yabil/utils/IterUtils.h
     include/yabil/utils/ThreadPool.h
     include/yabil/utils/ThreadPoolSingleton.h
+    include/yabil/utils/TypeUtils.h
 )
 
 set(TESTS

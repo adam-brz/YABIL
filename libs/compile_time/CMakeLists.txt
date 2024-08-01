@@ -45,7 +45,7 @@ set(GENERATED_TESTS
 )
 
 add_library(${PROJECT_NAME} INTERFACE)
-target_link_libraries(${PROJECT_NAME} INTERFACE bigint)
+target_link_libraries(${PROJECT_NAME} INTERFACE bigint utils)
 
 target_sources(${PROJECT_NAME}
     PUBLIC FILE_SET HEADERS

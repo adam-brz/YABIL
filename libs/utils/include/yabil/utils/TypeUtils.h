@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace yabil::type_utils
+namespace yabil::utils
 {
 
 template <class>
@@ -91,4 +91,4 @@ constexpr double_width_t<T> safe_mul(T v, Args... args)
     return static_cast<double_width_t<T>>(v) * safe_mul(args...);
 }
 
-}  // namespace yabil::type_utils
+}  // namespace yabil::utils

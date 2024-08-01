@@ -1,11 +1,11 @@
 #pragma once
 
-#include <yabil/bigint/TypeUtils.h>
 #include <yabil/compile_time/detail/ConstBigInt.h>
 #include <yabil/compile_time/detail/operators/ArithmeticOperators.h>
 #include <yabil/compile_time/impl/MakeConstBigInt.h>
 #include <yabil/compile_time/impl/Utils.h>
 #include <yabil/compile_time/impl/operators/RelationOperatorsImpl.h>
+#include <yabil/utils/TypeUtils.h>
 
 #include <algorithm>
 #include <bit>
@@ -54,13 +54,13 @@ consteval auto div_recursive_iter(BigIntData<OutSize> &q)
     else
     {
         constexpr auto top_two_digits =
-            (static_cast<type_utils::double_width_t<bigint_base_t>>(AData[n + i]) << bigint_base_t_size_bits) |
-            static_cast<type_utils::double_width_t<bigint_base_t>>(AData[n + i - 1]);
+            (static_cast<utils::double_width_t<bigint_base_t>>(AData[n + i]) << bigint_base_t_size_bits) |
+            static_cast<utils::double_width_t<bigint_base_t>>(AData[n + i - 1]);
 
         constexpr auto quotient_part = top_two_digits / OtherData[n - 1];
 
         constexpr bigint_base_t q_i = static_cast<bigint_base_t>(std::min(
-            quotient_part, (static_cast<type_utils::double_width_t<bigint_base_t>>(1) << bigint_base_t_size_bits) - 1));
+            quotient_part, (static_cast<utils::double_width_t<bigint_base_t>>(1) << bigint_base_t_size_bits) - 1));
 
         constexpr auto A = make_bigint<ASize, AData>();
         constexpr auto B = make_bigint<OtherSize, OtherData>();

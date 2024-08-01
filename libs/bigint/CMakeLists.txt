@@ -22,7 +22,6 @@ set(HEADERS
     include/yabil/bigint/BigIntGlobalConfig.h
     include/yabil/bigint/Parallel.h
     include/yabil/bigint/Thresholds.h
-    include/yabil/bigint/TypeUtils.h
 )
 
 set(TESTS
