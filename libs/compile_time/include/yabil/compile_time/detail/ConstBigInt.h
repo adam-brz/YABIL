@@ -87,6 +87,12 @@ public:
     /// @return True if the number can be safely converted to the specified type, false otherwise.
     template <std::unsigned_integral OutType>
     static consteval OutType is();
+
+    /// @brief Convert number to string.
+    /// @tparam Base Base of the number.
+    /// @return The number converted to string.
+    template <std::size_t Base>
+    static consteval auto to_str();
 };
 
 }  // namespace yabil::compile_time

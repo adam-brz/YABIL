@@ -3,8 +3,10 @@
 #include <yabil/bigint/BigInt.h>
 #include <yabil/compile_time/detail/BigIntData.h>
 #include <yabil/compile_time/detail/ConstBigInt.h>
+#include <yabil/compile_time/detail/MakeConstBigInt.h>
 #include <yabil/compile_time/impl/Utils.h>
 
+#include <array>
 #include <bit>
 #include <concepts>
 #include <cstddef>
@@ -12,6 +14,42 @@
 
 namespace yabil::compile_time
 {
+
+namespace impl
+{
+
+constexpr char get_digit_char(int digit)
+{
+    if (digit >= 10 && digit <= 16) return static_cast<char>(digit + 'a' - 10);
+    return static_cast<char>(digit + '0');
+}
+
+template <std::size_t Base, Sign NumberSign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>
+constexpr auto to_string()
+{
+    // TODO: Implement this function
+    // constexpr auto number = make_bigint<InternalSize, InternalData>();
+    std::array<char, 10> d{};
+    // int i = 0;
+
+    // do
+    // {
+    //     const auto quotient = number / bigint_v<Base>;
+    //     const auto remainder = number % bigint_v<Base>;
+    //     number = quotient;
+    //     d[i++] = get_digit_char(static_cast<int>(remainder.template to<char>()));
+    // } while (!number.is_zero());
+
+    // if (NumberSign == Sign::Minus)
+    // {
+    //     d[i] = '-';
+    // }
+
+    // std::reverse(d.begin(), d.end());
+    return d;
+}
+
+}  // namespace impl
 
 template <Sign NumberSign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>
 consteval std::size_t ConstBigInt<NumberSign, InternalSize, InternalData>::real_size()
@@ -106,6 +144,20 @@ template <Sign NumberSign, std::size_t InternalSize, BigIntData<InternalSize> In
 ConstBigInt<NumberSign, InternalSize, InternalData>::operator bigint::BigInt() const
 {
     return to_bigint();
+}
+
+template <Sign NumberSign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>
+template <std::size_t Base>
+consteval auto ConstBigInt<NumberSign, InternalSize, InternalData>::to_str()
+{
+    if constexpr (is_zero())
+    {
+        return std::array<char, 1>{'0'};
+    }
+    else
+    {
+        impl::to_string<Base, NumberSign, InternalSize, InternalData>();
+    }
 }
 
 }  // namespace yabil::compile_time
