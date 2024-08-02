@@ -2,6 +2,7 @@
 #include <yabil/bigint/BigIntBase.h>
 #include <yabil/compile_time/ConstBigInt.h>
 #include <yabil/compile_time/Literals.h>
+#include <yabil/compile_time/detail/operators/RelationOperators.h>
 
 namespace yabil::compile_time
 {
@@ -169,6 +170,29 @@ TEST_F(ConstBigIntComparisonTests, veryLargeNumberGreaterThan)
     constexpr auto num1 = 436893488147419103232_bi;
     constexpr auto num2 = -918446744073709551616_bi;
     EXPECT_TRUE(num1 > num2);
+}
+
+TEST_F(ConstBigIntComparisonTests, comparisonOfAbsoluteValues)
+{
+    {
+        constexpr auto num1 = 436893488147419103232_bi;
+        constexpr auto num2 = -436893488147419103232_bi;
+        EXPECT_FALSE(abs_greater(num1, num2));
+        EXPECT_FALSE(abs_lower(num1, num2));
+    }
+    {
+        constexpr auto num1 = -436893488147419103232_bi;
+        constexpr auto num2 = -436893488147419103232_bi;
+        EXPECT_FALSE(abs_greater(num1, num2));
+        EXPECT_FALSE(abs_lower(num1, num2));
+    }
+
+    {
+        constexpr auto num1 = -436893488147419103232_bi;
+        constexpr auto num2 = 436893488147419103231_bi;
+        EXPECT_TRUE(abs_greater(num1, num2));
+        EXPECT_FALSE(abs_lower(num1, num2));
+    }
 }
 
 }  // namespace yabil::compile_time

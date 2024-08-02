@@ -45,6 +45,38 @@ TEST_F(ConstBigIntConversion_tests, canConvertToSignedNumber)
     EXPECT_EQ(b.to<int8_t>(), 111);  // overflow
 }
 
+TEST_F(ConstBigIntConversion_tests, canCheckIfConversionIsSafe)
+{
+    {
+        constexpr auto b = bigint_v<145>;
+        EXPECT_TRUE(b.is<uint64_t>());
+        EXPECT_TRUE(b.is<uint16_t>());
+        EXPECT_TRUE(b.is<uint8_t>());
+        EXPECT_FALSE(b.is<int8_t>());
+    }
+    {
+        constexpr auto b = bigint_v<256>;
+        EXPECT_TRUE(b.is<uint64_t>());
+        EXPECT_TRUE(b.is<uint16_t>());
+        EXPECT_FALSE(b.is<uint8_t>());
+        EXPECT_FALSE(b.is<int8_t>());
+    }
+    {
+        constexpr auto b = bigint_v<1, 1>;
+        EXPECT_FALSE(b.is<uint64_t>());
+        EXPECT_FALSE(b.is<uint16_t>());
+        EXPECT_FALSE(b.is<uint8_t>());
+        EXPECT_FALSE(b.is<int8_t>());
+    }
+    {
+        constexpr auto b = bigint_v<0>;
+        EXPECT_TRUE(b.is<uint64_t>());
+        EXPECT_TRUE(b.is<uint16_t>());
+        EXPECT_TRUE(b.is<uint8_t>());
+        EXPECT_TRUE(b.is<int8_t>());
+    }
+}
+
 TEST_F(ConstBigIntConversion_tests, canConvertToRuntimeBigint)
 {
     bigint::BigInt a = 1024_bi * 1024_bi * 1024_bi;

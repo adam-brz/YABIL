@@ -5,6 +5,7 @@
 #include <yabil/compile_time/detail/ConstBigInt.h>
 #include <yabil/compile_time/impl/Utils.h>
 
+#include <bit>
 #include <concepts>
 #include <cstddef>
 #include <type_traits>
@@ -84,14 +85,15 @@ template <Sign NumberSign, std::size_t InternalSize, BigIntData<InternalSize> In
 template <std::signed_integral OutType>
 consteval OutType ConstBigInt<NumberSign, InternalSize, InternalData>::is()
 {
-    return is<std::make_unsigned_t<OutType>>() && !get_bit(sizeof(OutType) * 8 - 1);
+    return is<std::make_unsigned_t<OutType>>() && !get_bit<sizeof(OutType) * 8 - 1>();
 }
 
 template <Sign NumberSign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>
 template <std::unsigned_integral OutType>
 consteval OutType ConstBigInt<NumberSign, InternalSize, InternalData>::is()
 {
-    return byte_size() <= sizeof(OutType);
+    constexpr auto leading_zeroes = std::countl_zero(impl::get_digit(data.size() - 1, data));
+    return static_cast<int>(byte_size() * 8) - leading_zeroes <= static_cast<int>(sizeof(OutType) * 8);
 }
 
 template <Sign NumberSign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>

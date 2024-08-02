@@ -4,6 +4,8 @@
 #include <yabil/compile_time/detail/BigIntData.h>
 #include <yabil/compile_time/impl/Utils.h>
 
+#include "yabil/compile_time/detail/MakeConstBigInt.h"
+
 namespace yabil::compile_time
 {
 
@@ -51,6 +53,32 @@ TEST_F(ConstBigIntConstruction_tests, canNormalizeNumber)
         constexpr BigIntData<5> data{};
         constexpr auto normalized = impl::normalize<data.size(), data>();
         EXPECT_EQ(normalized.size(), 1);
+    }
+}
+
+TEST_F(ConstBigIntConstruction_tests, createBigIntFromDigits)
+{
+    {
+        constexpr auto a = bigint_v<1, 1, 1>;
+        EXPECT_FALSE(a.is_zero());
+        EXPECT_FALSE(a.is_negative());
+        EXPECT_EQ(a.real_size(), 3);
+    }
+    {
+        constexpr auto a = make_bigint<Sign::Minus, 1, 1, 1>();
+        EXPECT_FALSE(a.is_zero());
+        EXPECT_TRUE(a.is_negative());
+        EXPECT_EQ(a.real_size(), 3);
+    }
+}
+
+TEST_F(ConstBigIntConstruction_tests, zeroIsNormalizedToPositiveNumber)
+{
+    {
+        constexpr auto a = make_bigint<Sign::Minus, 0, 0, 0>();
+        EXPECT_TRUE(a.is_zero());
+        EXPECT_FALSE(a.is_negative());
+        EXPECT_EQ(a.real_size(), 0);
     }
 }
 
