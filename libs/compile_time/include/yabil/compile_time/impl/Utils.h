@@ -19,7 +19,7 @@ constexpr bigint_base_t get_digit(const std::size_t idx, const BigIntData<DataSi
     return 0;
 }
 
-template <std::size_t DataSize, BigIntData<DataSize> Data>
+template <typename DataType, std::size_t DataSize, std::array<DataType, DataSize> Data>
 inline consteval auto normalized_size()
 {
     std::size_t size = DataSize;
@@ -34,20 +34,32 @@ inline consteval auto normalized_size()
     return size;
 }
 
-template <std::size_t DataSize, BigIntData<DataSize> Data>
+template <typename DataType, std::size_t DataSize, std::array<DataType, DataSize> Data>
 inline consteval auto normalize()
 {
-    constexpr auto new_size = normalized_size<DataSize, Data>();
+    constexpr auto new_size = normalized_size<DataType, DataSize, Data>();
     if constexpr (new_size == 0)
     {
         return BigIntData<1>{0};
     }
     else
     {
-        BigIntData<new_size> normalized;
+        std::array<DataType, new_size> normalized;
         std::copy_n(Data.cbegin(), new_size, normalized.begin());
         return normalized;
     }
+}
+
+template <std::size_t DataSize, BigIntData<DataSize> Data>
+inline consteval auto normalized_size()
+{
+    return normalized_size<bigint_base_t, DataSize, Data>();
+}
+
+template <std::size_t DataSize, BigIntData<DataSize> Data>
+inline consteval auto normalize()
+{
+    return normalize<bigint_base_t, DataSize, Data>();
 }
 
 }  // namespace yabil::compile_time::impl

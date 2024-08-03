@@ -91,7 +91,7 @@ public:
     /// @brief Convert number to string.
     /// @tparam Base Base of the number.
     /// @return The number converted to string.
-    template <std::size_t Base>
+    template <std::size_t Base = 10>
     static consteval auto to_str();
 };
 

@@ -85,4 +85,55 @@ TEST_F(ConstBigIntConversion_tests, canConvertToRuntimeBigint)
     EXPECT_EQ(a_str, "1073741825");
 }
 
+TEST_F(ConstBigIntConversion_tests, canConvertToStringBase10)
+{
+    {
+        constexpr auto a = bigint_v<0>;
+        const std::string a_str = a.to_str().data();
+        EXPECT_EQ(a_str, "0");
+    }
+    {
+        constexpr auto a = 1073741825_bi;
+        const std::string a_str = a.to_str().data();
+        EXPECT_EQ(a_str, "1073741825");
+    }
+    {
+        constexpr auto a = -714917410421928_bi;
+        const std::string a_str = a.to_str().data();
+        EXPECT_EQ(a_str, "-714917410421928");
+    }
+    {
+        constexpr auto a = bigint_v<1, 1>;
+        const std::string a_str = a.to_str().data();
+        EXPECT_EQ(a_str, bigint::BigInt(a).to_str());
+    }
+}
+
+TEST_F(ConstBigIntConversion_tests, canConvertToStringDifferentBases)
+{
+    {
+        const std::string str = bigint_v<0>.to_str<2>().data();
+        EXPECT_EQ(str, "0");
+    }
+    {
+        const std::string str = bigint_v<0>.to_str<16>().data();
+        EXPECT_EQ(str, "0");
+    }
+    {
+        constexpr auto num = bigint_v<0, 1> - bigint_v<1>;
+        const std::string str = num.to_str<16>().data();
+        EXPECT_EQ(str, bigint::BigInt(num).to_str(16));
+    }
+    {
+        constexpr auto num = bigint_v<12, 1>;
+        const std::string str = num.to_str<2>().data();
+        EXPECT_EQ(str, bigint::BigInt(num).to_str(2));
+    }
+    {
+        constexpr auto num = bigint_v<12, 1>;
+        const std::string str = num.to_str<16>().data();
+        EXPECT_EQ(str, bigint::BigInt(num).to_str(16));
+    }
+}
+
 }  // namespace yabil::compile_time
