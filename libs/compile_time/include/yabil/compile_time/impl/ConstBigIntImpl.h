@@ -1,6 +1,7 @@
 #pragma once
 
 #include <yabil/bigint/BigInt.h>
+#include <yabil/compile_time/Math.h>
 #include <yabil/compile_time/detail/BigIntData.h>
 #include <yabil/compile_time/detail/ConstBigInt.h>
 #include <yabil/compile_time/detail/MakeConstBigInt.h>
@@ -24,29 +25,52 @@ constexpr char get_digit_char(int digit)
     return static_cast<char>(digit + '0');
 }
 
+template <std::size_t Base, std::size_t InternalSize, BigIntData<InternalSize> InternalData,
+          std::size_t StrSizeEstimate, int idx>
+constexpr auto digits_to_string(std::array<char, StrSizeEstimate> &output_string)
+{
+    constexpr auto number = make_bigint<InternalSize, InternalData>();
+    if constexpr (number.is_zero())
+    {
+        return idx;
+    }
+    else
+    {
+        constexpr auto quotient = number / bigint_v<Base>;
+        constexpr auto remainder = number % bigint_v<Base>;
+        output_string[idx] = get_digit_char(remainder.template to<int>());
+        return digits_to_string<Base, quotient.data.size(), quotient.data, StrSizeEstimate, idx + 1>(output_string);
+    }
+}
+
+template <std::size_t Base, Sign NumberSign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>
+constexpr auto to_oversized_reversed_string()
+{
+    // Estimate can be much larger than actual size - do not care
+    constexpr auto str_size_estimate =
+        bigint_base_t_size_bits * InternalSize / math::log2_int<1, bigint_v<Base>.data>() +
+        3;  // 3 for minus sign, null character and possible rounding
+
+    std::array<char, str_size_estimate> number_characters{};
+
+    constexpr int start_index = 1;  // First char is NULL - will be transformed to end of number string later
+    int i = digits_to_string<Base, InternalSize, InternalData, str_size_estimate, start_index>(number_characters);
+
+    if (NumberSign == Sign::Minus)
+    {
+        number_characters[i] = '-';
+    }
+
+    return number_characters;
+}
+
 template <std::size_t Base, Sign NumberSign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>
 constexpr auto to_string()
 {
-    // TODO: Implement this function
-    // constexpr auto number = make_bigint<InternalSize, InternalData>();
-    std::array<char, 10> d{};
-    // int i = 0;
-
-    // do
-    // {
-    //     const auto quotient = number / bigint_v<Base>;
-    //     const auto remainder = number % bigint_v<Base>;
-    //     number = quotient;
-    //     d[i++] = get_digit_char(static_cast<int>(remainder.template to<char>()));
-    // } while (!number.is_zero());
-
-    // if (NumberSign == Sign::Minus)
-    // {
-    //     d[i] = '-';
-    // }
-
-    // std::reverse(d.begin(), d.end());
-    return d;
+    constexpr auto oversized_str = to_oversized_reversed_string<Base, NumberSign, InternalSize, InternalData>();
+    auto trimmed_str = impl::normalize<char, oversized_str.size(), oversized_str>();
+    std::reverse(trimmed_str.begin(), trimmed_str.end());
+    return trimmed_str;
 }
 
 }  // namespace impl
@@ -152,11 +176,11 @@ consteval auto ConstBigInt<NumberSign, InternalSize, InternalData>::to_str()
 {
     if constexpr (is_zero())
     {
-        return std::array<char, 1>{'0'};
+        return std::array<char, 2>{'0', '\0'};
     }
     else
     {
-        impl::to_string<Base, NumberSign, InternalSize, InternalData>();
+        return impl::to_string<Base, NumberSign, InternalSize, InternalData>();
     }
 }
 
