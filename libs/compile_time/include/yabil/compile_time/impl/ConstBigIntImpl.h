@@ -55,7 +55,7 @@ constexpr auto to_oversized_reversed_string()
     constexpr int start_index = 1;  // First char is NULL - will be transformed to end of number string later
     int i = digits_to_string<Base, InternalSize, InternalData, str_size_estimate, start_index>(number_characters);
 
-    if (NumberSign == Sign::Minus)
+    if constexpr (NumberSign == Sign::Minus)
     {
         number_characters[i] = '-';
     }
