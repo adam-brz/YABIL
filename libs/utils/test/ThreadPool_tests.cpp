@@ -65,28 +65,6 @@ TEST_F(ThreadPool_tests, canRunMultipleTasks)
     EXPECT_EQ(a, task_count);
 }
 
-TEST_F(ThreadPool_tests, smartRunWorks)
-{
-    constexpr int iters = 1000;
-
-    ThreadPool pool(1);
-    std::vector<std::future<void>> results;
-    results.reserve(iters);
-
-    std::atomic<int> a = 0;
-    for (int i = 0; i < iters; ++i)
-    {
-        results.push_back(pool.run_task([&]() { ++a; }));
-    }
-
-    for (auto &result : results)
-    {
-        result.wait();
-    }
-
-    EXPECT_EQ(a, iters);
-}
-
 TEST_F(ThreadPool_tests, canResizeThreadPool)
 {
     ThreadPool pool(2);
@@ -116,7 +94,7 @@ TEST_F(ThreadPool_tests, canUseManyThreadPools)
 {
     std::vector<ThreadPool> pools(4);
     std::vector<std::future<void>> results;
-    int a = 0;
+    std::atomic<int> a = 0;
 
     for (int i = 0; i < 100; ++i)
     {

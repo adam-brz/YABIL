@@ -107,15 +107,15 @@ std::vector<bigint_base_t> parallel_karatsuba(std::span<bigint_base_t const> a, 
 
     auto &thread_pool = utils::ThreadPoolSingleton::instance();
 
-    auto w_z0 = thread_pool.run_task([&]() { return parallel_karatsuba(low1, low2); });
-    auto w_z1 = thread_pool.run_task(
+    auto w_z0 = thread_pool.submit([&]() { return karatsuba_mul(low1, low2); });
+    auto w_z1 = thread_pool.submit(
         [&]()
         {
             const auto lh1 = plain_add(low1, high1);
             const auto lh2 = plain_add(low2, high2);
-            return parallel_karatsuba(lh1, lh2);
+            return karatsuba_mul(lh1, lh2);
         });
-    auto w_z2 = thread_pool.run_task([&]() { return parallel_karatsuba(high1, high2); });
+    auto w_z2 = thread_pool.submit([&]() { return karatsuba_mul(high1, high2); });
 
     const auto z0 = BigInt(w_z0.get());
     const auto z1 = BigInt(w_z1.get());

@@ -9,6 +9,7 @@
 #include <list>
 #include <mutex>
 #include <thread>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -20,13 +21,21 @@ namespace yabil::utils
 class ThreadPool
 {
 private:
+    enum class ThreadStatus
+    {
+        Running,
+        Stopped
+    };
+
+private:
     std::vector<std::thread> threads;
+    std::unordered_map<std::thread::id, ThreadStatus> thread_statuses;
     std::list<FunctionWrapper> tasks;
 
     std::atomic<bool> should_stop = false;
-    std::atomic<unsigned> currently_running = 0;
     std::condition_variable task_ready;
     std::mutex task_mutex;
+    std::mutex thread_status_mutex;
 
 public:
     /// @brief Creates ThreadPool instance with given concurrency.
@@ -54,6 +63,9 @@ public:
     /// @brief Stops all threads from the pool.
     YABIL_UTILS_EXPORT void stop();
 
+    /// @brief Wait until all threads are stopped.
+    YABIL_UTILS_EXPORT void wait_stopped();
+
     /// @brief Resize thread pool to given number of threads.
     /// @details Costly operation, use only when really needed.
     /// @param new_size New number of threads
@@ -70,34 +82,13 @@ public:
         std::packaged_task<ReturnType()> task(std::move(func));
         auto future = task.get_future();
 
-        task_mutex.lock();
-        tasks.emplace_back(std::move(task));
-        task_mutex.unlock();
+        {
+            const std::lock_guard lock(task_mutex);
+            tasks.emplace_back(std::move(task));
+        }
 
         task_ready.notify_one();
         return future;
-    }
-
-    /// @brief Submit task for execution if free thread is available. Otherwise execute function in current thread.
-    /// @tparam FunctionType Type of function to submit
-    /// @param func Function to submit
-    /// @return \p std::future for getting function execution results
-    template <typename FunctionType>
-    auto run_task(FunctionType func)
-    {
-        std::unique_lock guard(task_mutex);
-
-        if (tasks.size() < thread_count() && currently_running_tasks_count() < thread_count())
-        {
-            using ReturnType = std::invoke_result_t<FunctionType>;
-            std::packaged_task<ReturnType()> task(std::move(func));
-            auto future = task.get_future();
-            tasks.emplace_back(std::move(task));
-            task_ready.notify_one();
-            return future;
-        }
-
-        return std::async(std::launch::deferred, func);
     }
 
 private:
