@@ -1,8 +1,8 @@
 #pragma once
 
-#include <yabil/compile_time/Math.h>
 #include <yabil/compile_time/detail/ConstBigInt.h>
 #include <yabil/compile_time/detail/MakeConstBigInt.h>
+#include <yabil/compile_time/impl/MathImpl.h>
 
 namespace yabil::compile_time::impl
 {
@@ -59,9 +59,9 @@ struct StrToConstBigIntConverter<First, Second, Args...>
 
             constexpr auto raw_conversion_result =
                 StrToConstBigIntConverter<First>::template convert<base>() *
-                    math::pow<sizeof...(Args) + 1, sign, base_data.size(), base_data>() +
+                    math::impl::pow<sizeof...(Args) + 1, sign, base_data.size(), base_data>() +
                 StrToConstBigIntConverter<Second>::template convert<base>() *
-                    math::pow<sizeof...(Args), sign, base_data.size(), base_data>() +
+                    math::impl::pow<sizeof...(Args), sign, base_data.size(), base_data>() +
                 StrToConstBigIntConverter<Args...>::template convert<base>();
 
             return make_bigint<sign, raw_conversion_result.data.size(), raw_conversion_result.data>();

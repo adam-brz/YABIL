@@ -14,11 +14,12 @@ namespace impl
 {
 
 template <std::size_t Pow, std::size_t NumberSize, BigIntData<NumberSize> NumberData>
-consteval auto pow_recursive()
+consteval auto pow_unsigned()
 {
     constexpr auto number = make_bigint<NumberSize, NumberData>();
     if constexpr (Pow == 0)
     {
+        static_assert(!number.is_zero(), "0 to 0 exponent is undefined.");
         return make_bigint<Sign::Plus, 1>();
     }
     else if constexpr (Pow == 1)
@@ -28,12 +29,12 @@ consteval auto pow_recursive()
     else if constexpr (Pow % 2 == 0)
     {
         constexpr auto numberSquaredData = (number * number).data;
-        return pow_recursive<Pow / 2, numberSquaredData.size(), numberSquaredData>();
+        return pow_unsigned<Pow / 2, numberSquaredData.size(), numberSquaredData>();
     }
     else
     {
         constexpr auto numberSquaredData = (number * number).data;
-        return pow_recursive<Pow / 2, numberSquaredData.size(), numberSquaredData>() * number;
+        return pow_unsigned<Pow / 2, numberSquaredData.size(), numberSquaredData>() * number;
     }
 }
 
@@ -65,13 +66,11 @@ constexpr uint64_t compute_raw_fraction_for_log2()
     return (raw_fraction >> 12) | 0x3ff0000000000000;
 }
 
-}  // namespace impl
-
 template <std::size_t Pow, Sign NumberSign, std::size_t NumberSize, BigIntData<NumberSize> NumberData>
 consteval auto pow()
 {
     constexpr auto sign = (Pow % 2 == 0) ? Sign::Plus : NumberSign;
-    constexpr auto powData = impl::pow_recursive<Pow, NumberSize, NumberData>().data;
+    constexpr auto powData = impl::pow_unsigned<Pow, NumberSize, NumberData>().data;
     return make_bigint<sign, powData.size(), powData>();
 }
 
@@ -87,18 +86,36 @@ consteval uint64_t log2_int()
     return bit_size + last_one_pos - 1;
 }
 
-template <std::size_t NumberSize, BigIntData<NumberSize> NumberData>
-consteval double log2()
+}  // namespace impl
+
+template <std::size_t Pow, Sign NumberSign, std::size_t NumberSize, BigIntData<NumberSize> NumberData>
+consteval auto pow(const ConstBigInt<NumberSign, NumberSize, NumberData> &,
+                   const std::integral_constant<std::size_t, Pow> &)
 {
-    constexpr auto number = make_bigint<NumberSize, NumberData>();
-    static_assert(!number.is_zero(), "Logarithm argument must be greater than 0");
-
-    constexpr auto raw_fraction = impl::compute_raw_fraction_for_log2<NumberSize, NumberData>();
-    // constexpr double remaining_part = std::bit_cast<double, uint64_t>(raw_fraction);
-
-    // Unfortunately, std::log2 is not constexpr - result will be an approximation
-
-    return static_cast<double>(log2_int(number));  //+ std::log2(remaining_part);
+    return impl::pow<Pow, NumberSign, NumberSize, NumberData>();
 }
+
+template <Sign NumberSign, std::size_t NumberSize, BigIntData<NumberSize> NumberData>
+consteval uint64_t log2_int(const ConstBigInt<NumberSign, NumberSize, NumberData> &)
+{
+    static_assert(NumberSign == Sign::Plus, "Logarithm argument cannot be negative");
+    return impl::log2_int<NumberSize, NumberData>();
+}
+
+// TODO: Implement this
+//
+// template <std::size_t NumberSize, BigIntData<NumberSize> NumberData>
+// consteval double log2()
+// {
+//     constexpr auto number = make_bigint<NumberSize, NumberData>();
+//     static_assert(!number.is_zero(), "Logarithm argument must be greater than 0");
+
+//     constexpr auto raw_fraction = impl::compute_raw_fraction_for_log2<NumberSize, NumberData>();
+//     // constexpr double remaining_part = std::bit_cast<double, uint64_t>(raw_fraction);
+
+//     // Unfortunately, std::log2 is not constexpr - result will be an approximation
+
+//     return static_cast<double>(log2_int(number));  //+ std::log2(remaining_part);
+// }
 
 }  // namespace yabil::compile_time::math
