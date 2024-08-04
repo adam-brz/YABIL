@@ -116,6 +116,7 @@ constexpr double_width_t<T> safe_add(T v, Args... args)
 /// The result is returned as a double_width_t<T> type.
 /// @tparam T The type of the value to be subtracted.
 /// @param v The value to be subtracted.
+/// @param args Other values to subtract from v.
 /// @return The result of the subtraction as a double_width_t<T> type.
 template <typename T, typename... Args>
 constexpr double_width_t<T> safe_sub(T v, Args... args)
@@ -127,7 +128,8 @@ constexpr double_width_t<T> safe_sub(T v, Args... args)
 /// @details This function takes a value of type T and safely multiplies it by converting it to a wider type.
 /// The result is returned as a double_width_t<T> type.
 /// @tparam T The type of the value to be multiplied.
-/// @param v The value to be multiplied.
+/// @param a First value to be multiplied.
+/// @param b Second value to be multiplied.
 /// @return The result of the multiplication as a double_width_t<T> type.
 template <typename T>
 constexpr double_width_t<T> safe_mul(T a, T b)
