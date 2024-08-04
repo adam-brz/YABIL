@@ -102,7 +102,7 @@ consteval uint64_t log2_int(const ConstBigInt<NumberSign, NumberSize, NumberData
     return impl::log2_int<NumberSize, NumberData>();
 }
 
-// TODO: Implement this
+// TODO(andrew2a1): Implement this
 //
 // template <std::size_t NumberSize, BigIntData<NumberSize> NumberData>
 // consteval double log2()
