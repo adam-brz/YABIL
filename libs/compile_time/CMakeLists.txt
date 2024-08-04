@@ -29,6 +29,7 @@ set(TESTS
     test/Conversion_tests.cpp
     test/Division_tests.cpp
     test/Literals_tests.cpp
+    test/Math_tests.cpp
     test/Multiplication_tests.cpp
     test/RelationOperators_tests.cpp
     test/ShiftOperators_tests.cpp

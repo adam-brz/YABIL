@@ -47,9 +47,8 @@ template <std::size_t Base, Sign NumberSign, std::size_t InternalSize, BigIntDat
 constexpr auto to_oversized_reversed_string()
 {
     // Estimate can be much larger than actual size - do not care
-    constexpr auto str_size_estimate =
-        bigint_base_t_size_bits * InternalSize / math::log2_int<1, bigint_v<Base>.data>() +
-        3;  // 3 for minus sign, null character and possible rounding
+    constexpr auto str_size_estimate = bigint_base_t_size_bits * InternalSize / math::log2_int(bigint_v<Base>) +
+                                       3;  // 3 for minus sign, null character and possible rounding
 
     std::array<char, str_size_estimate> number_characters{};
 
