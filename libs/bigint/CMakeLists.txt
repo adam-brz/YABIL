@@ -61,6 +61,19 @@ endif()
 
 if(YABIL_ENABLE_CUDA)
     list(APPEND SOURCES src/add_sub/AddSubCUDAImpl.cu)
+elseif(YABIL_USE_ASM AND YABIL_SYSTEM_ARCHITECTURE STREQUAL "amd64")
+    list(APPEND SOURCES
+        src/add_sub/asm/AddSubAsm.cpp
+        src/add_sub/asm/AddSubAsm.h
+    )
+    if(MSVC)
+        message(FATAL_ERROR "NASM support for Windows is not implemented yet. Set YABIL_ENABLE_ASSEMBLER to OFF")
+    else()
+        list(APPEND SOURCES
+            src/add_sub/asm/x86_64/system_v/AddImpl.asm
+            src/add_sub/asm/x86_64/system_v/SubImpl.asm
+        )
+    endif()
 elseif(YABIL_HAS_AVX512)
     list(APPEND SOURCES src/add_sub/AddSubAVX512DQImpl.cpp)
 elseif(YABIL_HAS_AVX2)
@@ -90,7 +103,7 @@ target_sources(${PROJECT_NAME}
     PRIVATE ${SOURCES}
     PUBLIC FILE_SET HEADERS
     BASE_DIRS ${PROJECT_SOURCE_DIR}/include
-FILES ${HEADERS}
+    FILES ${HEADERS}
 )
 
 set_common_properties(${PROJECT_NAME})
