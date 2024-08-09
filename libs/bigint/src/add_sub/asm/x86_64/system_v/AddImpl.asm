@@ -26,17 +26,14 @@ asm_add_arrays:
     test rcx, rcx ; b_size == 0
     jz L1_end     ; skip first loop
 
-L1:                      ; for i in range(0, b_size)
-    mov r10, qword [rdi] ; tmp = a[i]
-    lea rdi, [rdi + 8]
+L1:                                 ; for i in range(0, b_size)
+    mov r10, qword [rdi + rax*8]    ; tmp = a[i]
 
-    popf                 ; restore carry flag
-    adc r10, qword [rdx] ; tmp += b[i] + carry
-    pushf                ; preserve carry flag
-    lea rdx, [rdx + 8]
+    popf                            ; restore carry flag
+    adc r10, qword [rdx + rax*8]    ; tmp += b[i] + carry
+    pushf                           ; preserve carry flag
 
-    mov qword [r8], r10  ; r[i] = tmp
-    lea r8, [r8 + 8]
+    mov qword [r8 + rax*8], r10  ; r[i] = tmp
 
     inc rax      ; ++i
     cmp rax, rcx ; i < b_size
@@ -48,13 +45,12 @@ L1_end:
 
 L2:
     xor r10, r10 ; tmp = 0
-    popf
-    adc r10, qword [rdi] ; tmp += a[i] + carry
-    pushf
-    lea rdi, [rdi + 8]
 
-    mov qword [r8], r10  ; r[i] = tmp
-    lea r8, [r8 + 8]
+    popf
+    adc r10, qword [rdi + rax*8] ; tmp += a[i] + carry
+    pushf
+
+    mov qword [r8 + rax * 8], r10  ; r[i] = tmp
 
     inc rax      ; ++i
     cmp rax, rsi ; i < a_size
@@ -62,6 +58,5 @@ L2:
 
 L2_end:
     popf
-    adc qword [r8], 0  ; r[i] += carry
-
+    adc qword [r8 + rax * 8], 0  ; r[i] += carry
     ret
