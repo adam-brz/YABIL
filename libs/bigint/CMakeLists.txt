@@ -47,6 +47,12 @@ set(TESTS
     test/BigIntXorOperator_tests.cpp
 )
 
+set(BENCHMARKS
+    benchmark/Addition.cpp
+    benchmark/BenchmarkUtils.cpp
+    benchmark/BenchmarkUtils.h
+)
+
 if(YABIL_ENABLE_TBB)
     list(APPEND SOURCES src/parallel/ParallelTBBImpl.cpp)
 else()
@@ -85,3 +91,4 @@ FILES ${HEADERS}
 
 set_common_properties(${PROJECT_NAME})
 add_test_target(${PROJECT_NAME} ${TESTS})
+add_benchmark_target(${PROJECT_NAME} ${BENCHMARKS})

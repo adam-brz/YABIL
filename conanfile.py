@@ -6,8 +6,6 @@ from conan.tools.build import cppstd_flag, supported_cppstd, check_min_cppstd
 import shutil
 from pathlib import Path
 
-required_conan_version = ">=2.2.0"
-
 
 class YabilConan(ConanFile):
     name = "yabil"
@@ -24,6 +22,7 @@ class YabilConan(ConanFile):
         "digit_type": ["uint16_t", "uint32_t", "uint64_t", "auto"],
         "with_tbb": [True, False],
         "with_tests": [True, False],
+        "with_benchmarks": [True, False],
         "with_cuda": [True, False],  # experimental
     }
     default_options = {
@@ -33,6 +32,7 @@ class YabilConan(ConanFile):
         "digit_type": "auto",
         "with_tbb": True,
         "with_tests": False,
+        "with_benchmarks": False,
         "with_cuda": False,
     }
 
@@ -48,17 +48,6 @@ class YabilConan(ConanFile):
         if self.settings.os == "Windows":
             self.options.rm_safe("fPIC")
 
-    def configure(self):
-        if not cppstd_flag(self):
-            supported = supported_cppstd(self)
-            if "gnu20" in supported:
-                self.settings.compiler.cppstd = "gnu20"
-            elif "20" in supported:
-                self.settings.compiler.cppstd = "20"
-            self.output.info(
-                f"Setting compiler.cppstd = {self.settings.compiler.cppstd}"
-            )
-
     def validate(self):
         check_min_cppstd(self, "20")
 
@@ -70,11 +59,14 @@ class YabilConan(ConanFile):
             self.requires("onetbb/[>=2021.9.0]")
         if self.options.with_tests:
             self.test_requires("gtest/[>=1.13.0]")
+        if self.options.with_benchmarks:
+            self.test_requires("benchmark/[>=1.8.4]")
 
     def generate(self):
         self._import_dependencies()
         tc = CMakeToolchain(self)
         tc.variables["YABIL_ENABLE_TESTS"] = self.options.with_tests
+        tc.variables["YABIL_ENABLE_BENCHMARKS"] = self.options.with_benchmarks
         tc.variables["YABIL_ENABLE_TBB"] = self.options.with_tbb
         tc.variables["YABIL_ENABLE_NATIVE_OPTIMIZATIONS"] = (
             self.options.native_optimizations
@@ -106,9 +98,9 @@ class YabilConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "yabil")
-        all_components = ["bigint", "math", "crypto", "utils"]
+        lib_components = ["bigint", "math", "crypto", "utils"]
 
-        for conan_component in all_components:
+        for conan_component in lib_components:
             self.cpp_info.components[conan_component].set_property(
                 "cmake_target_name", f"yabil::{conan_component}"
             )
@@ -119,11 +111,21 @@ class YabilConan(ConanFile):
             self.cpp_info.components[conan_component].libs = [conan_component]
 
             if not self.options.shared:
-                self.cpp_info.components[conan_component].defines.append(f"YABIL_{conan_component.upper()}_STATIC_DEFINE")
+                self.cpp_info.components[conan_component].defines.append(
+                    f"YABIL_{conan_component.upper()}_STATIC_DEFINE"
+                )
+
+        header_only_components = ["compile_time"]
+        for conan_component in header_only_components:
+            self.cpp_info.components[conan_component].set_property(
+                "cmake_target_name", f"yabil::{conan_component}"
+            )
+            self.cpp_info.components[conan_component].set_property(
+                "cmake_file_name", conan_component
+            )
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["utils"].system_libs = ["pthread"]
-            self.cpp_info.components["bigint"].requires = ["omp"]
 
         self.cpp_info.components["bigint"].requires = ["utils"]
         self.cpp_info.components["math"].requires = ["bigint"]
