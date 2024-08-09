@@ -178,6 +178,7 @@ function(setup_test_target TEST_TARGET)
         return()
     endif()
 
+    get_target_property(IS_BENCHMARK_TARGET ${TEST_TARGET} IS_BENCHMARK_TARGET)
     if(YABIL_ENABLE_COVERAGE)
         get_target_property(EXE_OUTPUT_DIR ${TEST_TARGET} RUNTIME_OUTPUT_DIRECTORY)
         add_test(
@@ -185,9 +186,38 @@ function(setup_test_target TEST_TARGET)
             COMMAND ${CMAKE_COMMAND} -E env LLVM_PROFILE_FILE=${TEST_TARGET}_%m.profraw -- $<TARGET_FILE:${TEST_TARGET}>
             WORKING_DIRECTORY ${EXE_OUTPUT_DIR}
         )
-    else()
+    elseif(NOT IS_BENCHMARK_TARGET)
         gtest_discover_tests(${TEST_TARGET} DISCOVERY_TIMEOUT 30)
+    else()
+        get_target_property(EXE_OUTPUT_DIR ${TEST_TARGET} RUNTIME_OUTPUT_DIRECTORY)
+        add_test(
+            NAME ${TEST_TARGET}
+            COMMAND $<TARGET_FILE:${TEST_TARGET}>
+            WORKING_DIRECTORY ${EXE_OUTPUT_DIR}
+        )
     endif()
+endfunction()
+
+function(add_benchmark_target TARGET)
+    if(NOT YABIL_ENABLE_BENCHMARKS OR NOT ARGN)
+        return()
+    endif()
+
+    set(BENCHMARK_TARGET ${TARGET}_benchmarks)
+
+    add_executable(${BENCHMARK_TARGET} ${ARGN})
+    target_link_libraries(${BENCHMARK_TARGET} PRIVATE ${TARGET} benchmark::benchmark benchmark::benchmark_main)
+
+    if(YABIL_ENABLE_CUDA)
+        target_link_libraries(${BENCHMARK_TARGET} PRIVATE CUDA::cudart)
+    endif()
+
+    set_target_properties(${BENCHMARK_TARGET} PROPERTIES
+        IS_BENCHMARK_TARGET TRUE
+        IS_TEST_TARGET TRUE
+    )
+
+    setup_test_target(${BENCHMARK_TARGET})
 endfunction()
 
 function(setup_algorithms_config_file)

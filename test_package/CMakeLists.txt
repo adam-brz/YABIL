@@ -4,7 +4,7 @@ project(test_package CXX)
 find_package(yabil REQUIRED CONFIG)
 
 add_executable(${PROJECT_NAME} test_package.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE yabil::bigint yabil::crypto yabil::utils yabil::math)
+target_link_libraries(${PROJECT_NAME} PRIVATE yabil::bigint yabil::crypto yabil::utils yabil::math yabil::compile_time)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 20
