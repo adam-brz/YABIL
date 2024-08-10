@@ -19,19 +19,25 @@ global asm_add_arrays
 ;
 
 asm_add_arrays:
+    push rbx
+
     xor rax, rax ; i = 0
-    clc          ; clear carry flag
-    pushf        ; push carry flag
+    xor r9, r9   ; carry = 0
 
     test rcx, rcx ; b_size == 0
     jz L1_end     ; skip first loop
 
 L1:                                 ; for i in range(0, b_size)
-    mov r10, qword [rdi + rax*8]    ; tmp = a[i]
+    xor rbx, rbx                    ; tmp_carry = 0
+    mov r10, qword [rdi + rax*8]    ; tmp1 = a[i]
 
-    popf                            ; restore carry flag
-    adc r10, qword [rdx + rax*8]    ; tmp += b[i] + carry
-    pushf                           ; preserve carry flag
+    add r10, r9                     ; tmp1 += carry
+    adc rbx, 0                      ; tmp_carry = [1/0]
+    mov r9, rbx                     ; carry = tmp_carry
+
+    mov r11, qword [rdx + rax*8]    ; tmp2 = b[i]
+    add r10, r11                    ; tmp1 += tmp2
+    adc r9, 0                       ; carry += [1/0]
 
     mov qword [r8 + rax*8], r10  ; r[i] = tmp
 
@@ -44,11 +50,12 @@ L1_end:
     jnb L2_end
 
 L2:
-    xor r10, r10 ; tmp = 0
+    xor rbx, rbx                    ; tmp_carry = 0
+    mov r10, qword [rdi + rax*8]    ; tmp = a[i]
 
-    popf
-    adc r10, qword [rdi + rax*8] ; tmp += a[i] + carry
-    pushf
+    add r10, r9                     ; tmp += carry
+    adc rbx, 0                      ; tmp_carry = [1/0]
+    mov r9, rbx                     ; carry = 0
 
     mov qword [r8 + rax * 8], r10  ; r[i] = tmp
 
@@ -57,6 +64,10 @@ L2:
     jb L2
 
 L2_end:
-    popf
-    adc qword [r8 + rax * 8], 0  ; r[i] += carry
+    test r9, r9
+    jz F_end
+    mov qword [r8 + rax * 8], r9  ; r[i] += carry
+
+F_end:
+    pop rbx
     ret
