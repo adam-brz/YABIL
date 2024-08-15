@@ -32,8 +32,7 @@ L1:                                 ; for i in range(0, b_size)
     mov r11, qword [rdx + rax*8]    ; tmp2 = b[i]
 
     adc r10, r11                    ; tmp1 += tmp2 + carry
-    mov r9, 0                       ; carry = 0
-    adc r9, 0                       ; carry += [1/0]
+    setc r9b                        ; carry = [1/0]
 
     mov qword [r8 + rax*8], r10  ; r[i] = tmp
 
@@ -49,8 +48,7 @@ L2:
     mov r10, qword [rdi + rax*8]    ; tmp = a[i]
 
     add r10, r9                     ; tmp += carry
-    mov r9, 0                       ; carry = 0
-    adc r9, 0                       ; carry = [1/0]
+    setc r9b                        ; carry = [1/0]
 
     mov qword [r8 + rax * 8], r10  ; r[i] = tmp
 
