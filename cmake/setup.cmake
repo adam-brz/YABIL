@@ -4,6 +4,7 @@ include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include(CheckCXXCompilerFlag)
 include(CheckCXXSymbolExists)
+include(CheckCXXSourceCompiles)
 
 macro(setup_deps)
     set(REQUIRED_FIND_PACKAGES_LIST "")
@@ -33,6 +34,23 @@ macro(setup_testing)
 endmacro()
 
 macro(setup_compiler_options)
+    if(MSVC)
+        set(YABIL_INTRINSICS_HEADER_FILE intrin.h CACHE BOOL "Intrinsics header file name")
+    else()
+        set(YABIL_INTRINSICS_HEADER_FILE immintrin.h CACHE BOOL "Intrinsics header file name")
+    endif()
+
+    check_cxx_source_compiles("
+        #include <${YABIL_INTRINSICS_HEADER_FILE}>
+        int main() {
+            unsigned long long a;
+            return _addcarry_u64(0,0,0,&a);
+        }"
+        YABIL_HAS_X64_INTRINSICS
+    )
+
+    set(YABIL_HAS_X64_INTRINSICS "${YABIL_HAS_X64_INTRINSICS}" CACHE BOOL "Enable intrinsics support")
+
     if(YABIL_ENABLE_NATIVE_OPTIMIZATIONS)
         check_cxx_compiler_flag("-march=native" YABIL_MNATIVE_SUPPORTED)
         if(YABIL_MNATIVE_SUPPORTED)
