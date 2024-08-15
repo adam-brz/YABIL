@@ -26,10 +26,12 @@ asm_sub_arrays:
     jz L1_end     ; skip first loop
 
 L1:                                 ; for i in range(0, b_size)
-    mov r10, qword [rdi + rax*8]    ; tmp = a[i]
+    mov r10, qword [rdi + rax*8]    ; tmp1 = a[i]
 
     bt r9, 0                        ; restore carry flag
-    sbb r10, qword [rdx + rax*8]    ; tmp -= b[i] + carry
+    mov r11, qword [rdx + rax*8]    ; tmp2 = b[i]
+
+    sbb r10, r11                    ; tmp1 -= tmp2 + carry
     mov r9, 0                       ; carry = 0
     adc r9, 0                       ; carry += [1/0]
 
