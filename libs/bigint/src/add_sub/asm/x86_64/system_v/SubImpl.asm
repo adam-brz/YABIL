@@ -20,8 +20,7 @@ global asm_sub_arrays
 
 asm_sub_arrays:
     xor rax, rax ; i = 0
-    clc          ; clear carry flag
-    pushf        ; push carry flag
+    xor r9, r9   ; carry = 0
 
     test rcx, rcx ; b_size == 0
     jz L1_end     ; skip first loop
@@ -29,9 +28,10 @@ asm_sub_arrays:
 L1:                                 ; for i in range(0, b_size)
     mov r10, qword [rdi + rax*8]    ; tmp = a[i]
 
-    popf                            ; restore carry flag
+    bt r9, 0                        ; restore carry flag
     sbb r10, qword [rdx + rax*8]    ; tmp -= b[i] + carry
-    pushf                           ; preserve carry flag
+    mov r9, 0                       ; carry = 0
+    adc r9, 0                       ; carry += [1/0]
 
     mov qword [r8 + rax*8], r10     ; r[i] = tmp
 
@@ -46,9 +46,9 @@ L1_end:
 L2:
     mov r10, qword [rdi + rax*8] ; tmp = a[i]
 
-    popf
-    sbb r10, 0 ; tmp -= carry
-    pushf
+    sub r10, r9                  ; tmp -= carry
+    mov r9, 0
+    adc r9, 0
 
     mov qword [r8 + rax*8], r10  ; r[i] = tmp
 
@@ -57,5 +57,4 @@ L2:
     jb L2
 
 L2_end:
-    popf
     ret
