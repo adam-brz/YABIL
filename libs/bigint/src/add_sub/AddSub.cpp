@@ -5,9 +5,11 @@
 
 #include <cassert>
 
-#if __has_include("immintrin.h")
-#include <immintrin.h>
+#if defined(YABIL_INTRINSICS_HEADER_FILE)
+#if __has_include(YABIL_INTRINSICS_HEADER_FILE)
+#include YABIL_INTRINSICS_HEADER_FILE
 #define ADD_SUB_HAS_IMMINTRIN
+#endif
 #endif
 
 namespace yabil::bigint
@@ -45,7 +47,7 @@ static bigint_base_t add_carry(const bigint_base_t carry, const bigint_base_t a,
     if constexpr (sizeof(bigint_base_t) == 8)
     {
         return _addcarry_u64(static_cast<unsigned char>(carry), a, b,
-                             reinterpret_cast<unsigned long long *>(destination));
+                             reinterpret_cast<unsigned long long *>(destination));  // NOLINT
     }
     else if constexpr (sizeof(bigint_base_t) == 4)
     {
@@ -63,7 +65,7 @@ static bigint_base_t sub_borrow(const bigint_base_t borrow, const bigint_base_t 
     if constexpr (sizeof(bigint_base_t) == 8)
     {
         return _subborrow_u64(static_cast<unsigned char>(borrow), a, b,
-                              reinterpret_cast<unsigned long long *>(destination));
+                              reinterpret_cast<unsigned long long *>(destination));  // NOLINT
     }
     else if constexpr (sizeof(bigint_base_t) == 4)
     {

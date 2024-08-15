@@ -80,6 +80,8 @@ if(NOT YABIL_BIGINT_BASE_TYPE STREQUAL "auto")
     target_compile_definitions(${PROJECT_NAME} PUBLIC YABIL_BIGINT_BASE_T=${YABIL_BIGINT_BASE_TYPE})
 endif()
 
+target_compile_definitions(${PROJECT_NAME} PRIVATE YABIL_INTRINSICS_HEADER_FILE=<${YABIL_INTRINSICS_HEADER_FILE}>)
+
 setup_algorithms_config_file()
 
 target_sources(${PROJECT_NAME}

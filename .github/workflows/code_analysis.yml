@@ -68,7 +68,7 @@ jobs:
         run: |
           cppcheck --project=build/Release/compile_commands.json \
             --enable=all --error-exitcode=1 --suppress=missingInclude:* --inline-suppr \
-            --library=googletest --suppress=unusedFunction --suppress=cppcheckError > /dev/null
+            --library=googletest --library=./scripts/cppcheck_config.cfg --suppress=unusedFunction --suppress=cppcheckError > /dev/null
 
       - name: Compile project
         working-directory: build/Release
