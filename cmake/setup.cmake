@@ -35,9 +35,9 @@ endmacro()
 
 macro(setup_compiler_options)
     if(MSVC)
-        set(YABIL_INTRINSICS_HEADER_FILE intrin.h CACHE BOOL "Intrinsics header file name")
+        set(YABIL_INTRINSICS_HEADER_FILE intrin.h CACHE INTERNAL "Intrinsics header file name")
     else()
-        set(YABIL_INTRINSICS_HEADER_FILE immintrin.h CACHE BOOL "Intrinsics header file name")
+        set(YABIL_INTRINSICS_HEADER_FILE immintrin.h CACHE INTERNAL "Intrinsics header file name")
     endif()
 
     check_cxx_source_compiles("
