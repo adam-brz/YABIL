@@ -21,6 +21,7 @@ class YabilConan(ConanFile):
         "native_optimizations": [True, False],
         "digit_type": ["uint16_t", "uint32_t", "uint64_t", "auto"],
         "with_tbb": [True, False],
+        "with_asm": [True, False],
         "with_tests": [True, False],
         "with_benchmarks": [True, False],
         "with_cuda": [True, False],  # experimental
@@ -31,6 +32,7 @@ class YabilConan(ConanFile):
         "native_optimizations": True,
         "digit_type": "auto",
         "with_tbb": True,
+        "with_asm": True,
         "with_tests": False,
         "with_benchmarks": False,
         "with_cuda": False,
@@ -62,6 +64,10 @@ class YabilConan(ConanFile):
         if self.options.with_benchmarks:
             self.test_requires("benchmark/[>=1.8.4]")
 
+    def build_requirements(self):
+        if self.options.with_asm:
+            self.tool_requires("nasm/[>=2.16 <3]")
+
     def generate(self):
         self._import_dependencies()
         tc = CMakeToolchain(self)
@@ -71,6 +77,7 @@ class YabilConan(ConanFile):
         tc.variables["YABIL_ENABLE_NATIVE_OPTIMIZATIONS"] = (
             self.options.native_optimizations
         )
+        tc.variables["YABIL_ENABLE_ASSEMBLER"] = self.options.with_asm
         tc.variables["YABIL_ENABLE_CUDA"] = self.options.with_cuda
         tc.variables["YABIL_BIGINT_BASE_TYPE"] = self.options.digit_type
         tc.generate()
