@@ -62,7 +62,7 @@ TEST_F(ConstBigIntConversion_tests, canCheckIfConversionIsSafe)
         EXPECT_FALSE(b.is<int8_t>());
     }
     {
-        constexpr auto b = bigint_v<1, 1, 1, 1>;
+        constexpr auto b = bigint_v<1, 1, 1, 1, 1, 1>;
         EXPECT_FALSE(b.is<uint64_t>());
         EXPECT_FALSE(b.is<uint16_t>());
         EXPECT_FALSE(b.is<uint8_t>());
