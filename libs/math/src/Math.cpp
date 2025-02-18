@@ -154,9 +154,9 @@ yabil::bigint::BigInt gcd(yabil::bigint::BigInt number, yabil::bigint::BigInt ot
     number >>= common_power_of_2;
     other >>= common_power_of_2;
 
-    if (number.is_int64() && other.is_int64())
+    if (number.is<int64_t>() && other.is<int64_t>())
     {
-        return yabil::bigint::BigInt(std::gcd(number.to_int(), other.to_int())) << common_power_of_2;
+        return yabil::bigint::BigInt(std::gcd(number.to<int64_t>(), other.to<int64_t>())) << common_power_of_2;
     }
 
     while (!other.is_zero())

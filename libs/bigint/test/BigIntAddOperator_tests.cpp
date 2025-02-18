@@ -12,25 +12,25 @@ class BigIntAddOperator_tests : public ::testing::Test
 TEST_F(BigIntAddOperator_tests, addTwoZeros)
 {
     const BigInt big_int1, big_int2;
-    EXPECT_EQ(0, (big_int1 + big_int2).to_int());
+    EXPECT_EQ(0, (big_int1 + big_int2).to<int64_t>());
 }
 
 TEST_F(BigIntAddOperator_tests, addZeroAndNonZero)
 {
     const BigInt big_int1, big_int2(20);
-    EXPECT_EQ(20, (big_int1 + big_int2).to_int());
+    EXPECT_EQ(20, (big_int1 + big_int2).to<int64_t>());
 }
 
 TEST_F(BigIntAddOperator_tests, addZeroAndNegative)
 {
     const BigInt big_int1, big_int2(-20);
-    EXPECT_EQ(-20, (big_int1 + big_int2).to_int());
+    EXPECT_EQ(-20, (big_int1 + big_int2).to<int64_t>());
 }
 
 TEST_F(BigIntAddOperator_tests, addTwoNonZero)
 {
     const BigInt big_int1(50), big_int2(20);
-    EXPECT_EQ(70, (big_int1 + big_int2).to_int());
+    EXPECT_EQ(70, (big_int1 + big_int2).to<int64_t>());
 }
 
 TEST_F(BigIntAddOperator_tests, addTwoNonZeroWithOverflow)
@@ -70,7 +70,7 @@ TEST_F(BigIntAddOperator_tests, addTwoWithDifferentSigns)
         const BigInt big_int1(i);
         const BigInt big_int2(-i);
         const auto result = big_int1 + big_int2;
-        EXPECT_EQ(0, result.to_int());
+        EXPECT_EQ(0, result.to<int64_t>());
     }
 }
 
@@ -101,28 +101,28 @@ TEST_F(BigIntAddOperator_tests, addInPlaceTwoZeros)
 {
     BigInt a, b;
     a += b;
-    EXPECT_EQ(0, a.to_int());
+    EXPECT_EQ(0, a.to<int64_t>());
 }
 
 TEST_F(BigIntAddOperator_tests, addInPlaceZeroAndNonZero)
 {
     BigInt a, b(20);
     a += b;
-    EXPECT_EQ(20, a.to_int());
+    EXPECT_EQ(20, a.to<int64_t>());
 }
 
 TEST_F(BigIntAddOperator_tests, addInPlaceZeroAndNegative)
 {
     BigInt a, b(-20);
     a += b;
-    EXPECT_EQ(-20, a.to_int());
+    EXPECT_EQ(-20, a.to<int64_t>());
 }
 
 TEST_F(BigIntAddOperator_tests, addInPlaceTwoNonZero)
 {
     BigInt a(50), b(20);
     a += b;
-    EXPECT_EQ(70, a.to_int());
+    EXPECT_EQ(70, a.to<int64_t>());
 }
 
 TEST_F(BigIntAddOperator_tests, addInPlaceWithDifferentSigns)
@@ -132,7 +132,7 @@ TEST_F(BigIntAddOperator_tests, addInPlaceWithDifferentSigns)
         BigInt a(i);
         const BigInt b(-i);
         a += b;
-        EXPECT_EQ(0, a.to_int());
+        EXPECT_EQ(0, a.to<int64_t>());
     }
 }
 
@@ -169,8 +169,8 @@ TEST_F(BigIntAddOperator_tests, canAddNegatedNumber)
 
     const auto result = a + -(b);
 
-    ASSERT_TRUE(result.is_int64());
-    EXPECT_EQ(-12031033LL, result.to_int());
+    ASSERT_TRUE(result.is<int64_t>());
+    EXPECT_EQ(-12031033LL, result.to<int64_t>());
 }
 
 TEST_F(BigIntAddOperator_tests, addInPlaceSelf)

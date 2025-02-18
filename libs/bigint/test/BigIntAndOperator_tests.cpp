@@ -10,7 +10,7 @@ class BigIntAndOperator_tests : public ::testing::Test
 TEST_F(BigIntAndOperator_tests, twoZerosShouldGiveZero)
 {
     const BigInt big_int1, big_int2;
-    EXPECT_EQ(0, (big_int1 & big_int2).to_int());
+    EXPECT_EQ(0, (big_int1 & big_int2).to<int64_t>());
 }
 
 TEST_F(BigIntAndOperator_tests, zeroAndAnyNumberGivesZero)
@@ -18,7 +18,7 @@ TEST_F(BigIntAndOperator_tests, zeroAndAnyNumberGivesZero)
     const BigInt zero;
     for (int i = -20; i < 20; ++i)
     {
-        EXPECT_EQ(0, (BigInt(i) & zero).to_int());
+        EXPECT_EQ(0, (BigInt(i) & zero).to<int64_t>());
     }
 }
 
@@ -33,7 +33,7 @@ TEST_F(BigIntAndOperator_tests, andWithAnyNumberWithItselfGivesThisNumber)
 TEST_F(BigIntAndOperator_tests, andShouldLeaveCommonOnes)
 {
     const BigInt big_int1(0xff00ff), big_int2(0xffffff);
-    EXPECT_EQ(0xff00ff, (big_int1 & big_int2).to_int());
+    EXPECT_EQ(0xff00ff, (big_int1 & big_int2).to<int64_t>());
 }
 
 TEST_F(BigIntAndOperator_tests, fastTestForOddNumber)

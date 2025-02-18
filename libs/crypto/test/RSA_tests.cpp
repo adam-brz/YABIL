@@ -32,8 +32,8 @@ TEST_F(RSA_tests, canEncryptSingleCharacter)
     const auto encrypted = rsa::encrypt(message, pub_key);
 
     ASSERT_LT(encrypted, n);
-    ASSERT_TRUE(encrypted.is_int64());
-    EXPECT_EQ(encrypted.to_int(), 4);
+    ASSERT_TRUE(encrypted.is<int64_t>());
+    EXPECT_EQ(encrypted.to<int64_t>(), 4);
 }
 
 TEST_F(RSA_tests, canEncryptMessage)
@@ -61,8 +61,8 @@ TEST_F(RSA_tests, canDecryptEncryptedCharacter)
         const auto encrypted = rsa::encrypt(c, pub_key);
         const auto decrypted = rsa::decrypt(encrypted, private_key);
 
-        ASSERT_TRUE(decrypted.is_int64());
-        EXPECT_EQ(c, decrypted.to_int());
+        ASSERT_TRUE(decrypted.is<int64_t>());
+        EXPECT_EQ(c, decrypted.to<int64_t>());
     }
 }
 

@@ -45,8 +45,8 @@ yabil::bigint::BigInt probable_prime(uint64_t number_of_bits)
             const auto mod = prime_candidate % primes()[i];
             if (mod == 0)
             {
-                good_candidate = prime_candidate.is_uint64()
-                                     ? (prime_candidate.to_uint() == static_cast<uint64_t>(primes()[i]))
+                good_candidate = prime_candidate.is<uint64_t>()
+                                     ? (prime_candidate.to<uint64_t>() == static_cast<uint64_t>(primes()[i]))
                                      : false;
                 break;
             }

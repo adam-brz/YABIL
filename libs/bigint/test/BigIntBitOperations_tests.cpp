@@ -44,7 +44,7 @@ TEST_F(BigIntBitOperations_tests, setBitForZero)
 {
     BigInt big_int;
     big_int.set_bit(0, true);
-    EXPECT_EQ(1, big_int.to_int());
+    EXPECT_EQ(1, big_int.to<int64_t>());
 }
 
 TEST_F(BigIntBitOperations_tests, setBitForZeroLongNumber)
@@ -67,7 +67,7 @@ TEST_F(BigIntBitOperations_tests, clearingZeroShouldNotAffectNumber)
 {
     BigInt big_int;
     big_int.set_bit(12, false);
-    EXPECT_EQ(0, big_int.to_int());
+    EXPECT_EQ(0, big_int.to<int64_t>());
 }
 
 TEST_F(BigIntBitOperations_tests, clearingZeroInLongNumber)

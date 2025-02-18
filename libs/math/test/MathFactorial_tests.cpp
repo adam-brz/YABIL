@@ -11,25 +11,25 @@ class MathFactorial_tests : public ::testing::Test
 TEST_F(MathFactorial_tests, factorialOfZeroIsOne)
 {
     const auto result = factorial(0);
-    EXPECT_EQ(1, result.to_int());
+    EXPECT_EQ(1, result.to<int64_t>());
 }
 
 TEST_F(MathFactorial_tests, factorialOfOneIsOne)
 {
     const auto result = factorial(1);
-    EXPECT_EQ(1, result.to_int());
+    EXPECT_EQ(1, result.to<int64_t>());
 }
 
 TEST_F(MathFactorial_tests, factorialOfTwoIsTwo)
 {
     const auto result = factorial(2);
-    EXPECT_EQ(2, result.to_int());
+    EXPECT_EQ(2, result.to<int64_t>());
 }
 
 TEST_F(MathFactorial_tests, factorialOfThreeIsSix)
 {
     const auto result = factorial(3);
-    EXPECT_EQ(6, result.to_int());
+    EXPECT_EQ(6, result.to<int64_t>());
 }
 
 TEST_F(MathFactorial_tests, factorialOf12)

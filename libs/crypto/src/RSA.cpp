@@ -71,7 +71,7 @@ char DecryptionStreamWrapper::read_single_encoded_item()
 
     in.read(reinterpret_cast<char *>(raw_data_buffer.data()), static_cast<std::streamsize>(encrypted_item_size));
     const auto decrypted = decrypt(yabil::bigint::BigInt(std::move(raw_data_buffer)), private_key);
-    return static_cast<char>(decrypted.to_int());
+    return static_cast<char>(decrypted.to<int64_t>());
 }
 
 }  // namespace yabil::crypto::rsa

@@ -12,16 +12,16 @@ class BigIntConversionTest : public ::testing::Test
 TEST_F(BigIntConversionTest, canConvertBackToLongInt)
 {
     const BigInt big_int(-192931829LL);
-    EXPECT_EQ(-192931829LL, big_int.to_int());
+    EXPECT_EQ(-192931829LL, big_int.to<int64_t>());
 
     const BigInt big_uint(61231323ULL);
-    EXPECT_EQ(61231323ULL, big_uint.to_int());
+    EXPECT_EQ(61231323ULL, big_uint.to<int64_t>());
 }
 
 TEST_F(BigIntConversionTest, canConvertMaxValueBackToLongInt)
 {
     const BigInt big_int_max_int64(std::numeric_limits<int64_t>::max());
-    EXPECT_EQ(std::numeric_limits<int64_t>::max(), big_int_max_int64.to_int());
+    EXPECT_EQ(std::numeric_limits<int64_t>::max(), big_int_max_int64.to<int64_t>());
 }
 
 TEST_F(BigIntConversionTest, canConvertMinAndMaxValuesBackToUnsignedLongInt)
@@ -29,8 +29,8 @@ TEST_F(BigIntConversionTest, canConvertMinAndMaxValuesBackToUnsignedLongInt)
     const BigInt big_int_min_uint64(std::numeric_limits<uint64_t>::min());
     const BigInt big_int_max_uint64(std::numeric_limits<uint64_t>::max());
 
-    EXPECT_EQ(std::numeric_limits<uint64_t>::min(), big_int_min_uint64.to_int());
-    EXPECT_EQ(std::numeric_limits<uint64_t>::max(), big_int_max_uint64.to_int());
+    EXPECT_EQ(std::numeric_limits<uint64_t>::min(), big_int_min_uint64.to<int64_t>());
+    EXPECT_EQ(std::numeric_limits<uint64_t>::max(), big_int_max_uint64.to<int64_t>());
 }
 
 TEST_F(BigIntConversionTest, canConvertToString)

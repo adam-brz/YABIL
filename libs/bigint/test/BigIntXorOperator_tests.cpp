@@ -10,7 +10,7 @@ class BigIntXorOperator_tests : public ::testing::Test
 TEST_F(BigIntXorOperator_tests, twoZerosShouldGiveZero)
 {
     const BigInt big_int1, big_int2;
-    EXPECT_EQ(0, (big_int1 ^ big_int2).to_int());
+    EXPECT_EQ(0, (big_int1 ^ big_int2).to<int64_t>());
 }
 
 TEST_F(BigIntXorOperator_tests, zeroXorAnyNumberGivesThisNumber)
@@ -18,14 +18,14 @@ TEST_F(BigIntXorOperator_tests, zeroXorAnyNumberGivesThisNumber)
     const BigInt zero;
     for (int i = -20; i < 20; ++i)
     {
-        EXPECT_EQ(i, (BigInt(i) ^ zero).to_int());
+        EXPECT_EQ(i, (BigInt(i) ^ zero).to<int64_t>());
     }
 }
 
 TEST_F(BigIntXorOperator_tests, xorForShortBigInt)
 {
     const BigInt big_int1(0xff00ff), big_int2(0xff0fff);
-    EXPECT_EQ(0x000f00, (big_int1 ^ big_int2).to_int());
+    EXPECT_EQ(0x000f00, (big_int1 ^ big_int2).to<int64_t>());
 }
 
 TEST_F(BigIntXorOperator_tests, xorShouldLeaveCommonOnesForLongNumbers)
@@ -50,7 +50,7 @@ TEST_F(BigIntXorOperator_tests, inplaceTwoZerosShouldGiveZero)
 {
     BigInt big_int1, big_int2;
     big_int1 ^= big_int2;
-    EXPECT_EQ(0, big_int1.to_int());
+    EXPECT_EQ(0, big_int1.to<int64_t>());
 }
 
 TEST_F(BigIntXorOperator_tests, inplaceZeroXorAnyNumberGivesThisNumber)
@@ -60,7 +60,7 @@ TEST_F(BigIntXorOperator_tests, inplaceZeroXorAnyNumberGivesThisNumber)
     {
         BigInt b{i};
         b ^= zero;
-        EXPECT_EQ(i, b.to_int());
+        EXPECT_EQ(i, b.to<int64_t>());
     }
 }
 
@@ -68,5 +68,5 @@ TEST_F(BigIntXorOperator_tests, inplaceXorForShortBigInt)
 {
     BigInt big_int1(0xff00ff), big_int2(0xff0fff);
     big_int1 ^= big_int2;
-    EXPECT_EQ(0x000f00, big_int1.to_int());
+    EXPECT_EQ(0x000f00, big_int1.to<int64_t>());
 }

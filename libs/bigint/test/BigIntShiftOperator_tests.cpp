@@ -14,7 +14,7 @@ TEST_F(BigIntShiftOperator_tests, zeroShiftedByAnyNumberGivesZero)
     const BigInt big_int;
     for (unsigned i = 0; i < 20; ++i)
     {
-        EXPECT_EQ(0, (big_int << i).to_int());
+        EXPECT_EQ(0, (big_int << i).to<int64_t>());
     }
 }
 
@@ -85,14 +85,14 @@ TEST_F(BigIntShiftOperator_tests, zeroRightShiftedByAnyNumberGivesZero)
     const BigInt big_int;
     for (int i = 0; i < 20; ++i)
     {
-        EXPECT_EQ(0, (big_int >> i).to_int());
+        EXPECT_EQ(0, (big_int >> i).to<int64_t>());
     }
 }
 
 TEST_F(BigIntShiftOperator_tests, shiftRightEntireNumber)
 {
     const BigInt big_int(std::numeric_limits<bigint_base_t>::max());
-    EXPECT_EQ(0, (big_int >> (bigint_base_t_size_bits)).to_int());
+    EXPECT_EQ(0, (big_int >> (bigint_base_t_size_bits)).to<int64_t>());
 }
 
 TEST_F(BigIntShiftOperator_tests, shiftRightHalfOfEntireNumber)
@@ -145,14 +145,14 @@ TEST_F(BigIntShiftOperator_tests, inPlaceLeftShift)
 {
     BigInt big_int(0b11001101);
     big_int <<= 5;
-    EXPECT_EQ(0b1100110100000, big_int.to_int());
+    EXPECT_EQ(0b1100110100000, big_int.to<int64_t>());
 }
 
 TEST_F(BigIntShiftOperator_tests, inPlaceRightShift)
 {
     BigInt big_int(0b11001101);
     big_int >>= 5;
-    EXPECT_EQ(0b110, big_int.to_int());
+    EXPECT_EQ(0b110, big_int.to<int64_t>());
 }
 
 TEST_F(BigIntShiftOperator_tests, inPlaceLeftShiftLongNumberByLongDistance)

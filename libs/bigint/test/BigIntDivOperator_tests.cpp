@@ -41,8 +41,8 @@ TEST_F(BigIntDivOperator_tests, zeroDivAnyShouldGiveZero)
     const BigInt big_int;
     for (int i = 1; i < 10; ++i)
     {
-        EXPECT_EQ(0, (big_int / BigInt(i)).to_int());
-        EXPECT_EQ(0, (big_int / BigInt(-i)).to_int());
+        EXPECT_EQ(0, (big_int / BigInt(i)).to<int64_t>());
+        EXPECT_EQ(0, (big_int / BigInt(-i)).to<int64_t>());
     }
 }
 
@@ -57,21 +57,21 @@ TEST_F(BigIntDivOperator_tests, divisionByZeroShouldThrowException)
 TEST_F(BigIntDivOperator_tests, divTwoNonZeroGetQuotient)
 {
     const BigInt big_int1(50), big_int2(20);
-    EXPECT_EQ(2, (big_int1 / big_int2).to_int());
+    EXPECT_EQ(2, (big_int1 / big_int2).to<int64_t>());
 }
 
 TEST_F(BigIntDivOperator_tests, divTwoNonZeroGetRemainder)
 {
     const BigInt big_int1(50), big_int2(20);
-    EXPECT_EQ(10, (big_int1 % big_int2).to_int());
+    EXPECT_EQ(10, (big_int1 % big_int2).to<int64_t>());
 }
 
 TEST_F(BigIntDivOperator_tests, divTwoNonZeroGetQuotientAndRemainder)
 {
     const BigInt big_int1(50), big_int2(20);
     const auto [quotient, remainder] = big_int1.divide(big_int2);
-    EXPECT_EQ(2, quotient.to_int());
-    EXPECT_EQ(10, remainder.to_int());
+    EXPECT_EQ(2, quotient.to<int64_t>());
+    EXPECT_EQ(10, remainder.to<int64_t>());
 }
 
 TEST_F(BigIntDivOperator_tests, divTwoLongNonZeroWithOverflow)
@@ -217,7 +217,7 @@ TEST_F(BigIntDivOperator_tests, inPlaceDivision)
 
     big_int1 /= big_int2;
 
-    EXPECT_EQ(1024, big_int1.to_int());
+    EXPECT_EQ(1024, big_int1.to<int64_t>());
 }
 
 TEST_F(BigIntDivOperator_tests, inPlaceModulo)
@@ -227,7 +227,7 @@ TEST_F(BigIntDivOperator_tests, inPlaceModulo)
 
     big_int1 %= big_int2;
 
-    EXPECT_EQ(1, big_int1.to_int());
+    EXPECT_EQ(1, big_int1.to<int64_t>());
 }
 
 TEST_F(BigIntDivOperator_tests, divTwoLongNumbers)

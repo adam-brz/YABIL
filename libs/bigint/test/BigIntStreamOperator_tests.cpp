@@ -71,7 +71,7 @@ TEST_F(BigIntStreamOperator_tests, stringToBigInt)
     std::istringstream iss("14241");
     BigInt big_int;
     iss >> big_int;
-    EXPECT_EQ(14241, big_int.to_int());
+    EXPECT_EQ(14241, big_int.to<int64_t>());
 }
 
 TEST_F(BigIntStreamOperator_tests, stringToBigIntWithSign)
@@ -79,7 +79,7 @@ TEST_F(BigIntStreamOperator_tests, stringToBigIntWithSign)
     std::istringstream iss("-14241");
     BigInt big_int;
     iss >> big_int;
-    EXPECT_EQ(-14241, big_int.to_int());
+    EXPECT_EQ(-14241, big_int.to<int64_t>());
 }
 
 TEST_F(BigIntStreamOperator_tests, longStringToBigIntWithSign)

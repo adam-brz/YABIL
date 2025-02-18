@@ -13,25 +13,25 @@ class ParallelOperations_tests : public ::testing::Test
 TEST_F(ParallelOperations_tests, addTwoZeros)
 {
     const BigInt big_int1, big_int2;
-    EXPECT_EQ(0, parallel::add(big_int1, big_int2).to_int());
+    EXPECT_EQ(0, parallel::add(big_int1, big_int2).to<int64_t>());
 }
 
 TEST_F(ParallelOperations_tests, addZeroAndNonZero)
 {
     const BigInt big_int1, big_int2(20);
-    EXPECT_EQ(20, parallel::add(big_int1, big_int2).to_int());
+    EXPECT_EQ(20, parallel::add(big_int1, big_int2).to<int64_t>());
 }
 
 TEST_F(ParallelOperations_tests, addZeroAndNegative)
 {
     const BigInt big_int1, big_int2(-20);
-    EXPECT_EQ(-20, parallel::add(big_int1, big_int2).to_int());
+    EXPECT_EQ(-20, parallel::add(big_int1, big_int2).to<int64_t>());
 }
 
 TEST_F(ParallelOperations_tests, addTwoNonZero)
 {
     const BigInt big_int1(50), big_int2(20);
-    EXPECT_EQ(70, parallel::add(big_int1, big_int2).to_int());
+    EXPECT_EQ(70, parallel::add(big_int1, big_int2).to<int64_t>());
 }
 
 TEST_F(ParallelOperations_tests, addTwoNonZeroWithOverflow)
@@ -71,7 +71,7 @@ TEST_F(ParallelOperations_tests, addTwoWithDifferentSigns)
         const BigInt big_int1(i);
         const BigInt big_int2(-i);
         const auto result = parallel::add(big_int1, big_int2);
-        EXPECT_EQ(0, result.to_int());
+        EXPECT_EQ(0, result.to<int64_t>());
     }
 }
 
@@ -106,8 +106,8 @@ TEST_F(ParallelOperations_tests, canAddNegatedNumber)
 
     const auto result = parallel::add(a, -b);
 
-    ASSERT_TRUE(result.is_int64());
-    EXPECT_EQ(-12031033LL, result.to_int());
+    ASSERT_TRUE(result.is<int64_t>());
+    EXPECT_EQ(-12031033LL, result.to<int64_t>());
 }
 
 TEST_F(ParallelOperations_tests, addInPlaceSelf)
@@ -150,7 +150,7 @@ TEST_F(ParallelOperations_tests, addTwoHugeDifferentLength)
 TEST_F(ParallelOperations_tests, mulTwoZeros)
 {
     const BigInt big_int1, big_int2;
-    EXPECT_EQ(0, (parallel::multiply(big_int1, big_int2)).to_int());
+    EXPECT_EQ(0, (parallel::multiply(big_int1, big_int2)).to<int64_t>());
 }
 
 TEST_F(ParallelOperations_tests, mulZeroAndNonZeroShouldAlwaysGiveZero)
@@ -158,7 +158,7 @@ TEST_F(ParallelOperations_tests, mulZeroAndNonZeroShouldAlwaysGiveZero)
     const BigInt zero;
     for (int i = -10; i < 10; ++i)
     {
-        EXPECT_EQ(0, parallel::multiply(zero, BigInt(i)).to_int());
+        EXPECT_EQ(0, parallel::multiply(zero, BigInt(i)).to<int64_t>());
     }
 }
 

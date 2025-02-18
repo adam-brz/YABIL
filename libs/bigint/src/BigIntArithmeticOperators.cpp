@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <bit>
+#include <cstdint>
 #include <limits>
 #include <stdexcept>
 
@@ -164,13 +165,13 @@ BigInt BigInt::operator*(const BigInt &other) const
 
 BigInt BigInt::operator/(const BigInt &other) const
 {
-    if (is_int64() && other.is_int64())
+    if (is<int64_t>() && other.is<int64_t>())
     {
         if (other.is_zero())
         {
             throw std::invalid_argument("Cannot divide by 0");
         }
-        return BigInt(to_int() / other.to_int());
+        return BigInt(to<int64_t>() / other.to<int64_t>());
     }
     return divide(other).first;
 }
@@ -182,9 +183,9 @@ BigInt BigInt::operator%(const BigInt &other) const
         throw std::invalid_argument("Cannot divide by 0");
     }
 
-    if (is_int64() && other.is_int64())
+    if (is<int64_t>() && other.is<int64_t>())
     {
-        return BigInt(to_int() % other.to_int());
+        return BigInt(to<int64_t>() % other.to<int64_t>());
     }
 
     if (other.data.size() == 1 && other.sign == Sign::Plus &&
@@ -227,10 +228,10 @@ std::pair<BigInt, BigInt> BigInt::divide(const BigInt &other) const
         return {BigInt(), BigInt()};
     }
 
-    if (is_int64() && other.is_int64())
+    if (is<int64_t>() && other.is<int64_t>())
     {
-        const auto a = to_int();
-        const auto b = other.to_int();
+        const auto a = to<int64_t>();
+        const auto b = other.to<int64_t>();
         return {BigInt(a / b), BigInt(a % b)};
     }
 
