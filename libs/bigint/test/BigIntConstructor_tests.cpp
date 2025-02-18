@@ -34,19 +34,19 @@ TEST_F(BigIntConstructorTest, canConstructBigIntFromSignedNumber)
 TEST_F(BigIntConstructorTest, emptyStringCreatesNUmberZero)
 {
     const BigInt big_int1("");
-    EXPECT_EQ(0, big_int1.to_int());
+    EXPECT_EQ(0, big_int1.to<int64_t>());
 }
 
 TEST_F(BigIntConstructorTest, stringToBigInt)
 {
     const BigInt big_int1("14241");
-    EXPECT_EQ(14241, big_int1.to_int());
+    EXPECT_EQ(14241, big_int1.to<int64_t>());
 }
 
 TEST_F(BigIntConstructorTest, stringToBigIntWithSign)
 {
     const BigInt big_int1("-14241");
-    EXPECT_EQ(-14241, big_int1.to_int());
+    EXPECT_EQ(-14241, big_int1.to<int64_t>());
 }
 
 TEST_F(BigIntConstructorTest, invalidStringShouldThrowException)

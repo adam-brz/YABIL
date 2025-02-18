@@ -43,7 +43,7 @@ TYPED_TEST_SUITE(BigIntMulOperator_tests, parallel_settings);
 TYPED_TEST(BigIntMulOperator_tests, mulTwoZeros)
 {
     const BigInt big_int1, big_int2;
-    EXPECT_EQ(0, (big_int1 * big_int2).to_int());
+    EXPECT_EQ(0, (big_int1 * big_int2).to<int64_t>());
 }
 
 TYPED_TEST(BigIntMulOperator_tests, mulZeroAndNonZeroShouldAlwaysGiveZero)
@@ -51,14 +51,14 @@ TYPED_TEST(BigIntMulOperator_tests, mulZeroAndNonZeroShouldAlwaysGiveZero)
     const BigInt zero;
     for (int i = -10; i < 10; ++i)
     {
-        EXPECT_EQ(0, (zero * BigInt(i)).to_int());
+        EXPECT_EQ(0, (zero * BigInt(i)).to<int64_t>());
     }
 }
 
 TYPED_TEST(BigIntMulOperator_tests, mulTwoNonZero)
 {
     const BigInt big_int1(50), big_int2(20);
-    EXPECT_EQ(1000, (big_int1 * big_int2).to_int());
+    EXPECT_EQ(1000, (big_int1 * big_int2).to<int64_t>());
 }
 
 TYPED_TEST(BigIntMulOperator_tests, mulTwoNonZeroWithOverflow)
@@ -104,7 +104,7 @@ TYPED_TEST(BigIntMulOperator_tests, mulTwoWithDifferentSigns)
         const BigInt big_int1(i);
         const BigInt big_int2(-i);
         const auto result = big_int1 * big_int2;
-        ASSERT_LT(result.to_int(), 0);
+        ASSERT_LT(result.to<int64_t>(), 0);
     }
 }
 

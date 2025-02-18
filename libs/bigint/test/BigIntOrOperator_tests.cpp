@@ -10,7 +10,7 @@ class BigIntOrOperator_tests : public ::testing::Test
 TEST_F(BigIntOrOperator_tests, twoZerosShouldGiveZero)
 {
     const BigInt big_int1, big_int2;
-    EXPECT_EQ(0, (big_int1 | big_int2).to_int());
+    EXPECT_EQ(0, (big_int1 | big_int2).to<int64_t>());
 }
 
 TEST_F(BigIntOrOperator_tests, zeroOrAnyNumberGivesThisNumber)
@@ -18,14 +18,14 @@ TEST_F(BigIntOrOperator_tests, zeroOrAnyNumberGivesThisNumber)
     const BigInt zero;
     for (int i = -20; i < 20; ++i)
     {
-        EXPECT_EQ(i, (BigInt(i) | zero).to_int());
+        EXPECT_EQ(i, (BigInt(i) | zero).to<int64_t>());
     }
 }
 
 TEST_F(BigIntOrOperator_tests, orShouldLeaveAllOnes)
 {
     const BigInt big_int1(0xff00ff), big_int2(0xff0fff);
-    EXPECT_EQ(0xff0fff, (big_int1 | big_int2).to_int());
+    EXPECT_EQ(0xff0fff, (big_int1 | big_int2).to<int64_t>());
 }
 
 TEST_F(BigIntOrOperator_tests, orShouldLeaveCommonOnesForLongNumbers)
@@ -41,7 +41,7 @@ TEST_F(BigIntOrOperator_tests, inplaceTwoZerosShouldGiveZero)
     BigInt big_int1;
     const BigInt big_int2;
     big_int1 |= big_int2;
-    EXPECT_EQ(0, big_int1.to_int());
+    EXPECT_EQ(0, big_int1.to<int64_t>());
 }
 
 TEST_F(BigIntOrOperator_tests, inplaceZeroOrAnyNumberGivesThisNumber)
@@ -51,7 +51,7 @@ TEST_F(BigIntOrOperator_tests, inplaceZeroOrAnyNumberGivesThisNumber)
     {
         BigInt b{i};
         b ^= zero;
-        EXPECT_EQ(i, b.to_int());
+        EXPECT_EQ(i, b.to<int64_t>());
     }
 }
 
@@ -60,7 +60,7 @@ TEST_F(BigIntOrOperator_tests, inplaceOrShouldLeaveAllOnes)
     BigInt big_int1(0xff00ff);
     const BigInt big_int2(0xff0fff);
     big_int1 |= big_int2;
-    EXPECT_EQ(0xff0fff, big_int1.to_int());
+    EXPECT_EQ(0xff0fff, big_int1.to<int64_t>());
 }
 
 TEST_F(BigIntOrOperator_tests, orShouldLeaveCommonOnesForLongNumbers_2)

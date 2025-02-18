@@ -12,25 +12,25 @@ class BigIntSubOperator_tests : public ::testing::Test
 TEST_F(BigIntSubOperator_tests, subtractTwoZeros)
 {
     const BigInt big_int1, big_int2;
-    EXPECT_EQ(0, (big_int1 - big_int2).to_int());
+    EXPECT_EQ(0, (big_int1 - big_int2).to<int64_t>());
 }
 
 TEST_F(BigIntSubOperator_tests, subtractZeroAndNonZero)
 {
     const BigInt big_int1, big_int2(20);
-    EXPECT_EQ(-20, (big_int1 - big_int2).to_int());
+    EXPECT_EQ(-20, (big_int1 - big_int2).to<int64_t>());
 }
 
 TEST_F(BigIntSubOperator_tests, subtractZeroAndNegative)
 {
     const BigInt big_int1, big_int2(-20);
-    EXPECT_EQ(20, (big_int1 - big_int2).to_int());
+    EXPECT_EQ(20, (big_int1 - big_int2).to<int64_t>());
 }
 
 TEST_F(BigIntSubOperator_tests, subtractTwoNonZero)
 {
     const BigInt big_int1(50), big_int2(20);
-    EXPECT_EQ(30, (big_int1 - big_int2).to_int());
+    EXPECT_EQ(30, (big_int1 - big_int2).to<int64_t>());
 }
 
 TEST_F(BigIntSubOperator_tests, subtractTwoNonZeroWithOverflow)
@@ -71,7 +71,7 @@ TEST_F(BigIntSubOperator_tests, subtractTwoTheSame)
         const BigInt big_int1(i);
         const BigInt big_int2(i);
         const auto result = big_int1 - big_int2;
-        EXPECT_EQ(0, result.to_int());
+        EXPECT_EQ(0, result.to<int64_t>());
     }
 }
 
@@ -104,28 +104,28 @@ TEST_F(BigIntSubOperator_tests, subtractInPlaceTwoZeros)
 {
     BigInt big_int1, big_int2;
     big_int1 -= big_int2;
-    EXPECT_EQ(0, big_int1.to_int());
+    EXPECT_EQ(0, big_int1.to<int64_t>());
 }
 
 TEST_F(BigIntSubOperator_tests, subtractInPlaceZeroAndNonZero)
 {
     BigInt big_int1, big_int2(20);
     big_int1 -= big_int2;
-    EXPECT_EQ(-20, big_int1.to_int());
+    EXPECT_EQ(-20, big_int1.to<int64_t>());
 }
 
 TEST_F(BigIntSubOperator_tests, subtractInPlaceZeroAndNegative)
 {
     BigInt big_int1, big_int2(-20);
     big_int1 -= big_int2;
-    EXPECT_EQ(20, big_int1.to_int());
+    EXPECT_EQ(20, big_int1.to<int64_t>());
 }
 
 TEST_F(BigIntSubOperator_tests, subtractInPlaceTwoNonZero)
 {
     BigInt big_int1(50), big_int2(20);
     big_int1 -= big_int2;
-    EXPECT_EQ(30, big_int1.to_int());
+    EXPECT_EQ(30, big_int1.to<int64_t>());
 }
 
 TEST_F(BigIntSubOperator_tests, subtractInPlaceTwoNonZeroWithOverflow)
@@ -167,7 +167,7 @@ TEST_F(BigIntSubOperator_tests, subtractInPlaceTwoTheSame)
         BigInt big_int1(i);
         const BigInt big_int2(i);
         big_int1 -= big_int2;
-        EXPECT_EQ(0, big_int1.to_int());
+        EXPECT_EQ(0, big_int1.to<int64_t>());
     }
 }
 

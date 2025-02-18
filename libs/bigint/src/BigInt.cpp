@@ -13,20 +13,16 @@
 namespace yabil::bigint
 {
 
-BigInt::BigInt(const std::vector<bigint_base_t> &raw_data, Sign sign) : data(raw_data), sign(sign)
+BigInt::BigInt(std::vector<bigint_base_t> &&raw_data, Sign sign) : data(std::move(raw_data)), sign(sign)
 {
     normalize();
 }
 
-BigInt::BigInt(std::vector<bigint_base_t> &&raw_data, Sign sign) : data(raw_data), sign(sign)
+BigInt::BigInt(const std::span<const bigint_base_t> &raw_data, Sign sign) : sign(sign)
 {
-    normalize();
-}
-
-BigInt::BigInt(std::span<bigint_base_t const> raw_data, Sign sign) : sign(sign)
-{
-    data.insert(data.begin(), raw_data.begin(), raw_data.end());
-    normalize();
+    const auto lastNonZeroDigitIt =
+        std::find_if(raw_data.rbegin(), raw_data.rend(), [](const auto &v) { return v != 0; }).base();
+    data.insert(data.begin(), raw_data.begin(), lastNonZeroDigitIt);
 }
 
 BigInt::BigInt(const std::string_view &str, unsigned base)
@@ -80,22 +76,6 @@ void BigInt::normalize()
     sign = is_zero() ? Sign::Plus : sign;
 }
 
-int64_t BigInt::to_int() const
-{
-    const int64_t result = static_cast<int64_t>(to_uint());
-    return is_negative() ? -result : result;
-}
-
-uint64_t BigInt::to_uint() const
-{
-    uint64_t result = 0;
-    for (std::size_t i = 0; (i < data.size()) && (i < sizeof(int64_t) / sizeof(bigint_base_t)); ++i)
-    {
-        result |= static_cast<uint64_t>(data[i]) << (i * bigint_base_t_size_bits);
-    }
-    return result;
-}
-
 uint64_t BigInt::byte_size() const
 {
     return data.size() * sizeof(bigint_base_t);
@@ -123,7 +103,7 @@ std::string BigInt::to_str(unsigned base) const
     {
         const auto [quotient, remainder] = divide_func(number);
         number = quotient;
-        str_number.append(1, get_digit_char(static_cast<int>(remainder.to_int())));
+        str_number.append(1, get_digit_char(static_cast<int>(remainder.to<int>())));
     } while (!number.is_zero());
 
     str_number += is_negative() ? "-" : "";
@@ -173,16 +153,6 @@ Sign BigInt::get_sign() const
 void BigInt::set_sign(Sign new_sign)
 {
     sign = new_sign;
-}
-
-bool BigInt::is_uint64() const
-{
-    return byte_size() <= sizeof(uint64_t);
-}
-
-bool BigInt::is_int64() const
-{
-    return is_uint64() && !get_bit(sizeof(int64_t) * 8 - 1);
 }
 
 bool BigInt::is_zero() const

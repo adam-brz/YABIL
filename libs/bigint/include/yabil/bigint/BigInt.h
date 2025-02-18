@@ -3,6 +3,7 @@
 #include <yabil/bigint/BigIntBase.h>
 #include <yabil/bigint/bigint_export.h>
 
+#include <bit>
 #include <cstdint>
 #include <cstdlib>
 #include <limits>
@@ -37,7 +38,7 @@ private:
 
 public:
     /// @brief Creates BigInt initialized to 0.
-    YABIL_BIGINT_EXPORT BigInt() = default;
+    YABIL_BIGINT_EXPORT BigInt() noexcept = default;
 
     /// @brief Creates BigInt from string.
     /// @param str String representation of the number.
@@ -45,22 +46,24 @@ public:
     YABIL_BIGINT_EXPORT explicit BigInt(const std::string_view &str, unsigned base = 10);
 
     /// @brief Creates BigInt from raw data.
+    /// @details Data will be moved without creation of any additional copies.
     /// @param raw_data \p std::vector of \p yabil::bigint::bigint_base_t
     /// @param sign Integer sign of type \p yabil::bigint::Sign
-    YABIL_BIGINT_EXPORT explicit BigInt(const std::vector<bigint_base_t> &raw_data, Sign sign = Sign::Plus);
-
-    /// @copydoc yabil::bigint::BigInt::BigInt(const std::vector<bigint_base_t> &, Sign)
     YABIL_BIGINT_EXPORT explicit BigInt(std::vector<bigint_base_t> &&raw_data, Sign sign = Sign::Plus);
 
-    /// @copydoc yabil::bigint::BigInt::BigInt(const std::vector<bigint_base_t> &, Sign)
-    YABIL_BIGINT_EXPORT explicit BigInt(std::span<bigint_base_t const> raw_data, Sign sign = Sign::Plus);
+    /// @brief Creates BigInt from raw data.
+    /// @details Data will be copied into internal buffer.
+    /// @param raw_data \p std::span on \p yabil::bigint::bigint_base_t
+    /// @param sign Integer sign of type \p yabil::bigint::Sign
+    YABIL_BIGINT_EXPORT explicit BigInt(const std::span<const bigint_base_t> &raw_data, Sign sign = Sign::Plus);
 
     /// @brief Creates BigInt from specified signed number.
     /// @tparam T Signed number type
     /// @param number Signed number
-    template <typename T, class = typename std::enable_if_t<std::is_signed_v<T>>>
-    explicit BigInt(T number)
-        : BigInt(static_cast<std::make_unsigned_t<T>>(std::abs(number)), number < 0 ? Sign::Minus : Sign::Plus)
+    template <std::signed_integral SignedInteger>
+    explicit BigInt(SignedInteger number)
+        : BigInt(static_cast<std::make_unsigned_t<SignedInteger>>(std::abs(number)),
+                 number < 0 ? Sign::Minus : Sign::Plus)
     {
     }
 
@@ -68,8 +71,8 @@ public:
     /// @tparam T Unsigned number type
     /// @param number Unsigned number
     /// @param sign Optional sign of the \p BigInt number
-    template <typename T, class = typename std::enable_if_t<std::is_unsigned_v<T>>>
-    explicit BigInt(T number, Sign sign = Sign::Plus) : sign(sign)
+    template <std::unsigned_integral UnsignedInteger>
+    explicit BigInt(UnsignedInteger number, Sign sign = Sign::Plus) : sign(sign)
     {
         if (number == 0)
         {
@@ -77,7 +80,7 @@ public:
             return;
         }
 
-        constexpr int data_item_count = sizeof(T) / sizeof(bigint_base_t);
+        constexpr int data_item_count = sizeof(UnsignedInteger) / sizeof(bigint_base_t);
         if constexpr (data_item_count < 2)
         {
             data.push_back(static_cast<bigint_base_t>(number));
@@ -93,32 +96,71 @@ public:
         normalize();
     }
 
+    /// @brief Convert number to given signed integer type.
+    /// @details Conversion will lose precision if the number is too big.
+    /// @tparam OutType The type to which the number is converted.
+    /// @return The number converted to the given type.
+    template <std::signed_integral OutType>
+    OutType to() const
+    {
+        const OutType result = static_cast<OutType>(to<std::make_unsigned_t<OutType>>());
+        return is_negative() ? -result : result;
+    }
+
+    /// @brief Convert number to given unsigned integer type.
+    /// @details Conversion will lose precision if the number is too big.
+    /// @tparam OutType The type to which the number is converted.
+    /// @return The number converted to the given type.
+    template <std::unsigned_integral OutType>
+    OutType to() const
+    {
+        if (data.size() == 0)
+        {
+            return 0;
+        }
+
+        if constexpr (sizeof(OutType) <= sizeof(bigint_base_t))
+        {
+            return static_cast<OutType>(data[0]);
+        }
+        else
+        {
+            OutType result = 0;
+            for (std::size_t i = 0; (i < data.size()) && (i < sizeof(OutType) / sizeof(bigint_base_t)); ++i)
+            {
+                result |= static_cast<OutType>(data[i]) << (i * bigint_base_t_size_bits);
+            }
+            return result;
+        }
+    }
+
+    /// @brief Check if the number can be safely converted to specified signed type (without losing precision).
+    /// @tparam OutType The type to which the number is converted.
+    /// @return True if the number can be safely converted to the specified type, false otherwise.
+    template <std::signed_integral OutType>
+    bool is() const 
+    {
+        return is<std::make_unsigned_t<OutType>>() && !get_bit(sizeof(OutType) * 8 - 1);
+    }
+
+    /// @brief Check if the number can be safely converted to specified unsigned type (without losing precision).
+    /// @tparam OutType The type to which the number is converted.
+    /// @return True if the number can be safely converted to the specified type, false otherwise.
+    template <std::unsigned_integral OutType>
+    bool is() const
+    {
+        const auto leading_zeroes = std::countl_zero(data.back());
+        return static_cast<int>(byte_size() * 8) - leading_zeroes <= static_cast<int>(sizeof(OutType) * 8);
+    }
+
     /// @brief Get number absolute value.
     /// @return Absolute value of \p BigInt
     YABIL_BIGINT_EXPORT BigInt abs() const;
-
-    /// @brief Convert \p BigInt to number of \p int64_t type.
-    /// @details Conversion simply drops any additional bits of number.
-    /// @return Number of type \p int64_t
-    YABIL_BIGINT_EXPORT int64_t to_int() const;
-
-    /// @brief Convert \p BigInt to number of \p uint64_t type.
-    /// @details Conversion simply drops any additional bits of number.
-    /// @return Number of type \p uint64_t
-    YABIL_BIGINT_EXPORT uint64_t to_uint() const;
 
     /// @brief Convert number to string with specified base.
     /// @param base Base of the number string representation (can be from 2 to 16)
     /// @return \p std::string representation of the number
     YABIL_BIGINT_EXPORT std::string to_str(unsigned base = 10) const;
-
-    /// @brief Check if big integer can be represented as \p uint64_t
-    /// @return \p true if numeric value is in \p uint64_t range and \p false otherwise
-    YABIL_BIGINT_EXPORT bool is_uint64() const;
-
-    /// @brief Check if big integer can be safely represented as \p int64_t
-    /// @return \p true if number can be safely represented as \p int64_t and \p false otherwise
-    YABIL_BIGINT_EXPORT bool is_int64() const;
 
     /// @brief Check is number is equal to zero.
     /// @return \p true if number is equal to zero and \p false otherwise

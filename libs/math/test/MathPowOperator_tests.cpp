@@ -16,12 +16,12 @@ TEST_F(BigIntPowOperator_tests, anyNumberPowerZeroGivesOneExceptZero)
     for (int i = -10; i < 0; ++i)
     {
         const BigInt num(i);
-        EXPECT_EQ(1, pow(num, BigInt(0)).to_int());
+        EXPECT_EQ(1, pow(num, BigInt(0)).to<int64_t>());
     }
     for (int i = 1; i < 10; ++i)
     {
         const BigInt num(i);
-        EXPECT_EQ(1, pow(num, BigInt(0)).to_int());
+        EXPECT_EQ(1, pow(num, BigInt(0)).to<int64_t>());
     }
 }
 
