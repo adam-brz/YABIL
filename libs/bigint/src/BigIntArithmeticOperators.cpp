@@ -27,7 +27,7 @@ std::pair<BigInt, BigInt> BigInt::divide_unsigned(const BigInt &other) const
 
 std::pair<BigInt, BigInt> BigInt::unbalanced_div(const BigInt &other) const
 {
-    constexpr uint64_t digit_bit_size = static_cast<uint64_t>(bigint_base_t_size_bits);
+    constexpr uint64_t digit_bit_size = static_cast<uint64_t>(BigInt::digit_size_bits);
     const int n = static_cast<int>(other.data.size());
     int m = static_cast<int>(data.size()) - n;
 
@@ -50,7 +50,7 @@ std::pair<BigInt, BigInt> BigInt::unbalanced_div(const BigInt &other) const
 
 std::pair<BigInt, BigInt> BigInt::recursive_div(const BigInt &other) const
 {
-    constexpr uint64_t digit_bit_size = static_cast<uint64_t>(bigint_base_t_size_bits);
+    constexpr uint64_t digit_bit_size = static_cast<uint64_t>(BigInt::digit_size_bits);
     const int n = static_cast<int>(other.data.size());
     const int m = static_cast<int>(data.size()) - n;
 
@@ -89,7 +89,7 @@ std::pair<BigInt, BigInt> BigInt::recursive_div(const BigInt &other) const
 
 std::pair<BigInt, BigInt> BigInt::base_div(const BigInt &other) const
 {
-    constexpr uint64_t digit_bit_size = static_cast<uint64_t>(bigint_base_t_size_bits);
+    constexpr uint64_t digit_bit_size = static_cast<uint64_t>(BigInt::digit_size_bits);
     const int n = static_cast<int>(other.data.size());
     const int m = static_cast<int>(data.size()) - n;
 
@@ -112,12 +112,12 @@ std::pair<BigInt, BigInt> BigInt::base_div(const BigInt &other) const
     for (int i = m - 1; i >= 0; --i)
     {
         const auto top_two_digits =
-            (static_cast<utils::double_width_t<bigint_base_t>>(A.data[n + i]) << bigint_base_t_size_bits) |
+            (static_cast<utils::double_width_t<bigint_base_t>>(A.data[n + i]) << BigInt::digit_size_bits) |
             static_cast<utils::double_width_t<bigint_base_t>>(A.data[n + i - 1]);
 
         const auto quotient_part = top_two_digits / B.data[n - 1];
         auto q_i = std::min(quotient_part,
-                            (static_cast<utils::double_width_t<bigint_base_t>>(1) << bigint_base_t_size_bits) - 1);
+                            (static_cast<utils::double_width_t<bigint_base_t>>(1) << BigInt::digit_size_bits) - 1);
         A -= (BigInt(q_i) * B) << (digit_bit_size * i);
         while (A.is_negative())
         {
@@ -208,7 +208,7 @@ bigint_base_t BigInt::operator%(bigint_base_t other) const
     for (auto it = data.crbegin(); it != data.crend(); ++it)
     {
         const bigint_base_t digit = *it;
-        constexpr auto shift_val = bigint_base_t_size_bits / 2;
+        constexpr auto shift_val = BigInt::digit_size_bits / 2;
         constexpr auto mask = std::numeric_limits<utils::half_width_t<bigint_base_t>>::max();
         ret = ((ret << shift_val) | ((digit >> shift_val) & mask)) % other;
         ret = ((ret << shift_val) | (digit & mask)) % other;

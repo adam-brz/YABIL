@@ -1,16 +1,15 @@
 #pragma once
 
 #include <yabil/bigint/BigIntBase.h>
+#include <yabil/bigint/Sign.h>
 #include <yabil/bigint/bigint_export.h>
 
-#include <bit>
 #include <cstdint>
 #include <cstdlib>
 #include <limits>
 #include <span>
 #include <string>
 #include <string_view>
-#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -18,20 +17,14 @@
 namespace yabil::bigint
 {
 
-/// @brief Bit-size of base type
-constexpr int bigint_base_t_size_bits = std::numeric_limits<bigint_base_t>::digits;
-
-/// @brief Sign of big integer
-enum class Sign : uint8_t
-{
-    Plus,
-    Minus
-};
-
 /// @brief Big integer class for arbitrary size signed integer numbers.
 /// @headerfile BigInt.h <yabil/bigint/BigInt.h>
 class BigInt
 {
+public:
+    /// @brief Size of single digit in bits
+    static constexpr auto digit_size_bits = std::numeric_limits<bigint_base_t>::digits;
+
 private:
     std::vector<bigint_base_t> data;
     Sign sign = Sign::Plus;
@@ -61,101 +54,40 @@ public:
     /// @tparam T Signed number type
     /// @param number Signed number
     template <std::signed_integral SignedInteger>
-    explicit BigInt(SignedInteger number)
-        : BigInt(static_cast<std::make_unsigned_t<SignedInteger>>(std::abs(number)),
-                 number < 0 ? Sign::Minus : Sign::Plus)
-    {
-    }
+    explicit BigInt(SignedInteger number);
 
     /// @brief Creates BigInt from specified unsigned number.
     /// @tparam T Unsigned number type
     /// @param number Unsigned number
     /// @param sign Optional sign of the \p BigInt number
     template <std::unsigned_integral UnsignedInteger>
-    explicit BigInt(UnsignedInteger number, Sign sign = Sign::Plus) : sign(sign)
-    {
-        if (number == 0)
-        {
-            this->sign = Sign::Plus;
-            return;
-        }
-
-        constexpr int data_item_count = sizeof(UnsignedInteger) / sizeof(bigint_base_t);
-        if constexpr (data_item_count < 2)
-        {
-            data.push_back(static_cast<bigint_base_t>(number));
-        }
-        else
-        {
-            data.reserve(data_item_count);
-            for (std::size_t i = 0; i < data_item_count; ++i)
-            {
-                data.push_back(static_cast<bigint_base_t>(number >> (i * bigint_base_t_size_bits)));
-            }
-        }
-        normalize();
-    }
+    explicit BigInt(UnsignedInteger number, Sign sign = Sign::Plus);
 
     /// @brief Convert number to given signed integer type.
     /// @details Conversion will lose precision if the number is too big.
     /// @tparam OutType The type to which the number is converted.
     /// @return The number converted to the given type.
     template <std::signed_integral OutType>
-    OutType to() const
-    {
-        const OutType result = static_cast<OutType>(to<std::make_unsigned_t<OutType>>());
-        return is_negative() ? -result : result;
-    }
+    OutType to() const;
 
     /// @brief Convert number to given unsigned integer type.
     /// @details Conversion will lose precision if the number is too big.
     /// @tparam OutType The type to which the number is converted.
     /// @return The number converted to the given type.
     template <std::unsigned_integral OutType>
-    OutType to() const
-    {
-        if (is_zero())
-        {
-            return 0;
-        }
-
-        if constexpr (sizeof(OutType) <= sizeof(bigint_base_t))
-        {
-            return static_cast<OutType>(data[0]);
-        }
-        else
-        {
-            OutType result = 0;
-            for (std::size_t i = 0; (i < data.size()) && (i < sizeof(OutType) / sizeof(bigint_base_t)); ++i)
-            {
-                result |= static_cast<OutType>(data[i]) << (i * bigint_base_t_size_bits);
-            }
-            return result;
-        }
-    }
+    OutType to() const;
 
     /// @brief Check if the number can be safely converted to specified signed type (without losing precision).
     /// @tparam OutType The type to which the number is converted.
     /// @return True if the number can be safely converted to the specified type, false otherwise.
     template <std::signed_integral OutType>
-    bool is() const
-    {
-        return is<std::make_unsigned_t<OutType>>() && !get_bit(sizeof(OutType) * 8 - 1);
-    }
+    bool is() const;
 
     /// @brief Check if the number can be safely converted to specified unsigned type (without losing precision).
     /// @tparam OutType The type to which the number is converted.
     /// @return True if the number can be safely converted to the specified type, false otherwise.
     template <std::unsigned_integral OutType>
-    bool is() const
-    {
-        if (is_zero())
-        {
-            return true;
-        }
-        const auto leading_zeroes = std::countl_zero(data.back());
-        return static_cast<int>(byte_size() * 8) - leading_zeroes <= static_cast<int>(sizeof(OutType) * 8);
-    }
+    bool is() const;
 
     /// @brief Get number absolute value.
     /// @return Absolute value of \p BigInt
@@ -415,3 +347,5 @@ private:
 };
 
 }  // namespace yabil::bigint
+
+#include <yabil/bigint/impl/BigIntImpl.h>

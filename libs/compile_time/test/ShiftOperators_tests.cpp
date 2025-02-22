@@ -19,7 +19,7 @@ TEST_F(ConstBigIntShift_tests, canShiftLeftByFullDigitSize)
 {
     constexpr ConstBigInt b = bigint_v<1, 1>;
     constexpr ConstBigInt expected = bigint_v<0, 1, 1>;
-    constexpr auto result = b << shift_v<bigint_base_t_size_bits>;
+    constexpr auto result = b << shift_v<bigint::BigInt::digit_size_bits>;
     static_assert(result == expected);
     EXPECT_TRUE(result == expected);
 }
@@ -34,7 +34,7 @@ TEST_F(ConstBigIntShift_tests, canShiftRightByFullDigitSize)
 {
     constexpr ConstBigInt b = bigint_v<1, 1>;
     constexpr ConstBigInt expected = bigint_v<1>;
-    constexpr auto result = b >> shift_v<bigint_base_t_size_bits>;
+    constexpr auto result = b >> shift_v<bigint::BigInt::digit_size_bits>;
     static_assert(result == expected);
     EXPECT_TRUE(result == expected);
 }
@@ -66,7 +66,7 @@ TEST_F(ConstBigIntShift_tests, shiftRightProducesZeroWhenShiftingMoreThanSize)
 {
     constexpr ConstBigInt b = bigint_v<1, 1>;
     constexpr ConstBigInt expected = bigint_v<0>;
-    constexpr auto result = b >> shift_v<2ULL * bigint_base_t_size_bits>;
+    constexpr auto result = b >> shift_v<2ULL *bigint::BigInt::digit_size_bits>;
     static_assert(result == expected);
     EXPECT_TRUE(result == expected);
 }
@@ -75,7 +75,7 @@ TEST_F(ConstBigIntShift_tests, canShiftRightAndLoseLeastSignificantDigit)
 {
     constexpr ConstBigInt b = bigint_v<0, 0, 1>;
     constexpr ConstBigInt expected = bigint_v<0, 1>;
-    constexpr auto result = b >> shift_v<bigint_base_t_size_bits>;
+    constexpr auto result = b >> shift_v<bigint::BigInt::digit_size_bits>;
     static_assert(result == expected);
     EXPECT_TRUE(result == expected);
 }

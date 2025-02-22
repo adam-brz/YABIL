@@ -174,8 +174,8 @@ bool BigInt::abs_lower(const BigInt &other) const
 
 bool BigInt::get_bit(std::size_t n) const
 {
-    const auto item_index = n / bigint_base_t_size_bits;
-    const auto bit_index = n % bigint_base_t_size_bits;
+    const auto item_index = n / BigInt::digit_size_bits;
+    const auto bit_index = n % BigInt::digit_size_bits;
 
     if (item_index >= data.size())
     {
@@ -186,8 +186,8 @@ bool BigInt::get_bit(std::size_t n) const
 
 void BigInt::set_bit(std::size_t n, bool bit_value)
 {
-    const auto item_index = n / bigint_base_t_size_bits;
-    const auto bit_index = n % bigint_base_t_size_bits;
+    const auto item_index = n / BigInt::digit_size_bits;
+    const auto bit_index = n % BigInt::digit_size_bits;
 
     if (item_index >= data.size())
     {

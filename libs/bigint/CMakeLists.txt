@@ -17,6 +17,7 @@ set(SOURCES
 )
 
 set(HEADERS
+    include/yabil/bigint/impl/BigIntImpl.h
     include/yabil/bigint/BigInt.h
     include/yabil/bigint/BigIntBase.h
     include/yabil/bigint/BigIntGlobalConfig.h

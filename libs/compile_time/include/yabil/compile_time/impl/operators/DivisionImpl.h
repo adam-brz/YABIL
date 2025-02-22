@@ -32,7 +32,7 @@ consteval auto compensate_A_for_division()
     constexpr auto B = make_bigint<OtherSize, OtherData>();
     if constexpr (A.is_negative())
     {
-        constexpr auto compensated_A = A + (B << shift_v<bigint_base_t_size_bits *static_cast<uint64_t>(i)>);
+        constexpr auto compensated_A = A + (B << shift_v<bigint::BigInt::digit_size_bits *static_cast<uint64_t>(i)>);
         return compensate_A_for_division<compensated_A.sign, compensated_A.data.size(), compensated_A.data, OtherSize,
                                          OtherData, i, q_i - 1>();
     }
@@ -54,17 +54,17 @@ consteval auto div_recursive_iter(BigIntData<OutSize> &q)
     else
     {
         constexpr auto top_two_digits =
-            (static_cast<utils::double_width_t<bigint_base_t>>(AData[n + i]) << bigint_base_t_size_bits) |
+            (static_cast<utils::double_width_t<bigint_base_t>>(AData[n + i]) << bigint::BigInt::digit_size_bits) |
             static_cast<utils::double_width_t<bigint_base_t>>(AData[n + i - 1]);
 
         constexpr auto quotient_part = top_two_digits / OtherData[n - 1];
 
         constexpr bigint_base_t q_i = static_cast<bigint_base_t>(std::min(
-            quotient_part, (static_cast<utils::double_width_t<bigint_base_t>>(1) << bigint_base_t_size_bits) - 1));
+            quotient_part, (static_cast<utils::double_width_t<bigint_base_t>>(1) << bigint::BigInt::digit_size_bits) - 1));
 
         constexpr auto A = make_bigint<ASize, AData>();
         constexpr auto B = make_bigint<OtherSize, OtherData>();
-        constexpr auto newA = A - ((bigint_v<q_i> * B) << shift_v<bigint_base_t_size_bits *static_cast<uint64_t>(i)>);
+        constexpr auto newA = A - ((bigint_v<q_i> * B) << shift_v<bigint::BigInt::digit_size_bits *static_cast<uint64_t>(i)>);
 
         constexpr auto compensated_A_and_q_i =
             compensate_A_for_division<newA.sign, newA.data.size(), newA.data, OtherSize, OtherData, i, q_i>();
@@ -94,7 +94,7 @@ consteval auto div_unsigned()
         constexpr auto A = make_bigint<SelfSize, SelfData>();
         constexpr auto B = make_bigint<OtherSize, OtherData>();
         constexpr auto B_m = make_bigint<OtherSize, OtherData>()
-                             << shift_v<static_cast<uint64_t>(bigint_base_t_size_bits) * m>;
+                             << shift_v<static_cast<uint64_t>(bigint::BigInt::digit_size_bits) * m>;
 
         if constexpr (A >= B_m)
         {

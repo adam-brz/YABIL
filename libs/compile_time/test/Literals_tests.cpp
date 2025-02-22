@@ -31,7 +31,7 @@ TEST_F(ConstBigIntLiterals_tests, canCreateNonZeroSmallPositiveNumber)
 
 TEST_F(ConstBigIntLiterals_tests, canCreateNonZeroBigPositiveNumber)
 {
-    if constexpr (bigint_base_t_size_bits == 64)
+    if constexpr (bigint::BigInt::digit_size_bits == 64)
     {
         constexpr auto a = 18446744073709551617_bi;  // 2**64 + 1
         constexpr auto expected = bigint_v<1, 1>;
