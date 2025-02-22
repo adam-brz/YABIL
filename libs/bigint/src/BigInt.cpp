@@ -5,7 +5,6 @@
 #include <cctype>
 #include <cmath>
 #include <functional>
-#include <iostream>
 
 #include "Arithmetic.h"
 #include "StringConversionUtils.h"
@@ -160,18 +159,6 @@ bool BigInt::is_zero() const
     return data.size() == 0;
 }
 
-bool BigInt::abs_greater(const BigInt &other) const
-{
-    return other.abs_lower(*this);
-}
-
-bool BigInt::abs_lower(const BigInt &other) const
-{
-    return data.size() < other.data.size() ||
-           (data.size() == other.data.size() &&
-            std::lexicographical_compare(data.crbegin(), data.crend(), other.data.crbegin(), other.data.crend()));
-}
-
 bool BigInt::get_bit(std::size_t n) const
 {
     const auto item_index = n / BigInt::digit_size_bits;
@@ -197,44 +184,6 @@ void BigInt::set_bit(std::size_t n, bool bit_value)
     data[item_index] =
         (data[item_index] & ~(bigint_base_t(1) << bit_index)) | (static_cast<bigint_base_t>(bit_value) << bit_index);
     normalize();
-}
-
-std::ostream &operator<<(std::ostream &out, const BigInt &bigint)
-{
-    out << bigint.to_str();
-    return out;
-}
-
-std::istream &operator>>(std::istream &in, BigInt &bigint)
-{
-    constexpr int base = 10;
-
-    char first;
-    in >> first;
-
-    const Sign sign = (first == '-') ? Sign::Minus : Sign::Plus;
-    const bool hasSign = (first == '-') || (first == '+');
-
-    BigInt result;
-    if (!hasSign)
-    {
-        int converted = get_digit_value(std::tolower(first));
-        check_conversion(first, static_cast<unsigned>(converted), base);
-        result = BigInt(converted);
-    }
-
-    for (auto it = std::istreambuf_iterator<char>(in); it != std::istreambuf_iterator<char>(); ++it)
-    {
-        const auto converted = get_digit_value(std::tolower(*it));
-        check_conversion(*it, static_cast<unsigned>(converted), base);
-        result *= BigInt(base);
-        result += BigInt(converted);
-    }
-
-    result.sign = sign;
-    bigint = std::move(result);
-
-    return in;
 }
 
 }  // namespace yabil::bigint
