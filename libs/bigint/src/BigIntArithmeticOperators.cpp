@@ -393,12 +393,10 @@ BigInt &BigInt::inplace_plain_add(const BigInt &other)
 
 BigInt &BigInt::inplace_plain_sub(const BigInt &other)
 {
-    const BigInt *longer = this;
-    const BigInt *shorter = &other;
+    const auto [longer, shorter] = get_greater_lower(*this, other);
 
-    if (abs_lower(other))
+    if (longer != this)
     {
-        std::swap(longer, shorter);
         sign = Sign::Minus;
     }
 
