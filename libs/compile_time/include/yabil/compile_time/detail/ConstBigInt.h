@@ -13,9 +13,6 @@ namespace yabil::compile_time
 /// @brief Sign type of a big integer number.
 using Sign = bigint::Sign;
 
-/// @brief Size of a digit in a big integer number in bits.
-static inline constexpr auto bigint_base_t_size_bits = bigint::bigint_base_t_size_bits;
-
 /// @brief Big integer class for compile-time arbitrary size integer numbers.
 /// @details All computations should be performed in compile time.
 /// @headerfile ConstBigInt.h <yabil/compile_time/detail/ConstBigInt.h>

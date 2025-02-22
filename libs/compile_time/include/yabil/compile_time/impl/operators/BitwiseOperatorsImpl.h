@@ -17,8 +17,8 @@ consteval auto shift_left()
 {
     using base_t = bigint::bigint_base_t;
 
-    constexpr auto new_items_count = shift_value / bigint_base_t_size_bits;
-    constexpr auto real_shift = shift_value % bigint_base_t_size_bits;
+    constexpr auto new_items_count = shift_value / bigint::BigInt::digit_size_bits;
+    constexpr auto real_shift = shift_value % bigint::BigInt::digit_size_bits;
     constexpr auto result_size = new_items_count + SelfSize + 1;
 
     std::array<base_t, result_size> shifted{};
@@ -34,7 +34,7 @@ consteval auto shift_left()
         {
             const base_t v = get_digit(i, SelfData);
             const base_t transformed = static_cast<base_t>(v << real_shift) | shifted_val;
-            shifted_val = static_cast<base_t>(v >> (bigint_base_t_size_bits - real_shift));
+            shifted_val = static_cast<base_t>(v >> (bigint::BigInt::digit_size_bits - real_shift));
             shifted[i + new_items_count] = transformed;
         }
         shifted.back() = shifted_val;
@@ -48,8 +48,8 @@ consteval auto shift_right()
 {
     using base_t = bigint::bigint_base_t;
 
-    constexpr auto removed_items_count = shift_value / bigint_base_t_size_bits;
-    constexpr auto real_shift = shift_value % bigint_base_t_size_bits;
+    constexpr auto removed_items_count = shift_value / bigint::BigInt::digit_size_bits;
+    constexpr auto real_shift = shift_value % bigint::BigInt::digit_size_bits;
 
     if constexpr (removed_items_count >= SelfSize)
     {
@@ -72,7 +72,7 @@ consteval auto shift_right()
                            [&shifted_val](const base_t &v)
                            {
                                const base_t transformed = (v >> real_shift) | shifted_val;
-                               shifted_val = static_cast<base_t>(v << (bigint_base_t_size_bits - real_shift));
+                               shifted_val = static_cast<base_t>(v << (bigint::BigInt::digit_size_bits - real_shift));
                                return transformed;
                            });
         }

@@ -47,7 +47,7 @@ template <std::size_t Base, Sign NumberSign, std::size_t InternalSize, BigIntDat
 constexpr auto to_oversized_reversed_string()
 {
     // Estimate can be much larger than actual size - do not care
-    constexpr auto str_size_estimate = bigint_base_t_size_bits * InternalSize / math::log2_int(bigint_v<Base>) +
+    constexpr auto str_size_estimate = bigint::BigInt::digit_size_bits * InternalSize / math::log2_int(bigint_v<Base>) +
                                        3;  // 3 for minus sign, null character and possible rounding
 
     std::array<char, str_size_estimate> number_characters{};
@@ -90,8 +90,8 @@ template <Sign NumberSign, std::size_t InternalSize, BigIntData<InternalSize> In
 template <std::size_t n>
 consteval bool ConstBigInt<NumberSign, InternalSize, InternalData>::get_bit()
 {
-    constexpr auto item_index = n / bigint_base_t_size_bits;
-    constexpr auto bit_index = n % bigint_base_t_size_bits;
+    constexpr auto item_index = n / bigint::BigInt::digit_size_bits;
+    constexpr auto bit_index = n % bigint::BigInt::digit_size_bits;
 
     if constexpr (item_index >= data.size())
     {
@@ -136,7 +136,7 @@ consteval OutType ConstBigInt<NumberSign, InternalSize, InternalData>::to()
         OutType result = 0;
         for (std::size_t i = 0; (i < InternalData.size()) && (i < sizeof(OutType) / sizeof(bigint_base_t)); ++i)
         {
-            result |= static_cast<OutType>(InternalData[i]) << (i * bigint_base_t_size_bits);
+            result |= static_cast<OutType>(InternalData[i]) << (i *bigint::BigInt::digit_size_bits);
         }
         return result;
     }

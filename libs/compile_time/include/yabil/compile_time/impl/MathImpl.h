@@ -44,7 +44,7 @@ constexpr uint64_t compute_raw_fraction_for_log2()
     static_assert(sizeof(double) == 8, "This function is designed for 64-bit double precision");
     constexpr auto number = make_bigint<NumberSize, NumberData>();
 
-    constexpr int result_iter_count = (sizeof(double) * 8) / bigint_base_t_size_bits;
+    constexpr int result_iter_count = (sizeof(double) * 8) /bigint::BigInt::digit_size_bits;
     constexpr auto bit_shift_quotient_removal = std::countl_zero(number.data.back()) + 1;
 
     uint64_t raw_fraction = 0;
@@ -54,13 +54,13 @@ constexpr uint64_t compute_raw_fraction_for_log2()
     {
         const uint64_t fraction_part = static_cast<uint64_t>(number.data[number.data.size() - 1 - i])
                                        << bit_shift_quotient_removal;
-        raw_fraction |= fraction_part << (static_cast<int>(sizeof(double) * 8) - (i + 1) * bigint_base_t_size_bits);
+        raw_fraction |= fraction_part << (static_cast<int>(sizeof(double) * 8) - (i + 1) *bigint::BigInt::digit_size_bits);
     }
 
     if (i < static_cast<int>(number.data.size()))
     {
         raw_fraction |= static_cast<uint64_t>(number.data[number.data.size() - 1 - i]) >>
-                        (bigint_base_t_size_bits - bit_shift_quotient_removal);
+                        (bigint::BigInt::digit_size_bits - bit_shift_quotient_removal);
     }
 
     return (raw_fraction >> 12) | 0x3ff0000000000000;
@@ -80,9 +80,9 @@ consteval uint64_t log2_int()
     constexpr auto number = make_bigint<NumberSize, NumberData>();
     static_assert(!number.is_zero(), "Logarithm argument must be greater than 0");
 
-    constexpr auto bit_size = (number.data.size() - 1) * bigint_base_t_size_bits;
+    constexpr auto bit_size = (number.data.size() - 1) * bigint::BigInt::digit_size_bits;
     constexpr auto last_item = number.data.back();
-    constexpr auto last_one_pos = bigint_base_t_size_bits - std::countl_zero(last_item);
+    constexpr auto last_one_pos = bigint::BigInt::digit_size_bits - std::countl_zero(last_item);
     return bit_size + last_one_pos - 1;
 }
 

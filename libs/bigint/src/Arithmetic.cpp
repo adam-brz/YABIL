@@ -80,7 +80,7 @@ std::vector<bigint_base_t> mul_basecase(std::span<bigint_base_t const> a, std::s
         {
             carry += result[i + j] + utils::safe_mul((*longer)[j], (*shorter)[i]);
             result[i + j] = static_cast<bigint_base_t>(carry);
-            carry >>= bigint_base_t_size_bits;
+            carry >>= BigInt::digit_size_bits;
         }
         if (carry)
         {
