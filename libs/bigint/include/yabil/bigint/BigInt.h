@@ -114,7 +114,7 @@ public:
     template <std::unsigned_integral OutType>
     OutType to() const
     {
-        if (data.size() == 0)
+        if (is_zero())
         {
             return 0;
         }
@@ -138,7 +138,7 @@ public:
     /// @tparam OutType The type to which the number is converted.
     /// @return True if the number can be safely converted to the specified type, false otherwise.
     template <std::signed_integral OutType>
-    bool is() const 
+    bool is() const
     {
         return is<std::make_unsigned_t<OutType>>() && !get_bit(sizeof(OutType) * 8 - 1);
     }
@@ -149,6 +149,10 @@ public:
     template <std::unsigned_integral OutType>
     bool is() const
     {
+        if (is_zero())
+        {
+            return true;
+        }
         const auto leading_zeroes = std::countl_zero(data.back());
         return static_cast<int>(byte_size() * 8) - leading_zeroes <= static_cast<int>(sizeof(OutType) * 8);
     }
