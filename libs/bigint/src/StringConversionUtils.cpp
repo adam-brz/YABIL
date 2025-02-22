@@ -1,5 +1,8 @@
 #include "StringConversionUtils.h"
 
+#include <yabil/bigint/BigInt.h>
+
+#include <istream>
 #include <stdexcept>
 #include <string>
 

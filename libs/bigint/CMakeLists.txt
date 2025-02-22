@@ -7,7 +7,8 @@ set(SOURCES
     src/BigIntArithmeticOperators.cpp
     src/BigIntBinaryOperators.cpp
     src/BigIntGlobalConfig.cpp
-    src/BigIntReleationOperators.cpp
+    src/BigIntRelationOperators.cpp
+    src/io.cpp
     src/StringConversionUtils.cpp
     src/StringConversionUtils.h
     src/add_sub/AddSub.h
@@ -21,31 +22,32 @@ set(HEADERS
     include/yabil/bigint/BigInt.h
     include/yabil/bigint/BigIntBase.h
     include/yabil/bigint/BigIntGlobalConfig.h
+    include/yabil/bigint/io.h
     include/yabil/bigint/Parallel.h
     include/yabil/bigint/Thresholds.h
 )
 
 set(TESTS
-    test/BigIntAddOperator_tests.cpp
-    test/BigIntAndOperator_tests.cpp
-    test/BigIntComparaison_tests.cpp
+    test/arithmetic/BigIntAddOperator_tests.cpp
+    test/arithmetic/BigIntDivOperator_tests.cpp
+    test/arithmetic/BigIntIncrementDecrementOperator_tests.cpp
+    test/arithmetic/BigIntMulOperator_tests.cpp
+    test/arithmetic/BigIntSubOperator_tests.cpp
+    test/bit/BigIntAndOperator_tests.cpp
+    test/bit/BigIntBitOperations_tests.cpp
+    test/bit/BigIntNotOperator_tests.cpp
+    test/bit/BigIntOrOperator_tests.cpp
+    test/bit/BigIntShiftOperator_tests.cpp
+    test/bit/BigIntXorOperator_tests.cpp
+    test/relation/BigIntComparison_tests.cpp
+    test/relation/BigIntGreaterComparison_tests.cpp
+    test/relation/BigIntLowerComparison_tests.cpp
     test/BigIntConstructor_tests.cpp
     test/BigIntConversion_tests.cpp
-    test/BigIntDivOperator_tests.cpp
     test/BigIntGlobalConfig_tests.cpp
-    test/BigIntBitOperations_tests.cpp
-    test/BigIntGreaterComparaison_tests.cpp
-    test/BigIntIncrementDecrementOperator_tests.cpp
     test/BigIntIsPowerOf2_tests.cpp
-    test/BigIntLowerComparaison_tests.cpp
-    test/BigIntMulOperator_tests.cpp
-    test/BigIntNotOperator_tests.cpp
-    test/BigIntOrOperator_tests.cpp
-    test/ParallelOperations_tests.cpp
-    test/BigIntShiftOperator_tests.cpp
     test/BigIntStreamOperator_tests.cpp
-    test/BigIntSubOperator_tests.cpp
-    test/BigIntXorOperator_tests.cpp
+    test/ParallelOperations_tests.cpp
 )
 
 set(BENCHMARKS
