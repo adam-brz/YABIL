@@ -14,123 +14,6 @@
 namespace yabil::bigint
 {
 
-std::pair<BigInt, BigInt> BigInt::divide_unsigned(const BigInt &other) const
-{
-    const auto &config = BigIntGlobalConfig::instance().config;
-
-    if (data.size() > config.recursive_div_threshold && other.data.size() > config.recursive_div_threshold)
-    {
-        return unbalanced_div(other);
-    }
-
-    return base_div(other);
-}
-
-std::pair<BigInt, BigInt> BigInt::unbalanced_div(const BigInt &other) const
-{
-    constexpr uint64_t digit_bit_size = static_cast<uint64_t>(BigInt::digit_size_bits);
-    const int n = static_cast<int>(other.data.size());
-    int m = static_cast<int>(data.size()) - n;
-
-    BigInt A = *this;
-    BigInt Q;
-
-    while (m > n)
-    {
-        const BigInt A_div{std::vector<bigint_base_t>(A.data.cbegin() + (m - n), A.data.cend())};
-        const auto [q, r] = A_div.recursive_div(other);
-
-        Q = (Q << (digit_bit_size * n)) + q;
-        A = (r << (digit_bit_size * (m - n))) +
-            BigInt{std::vector<bigint_base_t>(A.data.cbegin(), A.data.cbegin() + (m - n))};
-        m -= n;
-    }
-    const auto [q, r] = A.recursive_div(other);
-    return {(Q << (digit_bit_size * m)) + q, r};
-}
-
-std::pair<BigInt, BigInt> BigInt::recursive_div(const BigInt &other) const
-{
-    constexpr uint64_t digit_bit_size = static_cast<uint64_t>(BigInt::digit_size_bits);
-    const int n = static_cast<int>(other.data.size());
-    const int m = static_cast<int>(data.size()) - n;
-
-    if (m < 2)
-    {
-        return base_div(other);
-    }
-
-    const int k = m / 2;
-
-    const auto B1 = BigInt{std::vector<bigint_base_t>(other.data.cbegin() + k, other.data.cend())};
-    const auto B0 = BigInt{std::vector<bigint_base_t>(other.data.cbegin(), other.data.cbegin() + k)};
-
-    auto [Q1, R1] = BigInt{std::vector<bigint_base_t>(data.cbegin() + 2L * k, data.cend())}.recursive_div(B1);
-    auto A_prim = (R1 << (digit_bit_size * 2 * k)) +
-                  BigInt{std::vector<bigint_base_t>(data.cbegin(), data.cbegin() + 2L * k)} -
-                  ((Q1 * B0) << (digit_bit_size * k));
-
-    while (A_prim.is_negative())
-    {
-        --Q1;
-        A_prim += other << (digit_bit_size * k);
-    }
-
-    auto [Q0, R0] = BigInt{std::vector<bigint_base_t>(A_prim.data.cbegin() + k, A_prim.data.cend())}.recursive_div(B1);
-    auto A_bis = (R0 << (digit_bit_size * k)) +
-                 BigInt{std::vector<bigint_base_t>(A_prim.data.cbegin(), A_prim.data.cbegin() + k)} - Q0 * B0;
-    while (A_bis.is_negative())
-    {
-        --Q0;
-        A_bis += other;
-    }
-
-    return {(Q1 << (digit_bit_size * k)) + Q0, A_bis};
-}
-
-std::pair<BigInt, BigInt> BigInt::base_div(const BigInt &other) const
-{
-    constexpr uint64_t digit_bit_size = static_cast<uint64_t>(BigInt::digit_size_bits);
-    const int n = static_cast<int>(other.data.size());
-    const int m = static_cast<int>(data.size()) - n;
-
-    if (m < 0)
-    {
-        return {BigInt(), *this};
-    }
-
-    BigInt A = *this;
-    const BigInt &B = other;
-
-    std::vector<bigint_base_t> q(m + 1);
-    const BigInt B_m = B << (digit_bit_size * m);
-    if (A >= B_m)
-    {
-        A -= B_m;
-        q[m] = 1;
-    }
-
-    for (int i = m - 1; i >= 0; --i)
-    {
-        const auto top_two_digits =
-            (static_cast<utils::double_width_t<bigint_base_t>>(A.data[n + i]) << BigInt::digit_size_bits) |
-            static_cast<utils::double_width_t<bigint_base_t>>(A.data[n + i - 1]);
-
-        const auto quotient_part = top_two_digits / B.data[n - 1];
-        auto q_i = std::min(quotient_part,
-                            (static_cast<utils::double_width_t<bigint_base_t>>(1) << BigInt::digit_size_bits) - 1);
-        A -= (BigInt(q_i) * B) << (digit_bit_size * i);
-        while (A.is_negative())
-        {
-            q_i -= 1;
-            A += B << (digit_bit_size * i);
-        }
-        q[i] = static_cast<bigint_base_t>(q_i);
-    }
-
-    return {BigInt(q), A};
-}
-
 BigInt BigInt::operator+(const BigInt &other) const
 {
     if (sign == other.sign)
@@ -241,20 +124,20 @@ std::pair<BigInt, BigInt> BigInt::divide(const BigInt &other) const
 
     if (is_negative() && other.is_negative())
     {
-        const auto [quotient, remainder] = (-(*this)).divide_unsigned(-other);
+        const auto [quotient, remainder] = impl::div_unsigned(-(*this),-other);
         return {quotient, -remainder};
     }
     if (!is_negative() && other.is_negative())
     {
-        const auto [quotient, remainder] = divide_unsigned(-other);
+        const auto [quotient, remainder] = impl::div_unsigned(*this, -other);
         return {-quotient, remainder};
     }
     if (is_negative() && !other.is_negative())
     {
-        const auto [quotient, remainder] = (-(*this)).divide_unsigned(other);
+        const auto [quotient, remainder] = impl::div_unsigned(-(*this), other);
         return {-quotient, -remainder};
     }
-    return divide_unsigned(other);
+    return impl::div_unsigned(*this, other);
 }
 
 BigInt BigInt::operator-() const
