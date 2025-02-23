@@ -9,6 +9,8 @@
 #include <vector>
 
 #include "add_sub/AddSub.h"
+#include "yabil/bigint/BigInt.h"
+#include "yabil/bigint/BigIntBase.h"
 
 namespace yabil::bigint::impl
 {
@@ -49,6 +51,17 @@ std::pair<const BigInt *, const BigInt *> get_greater_lower_unsigned(const BigIn
         return std::make_pair(&b, &a);
     }
     return std::make_pair(&a, &b);
+}
+
+bool abs_greater(const std::span<const bigint_base_t> &a, const std::span<const bigint_base_t> &b)
+{
+    return abs_lower(b, a);
+}
+
+bool abs_lower(const std::span<const bigint_base_t> &a, const std::span<const bigint_base_t> &b)
+{
+    return a.size() < b.size() ||
+           (a.size() == b.size() && std::lexicographical_compare(a.rbegin(), a.rend(), b.rbegin(), b.rend()));
 }
 
 std::vector<bigint_base_t> add_unsigned(std::span<const bigint_base_t> a, std::span<const bigint_base_t> b)
@@ -152,11 +165,12 @@ std::vector<bigint_base_t> &decrement_unsigned(std::vector<bigint_base_t> &n)
     return n;
 }
 
-std::pair<BigInt, BigInt> div_unsigned(const BigInt &a, const BigInt &b)
+std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> div_unsigned(const std::span<const bigint_base_t> &a,
+                                                                               const std::span<const bigint_base_t> &b)
 {
     const auto &config = BigIntGlobalConfig::instance().config;
 
-    if (a.raw_data().size() > config.recursive_div_threshold && b.raw_data().size() > config.recursive_div_threshold)
+    if (a.size() > config.recursive_div_threshold && b.size() > config.recursive_div_threshold)
     {
         return div_unsigned_unbalanced(a, b);
     }
@@ -164,34 +178,46 @@ std::pair<BigInt, BigInt> div_unsigned(const BigInt &a, const BigInt &b)
     return div_unsigned_basecase(a, b);
 }
 
-std::pair<BigInt, BigInt> div_unsigned_unbalanced(const BigInt &a, const BigInt &b)
+std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> div_unsigned_unbalanced(
+    const std::span<const bigint_base_t> &a, const std::span<const bigint_base_t> &b)
 {
     constexpr uint64_t digit_bit_size = static_cast<uint64_t>(BigInt::digit_size_bits);
-    const int n = static_cast<int>(b.raw_data().size());
-    int m = static_cast<int>(a.raw_data().size()) - n;
 
-    BigInt A = a;
+    const int n = static_cast<int>(b.size());
+    int m = static_cast<int>(a.size()) - n;
+
+    std::vector<bigint_base_t> A{a.begin(), a.end()};
     BigInt Q;
 
     while (m > n)
     {
-        const BigInt A_div{std::vector<bigint_base_t>(A.raw_data().cbegin() + (m - n), A.raw_data().cend())};
-        const auto [q, r] = div_unsigned_recursive(A_div, b);
+        const std::span<const bigint_base_t> A_div = utils::make_span(A.cbegin() + (m - n), A.cend());
+        auto [q, r] = div_unsigned_recursive(A_div, b);
 
-        Q = (Q << (digit_bit_size * n)) + q;
-        A = (r << (digit_bit_size * (m - n))) +
-            BigInt{std::vector<bigint_base_t>(A.raw_data().cbegin(), A.raw_data().cbegin() + (m - n))};
+        Q <<= digit_bit_size * n;
+        Q += BigInt{std::move(q)};
+
+        auto R = shift_digits_left(r, m - n);
+
+        R.resize(std::max(static_cast<int>(R.size()), m - n) + 1);
+        impl::inplace_plain_add(R, utils::make_span(A.cbegin(), A.cbegin() + (m - n)));
+
+        A = std::move(R);
         m -= n;
     }
-    const auto [q, r] = div_unsigned_recursive(A, b);
-    return {(Q << (digit_bit_size * m)) + q, r};
+
+    auto [q, r] = div_unsigned_recursive(A, b);
+    Q <<= digit_bit_size * m;
+    Q += BigInt{std::move(q)};
+
+    return {Q.raw_data(), std::move(r)};
 }
 
-std::pair<BigInt, BigInt> div_unsigned_recursive(const BigInt &a, const BigInt &b)
+std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> div_unsigned_recursive(
+    const std::span<const bigint_base_t> &a, const std::span<const bigint_base_t> &b)
 {
-    constexpr uint64_t digit_bit_size = static_cast<uint64_t>(BigInt::digit_size_bits);
-    const int n = static_cast<int>(b.raw_data().size());
-    const int m = static_cast<int>(a.raw_data().size()) - n;
+    const int n = static_cast<int>(b.size());
+    const int m = static_cast<int>(a.size()) - n;
 
     if (m < 2)
     {
@@ -200,52 +226,60 @@ std::pair<BigInt, BigInt> div_unsigned_recursive(const BigInt &a, const BigInt &
 
     const int k = m / 2;
 
-    const auto B0 = BigInt{std::vector<bigint_base_t>(b.raw_data().cbegin(), b.raw_data().cbegin() + k)};
-    const auto B1 = BigInt{std::vector<bigint_base_t>(b.raw_data().cbegin() + k, b.raw_data().cend())};
+    const auto B0 = utils::make_span(b.begin(), b.begin() + k);
+    const auto B1 = utils::make_span(b.begin() + k, b.end());
 
-    const auto A0 = BigInt{std::vector<bigint_base_t>(a.raw_data().cbegin(), a.raw_data().cbegin() + 2L * k)};
-    const auto A1 = BigInt{std::vector<bigint_base_t>(a.raw_data().cbegin() + 2L * k, a.raw_data().cend())};
+    const auto A0 = utils::make_span(a.begin(), a.begin() + 2L * k);
+    const auto A1 = utils::make_span(a.begin() + 2L * k, a.end());
 
     auto [Q1, R1] = div_unsigned_recursive(A1, B1);
-    auto A_prim = (R1 << (digit_bit_size * 2 * k)) + A0 - ((Q1 * B0) << (digit_bit_size * k));
+    R1 = impl::shift_digits_left(R1, 2 * k);
+
+    auto A_prim =
+        BigInt{impl::add_unsigned(R1, A0)} - BigInt{impl::shift_digits_left(impl::mul_unsigned_karatsuba(Q1, B0), k)};
 
     while (A_prim.is_negative())
     {
-        --Q1;
-        A_prim += b << (digit_bit_size * k);
+        impl::decrement_unsigned(Q1);
+        auto B = impl::shift_digits_left(b, k);
+        A_prim += BigInt(std::move(B));
     }
 
-    const auto A_prim0 = BigInt{std::vector<bigint_base_t>(A_prim.raw_data().cbegin(), A_prim.raw_data().cbegin() + k)};
-    const auto A_prim1 = BigInt{std::vector<bigint_base_t>(A_prim.raw_data().cbegin() + k, A_prim.raw_data().cend())};
+    const auto A_prim0 = utils::make_span(A_prim.raw_data().cbegin(), A_prim.raw_data().cbegin() + k);
+    const auto A_prim1 = utils::make_span(A_prim.raw_data().cbegin() + k, A_prim.raw_data().cend());
 
     auto [Q0, R0] = div_unsigned_recursive(A_prim1, B1);
-    auto A_bis = (R0 << (digit_bit_size * k)) + A_prim0 - Q0 * B0;
+    R0 = impl::shift_digits_left(R0, k);
+    auto A_bis = BigInt{impl::add_unsigned(R0, A_prim0)} - BigInt{impl::mul_unsigned_karatsuba(Q0, B0)};
 
     while (A_bis.is_negative())
     {
-        --Q0;
-        A_bis += b;
+        impl::decrement_unsigned(Q0);
+        A_bis += BigInt{b};
     }
 
-    return {(Q1 << (digit_bit_size * k)) + Q0, A_bis};
+    return {impl::add_unsigned(impl::shift_digits_left(Q1, k), Q0), A_bis.raw_data()};
 }
 
-std::pair<BigInt, BigInt> div_unsigned_basecase(const BigInt &a, const BigInt &b)
+std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> div_unsigned_basecase(
+    const std::span<const bigint_base_t> &a, const std::span<const bigint_base_t> &b)
 {
     constexpr uint64_t digit_bit_size = static_cast<uint64_t>(BigInt::digit_size_bits);
-    const int n = static_cast<int>(b.raw_data().size());
-    const int m = static_cast<int>(a.raw_data().size()) - n;
+
+    const int n = static_cast<int>(b.size());
+    const int m = static_cast<int>(a.size()) - n;
 
     if (m < 0)
     {
-        return {BigInt(), a};
+        return {{}, std::vector(a.begin(), a.end())};
     }
 
-    BigInt A = a;
-    const BigInt &B = b;
+    BigInt A{a};
+    const BigInt B{b};
 
     std::vector<bigint_base_t> q(m + 1);
     const BigInt B_m = B << (digit_bit_size * m);
+
     if (A >= B_m)
     {
         A -= B_m;
@@ -270,7 +304,45 @@ std::pair<BigInt, BigInt> div_unsigned_basecase(const BigInt &a, const BigInt &b
         q[i] = static_cast<bigint_base_t>(q_i);
     }
 
-    return {BigInt(q), A};
+    return {q, A.raw_data()};
+}
+
+std::vector<bigint_base_t> &inplace_plain_add(std::vector<bigint_base_t> &a, const std::span<const bigint_base_t> &b)
+{
+    assert(a.size() > 0 && a.back() == 0);
+    add_arrays(a.data(), a.size(), b.data(), b.size(), a.data());
+    impl::remove_trailing_zeros(a);
+    return a;
+}
+
+std::pair<std::reference_wrapper<std::vector<bigint_base_t>>, Sign> inplace_plain_sub(
+    std::vector<bigint_base_t> &a, const std::span<const bigint_base_t> &b, const Sign a_sign)
+{
+    const std::span<const bigint_base_t> a_view{a};
+
+    const auto *longer = &a_view;
+    const auto *shorter = &b;
+
+    Sign sign = a_sign;
+
+    if (impl::abs_lower(a, b))
+    {
+        std::swap(longer, shorter);
+        sign = Sign::Minus;
+    }
+
+    assert(a.size() == longer->size());
+
+    sub_arrays(longer->data(), longer->size(), shorter->data(), shorter->size(), a.data());
+    impl::remove_trailing_zeros(a);
+    return {std::ref(a), sign};
+}
+
+std::vector<bigint_base_t> shift_digits_left(const std::span<const bigint_base_t> &data, const int shift)
+{
+    std::vector<bigint_base_t> result(data.size() + shift);
+    std::copy(data.begin(), data.end(), result.begin() + shift);
+    return result;
 }
 
 }  // namespace yabil::bigint::impl
