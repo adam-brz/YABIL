@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import copy
-from conan.tools.build import cppstd_flag, supported_cppstd, check_min_cppstd
+from conan.tools.build import cppstd_flag, supported_cppstd, check_min_cppstd, can_run
 
 import shutil
 from pathlib import Path
@@ -88,7 +88,7 @@ class YabilConan(ConanFile):
         cmake.configure(variables={"CMAKE_VERBOSE_MAKEFILE": True})
         cmake.build()
 
-        if self.options.with_tests:
+        if self.options.with_tests and can_run(self):
             if ctest := shutil.which("ctest"):
                 self.run(f"{ctest} -C {self.settings.build_type} --output-on-failure")
 
@@ -98,7 +98,7 @@ class YabilConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "yabil")
-        lib_components = ["bigint", "math", "crypto", "utils"]
+        lib_components = ["bigint", "math", "crypto", "parallel"]
 
         for conan_component in lib_components:
             self.cpp_info.components[conan_component].set_property(
@@ -115,7 +115,7 @@ class YabilConan(ConanFile):
                     f"YABIL_{conan_component.upper()}_STATIC_DEFINE"
                 )
 
-        header_only_components = ["compile_time"]
+        header_only_components = ["compile_time", "utils"]
         for conan_component in header_only_components:
             self.cpp_info.components[conan_component].set_property(
                 "cmake_target_name", f"yabil::{conan_component}"
@@ -130,6 +130,7 @@ class YabilConan(ConanFile):
         self.cpp_info.components["bigint"].requires = ["utils"]
         self.cpp_info.components["math"].requires = ["bigint"]
         self.cpp_info.components["crypto"].requires = ["bigint", "math"]
+        self.cpp_info.components["parallel"].requires = ["bigint"]
 
         if self.options.digit_type != "auto":
             self.cpp_info.components["bigint"].defines.append(
@@ -137,4 +138,4 @@ class YabilConan(ConanFile):
             )
 
         if self.options.with_tbb:
-            self.cpp_info.components["bigint"].requires.append("onetbb::libtbb")
+            self.cpp_info.components["parallel"].requires.append("onetbb::libtbb")

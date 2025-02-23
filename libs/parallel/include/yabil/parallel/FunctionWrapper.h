@@ -1,12 +1,12 @@
 #pragma once
 
-#include <yabil/utils/utils_export.h>
+#include <yabil/parallel/parallel_export.h>
 
 #include <functional>
 #include <memory>
 #include <utility>
 
-namespace yabil::utils
+namespace yabil::parallel
 {
 
 /// @brief Universal function wrapper class for functions with no arguments
@@ -38,14 +38,14 @@ private:
 
 public:
     /// @brief Creates empty function wrapper
-    YABIL_UTILS_EXPORT FunctionWrapper();
+    YABIL_PARALLEL_EXPORT FunctionWrapper();
 
     /// @brief Move constructor
     /// @param other \p FunctionWrapper
-    YABIL_UTILS_EXPORT FunctionWrapper(FunctionWrapper &&other) noexcept;
+    YABIL_PARALLEL_EXPORT FunctionWrapper(FunctionWrapper &&other) noexcept;
 
-    YABIL_UTILS_EXPORT FunctionWrapper(const FunctionWrapper &) = delete;
-    YABIL_UTILS_EXPORT FunctionWrapper(FunctionWrapper &) = delete;
+    YABIL_PARALLEL_EXPORT FunctionWrapper(const FunctionWrapper &) = delete;
+    YABIL_PARALLEL_EXPORT FunctionWrapper(FunctionWrapper &) = delete;
 
     /// @brief Creates function wrapper for specified function
     /// @tparam F function type
@@ -56,10 +56,10 @@ public:
     }
 
     /// @brief Invoke underlying function
-    YABIL_UTILS_EXPORT void call() const;
+    YABIL_PARALLEL_EXPORT void call() const;
 
-    YABIL_UTILS_EXPORT FunctionWrapper &operator=(FunctionWrapper &&other) noexcept;
-    YABIL_UTILS_EXPORT FunctionWrapper &operator=(const FunctionWrapper &) = delete;
+    YABIL_PARALLEL_EXPORT FunctionWrapper &operator=(FunctionWrapper &&other) noexcept;
+    YABIL_PARALLEL_EXPORT FunctionWrapper &operator=(const FunctionWrapper &) = delete;
 };
 
-}  // namespace yabil::utils
+}  // namespace yabil::parallel

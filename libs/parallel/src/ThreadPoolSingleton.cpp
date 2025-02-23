@@ -1,6 +1,6 @@
-#include <yabil/utils/ThreadPoolSingleton.h>
+#include <yabil/parallel/ThreadPoolSingleton.h>
 
-namespace yabil::utils
+namespace yabil::parallel
 {
 
 std::unique_ptr<ThreadPool> ThreadPoolSingleton::thread_pool = nullptr;
@@ -14,4 +14,4 @@ ThreadPool &ThreadPoolSingleton::instance()
     return *thread_pool;
 }
 
-}  // namespace yabil::utils
+}  // namespace yabil::parallel

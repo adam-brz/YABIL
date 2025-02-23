@@ -1,10 +1,10 @@
-#include <yabil/utils/ThreadPool.h>
+#include <yabil/parallel/ThreadPool.h>
 
 #include <chrono>
 #include <mutex>
 #include <thread>
 
-namespace yabil::utils
+namespace yabil::parallel
 {
 
 ThreadPool::ThreadPool(int concurrency)
@@ -118,4 +118,4 @@ void ThreadPool::worker()
     }
 }
 
-}  // namespace yabil::utils
+}  // namespace yabil::parallel

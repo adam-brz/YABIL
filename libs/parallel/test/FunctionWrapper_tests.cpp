@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <yabil/utils/FunctionWrapper.h>
+#include <yabil/parallel/FunctionWrapper.h>
 
-using namespace yabil::utils;
+using namespace yabil::parallel;
 
 class FunctionWrapper_tests : public ::testing::Test
 {

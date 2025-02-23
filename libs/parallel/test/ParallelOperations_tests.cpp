@@ -1,9 +1,10 @@
 #include <gtest/gtest.h>
 #include <yabil/bigint/BigInt.h>
-#include <yabil/bigint/Parallel.h>
+#include <yabil/parallel/Parallel.h>
 
 #include <limits>
 
+using namespace yabil;
 using namespace yabil::bigint;
 
 class ParallelOperations_tests : public ::testing::Test

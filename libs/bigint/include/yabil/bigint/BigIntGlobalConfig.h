@@ -84,7 +84,7 @@ public:
 #endif
 
 protected:
-    BigIntGlobalConfig();
+    BigIntGlobalConfig() = default;
 
     /// @brief Get unique instance of configuration class.
     /// @return Reference to \p BigIntGlobalConfig object

@@ -1,6 +1,6 @@
-#include <yabil/utils/FunctionWrapper.h>
+#include <yabil/parallel/FunctionWrapper.h>
 
-namespace yabil::utils
+namespace yabil::parallel
 {
 
 FunctionWrapper::FunctionWrapper(FunctionWrapper &&other) noexcept : impl(std::move(other.impl)) {}
@@ -18,4 +18,4 @@ FunctionWrapper &FunctionWrapper::operator=(FunctionWrapper &&other) noexcept
     return *this;
 }
 
-}  // namespace yabil::utils
+}  // namespace yabil::parallel

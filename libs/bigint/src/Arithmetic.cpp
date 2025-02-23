@@ -1,8 +1,6 @@
 #include "Arithmetic.h"
 
 #include <yabil/bigint/BigIntGlobalConfig.h>
-#include <yabil/utils/IterUtils.h>
-#include <yabil/utils/TypeUtils.h>
 
 #include <algorithm>
 #include <cassert>
@@ -10,6 +8,8 @@
 #include <vector>
 
 #include "add_sub/AddSub.h"
+#include <yabil/utils/IterUtils.h>
+#include <yabil/utils/TypeUtils.h>
 
 namespace yabil::bigint
 {

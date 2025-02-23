@@ -1,21 +1,21 @@
 #pragma once
 
 #include <yabil/bigint/BigInt.h>
-#include <yabil/bigint/bigint_export.h>
+#include <yabil/parallel/parallel_export.h>
 
-namespace yabil::bigint::parallel
+namespace yabil::parallel
 {
 
 /// @brief Add two big integers using multiple threads.
 /// @param a First BigInt number
 /// @param b Second BigInt number
 /// @return \p BigInt Sum of numbers a and b
-YABIL_BIGINT_EXPORT BigInt add(const BigInt &a, const BigInt &b);
+YABIL_PARALLEL_EXPORT bigint::BigInt add(const bigint::BigInt &a, const bigint::BigInt &b);
 
 /// @brief Multiply two big integers using multiple threads.
 /// @param a First BigInt number
 /// @param b Second BigInt number
 /// @return \p BigInt Result of multiplication
-YABIL_BIGINT_EXPORT BigInt multiply(const BigInt &a, const BigInt &b);
+YABIL_PARALLEL_EXPORT bigint::BigInt multiply(const bigint::BigInt &a, const bigint::BigInt &b);
 
-}  // namespace yabil::bigint::parallel
+}  // namespace yabil::parallel
