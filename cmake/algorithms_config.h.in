@@ -1,12 +1,15 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 
 namespace yabil::bigint
 {
 
 struct AlgorithmsDefaultsConfig
 {
+    using bigint_base_t = @YABIL_CONFIG_BIGINT_BASE_T@;
+
     static constexpr bool consteval_thresholds = static_cast<bool>(@YABIL_CONFIG_CONSTEVAL_THRESHOLDS@);
     static constexpr std::size_t karatsuba_threshold = @YABIL_CONFIG_KARATSUBA_THRESHOLD@;
     static constexpr std::size_t recursive_div_threshold = @YABIL_CONFIG_RECURSIVE_DIV_THRESHOLD@;

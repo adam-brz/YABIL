@@ -1,4 +1,5 @@
 #include <yabil/bigint/BigInt.h>
+#include <yabil/bigint/io.h>
 #include <yabil/compile_time/ConstBigInt.h>
 #include <yabil/compile_time/Literals.h>
 #include <yabil/crypto/Random.h>

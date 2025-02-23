@@ -51,6 +51,9 @@ macro(setup_compiler_options)
 
     set(YABIL_HAS_X64_INTRINSICS "${YABIL_HAS_X64_INTRINSICS}" CACHE BOOL "Enable intrinsics support")
 
+    check_cxx_symbol_exists(__SIZEOF_INT128__ "" YABIL_HAS_INT128)
+    set(YABIL_HAS_INT128 "${YABIL_HAS_INT128}" CACHE BOOL "Enable usage of int128_t type")
+
     if(YABIL_ENABLE_NATIVE_OPTIMIZATIONS)
         check_cxx_compiler_flag("-march=native" YABIL_MNATIVE_SUPPORTED)
         if(YABIL_MNATIVE_SUPPORTED)

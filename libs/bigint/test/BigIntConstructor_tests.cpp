@@ -71,15 +71,13 @@ TEST_F(BigIntConstructorTest, longStringToBigIntWithSign)
         EXPECT_EQ(expected, big_int1.raw_data());
     }
 
-#if defined(__SIZEOF_INT128__) && !defined(YABIL_BIGINT_BASE_T)
     if constexpr (sizeof(bigint_base_t) == 8)
     {
         const BigInt big_int1("-1424112908491024712973012389");
-        const std::vector<bigint_base_t> expected = {8532190400157437349ULL, 77201315ULL};
+        const std::vector<bigint_base_t> expected = {static_cast<bigint_base_t>(8532190400157437349ULL), static_cast<bigint_base_t>(77201315ULL)};
         EXPECT_EQ(Sign::Minus, big_int1.get_sign());
         EXPECT_EQ(expected, big_int1.raw_data());
     }
-#endif
 }
 
 TEST_F(BigIntConstructorTest, longStringInBase2ToBigIntWithSign)
@@ -93,15 +91,14 @@ TEST_F(BigIntConstructorTest, longStringInBase2ToBigIntWithSign)
         EXPECT_EQ(expected, big_int1.raw_data());
     }
 
-#if defined(__SIZEOF_INT128__) && !defined(YABIL_BIGINT_BASE_T)
     if constexpr (sizeof(bigint_base_t) == 8)
     {
         const BigInt big_int1("-101010110111100101110101010101010101010");
-        const std::vector<bigint_base_t> expected = {10617269109349872402ULL, 5475769041272737363ULL};
+        const std::vector<bigint_base_t> expected = {static_cast<bigint_base_t>(10617269109349872402ULL),
+                                                     static_cast<bigint_base_t>(5475769041272737363ULL)};
         EXPECT_EQ(Sign::Minus, big_int1.get_sign());
         EXPECT_EQ(expected, big_int1.raw_data());
     }
-#endif
 }
 
 TEST_F(BigIntConstructorTest, longStringInBase16ToBigIntWithSign)
@@ -116,13 +113,12 @@ TEST_F(BigIntConstructorTest, longStringInBase16ToBigIntWithSign)
         EXPECT_EQ(expected, big_int1.raw_data());
     }
 
-#if defined(__SIZEOF_INT128__) && !defined(YABIL_BIGINT_BASE_T)
     if constexpr (sizeof(bigint_base_t) == 8)
     {
         const BigInt big_int1("+abcd18782172918aafffbab", 16);
-        const std::vector<bigint_base_t> expected = {9374006335319833515ULL, 180146567ULL};
+        const std::vector<bigint_base_t> expected = {static_cast<bigint_base_t>(9374006335319833515ULL),
+                                                     static_cast<bigint_base_t>(180146567ULL)};
         EXPECT_EQ(Sign::Plus, big_int1.get_sign());
         EXPECT_EQ(expected, big_int1.raw_data());
     }
-#endif
 }

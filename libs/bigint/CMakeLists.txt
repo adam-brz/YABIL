@@ -64,10 +64,6 @@ endif()
 add_library(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} PUBLIC utils)
 
-if(NOT YABIL_BIGINT_BASE_TYPE STREQUAL "auto")
-    target_compile_definitions(${PROJECT_NAME} PUBLIC YABIL_BIGINT_BASE_T=${YABIL_BIGINT_BASE_TYPE})
-endif()
-
 if(YABIL_HAS_X64_INTRINSICS)
     target_compile_definitions(${PROJECT_NAME} PRIVATE YABIL_INTRINSICS_HEADER_FILE=<${YABIL_INTRINSICS_HEADER_FILE}>)
 endif()

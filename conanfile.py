@@ -72,7 +72,10 @@ class YabilConan(ConanFile):
             self.options.native_optimizations
         )
         tc.variables["YABIL_ENABLE_CUDA"] = self.options.with_cuda
-        tc.variables["YABIL_BIGINT_BASE_TYPE"] = self.options.digit_type
+
+        if self.options.digit_type != "auto":
+            tc.variables["YABIL_CONFIG_BIGINT_BASE_T"] = self.options.digit_type
+
         tc.generate()
         CMakeDeps(self).generate()
 
@@ -90,7 +93,8 @@ class YabilConan(ConanFile):
 
         if self.options.with_tests and can_run(self):
             if ctest := shutil.which("ctest"):
-                self.run(f"{ctest} -C {self.settings.build_type} --output-on-failure")
+                self.run(
+                    f"{ctest} -C {self.settings.build_type} --output-on-failure")
 
     def package(self):
         cmake = CMake(self)
@@ -138,4 +142,5 @@ class YabilConan(ConanFile):
             )
 
         if self.options.with_tbb:
-            self.cpp_info.components["parallel"].requires.append("onetbb::libtbb")
+            self.cpp_info.components["parallel"].requires.append(
+                "onetbb::libtbb")
