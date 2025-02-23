@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <bit>
+#include <cmath>
 #include <cstdint>
 #include <limits>
 #include <stdexcept>
@@ -124,20 +125,22 @@ std::pair<BigInt, BigInt> BigInt::divide(const BigInt &other) const
 
     if (is_negative() && other.is_negative())
     {
-        const auto [quotient, remainder] = impl::div_unsigned(-(*this),-other);
-        return {quotient, -remainder};
+        auto [quotient, remainder] = impl::div_unsigned(data, other.data);
+        return {BigInt{std::move(quotient)}, BigInt{std::move(remainder), Sign::Minus}};
     }
     if (!is_negative() && other.is_negative())
     {
-        const auto [quotient, remainder] = impl::div_unsigned(*this, -other);
-        return {-quotient, remainder};
+        auto [quotient, remainder] = impl::div_unsigned(data, other.data);
+        return {BigInt{std::move(quotient), Sign::Minus}, BigInt{std::move(remainder)}};
     }
     if (is_negative() && !other.is_negative())
     {
-        const auto [quotient, remainder] = impl::div_unsigned(-(*this), other);
-        return {-quotient, -remainder};
+        auto [quotient, remainder] = impl::div_unsigned(data, other.data);
+        return {BigInt{std::move(quotient), Sign::Minus}, BigInt{std::move(remainder), Sign::Minus}};
     }
-    return impl::div_unsigned(*this, other);
+
+    auto [quotient, remainder] = impl::div_unsigned(data, other.data);
+    return {BigInt{std::move(quotient)}, BigInt{std::move(remainder)}};
 }
 
 BigInt BigInt::operator-() const
@@ -151,32 +154,44 @@ BigInt &BigInt::operator+=(const BigInt &other)
 {
     if (sign == other.sign)
     {
-        return inplace_plain_add(other);
-    }
-
-    if (sign == Sign::Minus)
-    {
-        inplace_plain_sub(other);
-        sign = (sign == Sign::Minus) ? Sign::Plus : Sign::Minus;
+        data.resize(std::max(data.size(), other.data.size()) + 1);
+        impl::inplace_plain_add(data, other.data);
         return *this;
     }
 
-    return inplace_plain_sub(other);
+    data.resize(std::max(data.size(), other.data.size()));
+
+    if (sign == Sign::Minus)
+    {
+        const auto [_, calculated_sign] = impl::inplace_plain_sub(data, other.data, sign);
+        sign = (calculated_sign == Sign::Minus) ? Sign::Plus : Sign::Minus;
+        return *this;
+    }
+
+    const auto [_, calculated_sign] = impl::inplace_plain_sub(data, other.data, sign);
+    sign = calculated_sign;
+    return *this;
 }
 
 BigInt &BigInt::operator-=(const BigInt &other)
 {
     if (sign != other.sign)
     {
-        return inplace_plain_add(other);
+        data.resize(std::max(data.size(), other.data.size()) + 1);
+        impl::inplace_plain_add(data, other.data);
+        return *this;
     }
 
+    data.resize(std::max(data.size(), other.data.size()));
     if (sign == Sign::Plus)
     {
-        return inplace_plain_sub(other);
+        const auto [_, calculated_sign] = impl::inplace_plain_sub(data, other.data, sign);
+        sign = calculated_sign;
+        return *this;
     }
 
-    inplace_plain_sub(other);
+    const auto [_, calculated_sign] = impl::inplace_plain_sub(data, other.data, sign);
+    sign = calculated_sign;
     return *this;
 }
 
@@ -260,30 +275,6 @@ BigInt BigInt::operator--(int)
         normalize();
     }
     return copied;
-}
-
-BigInt &BigInt::inplace_plain_add(const BigInt &other)
-{
-    const auto max_size = std::max(data.size(), other.data.size());
-    data.resize(max_size + 1);
-    add_arrays(data.data(), data.size(), other.data.data(), other.data.size(), data.data());
-    normalize();
-    return *this;
-}
-
-BigInt &BigInt::inplace_plain_sub(const BigInt &other)
-{
-    const auto [longer, shorter] = impl::get_greater_lower_unsigned(*this, other);
-
-    if (longer != this)
-    {
-        sign = Sign::Minus;
-    }
-
-    data.resize(longer->data.size());
-    sub_arrays(longer->data.data(), longer->data.size(), shorter->data.data(), shorter->data.size(), data.data());
-    normalize();
-    return *this;
 }
 
 }  // namespace yabil::bigint
