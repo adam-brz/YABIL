@@ -8,28 +8,16 @@ class BigIntGlobalConfig_tests : public ::testing::Test
 {
 };
 
-#if !YABIL_CONFIG_USE_CONSTEVAL_AUTO_PARALLEL
-TEST_F(BigIntGlobalConfig_tests, canDisableAndEnableParallelism)
+TEST_F(BigIntGlobalConfig_tests, isSingleInstance)
 {
-    BigIntGlobalConfig::set_auto_parallel_enabled(false);
-    EXPECT_FALSE(BigIntGlobalConfig::is_auto_parallel_enabled());
-
-    BigIntGlobalConfig::set_auto_parallel_enabled(true);
-    EXPECT_TRUE(BigIntGlobalConfig::is_auto_parallel_enabled());
+    const auto &config1 = BigIntGlobalConfig::instance();
+    const auto &config2 = BigIntGlobalConfig::instance();
+    EXPECT_EQ(&config1, &config2);
 }
-#endif
 
-TEST_F(BigIntGlobalConfig_tests, canUseDifferentNumberOfThreads)
+TEST_F(BigIntGlobalConfig_tests, canReadConfigValues)
 {
-    const auto default_no_threads = BigIntGlobalConfig::get_thread_count();
-
-    BigIntGlobalConfig::set_thread_count(1);
-    EXPECT_EQ(BigIntGlobalConfig::get_thread_count(), 1);
-
-#if !YABIL_CONFIG_PARALLEL_DISABLED
-    BigIntGlobalConfig::set_thread_count(4);
-    EXPECT_EQ(BigIntGlobalConfig::get_thread_count(), 4);
-#endif
-
-    BigIntGlobalConfig::set_thread_count(default_no_threads);
+    const auto &config = BigIntGlobalConfig::instance().config;
+    EXPECT_GT(config.karatsuba_threshold, 0);
+    EXPECT_GT(config.recursive_div_threshold, 0);
 }

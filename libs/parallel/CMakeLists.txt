@@ -13,6 +13,7 @@ set(SOURCES
 set(HEADERS
     include/yabil/parallel/FunctionWrapper.h
     include/yabil/parallel/Parallel.h
+    include/yabil/parallel/ParallelGlobalConfig.h
     include/yabil/parallel/ThreadPool.h
     include/yabil/parallel/ThreadPoolSingleton.h
 )
@@ -36,7 +37,7 @@ if(YABIL_ENABLE_TBB)
     target_link_libraries(${PROJECT_NAME} PRIVATE TBB::tbb)
 endif()
 
-target_link_libraries(${PROJECT_NAME} PUBLIC bigint PRIVATE utils)
+target_link_libraries(${PROJECT_NAME} PUBLIC utils bigint)
 
 target_sources(${PROJECT_NAME}
     PRIVATE ${SOURCES}

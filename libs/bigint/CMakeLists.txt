@@ -6,7 +6,6 @@ set(SOURCES
     src/BigInt.cpp
     src/BigIntArithmeticOperators.cpp
     src/BigIntBinaryOperators.cpp
-    src/BigIntGlobalConfig.cpp
     src/BigIntRelationOperators.cpp
     src/io.cpp
     src/StringConversionUtils.cpp
@@ -22,7 +21,6 @@ set(HEADERS
     include/yabil/bigint/BigIntBase.h
     include/yabil/bigint/BigIntGlobalConfig.h
     include/yabil/bigint/io.h
-    include/yabil/bigint/Thresholds.h
 )
 
 set(TESTS
@@ -64,7 +62,7 @@ else()
 endif()
 
 add_library(${PROJECT_NAME})
-target_link_libraries(${PROJECT_NAME} PRIVATE utils)
+target_link_libraries(${PROJECT_NAME} PUBLIC utils)
 
 if(NOT YABIL_BIGINT_BASE_TYPE STREQUAL "auto")
     target_compile_definitions(${PROJECT_NAME} PUBLIC YABIL_BIGINT_BASE_T=${YABIL_BIGINT_BASE_TYPE})

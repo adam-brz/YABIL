@@ -1,6 +1,7 @@
 project(utils C CXX)
 
 set(HEADERS
+    include/yabil/utils/GlobalConfig.h
     include/yabil/utils/IterUtils.h
     include/yabil/utils/TypeUtils.h
 )

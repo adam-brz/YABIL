@@ -99,11 +99,11 @@ std::vector<bigint::bigint_base_t> parallel_karatsuba(const std::span<const bigi
     /**/
     /*const int m2 = static_cast<int>(std::max(a.size(), b.size()) / 2);*/
     /**/
-    /*const std::span<bigint_base_t const> low1 = utils::make_span(a.begin(), utils::safe_advance(a.begin(), m2, a));*/
-    /*const std::span<bigint_base_t const> high1 = utils::make_span(utils::safe_advance(a.begin(), m2, a), a.end());*/
+    /*const std::span<const bigint_base_t> low1 = utils::make_span(a.begin(), utils::safe_advance(a.begin(), m2, a));*/
+    /*const std::span<const bigint_base_t> high1 = utils::make_span(utils::safe_advance(a.begin(), m2, a), a.end());*/
     /**/
-    /*const std::span<bigint_base_t const> low2 = utils::make_span(b.begin(), utils::safe_advance(b.begin(), m2, b));*/
-    /*const std::span<bigint_base_t const> high2 = utils::make_span(utils::safe_advance(b.begin(), m2, b), b.end());*/
+    /*const std::span<const bigint_base_t> low2 = utils::make_span(b.begin(), utils::safe_advance(b.begin(), m2, b));*/
+    /*const std::span<const bigint_base_t> high2 = utils::make_span(utils::safe_advance(b.begin(), m2, b), b.end());*/
     /**/
     /*auto &thread_pool = utils::ThreadPoolSingleton::instance();*/
     /**/

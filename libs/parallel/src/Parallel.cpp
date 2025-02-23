@@ -13,6 +13,7 @@ bigint::BigInt add(const bigint::BigInt &a, const bigint::BigInt &b)
         return bigint::BigInt(parallel_add_unsigned(a.raw_data(), b.raw_data()), a.get_sign());
     }
 
+    // TODO(.): Implement subtraction, add benchmarks
     return a + b;
 }
 

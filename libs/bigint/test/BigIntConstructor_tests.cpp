@@ -17,7 +17,7 @@ TEST_F(BigIntConstructorTest, canConstructBigIntFromRawData)
 TEST_F(BigIntConstructorTest, canConstructBigIntFromSpan)
 {
     const std::vector<bigint_base_t> data({0xff, 0xff});
-    std::span<bigint_base_t const> data_view(data);
+    std::span<const bigint_base_t> data_view(data);
     [[maybe_unused]] const BigInt big_int1(data_view);
 }
 
