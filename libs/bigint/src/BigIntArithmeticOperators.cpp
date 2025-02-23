@@ -1,5 +1,6 @@
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/BigIntGlobalConfig.h>
+#include <yabil/bigint/impl/Arithmetic.h>
 #include <yabil/utils/TypeUtils.h>
 
 #include <algorithm>
@@ -8,7 +9,6 @@
 #include <limits>
 #include <stdexcept>
 
-#include "Arithmetic.h"
 #include "add_sub/AddSub.h"
 
 namespace yabil::bigint
@@ -18,8 +18,7 @@ std::pair<BigInt, BigInt> BigInt::divide_unsigned(const BigInt &other) const
 {
     const auto &config = BigIntGlobalConfig::instance().config;
 
-    if (data.size() > config.recursive_div_threshold &&
-        other.data.size() > config.recursive_div_threshold)
+    if (data.size() > config.recursive_div_threshold && other.data.size() > config.recursive_div_threshold)
     {
         return unbalanced_div(other);
     }
@@ -136,29 +135,29 @@ BigInt BigInt::operator+(const BigInt &other) const
 {
     if (sign == other.sign)
     {
-        return BigInt(plain_add(data, other.data), sign);
+        return BigInt(impl::add_unsigned(data, other.data), sign);
     }
 
-    const auto [greater, lower] = get_greater_lower(other, *this);
+    const auto [greater, lower] = impl::get_greater_lower_unsigned(other, *this);
     const Sign new_sign = ((greater == this) == (sign == Sign::Plus)) ? Sign::Plus : Sign::Minus;
-    return BigInt(plain_sub(greater->data, lower->data), new_sign);
+    return BigInt(impl::sub_unsigned(greater->data, lower->data), new_sign);
 }
 
 BigInt BigInt::operator-(const BigInt &other) const
 {
     if (sign != other.sign)
     {
-        return BigInt(plain_add(data, other.data), sign);
+        return BigInt(impl::add_unsigned(data, other.data), sign);
     }
 
-    const auto [greater, lower] = get_greater_lower(other, *this);
+    const auto [greater, lower] = impl::get_greater_lower_unsigned(other, *this);
     const Sign new_sign = ((greater == this) == (sign == Sign::Plus)) ? Sign::Plus : Sign::Minus;
-    return BigInt(plain_sub(greater->data, lower->data), new_sign);
+    return BigInt(impl::sub_unsigned(greater->data, lower->data), new_sign);
 }
 
 BigInt BigInt::operator*(const BigInt &other) const
 {
-    return BigInt(karatsuba_mul(data, other.data), (sign == other.sign) ? Sign::Plus : Sign::Minus);
+    return BigInt(impl::mul_unsigned_karatsuba(data, other.data), (sign == other.sign) ? Sign::Plus : Sign::Minus);
 }
 
 BigInt BigInt::operator/(const BigInt &other) const
@@ -233,7 +232,7 @@ std::pair<BigInt, BigInt> BigInt::divide(const BigInt &other) const
         return {BigInt(a / b), BigInt(a % b)};
     }
 
-    if (!is_normalized_for_division(other))
+    if (!impl::is_normalized_for_division(other))
     {
         const auto k = std::countl_zero(other.raw_data().back());
         const auto [quotient, remainder] = (*this << k).divide(other << k);
@@ -317,10 +316,10 @@ BigInt &BigInt::operator++()
 {
     if (sign == Sign::Plus)
     {
-        increment_unsigned(data);
+        impl::increment_unsigned(data);
         return *this;
     }
-    decrement_unsigned(data);
+    impl::decrement_unsigned(data);
     normalize();
     return *this;
 }
@@ -334,11 +333,11 @@ BigInt &BigInt::operator--()
 
     if (sign == Sign::Minus)
     {
-        increment_unsigned(data);
+        impl::increment_unsigned(data);
         return *this;
     }
 
-    decrement_unsigned(data);
+    impl::decrement_unsigned(data);
     normalize();
     return *this;
 }
@@ -348,11 +347,11 @@ BigInt BigInt::operator++(int)
     BigInt copied(*this);
     if (sign == Sign::Plus)
     {
-        increment_unsigned(data);
+        impl::increment_unsigned(data);
     }
     else
     {
-        decrement_unsigned(data);
+        impl::decrement_unsigned(data);
         normalize();
     }
     return copied;
@@ -369,12 +368,12 @@ BigInt BigInt::operator--(int)
 
     if (sign == Sign::Minus)
     {
-        increment_unsigned(data);
+        impl::increment_unsigned(data);
         // normalization not needed
     }
     else
     {
-        decrement_unsigned(data);
+        impl::decrement_unsigned(data);
         normalize();
     }
     return copied;
@@ -391,7 +390,7 @@ BigInt &BigInt::inplace_plain_add(const BigInt &other)
 
 BigInt &BigInt::inplace_plain_sub(const BigInt &other)
 {
-    const auto [longer, shorter] = get_greater_lower(*this, other);
+    const auto [longer, shorter] = impl::get_greater_lower_unsigned(*this, other);
 
     if (longer != this)
     {

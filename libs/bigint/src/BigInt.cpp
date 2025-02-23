@@ -1,4 +1,5 @@
 #include <yabil/bigint/BigInt.h>
+#include <yabil/bigint/impl/Arithmetic.h>
 
 #include <algorithm>
 #include <bit>
@@ -6,7 +7,6 @@
 #include <cmath>
 #include <functional>
 
-#include "Arithmetic.h"
 #include "StringConversionUtils.h"
 
 namespace yabil::bigint
@@ -71,7 +71,7 @@ BigInt::BigInt(const std::string_view &str, unsigned base)
 
 void BigInt::normalize()
 {
-    remove_trailing_zeros(data);
+    impl::remove_trailing_zeros(data);
     sign = is_zero() ? Sign::Plus : sign;
 }
 

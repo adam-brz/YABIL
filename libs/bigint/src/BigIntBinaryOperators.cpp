@@ -1,8 +1,7 @@
 #include <yabil/bigint/BigInt.h>
+#include <yabil/bigint/impl/Arithmetic.h>
 
 #include <algorithm>
-
-#include "Arithmetic.h"
 
 namespace yabil::bigint
 {
@@ -24,7 +23,7 @@ BigInt BigInt::operator&(const BigInt &other) const
 
 BigInt BigInt::operator|(const BigInt &other) const
 {
-    const auto [longer, shorter] = get_longer_shorter(*this, other);
+    const auto [longer, shorter] = impl::get_longer_shorter(*this, other);
     std::vector<bigint_base_t> result_data;
     result_data.reserve(longer->data.size());
 
@@ -44,7 +43,7 @@ BigInt BigInt::operator|(const BigInt &other) const
 
 BigInt BigInt::operator^(const BigInt &other) const
 {
-    const auto [longer, shorter] = get_longer_shorter(*this, other);
+    const auto [longer, shorter] = impl::get_longer_shorter(*this, other);
     std::vector<bigint_base_t> result_data;
     result_data.reserve(longer->data.size());
 
