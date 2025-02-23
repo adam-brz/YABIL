@@ -23,7 +23,6 @@ option(YABIL_ENABLE_COVERAGE "Build with coverage info" OFF)
 option(YABIL_ENABLE_CUDA "Enable CUDA" OFF)
 option(YABIL_ENABLE_NATIVE_OPTIMIZATIONS "Enable optimizations using native instrucitons (AVX)" OFF)
 
-set(YABIL_BIGINT_BASE_TYPE "auto" CACHE STRING "Numeric type to use as number base.")
 set(CPACK_GENERATOR "ZIP" CACHE STRING "Generators to support. Semicolon delimited list.")
 
 if(YABIL_ENABLE_CUDA AND NOT CMAKE_CUDA_STANDARD)

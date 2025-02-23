@@ -4,8 +4,6 @@ set(SOURCES
     src/FunctionWrapper.cpp
     src/Parallel.cpp
     src/ParallelImpl.h
-    src/ParallelStdImpl.cpp
-    src/ParallelTBBImpl.cpp
     src/ThreadPool.cpp
     src/ThreadPoolSingleton.cpp
 )
