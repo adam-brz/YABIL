@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <yabil/utils/ThreadPoolSingleton.h>
+#include <yabil/parallel/ThreadPoolSingleton.h>
 
-using namespace yabil::utils;
+using namespace yabil::parallel;
 
 class ThreadPoolSingleton_tests : public ::testing::Test
 {

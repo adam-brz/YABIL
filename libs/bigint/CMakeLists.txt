@@ -13,17 +13,15 @@ set(SOURCES
     src/StringConversionUtils.h
     src/add_sub/AddSub.h
     src/add_sub/AddSub.cpp
-    src/parallel/Parallel.cpp
-    src/parallel/ParallelImpl.h
 )
 
 set(HEADERS
     include/yabil/bigint/impl/BigIntImpl.h
     include/yabil/bigint/BigInt.h
+    include/yabil/bigint/Sign.h
     include/yabil/bigint/BigIntBase.h
     include/yabil/bigint/BigIntGlobalConfig.h
     include/yabil/bigint/io.h
-    include/yabil/bigint/Parallel.h
     include/yabil/bigint/Thresholds.h
 )
 
@@ -47,7 +45,6 @@ set(TESTS
     test/BigIntGlobalConfig_tests.cpp
     test/BigIntIsPowerOf2_tests.cpp
     test/BigIntStreamOperator_tests.cpp
-    test/ParallelOperations_tests.cpp
 )
 
 set(BENCHMARKS
@@ -55,12 +52,6 @@ set(BENCHMARKS
     benchmark/BenchmarkUtils.cpp
     benchmark/BenchmarkUtils.h
 )
-
-if(YABIL_ENABLE_TBB)
-    list(APPEND SOURCES src/parallel/ParallelTBBImpl.cpp)
-else()
-    list(APPEND SOURCES src/parallel/ParallelStdImpl.cpp)
-endif()
 
 if(YABIL_ENABLE_CUDA)
     list(APPEND SOURCES src/add_sub/AddSubCUDAImpl.cu)
@@ -74,10 +65,6 @@ endif()
 
 add_library(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} PRIVATE utils)
-
-if(YABIL_ENABLE_TBB)
-    target_link_libraries(${PROJECT_NAME} PRIVATE TBB::tbb)
-endif()
 
 if(NOT YABIL_BIGINT_BASE_TYPE STREQUAL "auto")
     target_compile_definitions(${PROJECT_NAME} PUBLIC YABIL_BIGINT_BASE_T=${YABIL_BIGINT_BASE_TYPE})
@@ -93,7 +80,7 @@ target_sources(${PROJECT_NAME}
     PRIVATE ${SOURCES}
     PUBLIC FILE_SET HEADERS
     BASE_DIRS ${PROJECT_SOURCE_DIR}/include
-FILES ${HEADERS}
+    FILES ${HEADERS}
 )
 
 set_common_properties(${PROJECT_NAME})

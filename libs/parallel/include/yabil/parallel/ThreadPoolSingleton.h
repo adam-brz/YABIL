@@ -1,11 +1,11 @@
 #pragma once
 
-#include <yabil/utils/ThreadPool.h>
-#include <yabil/utils/utils_export.h>
+#include <yabil/parallel/ThreadPool.h>
+#include <yabil/parallel/parallel_export.h>
 
 #include <memory>
 
-namespace yabil::utils
+namespace yabil::parallel
 {
 
 /// @brief Thread pool singleton
@@ -16,7 +16,7 @@ private:
 
 public:
     /// @brief Get \p ThreadPool instance, creates new instance on first invocation.
-    YABIL_UTILS_EXPORT static ThreadPool &instance();
+    YABIL_PARALLEL_EXPORT static ThreadPool &instance();
 };
 
-}  // namespace yabil::utils
+}  // namespace yabil::parallel

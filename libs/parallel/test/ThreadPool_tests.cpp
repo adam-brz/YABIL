@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
-#include <yabil/utils/ThreadPool.h>
+#include <yabil/parallel/ThreadPool.h>
 
 #include <atomic>
 
-using namespace yabil::utils;
+using namespace yabil::parallel;
 
 class ThreadPool_tests : public ::testing::Test
 {
