@@ -37,7 +37,7 @@ std::istream &operator>>(std::istream &in, BigInt &bigint)
         result += BigInt(converted);
     }
 
-    result.sign = sign;
+    result.set_sign(sign);
     bigint = std::move(result);
 
     return in;

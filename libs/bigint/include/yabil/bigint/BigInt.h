@@ -333,9 +333,6 @@ public:
     /// @return Division result
     YABIL_BIGINT_EXPORT std::pair<BigInt, BigInt> base_div(const BigInt &other) const;
 
-    YABIL_BIGINT_EXPORT friend std::ostream &operator<<(std::ostream &out, const BigInt &bigint);
-    YABIL_BIGINT_EXPORT friend std::istream &operator>>(std::istream &in, BigInt &bigint);
-
 private:
     YABIL_BIGINT_EXPORT void normalize();
     std::pair<BigInt, BigInt> divide_unsigned(const BigInt &other) const;
