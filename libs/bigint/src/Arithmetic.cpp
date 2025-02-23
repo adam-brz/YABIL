@@ -1,6 +1,5 @@
-#include "Arithmetic.h"
-
 #include <yabil/bigint/BigIntGlobalConfig.h>
+#include <yabil/bigint/impl/Arithmetic.h>
 #include <yabil/utils/IterUtils.h>
 #include <yabil/utils/TypeUtils.h>
 
@@ -11,7 +10,7 @@
 
 #include "add_sub/AddSub.h"
 
-namespace yabil::bigint
+namespace yabil::bigint::impl
 {
 
 void remove_trailing_zeros(std::vector<bigint_base_t> &data)
@@ -43,7 +42,7 @@ std::pair<const BigInt *, const BigInt *> get_longer_shorter(const BigInt &a, co
     return std::make_pair(&a, &b);
 }
 
-std::pair<const BigInt *, const BigInt *> get_greater_lower(const BigInt &a, const BigInt &b)
+std::pair<const BigInt *, const BigInt *> get_greater_lower_unsigned(const BigInt &a, const BigInt &b)
 {
     if (a.abs_lower(b))
     {
@@ -52,7 +51,7 @@ std::pair<const BigInt *, const BigInt *> get_greater_lower(const BigInt &a, con
     return std::make_pair(&a, &b);
 }
 
-std::vector<bigint_base_t> plain_add(std::span<const bigint_base_t> a, std::span<const bigint_base_t> b)
+std::vector<bigint_base_t> add_unsigned(std::span<const bigint_base_t> a, std::span<const bigint_base_t> b)
 {
     const auto [longer, shorter] = get_longer_shorter(&a, &b);
     std::vector<bigint_base_t> result_data(longer->size() + 1);
@@ -60,14 +59,14 @@ std::vector<bigint_base_t> plain_add(std::span<const bigint_base_t> a, std::span
     return result_data;
 }
 
-std::vector<bigint_base_t> plain_sub(std::span<const bigint_base_t> a, std::span<const bigint_base_t> b)
+std::vector<bigint_base_t> sub_unsigned(std::span<const bigint_base_t> a, std::span<const bigint_base_t> b)
 {
     std::vector<bigint_base_t> result_data(a.size());
     sub_arrays(a.data(), a.size(), b.data(), b.size(), result_data.data());
     return result_data;
 }
 
-std::vector<bigint_base_t> mul_basecase(std::span<const bigint_base_t> a, std::span<const bigint_base_t> b)
+std::vector<bigint_base_t> mul_unsigned_basecase(std::span<const bigint_base_t> a, std::span<const bigint_base_t> b)
 {
     std::vector<bigint_base_t> result(a.size() + b.size(), 0);
     const auto [longer, shorter] = get_longer_shorter(&a, &b);
@@ -91,13 +90,13 @@ std::vector<bigint_base_t> mul_basecase(std::span<const bigint_base_t> a, std::s
     return result;
 }
 
-std::vector<bigint_base_t> karatsuba_mul(std::span<const bigint_base_t> a, std::span<const bigint_base_t> b)
+std::vector<bigint_base_t> mul_unsigned_karatsuba(std::span<const bigint_base_t> a, std::span<const bigint_base_t> b)
 {
     const auto &config = BigIntGlobalConfig::instance().config;
 
     if (a.size() < config.karatsuba_threshold || b.size() < config.karatsuba_threshold)
     {
-        return mul_basecase(a, b);
+        return mul_unsigned_basecase(a, b);
     }
 
     const int m2 = static_cast<int>(std::max(a.size(), b.size()) / 2);
@@ -108,12 +107,12 @@ std::vector<bigint_base_t> karatsuba_mul(std::span<const bigint_base_t> a, std::
     const std::span<const bigint_base_t> low2 = utils::make_span(b.begin(), utils::safe_advance(b.begin(), m2, b));
     const std::span<const bigint_base_t> high2 = utils::make_span(utils::safe_advance(b.begin(), m2, b), b.end());
 
-    const auto lh1 = plain_add(low1, high1);
-    const auto lh2 = plain_add(low2, high2);
+    const auto lh1 = add_unsigned(low1, high1);
+    const auto lh2 = add_unsigned(low2, high2);
 
-    const auto z0 = BigInt(karatsuba_mul(low1, low2));
-    const auto z1 = BigInt(karatsuba_mul(lh1, lh2));
-    const auto z2 = BigInt(karatsuba_mul(high1, high2));
+    const auto z0 = BigInt(mul_unsigned_karatsuba(low1, low2));
+    const auto z1 = BigInt(mul_unsigned_karatsuba(lh1, lh2));
+    const auto z2 = BigInt(mul_unsigned_karatsuba(high1, high2));
 
     constexpr auto digit_bit_size = std::numeric_limits<bigint_base_t>::digits;
     const uint64_t shift_val = static_cast<uint64_t>(m2) * digit_bit_size;
@@ -153,4 +152,4 @@ std::vector<bigint_base_t> &decrement_unsigned(std::vector<bigint_base_t> &n)
     return n;
 }
 
-}  // namespace yabil::bigint
+}  // namespace yabil::bigint::impl

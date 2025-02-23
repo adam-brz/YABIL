@@ -2,7 +2,6 @@ project(bigint C CXX)
 
 set(SOURCES
     src/Arithmetic.cpp
-    src/Arithmetic.h
     src/BigInt.cpp
     src/BigIntArithmeticOperators.cpp
     src/BigIntBinaryOperators.cpp
@@ -15,6 +14,7 @@ set(SOURCES
 )
 
 set(HEADERS
+    include/yabil/bigint/impl/Arithmetic.h
     include/yabil/bigint/impl/BigIntImpl.h
     include/yabil/bigint/BigInt.h
     include/yabil/bigint/Sign.h
