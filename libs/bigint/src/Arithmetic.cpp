@@ -1,6 +1,8 @@
 #include "Arithmetic.h"
 
 #include <yabil/bigint/BigIntGlobalConfig.h>
+#include <yabil/utils/IterUtils.h>
+#include <yabil/utils/TypeUtils.h>
 
 #include <algorithm>
 #include <cassert>
@@ -8,8 +10,6 @@
 #include <vector>
 
 #include "add_sub/AddSub.h"
-#include <yabil/utils/IterUtils.h>
-#include <yabil/utils/TypeUtils.h>
 
 namespace yabil::bigint
 {
@@ -24,8 +24,8 @@ bool is_normalized_for_division(const BigInt &n)
     return n.get_bit(n.byte_size() * 8 - 1);
 }
 
-std::pair<std::span<bigint_base_t const> *, std::span<bigint_base_t const> *> get_longer_shorter(
-    std::span<bigint_base_t const> *a, std::span<bigint_base_t const> *b)
+std::pair<std::span<const bigint_base_t> *, std::span<const bigint_base_t> *> get_longer_shorter(
+    std::span<const bigint_base_t> *a, std::span<const bigint_base_t> *b)
 {
     if (a->size() < b->size())
     {
@@ -52,7 +52,7 @@ std::pair<const BigInt *, const BigInt *> get_greater_lower(const BigInt &a, con
     return std::make_pair(&a, &b);
 }
 
-std::vector<bigint_base_t> plain_add(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
+std::vector<bigint_base_t> plain_add(std::span<const bigint_base_t> a, std::span<const bigint_base_t> b)
 {
     const auto [longer, shorter] = get_longer_shorter(&a, &b);
     std::vector<bigint_base_t> result_data(longer->size() + 1);
@@ -60,14 +60,14 @@ std::vector<bigint_base_t> plain_add(std::span<bigint_base_t const> a, std::span
     return result_data;
 }
 
-std::vector<bigint_base_t> plain_sub(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
+std::vector<bigint_base_t> plain_sub(std::span<const bigint_base_t> a, std::span<const bigint_base_t> b)
 {
     std::vector<bigint_base_t> result_data(a.size());
     sub_arrays(a.data(), a.size(), b.data(), b.size(), result_data.data());
     return result_data;
 }
 
-std::vector<bigint_base_t> mul_basecase(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
+std::vector<bigint_base_t> mul_basecase(std::span<const bigint_base_t> a, std::span<const bigint_base_t> b)
 {
     std::vector<bigint_base_t> result(a.size() + b.size(), 0);
     const auto [longer, shorter] = get_longer_shorter(&a, &b);
@@ -91,21 +91,22 @@ std::vector<bigint_base_t> mul_basecase(std::span<bigint_base_t const> a, std::s
     return result;
 }
 
-std::vector<bigint_base_t> karatsuba_mul(std::span<bigint_base_t const> a, std::span<bigint_base_t const> b)
+std::vector<bigint_base_t> karatsuba_mul(std::span<const bigint_base_t> a, std::span<const bigint_base_t> b)
 {
-    if (a.size() < BigIntGlobalConfig::thresholds().karatsuba_threshold_digits ||
-        b.size() < BigIntGlobalConfig::thresholds().karatsuba_threshold_digits)
+    const auto &config = BigIntGlobalConfig::instance().config;
+
+    if (a.size() < config.karatsuba_threshold || b.size() < config.karatsuba_threshold)
     {
         return mul_basecase(a, b);
     }
 
     const int m2 = static_cast<int>(std::max(a.size(), b.size()) / 2);
 
-    const std::span<bigint_base_t const> low1 = utils::make_span(a.begin(), utils::safe_advance(a.begin(), m2, a));
-    const std::span<bigint_base_t const> high1 = utils::make_span(utils::safe_advance(a.begin(), m2, a), a.end());
+    const std::span<const bigint_base_t> low1 = utils::make_span(a.begin(), utils::safe_advance(a.begin(), m2, a));
+    const std::span<const bigint_base_t> high1 = utils::make_span(utils::safe_advance(a.begin(), m2, a), a.end());
 
-    const std::span<bigint_base_t const> low2 = utils::make_span(b.begin(), utils::safe_advance(b.begin(), m2, b));
-    const std::span<bigint_base_t const> high2 = utils::make_span(utils::safe_advance(b.begin(), m2, b), b.end());
+    const std::span<const bigint_base_t> low2 = utils::make_span(b.begin(), utils::safe_advance(b.begin(), m2, b));
+    const std::span<const bigint_base_t> high2 = utils::make_span(utils::safe_advance(b.begin(), m2, b), b.end());
 
     const auto lh1 = plain_add(low1, high1);
     const auto lh2 = plain_add(low2, high2);
