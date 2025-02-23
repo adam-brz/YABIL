@@ -25,6 +25,11 @@ std::vector<bigint_base_t> sub_unsigned(std::span<const bigint_base_t> a, std::s
 std::vector<bigint_base_t> mul_unsigned_basecase(std::span<const bigint_base_t> a, std::span<const bigint_base_t> b);
 std::vector<bigint_base_t> mul_unsigned_karatsuba(std::span<const bigint_base_t> a, std::span<const bigint_base_t> b);
 
+std::pair<BigInt, BigInt> div_unsigned(const BigInt &a, const BigInt &b);
+std::pair<BigInt, BigInt> div_unsigned_basecase(const BigInt &a, const BigInt &b);
+std::pair<BigInt, BigInt> div_unsigned_unbalanced(const BigInt &a, const BigInt &b);
+std::pair<BigInt, BigInt> div_unsigned_recursive(const BigInt &a, const BigInt &b);
+
 std::vector<bigint_base_t> &increment_unsigned(std::vector<bigint_base_t> &n);
 std::vector<bigint_base_t> &decrement_unsigned(std::vector<bigint_base_t> &n);
 
