@@ -49,12 +49,7 @@ TEST_F(ThreadPool_tests, canRunMultipleTasks)
     std::atomic<int> a = 0;
     for (int i = 0; i < task_count; ++i)
     {
-        results.push_back(pool.submit(
-            [&]()
-            {
-                ++a;
-                std::this_thread::sleep_for(std::chrono::microseconds(100));
-            }));
+        results.push_back(pool.submit([&]() { ++a; }));
     }
 
     for (auto &result : results)
@@ -65,6 +60,34 @@ TEST_F(ThreadPool_tests, canRunMultipleTasks)
     EXPECT_EQ(a, task_count);
 }
 
+TEST_F(ThreadPool_tests, canStopAndStartThreads)
+{
+    ThreadPool pool(2);
+    EXPECT_EQ(pool.thread_count(), 2);
+
+    std::vector<std::future<void>> futures;
+
+    std::atomic<int> counter = 0;
+    futures.push_back(pool.submit([&]() { ++counter; }));
+    futures.push_back(pool.submit([&]() { ++counter; }));
+
+    pool.stop();
+    pool.wait_stopped();
+
+    pool.start();
+    EXPECT_EQ(pool.thread_count(), 2);
+
+    futures.push_back(pool.submit([&]() { ++counter; }));
+
+    for (auto &future : futures)
+    {
+        const auto status = future.wait_for(std::chrono::milliseconds(500));
+        ASSERT_NE(status, std::future_status::timeout);
+    }
+
+    EXPECT_EQ(counter, 3);
+}
+
 TEST_F(ThreadPool_tests, canResizeThreadPool)
 {
     ThreadPool pool(2);
@@ -72,22 +95,27 @@ TEST_F(ThreadPool_tests, canResizeThreadPool)
 
     std::vector<std::future<void>> futures;
 
-    std::atomic<int> a = 0;
-    futures.push_back(pool.submit([&]() { ++a; }));
-    futures.push_back(pool.submit([&]() { ++a; }));
+    std::atomic<int> counter = 0;
+    futures.push_back(pool.submit([&]() { ++counter; }));
+    futures.push_back(pool.submit([&]() { ++counter; }));
 
-    pool.resize(6);
-    EXPECT_EQ(pool.thread_count(), 6);
+    pool.stop();
+    pool.wait_stopped();
 
-    futures.push_back(pool.submit([&]() { ++a; }));
-    futures.push_back(pool.submit([&]() { ++a; }));
-    futures.push_back(pool.submit([&]() { ++a; }));
+    pool.start(4);
+    EXPECT_EQ(pool.thread_count(), 4);
+
+    futures.push_back(pool.submit([&]() { ++counter; }));
+    futures.push_back(pool.submit([&]() { ++counter; }));
+    futures.push_back(pool.submit([&]() { ++counter; }));
 
     for (auto &future : futures)
     {
         const auto status = future.wait_for(std::chrono::milliseconds(500));
         ASSERT_NE(status, std::future_status::timeout);
     }
+
+    EXPECT_EQ(counter, 5);
 }
 
 TEST_F(ThreadPool_tests, canUseManyThreadPools)

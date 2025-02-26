@@ -93,9 +93,6 @@ public:
     /// @return Absolute value of \p BigInt
     YABIL_BIGINT_EXPORT BigInt abs() const;
 
-    /// @brief Normalize number. Remove trailing zeroes and set sign to Sign::Plus if number is equal to zero.
-    YABIL_BIGINT_EXPORT void normalize();
-
     /// @brief Convert number to string with specified base.
     /// @param base Base of the number string representation (can be from 2 to 16)
     /// @return \p std::string representation of the number
@@ -330,6 +327,11 @@ public:
     {
         return !is_zero();
     }
+
+private:
+    /// @brief Normalize number. Remove trailing zeroes and set sign to Sign::Plus if number is equal to zero.
+    /// @details This method should be used only internally.
+    YABIL_BIGINT_EXPORT void normalize();
 };
 
 }  // namespace yabil::bigint

@@ -1,14 +1,12 @@
 #pragma once
 
 #include <yabil/bigint/BigInt.h>
+#include <yabil/bigint/BigIntBase.h>
 
-#include <cstddef>
 #include <functional>
 #include <span>
 #include <utility>
 #include <vector>
-
-#include "yabil/bigint/BigIntBase.h"
 
 namespace yabil::bigint::impl
 {
@@ -44,12 +42,12 @@ std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> div_unsigned_r
 std::vector<bigint_base_t> &increment_unsigned(std::vector<bigint_base_t> &n);
 std::vector<bigint_base_t> &decrement_unsigned(std::vector<bigint_base_t> &n);
 
-// Be careful when using! "a" must be resized to std::max(a.size(), b.size()) + 1. This cannot be done inside this function 
-// as data from "b" might overlap with "a" and resize will invalidate pointer. 
+// Be careful when using! "a" must be resized to std::max(a.size(), b.size()) + 1. This cannot be done inside this
+// function as data from "b" might overlap with "a" and resize will invalidate pointer.
 std::vector<bigint_base_t> &inplace_plain_add(std::vector<bigint_base_t> &a, const std::span<const bigint_base_t> &b);
 
-// Be careful when using! "a" must be resized to std::max(a.size(), b.size()). This cannot be done inside this function 
-// as data from "b" might overlap with "a" and resize will invalidate pointer. 
+// Be careful when using! "a" must be resized to std::max(a.size(), b.size()). This cannot be done inside this function
+// as data from "b" might overlap with "a" and resize will invalidate pointer.
 std::pair<std::reference_wrapper<std::vector<bigint_base_t>>, Sign> inplace_plain_sub(
     std::vector<bigint_base_t> &a, const std::span<const bigint_base_t> &b, const Sign a_sign = Sign::Plus);
 

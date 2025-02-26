@@ -17,7 +17,7 @@ bigint::BigInt add(const bigint::BigInt &a, const bigint::BigInt &b)
     return a + b;
 }
 
-bigint::BigInt multiply(const bigint::BigInt &a, const bigint::BigInt &b)
+bigint::BigInt mul(const bigint::BigInt &a, const bigint::BigInt &b)
 {
     return bigint::BigInt(parallel_karatsuba(a.raw_data(), b.raw_data()),
                           (a.get_sign() == b.get_sign()) ? bigint::Sign::Plus : bigint::Sign::Minus);

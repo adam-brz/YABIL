@@ -8,6 +8,7 @@ namespace yabil::bigint
 
 /// @brief Structure storing configuration values for big integer algorithms.
 /// @tparam KnownInCompileTime Parameter specifying if stored values are constant (known in compile-time).
+/// @headerfile BigIntGlobalConfig.h <yabil/bigint/BigIntGlobalConfig.h>
 template <bool KnownInCompileTime>
 struct BigIntConfig;
 

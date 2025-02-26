@@ -16,6 +16,6 @@ YABIL_PARALLEL_EXPORT bigint::BigInt add(const bigint::BigInt &a, const bigint::
 /// @param a First BigInt number
 /// @param b Second BigInt number
 /// @return \p BigInt Result of multiplication
-YABIL_PARALLEL_EXPORT bigint::BigInt multiply(const bigint::BigInt &a, const bigint::BigInt &b);
+YABIL_PARALLEL_EXPORT bigint::BigInt mul(const bigint::BigInt &a, const bigint::BigInt &b);
 
 }  // namespace yabil::parallel
