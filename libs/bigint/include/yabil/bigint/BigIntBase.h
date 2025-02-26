@@ -9,6 +9,7 @@ namespace bigint
 {
 
 /// @brief Base type for big integer internal representation
+/// @headerfile BigIntBase.h <yabil/bigint/BigIntBase.h>
 using bigint_base_t = AlgorithmsDefaultsConfig::bigint_base_t;
 
 }  // namespace bigint

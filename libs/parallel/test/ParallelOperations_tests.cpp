@@ -151,7 +151,7 @@ TEST_F(ParallelOperations_tests, addTwoHugeDifferentLength)
 TEST_F(ParallelOperations_tests, mulTwoZeros)
 {
     const BigInt big_int1, big_int2;
-    EXPECT_EQ(0, (parallel::multiply(big_int1, big_int2)).to<int64_t>());
+    EXPECT_EQ(0, (parallel::mul(big_int1, big_int2)).to<int64_t>());
 }
 
 TEST_F(ParallelOperations_tests, mulZeroAndNonZeroShouldAlwaysGiveZero)
@@ -159,7 +159,7 @@ TEST_F(ParallelOperations_tests, mulZeroAndNonZeroShouldAlwaysGiveZero)
     const BigInt zero;
     for (int i = -10; i < 10; ++i)
     {
-        EXPECT_EQ(0, parallel::multiply(zero, BigInt(i)).to<int64_t>());
+        EXPECT_EQ(0, parallel::mul(zero, BigInt(i)).to<int64_t>());
     }
 }
 
@@ -172,7 +172,7 @@ TEST_F(ParallelOperations_tests, mulTwoNegativeWithOverflow)
 
     const std::vector<bigint_base_t> expected = {std::numeric_limits<bigint_base_t>::max() & ~(0b1001),
                                                  std::numeric_limits<bigint_base_t>::max(), 0b1001};
-    const auto result = parallel::multiply(big_int1, big_int2);
+    const auto result = parallel::mul(big_int1, big_int2);
 
     EXPECT_EQ(expected, result.raw_data());
     EXPECT_EQ(Sign::Plus, result.get_sign());
@@ -184,7 +184,7 @@ TEST_F(ParallelOperations_tests, mulTwoWithDifferentSignsWithOverflow)
     const BigInt big_int2(std::numeric_limits<bigint_base_t>::max());
 
     const std::vector<bigint_base_t> expected = {0, 1, std::numeric_limits<bigint_base_t>::max() - 1};
-    const auto result = parallel::multiply(big_int1, big_int2);
+    const auto result = parallel::mul(big_int1, big_int2);
 
     EXPECT_EQ(expected, result.raw_data());
     EXPECT_EQ(Sign::Minus, result.get_sign());
@@ -196,7 +196,7 @@ TEST_F(ParallelOperations_tests, mulTwoTheSameLong)
     const BigInt big_int2(std::vector<bigint_base_t>{0, std::numeric_limits<bigint_base_t>::max()});
 
     const std::vector<bigint_base_t> expected = {0, 0, 1, std::numeric_limits<bigint_base_t>::max() - 1};
-    const auto result = parallel::multiply(big_int1, big_int2);
+    const auto result = parallel::mul(big_int1, big_int2);
 
     EXPECT_EQ(expected, result.raw_data());
     EXPECT_EQ(Sign::Plus, result.get_sign());
@@ -210,7 +210,7 @@ TEST_F(ParallelOperations_tests, mulVeryLong)
     const BigInt expected(
         "2f0a50a3b272a04e7f916ba1b689396c067cb18d3a405f3d784e7566b4e8cc7169215b207489d641a7fcecbd98c6997d312e23d15640",
         16);
-    const auto result = parallel::multiply(big_int1, big_int2);
+    const auto result = parallel::mul(big_int1, big_int2);
 
     EXPECT_EQ(expected, result);
 }
@@ -236,7 +236,7 @@ TEST_F(ParallelOperations_tests, mulHuge)
         "64469422313156354310954449743569501074134569679723721606975623215446967467192587289503946725519715922311334166"
         "99433404577350389482552427307047294426812420377673488150547940294142649919051969770043816796295463338971101779"
         "185943176529708443007373708291711774966199862846607649901");
-    const auto result = parallel::multiply(big_int1, big_int2);
+    const auto result = parallel::mul(big_int1, big_int2);
 
     EXPECT_EQ(expected, result);
 }
@@ -262,7 +262,7 @@ TEST_F(ParallelOperations_tests, mulHugeNegative)
         "64469422313156354310954449743569501074134569679723721606975623215446967467192587289503946725519715922311334166"
         "99433404577350389482552427307047294426812420377673488150547940294142649919051969770043816796295463338971101779"
         "185943176529708443007373708291711774966199862846607649901");
-    const auto result = parallel::multiply(big_int1, big_int2);
+    const auto result = parallel::mul(big_int1, big_int2);
 
     EXPECT_EQ(expected, result);
 }

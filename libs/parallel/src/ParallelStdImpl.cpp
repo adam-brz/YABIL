@@ -21,7 +21,10 @@ std::size_t get_thread_count()
 
 void set_thread_count(std::size_t thread_count)
 {
-    ThreadPoolSingleton::instance().resize(thread_count);
+    auto &pool = ThreadPoolSingleton::instance();
+    pool.stop();
+    pool.wait_stopped();
+    pool.start(static_cast<int>(thread_count));
 }
 
 std::vector<bigint::bigint_base_t> parallel_add_unsigned(const std::span<const bigint::bigint_base_t> &a,

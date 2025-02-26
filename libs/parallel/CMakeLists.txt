@@ -1,7 +1,6 @@
 project(parallel C CXX)
 
 set(SOURCES
-    src/FunctionWrapper.cpp
     src/Parallel.cpp
     src/ParallelImpl.h
     src/ThreadPool.cpp
@@ -9,7 +8,6 @@ set(SOURCES
 )
 
 set(HEADERS
-    include/yabil/parallel/FunctionWrapper.h
     include/yabil/parallel/Parallel.h
     include/yabil/parallel/ParallelGlobalConfig.h
     include/yabil/parallel/ThreadPool.h
@@ -17,7 +15,6 @@ set(HEADERS
 )
 
 set(TESTS
-    test/FunctionWrapper_tests.cpp
     test/ParallelOperations_tests.cpp
     test/ThreadPoolSingleton_tests.cpp
     test/ThreadPool_tests.cpp
