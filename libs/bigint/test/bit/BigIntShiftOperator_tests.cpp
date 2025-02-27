@@ -191,3 +191,52 @@ TEST_F(BigIntShiftOperator_tests, inPlaceShiftRightLongerThanNumber)
     big_int >>= 128;
     EXPECT_EQ(big_int, BigInt());
 }
+
+TEST_F(BigIntShiftOperator_tests, inPlaceShiftLongNumberByLongDistanceNotAligned)
+{
+    BigInt big_int(std::vector<bigint_base_t>{std::numeric_limits<bigint_base_t>::max(), 0,
+                                              std::numeric_limits<bigint_base_t>::max()});
+    const unsigned shift(BigInt::digit_size_bits * 2 + BigInt::digit_size_bits / 2);
+
+    const std::vector<bigint_base_t> expected = {
+        0,
+        0,
+        static_cast<bigint_base_t>(std::numeric_limits<bigint_base_t>::max() << (BigInt::digit_size_bits / 2)),
+        std::numeric_limits<bigint_base_t>::max() >> (BigInt::digit_size_bits / 2),
+        static_cast<bigint_base_t>(std::numeric_limits<bigint_base_t>::max() << (BigInt::digit_size_bits / 2)),
+        std::numeric_limits<bigint_base_t>::max() >> (BigInt::digit_size_bits / 2),
+    };
+
+    big_int <<= shift;
+    EXPECT_EQ(expected, (big_int).raw_data());
+}
+
+TEST_F(BigIntShiftOperator_tests, inPlaceShiftLongNumberLeft)
+{
+    BigInt big_int(std::vector<bigint_base_t>{std::numeric_limits<bigint_base_t>::max(), 0,
+                                              std::numeric_limits<bigint_base_t>::max()});
+    const uint64_t shift(BigInt::digit_size_bits / 2);
+
+    const std::vector<bigint_base_t> expected = {
+        static_cast<bigint_base_t>(std::numeric_limits<bigint_base_t>::max() << (BigInt::digit_size_bits / 2)),
+        std::numeric_limits<bigint_base_t>::max() >> (BigInt::digit_size_bits / 2),
+        static_cast<bigint_base_t>(std::numeric_limits<bigint_base_t>::max() << (BigInt::digit_size_bits / 2)),
+        std::numeric_limits<bigint_base_t>::max() >> (BigInt::digit_size_bits / 2)};
+
+    big_int <<= shift;
+    EXPECT_EQ(expected, (big_int).raw_data());
+}
+
+TEST_F(BigIntShiftOperator_tests, inPlaceShiftRightLongNumberByLongDistanceNotAligned)
+{
+    BigInt big_int(std::vector<bigint_base_t>{std::numeric_limits<bigint_base_t>::max(), 0,
+                                                    std::numeric_limits<bigint_base_t>::max()});
+    const unsigned shift(BigInt::digit_size_bits * 2 + BigInt::digit_size_bits / 2);
+
+    const std::vector<bigint_base_t> expected = {
+        std::numeric_limits<bigint_base_t>::max() >> (BigInt::digit_size_bits / 2),
+    };
+
+    big_int >>= shift;
+    EXPECT_EQ(expected, (big_int ).raw_data());
+}
