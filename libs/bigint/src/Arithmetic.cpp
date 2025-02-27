@@ -258,7 +258,10 @@ std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> div_unsigned_r
         A_bis += BigInt{b};
     }
 
-    return {impl::add_unsigned(impl::shift_digits_left(Q1, k), Q0), A_bis.raw_data()};
+    auto Q = impl::add_unsigned(impl::shift_digits_left(Q1, k), Q0);
+    impl::remove_trailing_zeros(Q);
+
+    return {Q, A_bis.raw_data()};
 }
 
 std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> div_unsigned_basecase(
@@ -304,6 +307,7 @@ std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> div_unsigned_b
         q[i] = static_cast<bigint_base_t>(q_i);
     }
 
+    impl::remove_trailing_zeros(q);
     return {q, A.raw_data()};
 }
 

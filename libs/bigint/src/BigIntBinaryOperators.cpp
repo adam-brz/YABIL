@@ -172,28 +172,26 @@ BigInt &BigInt::operator<<=(uint64_t shift)
     const uint64_t new_items_count = shift / BigInt::digit_size_bits;
     const uint64_t real_shift = shift % BigInt::digit_size_bits;
 
+    const int original_data_size = static_cast<int>(data.size());
     data.resize(data.size() + new_items_count + 1);
-    bigint_base_t shifted_val = 0;
 
-    std::transform(data.cbegin(), data.cend() - static_cast<int>(new_items_count) - 1,
-                   data.begin() + static_cast<int>(new_items_count),
-                   [real_shift, &shifted_val](const bigint_base_t &v)
-                   {
-                       const bigint_base_t transformed = (v << real_shift) | shifted_val;
-                       shifted_val = (real_shift == 0)
-                                         ? 0
-                                         : static_cast<bigint_base_t>(v >> (BigInt::digit_size_bits - real_shift));
-                       return transformed;
-                   });
-
-    if (new_items_count > 0)
+    if (real_shift > 0)
     {
-        std::fill(data.begin(), data.begin() + static_cast<int>(new_items_count), 0);
+        for (int idx = original_data_size - 1; idx >= 0; --idx)
+        {
+            const int destination_idx = idx + static_cast<int>(new_items_count + 1);
+            data[destination_idx] |= data[idx] >> (BigInt::digit_size_bits - real_shift);
+            data[destination_idx - 1] = data[idx] << real_shift;
+        }
+    }
+    else
+    {
+        std::shift_right(data.begin(), data.end(), static_cast<int>(new_items_count));
     }
 
-    data.back() = shifted_val;
-    normalize();
+    std::fill_n(data.begin(), new_items_count, 0);
 
+    normalize();
     return *this;
 }
 
