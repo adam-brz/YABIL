@@ -85,8 +85,7 @@ std::vector<bigint::bigint_base_t> parallel_add_unsigned(const std::span<const b
         {
             carry += part_data.back();
         }
-        /*    std::copy(part_data.cbegin(), part_data.cbegin() + static_cast<int>(chunk_size), result.begin() +
-         * chunk_index);*/
+        std::copy(part_data.cbegin(), part_data.cbegin() + static_cast<int>(chunk_size), result.begin() + chunk_index);
         chunk_index += static_cast<int>(chunk_size);
     }
 

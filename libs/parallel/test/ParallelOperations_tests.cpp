@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <yabil/bigint/BigInt.h>
+#include <yabil/bigint/io.h>
 #include <yabil/parallel/Parallel.h>
 
 #include <limits>
@@ -127,7 +128,7 @@ TEST_F(ParallelOperations_tests, addTwoHugeTheSameLength)
         "5311385854279744397509782556744379094371243970935784347782558974259675825674");
 
     const auto result = parallel::add(a, a);
-    EXPECT_EQ(result, expected);
+    EXPECT_EQ(result, expected) << result << " != " << expected;
 }
 
 TEST_F(ParallelOperations_tests, addTwoHugeDifferentLength)
