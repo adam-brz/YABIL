@@ -33,7 +33,7 @@ std::vector<bigint::bigint_base_t> parallel_add_unsigned(const std::span<const b
                                                          const std::span<const bigint::bigint_base_t> &b)
 {
     const auto min_s = std::min(a.size(), b.size());
-    const auto &config = ParallelGlobalConfig::instance().config;
+    const auto &config = ParallelGlobalConfig::instance();
 
     if (min_s < config.parallel_add_threshold)
     {
@@ -102,13 +102,13 @@ std::vector<bigint::bigint_base_t> parallel_add_unsigned(const std::span<const b
 std::vector<bigint::bigint_base_t> parallel_karatsuba(const std::span<const bigint::bigint_base_t> &a,
                                                       const std::span<const bigint::bigint_base_t> &b)
 {
-    const auto &parallel_config = ParallelGlobalConfig::instance().config;
+    const auto &parallel_config = ParallelGlobalConfig::instance();
     if (a.size() < parallel_config.parallel_mul_threshold || b.size() < parallel_config.parallel_mul_threshold)
     {
         return bigint::impl::mul_unsigned_karatsuba(a, b);
     }
 
-    const auto &algorithms_config = bigint::BigIntGlobalConfig::instance().config;
+    const auto &algorithms_config = bigint::BigIntGlobalConfig::instance();
     if (a.size() < algorithms_config.karatsuba_threshold || b.size() < algorithms_config.karatsuba_threshold)
     {
         return bigint::impl::mul_unsigned_basecase(a, b);
