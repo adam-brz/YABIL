@@ -175,7 +175,11 @@ BigInt &BigInt::operator<<=(uint64_t shift)
     const int original_data_size = static_cast<int>(data.size());
     data.resize(data.size() + new_items_count + 1);
 
-    if (real_shift > 0)
+    if (real_shift == 0)
+    {
+        std::shift_right(data.begin(), data.end(), static_cast<int>(new_items_count));
+    }
+    else
     {
         for (int idx = original_data_size - 1; idx >= 0; --idx)
         {
@@ -183,10 +187,6 @@ BigInt &BigInt::operator<<=(uint64_t shift)
             data[destination_idx] |= data[idx] >> (BigInt::digit_size_bits - real_shift);
             data[destination_idx - 1] = data[idx] << real_shift;
         }
-    }
-    else
-    {
-        std::shift_right(data.begin(), data.end(), static_cast<int>(new_items_count));
     }
 
     std::fill_n(data.begin(), new_items_count, 0);
@@ -203,24 +203,28 @@ BigInt &BigInt::operator>>=(uint64_t shift)
     if (removed_items_count >= data.size())
     {
         data.resize(0);
-        normalize();
+        sign = Sign::Plus;
         return *this;
     }
 
+    if (real_shift == 0)
+    {
+        std::shift_left(data.begin(), data.end(), static_cast<int>(removed_items_count));
+    }
+    else
+    {
+        const auto get_digit = [&](const auto idx) { return (idx < data.size()) ? data[idx] : 0; };
+        for (std::size_t idx = 0; idx < data.size(); ++idx)
+        {
+            const auto source_idx = idx + removed_items_count;
+            data[idx] = get_digit(source_idx) >> real_shift;
+            data[idx] |= get_digit(source_idx + 1) << (BigInt::digit_size_bits - real_shift);
+        }
+    }
+
     data.resize(data.size() - removed_items_count);
-    bigint_base_t shifted_val = 0;
-
-    std::transform(data.crbegin(), data.crend(), data.rbegin(),
-                   [real_shift, &shifted_val](const bigint_base_t &v)
-                   {
-                       const bigint_base_t transformed = (v >> real_shift) | shifted_val;
-                       shifted_val = (real_shift == 0)
-                                         ? 0
-                                         : static_cast<bigint_base_t>(v << (BigInt::digit_size_bits - real_shift));
-                       return transformed;
-                   });
-
     normalize();
+
     return *this;
 }
 
