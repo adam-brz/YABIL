@@ -1,7 +1,7 @@
 #pragma once
 
 #include <yabil/bigint/algorithms_config.h>
-#include <yabil/utils/GlobalConfig.h>
+#include <yabil/utils/GlobalInstance.h>
 
 #include <cstddef>
 
@@ -31,6 +31,7 @@ struct ParallelConfig<false>
 
 /// @brief Global configuration for bigint algorithms.
 /// @headerfile ParallelGlobalConfig.h <yabil/parallel/ParallelGlobalConfig.h>
-using ParallelGlobalConfig = utils::GlobalConfig<ParallelConfig<bigint::AlgorithmsDefaultsConfig::consteval_thresholds>>;
+using ParallelGlobalConfig =
+    utils::GlobalInstance<ParallelConfig<bigint::AlgorithmsDefaultsConfig::consteval_thresholds>>;
 
 }  // namespace yabil::parallel

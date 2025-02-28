@@ -1,7 +1,7 @@
 #pragma once
 
 #include <yabil/bigint/algorithms_config.h>
-#include <yabil/utils/GlobalConfig.h>
+#include <yabil/utils/GlobalInstance.h>
 
 namespace yabil::bigint
 {
@@ -28,6 +28,6 @@ struct BigIntConfig<false>
 
 /// @brief Global configuration for bigint algorithms.
 /// @headerfile BigIntGlobalConfig.h <yabil/bigint/BigIntGlobalConfig.h>
-using BigIntGlobalConfig = utils::GlobalConfig<BigIntConfig<AlgorithmsDefaultsConfig::consteval_thresholds>>;
+using BigIntGlobalConfig = utils::GlobalInstance<BigIntConfig<AlgorithmsDefaultsConfig::consteval_thresholds>>;
 
 }  // namespace yabil::bigint

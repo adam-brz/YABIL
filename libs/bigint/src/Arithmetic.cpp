@@ -105,7 +105,7 @@ std::vector<bigint_base_t> mul_unsigned_basecase(std::span<const bigint_base_t> 
 
 std::vector<bigint_base_t> mul_unsigned_karatsuba(std::span<const bigint_base_t> a, std::span<const bigint_base_t> b)
 {
-    const auto &config = BigIntGlobalConfig::instance().config;
+    const auto &config = BigIntGlobalConfig::instance();
 
     if (a.size() < config.karatsuba_threshold || b.size() < config.karatsuba_threshold)
     {
@@ -168,7 +168,7 @@ std::vector<bigint_base_t> &decrement_unsigned(std::vector<bigint_base_t> &n)
 std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> div_unsigned(const std::span<const bigint_base_t> &a,
                                                                                const std::span<const bigint_base_t> &b)
 {
-    const auto &config = BigIntGlobalConfig::instance().config;
+    const auto &config = BigIntGlobalConfig::instance();
 
     if (a.size() > config.recursive_div_threshold && b.size() > config.recursive_div_threshold)
     {

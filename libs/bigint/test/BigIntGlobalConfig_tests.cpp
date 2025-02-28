@@ -17,7 +17,7 @@ TEST_F(BigIntGlobalConfig_tests, isSingleInstance)
 
 TEST_F(BigIntGlobalConfig_tests, canReadConfigValues)
 {
-    const auto &config = BigIntGlobalConfig::instance().config;
+    const auto &config = BigIntGlobalConfig::instance();
     EXPECT_GT(config.karatsuba_threshold, 0);
     EXPECT_GT(config.recursive_div_threshold, 0);
 }
