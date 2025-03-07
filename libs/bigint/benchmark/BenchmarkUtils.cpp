@@ -23,7 +23,7 @@ std::vector<bigint_base_t> random_digits(std::size_t number_of_digits)
         generated.push_back(dist(gen));
     }
 
-    generated.back() |= static_cast<bigint_base_t>(1) << (BigInt::bigint_base_t_size_bits - 1);
+    generated.back() |= static_cast<bigint_base_t>(1) << (BigInt::digit_size_bits - 1);
     return generated;
 }
 

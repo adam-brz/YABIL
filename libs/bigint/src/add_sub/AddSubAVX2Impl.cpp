@@ -7,6 +7,9 @@
 namespace yabil::bigint
 {
 
+namespace
+{
+
 static const __m256i BROADCAST_MASK[16] = {
     _mm256_set_epi64x(static_cast<int64_t>(0x8000000000000000), static_cast<int64_t>(0x8000000000000000),
                       static_cast<int64_t>(0x8000000000000000), static_cast<int64_t>(0x8000000000000000)),
@@ -77,6 +80,8 @@ __m256i avx_sub256(__m256i A, __m256i B, uint32_t *borrow)
 
     return _mm256_sub_epi64(s, BROADCAST_MASK[m]);
 }
+
+}  // namespace
 
 void add_arrays(const bigint_base_t *a, std::size_t a_size, const bigint_base_t *b, std::size_t b_size,
                 bigint_base_t *r)

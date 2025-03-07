@@ -1,18 +1,18 @@
 #include <yabil/bigint/BigInt.h>
 
+#include "impl/Arithmetic.h"
+
 namespace yabil::bigint
 {
 
 bool BigInt::abs_greater(const BigInt &other) const
 {
-    return other.abs_lower(*this);
+    return impl::abs_greater(this->data, other.data);
 }
 
 bool BigInt::abs_lower(const BigInt &other) const
 {
-    return data.size() < other.data.size() ||
-           (data.size() == other.data.size() &&
-            std::lexicographical_compare(data.crbegin(), data.crend(), other.data.crbegin(), other.data.crend()));
+    return impl::abs_lower(this->data, other.data);
 }
 
 bool BigInt::operator==(const BigInt &other) const
