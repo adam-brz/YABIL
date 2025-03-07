@@ -136,3 +136,44 @@ TEST_F(ThreadPool_tests, canUseManyThreadPools)
         ASSERT_NE(status, std::future_status::timeout);
     }
 }
+
+TEST_F(ThreadPool_tests, canSubmitTasksRecursivelyWithoutDeadlock)
+{
+    ThreadPool pool;
+    std::atomic<int> counter = 0;
+
+    constexpr int task_count = 100;
+    constexpr int internal_tasks_count = 20;
+
+    const auto task = [&]()
+    {
+        std::vector<std::future<void>> results;
+        results.reserve(internal_tasks_count);
+
+        for (int i = 0; i < internal_tasks_count; ++i)
+        {
+            results.push_back(pool.submit([&]() { ++counter; }));
+        }
+
+        for (auto &result : results)
+        {
+            result.wait();
+        }
+    };
+
+    std::vector<std::future<void>> results;
+    results.reserve(task_count);
+
+    for (int i = 0; i < task_count; ++i)
+    {
+        results.emplace_back(pool.submit(task));
+    }
+
+    for (auto &result : results)
+    {
+        auto wait_result = result.wait_for(std::chrono::milliseconds(500));
+        EXPECT_NE(wait_result, std::future_status::timeout) << "Task did not finish in time. Possible deadlock.";
+    }
+
+    EXPECT_EQ(counter, task_count * internal_tasks_count);
+}
