@@ -1,7 +1,6 @@
 project(bigint C CXX)
 
 set(SOURCES
-    src/Arithmetic.cpp
     src/BigInt.cpp
     src/BigIntArithmeticOperators.cpp
     src/BigIntBinaryOperators.cpp
@@ -11,16 +10,25 @@ set(SOURCES
     src/StringConversionUtils.h
     src/add_sub/AddSub.h
     src/add_sub/AddSub.cpp
+    src/arithmetic/Mul.cpp
+    src/arithmetic/Div.cpp
+    src/arithmetic/Add.cpp
+    src/arithmetic/Sub.cpp
+    src/impl/Arithmetic.h
+    src/impl/Arithmetic.cpp
 )
 
 set(HEADERS
-    include/yabil/bigint/impl/Arithmetic.h
     include/yabil/bigint/impl/BigIntImpl.h
     include/yabil/bigint/BigInt.h
     include/yabil/bigint/Sign.h
     include/yabil/bigint/BigIntBase.h
     include/yabil/bigint/BigIntGlobalConfig.h
     include/yabil/bigint/io.h
+    include/yabil/bigint/arithmetic/Sub.h
+    include/yabil/bigint/arithmetic/Add.h
+    include/yabil/bigint/arithmetic/Mul.h
+    include/yabil/bigint/arithmetic/Div.h
 )
 
 set(TESTS

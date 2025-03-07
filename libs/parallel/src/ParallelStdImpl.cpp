@@ -1,6 +1,7 @@
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/BigIntGlobalConfig.h>
-#include <yabil/bigint/impl/Arithmetic.h>
+#include <yabil/bigint/arithmetic/Add.h>
+#include <yabil/bigint/arithmetic/Mul.h>
 #include <yabil/parallel/ParallelGlobalConfig.h>
 #include <yabil/parallel/ThreadPoolSingleton.h>
 #include <yabil/utils/IterUtils.h>
@@ -35,7 +36,7 @@ std::vector<bigint::bigint_base_t> parallel_add_unsigned(const std::span<const b
 
     if (min_s < config.parallel_add_threshold)
     {
-        return bigint::impl::add_unsigned(a, b);
+        return bigint::arithmetic::add_unsigned(a, b);
     }
 
     auto &thread_pool = ThreadPoolSingleton::instance();
@@ -50,14 +51,15 @@ std::vector<bigint::bigint_base_t> parallel_add_unsigned(const std::span<const b
         partial_results.push_back(thread_pool.submit(
             [&, i]()
             {
-                return bigint::impl::add_unsigned({&a[i * chunk_size], chunk_size}, {&b[i * chunk_size], chunk_size});
+                return bigint::arithmetic::add_unsigned({&a[i * chunk_size], chunk_size},
+                                                        {&b[i * chunk_size], chunk_size});
             }));
     }
 
     auto last_part = thread_pool.submit(
         [&]()
         {
-            return bigint::impl::add_unsigned(
+            return bigint::arithmetic::add_unsigned(
                 utils::make_span(a.begin() + static_cast<int>(concurrency * chunk_size), a.end()),
                 utils::make_span(b.begin() + static_cast<int>(concurrency * chunk_size), b.end()));
         });
@@ -71,7 +73,7 @@ std::vector<bigint::bigint_base_t> parallel_add_unsigned(const std::span<const b
         auto part_data = chunk.get();
         if (carry)
         {
-            bigint::impl::increment_unsigned(part_data);
+            bigint::arithmetic::increment_unsigned(part_data);
             carry = 0;
         }
         if (part_data.size() > chunk_size)
@@ -85,7 +87,7 @@ std::vector<bigint::bigint_base_t> parallel_add_unsigned(const std::span<const b
     auto final_part_data = last_part.get();
     if (carry)
     {
-        bigint::impl::increment_unsigned(final_part_data);
+        bigint::arithmetic::increment_unsigned(final_part_data);
     }
 
     std::copy(final_part_data.cbegin(), final_part_data.cend(), result.begin() + chunk_index);
@@ -98,13 +100,13 @@ std::vector<bigint::bigint_base_t> parallel_karatsuba(const std::span<const bigi
     const auto &parallel_config = ParallelGlobalConfig::instance();
     if (a.size() < parallel_config.parallel_mul_threshold || b.size() < parallel_config.parallel_mul_threshold)
     {
-        return bigint::impl::mul_unsigned_karatsuba(a, b);
+        return bigint::arithmetic::mul_unsigned_karatsuba(a, b);
     }
 
     const auto &algorithms_config = bigint::BigIntGlobalConfig::instance();
     if (a.size() < algorithms_config.karatsuba_threshold || b.size() < algorithms_config.karatsuba_threshold)
     {
-        return bigint::impl::mul_unsigned_basecase(a, b);
+        return bigint::arithmetic::mul_unsigned_basecase(a, b);
     }
 
     const int m2 = static_cast<int>(std::max(a.size(), b.size()) / 2);
@@ -121,15 +123,15 @@ std::vector<bigint::bigint_base_t> parallel_karatsuba(const std::span<const bigi
 
     auto &thread_pool = ThreadPoolSingleton::instance();
 
-    auto w_z0 = thread_pool.submit([&]() { return bigint::impl::mul_unsigned_karatsuba(low1, low2); });
+    auto w_z0 = thread_pool.submit([&]() { return bigint::arithmetic::mul_unsigned_karatsuba(low1, low2); });
     auto w_z1 = thread_pool.submit(
         [&]()
         {
-            const auto lh1 = bigint::impl::add_unsigned(low1, high1);
-            const auto lh2 = bigint::impl::add_unsigned(low2, high2);
-            return bigint::impl::mul_unsigned_karatsuba(lh1, lh2);
+            const auto lh1 = bigint::arithmetic::add_unsigned(low1, high1);
+            const auto lh2 = bigint::arithmetic::add_unsigned(low2, high2);
+            return bigint::arithmetic::mul_unsigned_karatsuba(lh1, lh2);
         });
-    auto w_z2 = thread_pool.submit([&]() { return bigint::impl::mul_unsigned_karatsuba(high1, high2); });
+    auto w_z2 = thread_pool.submit([&]() { return bigint::arithmetic::mul_unsigned_karatsuba(high1, high2); });
 
     const auto z0 = bigint::BigInt(w_z0.get());
     const auto z1 = bigint::BigInt(w_z1.get());

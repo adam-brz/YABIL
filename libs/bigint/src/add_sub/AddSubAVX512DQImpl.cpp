@@ -7,6 +7,9 @@
 namespace yabil::bigint
 {
 
+namespace
+{
+
 __m512i avx_add512(__m512i A, __m512i B, uint32_t *carry)
 {
     static const __m512i MAX_WORD = _mm512_set1_epi64(static_cast<int64_t>(0xffffffffffffffff));
@@ -38,6 +41,8 @@ __m512i avx_sub512(__m512i A, __m512i B, uint32_t *carry)
 
     return _mm512_mask_add_epi64(s, m, s, MAX_WORD);
 }
+
+}  // namespace
 
 void add_arrays(const bigint_base_t *a, std::size_t a_size, const bigint_base_t *b, std::size_t b_size,
                 bigint_base_t *r)

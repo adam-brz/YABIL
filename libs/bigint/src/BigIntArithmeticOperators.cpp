@@ -1,16 +1,18 @@
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/BigIntGlobalConfig.h>
-#include <yabil/bigint/impl/Arithmetic.h>
+#include <yabil/bigint/arithmetic/Add.h>
+#include <yabil/bigint/arithmetic/Div.h>
+#include <yabil/bigint/arithmetic/Mul.h>
+#include <yabil/bigint/arithmetic/Sub.h>
 #include <yabil/utils/TypeUtils.h>
 
 #include <algorithm>
 #include <bit>
-#include <cmath>
 #include <cstdint>
 #include <limits>
 #include <stdexcept>
 
-#include "add_sub/AddSub.h"
+#include "impl/Arithmetic.h"
 
 namespace yabil::bigint
 {
@@ -19,29 +21,30 @@ BigInt BigInt::operator+(const BigInt &other) const
 {
     if (sign == other.sign)
     {
-        return BigInt(impl::add_unsigned(data, other.data), sign);
+        return BigInt(arithmetic::add_unsigned(data, other.data), sign);
     }
 
     const auto [greater, lower] = impl::get_greater_lower_unsigned(other, *this);
     const Sign new_sign = ((greater == this) == (sign == Sign::Plus)) ? Sign::Plus : Sign::Minus;
-    return BigInt(impl::sub_unsigned(greater->data, lower->data), new_sign);
+    return BigInt(arithmetic::sub_unsigned(greater->data, lower->data), new_sign);
 }
 
 BigInt BigInt::operator-(const BigInt &other) const
 {
     if (sign != other.sign)
     {
-        return BigInt(impl::add_unsigned(data, other.data), sign);
+        return BigInt(arithmetic::add_unsigned(data, other.data), sign);
     }
 
     const auto [greater, lower] = impl::get_greater_lower_unsigned(other, *this);
     const Sign new_sign = ((greater == this) == (sign == Sign::Plus)) ? Sign::Plus : Sign::Minus;
-    return BigInt(impl::sub_unsigned(greater->data, lower->data), new_sign);
+    return BigInt(arithmetic::sub_unsigned(greater->data, lower->data), new_sign);
 }
 
 BigInt BigInt::operator*(const BigInt &other) const
 {
-    return BigInt(impl::mul_unsigned_karatsuba(data, other.data), (sign == other.sign) ? Sign::Plus : Sign::Minus);
+    return BigInt(arithmetic::mul_unsigned_karatsuba(data, other.data),
+                  (sign == other.sign) ? Sign::Plus : Sign::Minus);
 }
 
 BigInt BigInt::operator/(const BigInt &other) const
@@ -123,23 +126,21 @@ std::pair<BigInt, BigInt> BigInt::divide(const BigInt &other) const
         return {quotient, remainder >> k};
     }
 
+    auto [quotient, remainder] = arithmetic::div_unsigned(data, other.data);
+
     if (is_negative() && other.is_negative())
     {
-        auto [quotient, remainder] = impl::div_unsigned(data, other.data);
         return {BigInt{std::move(quotient)}, BigInt{std::move(remainder), Sign::Minus}};
     }
     if (!is_negative() && other.is_negative())
     {
-        auto [quotient, remainder] = impl::div_unsigned(data, other.data);
         return {BigInt{std::move(quotient), Sign::Minus}, BigInt{std::move(remainder)}};
     }
     if (is_negative() && !other.is_negative())
     {
-        auto [quotient, remainder] = impl::div_unsigned(data, other.data);
         return {BigInt{std::move(quotient), Sign::Minus}, BigInt{std::move(remainder), Sign::Minus}};
     }
 
-    auto [quotient, remainder] = impl::div_unsigned(data, other.data);
     return {BigInt{std::move(quotient)}, BigInt{std::move(remainder)}};
 }
 
@@ -214,10 +215,10 @@ BigInt &BigInt::operator++()
 {
     if (sign == Sign::Plus)
     {
-        impl::increment_unsigned(data);
+        arithmetic::increment_unsigned(data);
         return *this;
     }
-    impl::decrement_unsigned(data);
+    arithmetic::decrement_unsigned(data);
     normalize();
     return *this;
 }
@@ -231,11 +232,11 @@ BigInt &BigInt::operator--()
 
     if (sign == Sign::Minus)
     {
-        impl::increment_unsigned(data);
+        arithmetic::increment_unsigned(data);
         return *this;
     }
 
-    impl::decrement_unsigned(data);
+    arithmetic::decrement_unsigned(data);
     normalize();
     return *this;
 }
@@ -245,11 +246,11 @@ BigInt BigInt::operator++(int)
     BigInt copied(*this);
     if (sign == Sign::Plus)
     {
-        impl::increment_unsigned(data);
+        arithmetic::increment_unsigned(data);
     }
     else
     {
-        impl::decrement_unsigned(data);
+        arithmetic::decrement_unsigned(data);
         normalize();
     }
     return copied;
@@ -266,12 +267,12 @@ BigInt BigInt::operator--(int)
 
     if (sign == Sign::Minus)
     {
-        impl::increment_unsigned(data);
+        arithmetic::increment_unsigned(data);
         // normalization not needed
     }
     else
     {
-        impl::decrement_unsigned(data);
+        arithmetic::decrement_unsigned(data);
         normalize();
     }
     return copied;

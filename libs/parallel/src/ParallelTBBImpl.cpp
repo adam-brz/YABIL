@@ -4,7 +4,8 @@
 #include <oneapi/tbb/parallel_invoke.h>
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/BigIntGlobalConfig.h>
-#include <yabil/bigint/impl/Arithmetic.h>
+#include <yabil/bigint/arithmetic/Add.h>
+#include <yabil/bigint/arithmetic/Mul.h>
 #include <yabil/parallel/ParallelGlobalConfig.h>
 #include <yabil/utils/IterUtils.h>
 
@@ -37,7 +38,7 @@ std::vector<bigint::bigint_base_t> parallel_add_unsigned(const std::span<const b
 
     if (min_s < config.parallel_add_threshold)
     {
-        return bigint::impl::add_unsigned(a, b);
+        return bigint::arithmetic::add_unsigned(a, b);
     }
 
     const std::size_t hc = std::thread::hardware_concurrency();
@@ -54,7 +55,7 @@ std::vector<bigint::bigint_base_t> parallel_add_unsigned(const std::span<const b
                 [&](const tbb::blocked_range<std::size_t> &r)
                 {
                     const auto i = r.begin();
-                    partial_results[i] = bigint::impl::add_unsigned(
+                    partial_results[i] = bigint::arithmetic::add_unsigned(
                         utils::make_span(a.begin() + static_cast<int>(i * chunk_size),
                                          a.begin() + static_cast<int>((i + 1) * chunk_size)),
                         utils::make_span(b.begin() + static_cast<int>(i * chunk_size),
@@ -64,7 +65,7 @@ std::vector<bigint::bigint_base_t> parallel_add_unsigned(const std::span<const b
         },
         [&]()
         {
-            partial_results.back() = bigint::impl::add_unsigned(
+            partial_results.back() = bigint::arithmetic::add_unsigned(
                 utils::make_span(a.begin() + static_cast<int>(concurrency * chunk_size), a.end()),
                 utils::make_span(b.begin() + static_cast<int>(concurrency * chunk_size), b.end()));
         });
@@ -78,7 +79,7 @@ std::vector<bigint::bigint_base_t> parallel_add_unsigned(const std::span<const b
         auto &part_data = *it;
         if (carry)
         {
-            bigint::impl::increment_unsigned(part_data);
+            bigint::arithmetic::increment_unsigned(part_data);
             carry = 0;
         }
         if (part_data.size() > chunk_size)
@@ -92,7 +93,7 @@ std::vector<bigint::bigint_base_t> parallel_add_unsigned(const std::span<const b
     auto &final_part_data = partial_results.back();
     if (carry)
     {
-        bigint::impl::increment_unsigned(final_part_data);
+        bigint::arithmetic::increment_unsigned(final_part_data);
     }
 
     std::copy(final_part_data.cbegin(), final_part_data.cend(), result.begin() + chunk_index);
@@ -105,13 +106,13 @@ std::vector<bigint::bigint_base_t> parallel_karatsuba(const std::span<const bigi
     const auto &parallel_config = ParallelGlobalConfig::instance();
     if (a.size() < parallel_config.parallel_mul_threshold || b.size() < parallel_config.parallel_mul_threshold)
     {
-        return bigint::impl::mul_unsigned_karatsuba(a, b);
+        return bigint::arithmetic::mul_unsigned_karatsuba(a, b);
     }
 
     const auto &algorithms_config = bigint::BigIntGlobalConfig::instance();
     if (a.size() < algorithms_config.karatsuba_threshold || b.size() < algorithms_config.karatsuba_threshold)
     {
-        return bigint::impl::mul_unsigned_basecase(a, b);
+        return bigint::arithmetic::mul_unsigned_basecase(a, b);
     }
 
     const int m2 = static_cast<int>(std::max(a.size(), b.size()) / 2);
@@ -131,8 +132,8 @@ std::vector<bigint::bigint_base_t> parallel_karatsuba(const std::span<const bigi
     tbb::parallel_invoke([&]() { w_z0 = parallel_karatsuba(low1, low2); },
                          [&]()
                          {
-                             const auto lh1 = bigint::impl::add_unsigned(low1, high1);
-                             const auto lh2 = bigint::impl::add_unsigned(low2, high2);
+                             const auto lh1 = bigint::arithmetic::add_unsigned(low1, high1);
+                             const auto lh2 = bigint::arithmetic::add_unsigned(low2, high2);
                              w_z1 = parallel_karatsuba(lh1, lh2);
                          },
                          [&]() { w_z2 = parallel_karatsuba(high1, high2); });
