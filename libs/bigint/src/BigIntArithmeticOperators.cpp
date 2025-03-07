@@ -127,21 +127,10 @@ std::pair<BigInt, BigInt> BigInt::divide(const BigInt &other) const
     }
 
     auto [quotient, remainder] = arithmetic::div_unsigned(data, other.data);
+    const auto quotient_sign = this->is_negative() != other.is_negative() ? Sign::Minus : Sign::Plus;
+    const auto remainder_sign = this->is_negative() ? Sign::Minus : Sign::Plus;
 
-    if (is_negative() && other.is_negative())
-    {
-        return {BigInt{std::move(quotient)}, BigInt{std::move(remainder), Sign::Minus}};
-    }
-    if (!is_negative() && other.is_negative())
-    {
-        return {BigInt{std::move(quotient), Sign::Minus}, BigInt{std::move(remainder)}};
-    }
-    if (is_negative() && !other.is_negative())
-    {
-        return {BigInt{std::move(quotient), Sign::Minus}, BigInt{std::move(remainder), Sign::Minus}};
-    }
-
-    return {BigInt{std::move(quotient)}, BigInt{std::move(remainder)}};
+    return {BigInt{std::move(quotient), quotient_sign}, BigInt{std::move(remainder), remainder_sign}};
 }
 
 BigInt BigInt::operator-() const

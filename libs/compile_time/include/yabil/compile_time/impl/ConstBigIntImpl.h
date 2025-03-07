@@ -6,11 +6,13 @@
 #include <yabil/compile_time/detail/ConstBigInt.h>
 #include <yabil/compile_time/detail/MakeConstBigInt.h>
 #include <yabil/compile_time/impl/Utils.h>
+#include <yabil/compile_time/impl/operators/DivisionImpl.h>
 
 #include <array>
 #include <bit>
 #include <concepts>
 #include <cstddef>
+#include <cstdint>
 #include <type_traits>
 
 namespace yabil::compile_time
@@ -36,9 +38,15 @@ constexpr auto digits_to_string(std::array<char, StrSizeEstimate> &output_string
     }
     else
     {
-        constexpr auto quotient = number / bigint_v<Base>;
-        constexpr auto remainder = number % bigint_v<Base>;
+        constexpr auto base = bigint_v<Base>;
+        constexpr auto results = impl::div<number.sign, number.size, number.data, base.sign, base.size, base.data>();
+        constexpr auto quotient = results.first;
+        constexpr auto remainder = results.second;
+
+        static_assert(remainder.template is<char>(),
+                      "Internal Error: remainder must be a single digit. Numeric system base may be too large.");
         output_string[idx] = get_digit_char(remainder.template to<int>());
+
         return digits_to_string<Base, quotient.data.size(), quotient.data, StrSizeEstimate, idx + 1>(output_string);
     }
 }
@@ -136,7 +144,7 @@ consteval OutType ConstBigInt<NumberSign, InternalSize, InternalData>::to()
         OutType result = 0;
         for (std::size_t i = 0; (i < InternalData.size()) && (i < sizeof(OutType) / sizeof(bigint_base_t)); ++i)
         {
-            result |= static_cast<OutType>(InternalData[i]) << (i *bigint::BigInt::digit_size_bits);
+            result |= static_cast<OutType>(InternalData[i]) << (i * bigint::BigInt::digit_size_bits);
         }
         return result;
     }

@@ -99,6 +99,8 @@ TEST_F(ConstBigIntConversion_tests, canConvertToStringBase10)
     }
     {
         constexpr auto a = -714917410421928_bi;
+        const bigint::BigInt expected("-714917410421928");
+
         const std::string a_str = a.to_str().data();
         EXPECT_EQ(a_str, "-714917410421928");
     }
