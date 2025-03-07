@@ -59,12 +59,14 @@ consteval auto div_recursive_iter(BigIntData<OutSize> &q)
 
         constexpr auto quotient_part = top_two_digits / OtherData[n - 1];
 
-        constexpr bigint_base_t q_i = static_cast<bigint_base_t>(std::min(
-            quotient_part, (static_cast<utils::double_width_t<bigint_base_t>>(1) << bigint::BigInt::digit_size_bits) - 1));
+        constexpr bigint_base_t q_i = static_cast<bigint_base_t>(
+            std::min(quotient_part,
+                     (static_cast<utils::double_width_t<bigint_base_t>>(1) << bigint::BigInt::digit_size_bits) - 1));
 
         constexpr auto A = make_bigint<ASize, AData>();
         constexpr auto B = make_bigint<OtherSize, OtherData>();
-        constexpr auto newA = A - ((bigint_v<q_i> * B) << shift_v<bigint::BigInt::digit_size_bits *static_cast<uint64_t>(i)>);
+        constexpr auto newA =
+            A - ((bigint_v<q_i> * B) << shift_v<bigint::BigInt::digit_size_bits *static_cast<uint64_t>(i)>);
 
         constexpr auto compensated_A_and_q_i =
             compensate_A_for_division<newA.sign, newA.data.size(), newA.data, OtherSize, OtherData, i, q_i>();
@@ -93,14 +95,13 @@ consteval auto div_unsigned()
     {
         constexpr auto A = make_bigint<SelfSize, SelfData>();
         constexpr auto B = make_bigint<OtherSize, OtherData>();
-        constexpr auto B_m = make_bigint<OtherSize, OtherData>()
-                             << shift_v<static_cast<uint64_t>(bigint::BigInt::digit_size_bits) * m>;
+        constexpr auto B_m = B << shift_v<static_cast<uint64_t>(bigint::BigInt::digit_size_bits) * m>;
 
         if constexpr (A >= B_m)
         {
             BigIntData<m + 1> q{};
             q[m] = 1;
-            constexpr auto diff = A - B;
+            constexpr auto diff = A - B_m;
             return div_recursive_iter<diff.sign, diff.data.size(), diff.data,  //
                                       OtherSize, OtherData, n, m, m + 1, m - 1>(q);
         }
