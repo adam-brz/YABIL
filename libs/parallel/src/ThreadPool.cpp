@@ -130,10 +130,21 @@ void ThreadPool::Impl::wait_stopped()
 
 void ThreadPool::Impl::add_to_execution_queue(std::function<void()> &&f)
 {
+    const auto caller_thread_id = std::this_thread::get_id();
+    const auto is_nested_call = std::any_of(threads.cbegin(), threads.cend(), [caller_thread_id](const auto &thread)
+                                            { return thread.get_id() == caller_thread_id; });
+
+    if (is_nested_call)
+    {
+        std::invoke(f);
+        return;
+    }
+
     {
         const std::lock_guard lock(task_mutex);
         tasks.emplace(std::move(f));
     }
+
     task_ready.notify_one();
 }
 
