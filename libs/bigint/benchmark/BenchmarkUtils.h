@@ -8,6 +8,6 @@
 namespace yabil::bigint::benchmark_utils
 {
 
-std::vector<bigint_base_t> random_digits(std::size_t number_of_digits);
+std::vector<bigint_base_t> random_digits(std::size_t number_of_64_bit_digits);
 
 }  // namespace yabil::bigint::benchmark_utils

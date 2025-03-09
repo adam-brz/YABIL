@@ -8,6 +8,7 @@
 
 #include "StringConversionUtils.h"
 #include "impl/Arithmetic.h"
+#include "impl/StrConversion.h"
 
 namespace yabil::bigint
 {
@@ -82,32 +83,7 @@ uint64_t BigInt::byte_size() const
 
 std::string BigInt::to_str(unsigned base) const
 {
-    BigInt number = this->abs();
-    std::string str_number;
-
-    std::function<std::pair<BigInt, BigInt>(BigInt)> divide_func;
-    const bool is_power_of_two = std::popcount(base) == 1;
-
-    if (is_power_of_two)
-    {
-        divide_func = [base](const BigInt &number)
-        { return std::make_pair(number >> static_cast<uint64_t>(std::log2l(base)), BigInt(number % base)); };
-    }
-    else
-    {
-        divide_func = [base](const BigInt &number) { return number.divide(BigInt(base)); };
-    }
-
-    do
-    {
-        const auto [quotient, remainder] = divide_func(number);
-        number = quotient;
-        str_number.append(1, get_digit_char(static_cast<int>(remainder.to<int>())));
-    } while (!number.is_zero());
-
-    str_number += is_negative() ? "-" : "";
-    std::reverse(str_number.begin(), str_number.end());
-    return str_number;
+    return impl::to_string(*this, base);
 }
 
 bool BigInt::is_negative() const

@@ -9,16 +9,18 @@
 namespace yabil::bigint::benchmark_utils
 {
 
-std::vector<bigint_base_t> random_digits(std::size_t number_of_digits)
+std::vector<bigint_base_t> random_digits(std::size_t number_of_64_bit_digits)
 {
     constexpr int seed = 44;
     static std::mt19937 gen(seed);
     static std::uniform_int_distribution<bigint_base_t> dist(1, std::numeric_limits<bigint_base_t>::max());
 
     std::vector<bigint_base_t> generated;
-    generated.reserve(number_of_digits);
 
-    for (std::size_t i = 0; i < number_of_digits; i++)
+    const auto number_of_digits_to_generate = number_of_64_bit_digits * 64 / BigInt::digit_size_bits;
+    generated.reserve(number_of_digits_to_generate);
+
+    for (std::size_t i = 0; i < number_of_digits_to_generate; i++)
     {
         generated.push_back(dist(gen));
     }
