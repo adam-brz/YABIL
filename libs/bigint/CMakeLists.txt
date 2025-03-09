@@ -14,6 +14,8 @@ set(SOURCES
     src/arithmetic/Div.cpp
     src/arithmetic/Add.cpp
     src/arithmetic/Sub.cpp
+    src/impl/StrConversion.h
+    src/impl/StrConversion.cpp
     src/impl/Arithmetic.h
     src/impl/Arithmetic.cpp
 )
@@ -57,6 +59,7 @@ set(BENCHMARKS
     benchmark/Addition.cpp
     benchmark/BenchmarkUtils.cpp
     benchmark/BenchmarkUtils.h
+    benchmark/StrConversion.cpp
 )
 
 if(YABIL_ENABLE_CUDA)

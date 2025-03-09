@@ -57,7 +57,7 @@ private:
 
 ThreadPool::Impl::Impl(int threads_number)
 {
-    const bool started = start(threads_number);
+    [[maybe_unused]] const bool started = start(threads_number);
     assert(started && "Thread pool cannot be started.");
 }
 

@@ -94,6 +94,15 @@ TEST_F(BigIntConversionTest, canConvertToStringInBase16)
     EXPECT_EQ("-44aca43f496af1de1ee4cd728589a2c1", big_int2.to_str(16));
 }
 
+TEST_F(BigIntConversionTest, canConvertToStringInBase8)
+{
+    const BigInt big_int1("10268505253688348126349422393563030295385832673");
+    EXPECT_EQ("714351243127431523432415341276341724371426341276341", big_int1.to_str(8));
+
+    const BigInt big_int2("-0393890795563938734806097");
+    EXPECT_EQ("-123321563412650324153412121", big_int2.to_str(8));
+}
+
 TEST_F(BigIntConversionTest, canGetAbsoluteValue)
 {
     const BigInt big_int1("12381290381928309115962312309132093");
