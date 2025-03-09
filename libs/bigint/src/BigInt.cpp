@@ -27,47 +27,7 @@ BigInt::BigInt(const std::span<const bigint_base_t> &raw_data, Sign sign) : sign
 
 BigInt::BigInt(const std::string_view &str, unsigned base)
 {
-    if (str.size() == 0)
-    {
-        return;
-    }
-
-    const char first = str.front();
-    const bool hasSign = (first == '-') || (first == '+');
-
-    if (!hasSign)
-    {
-        const int converted = get_digit_value(std::tolower(first));
-        check_conversion(first, static_cast<unsigned>(converted), base);
-        data.push_back(converted);
-    }
-
-    std::function<BigInt(BigInt)> base_multiplier;
-
-    switch (base)
-    {
-        case 2:
-        case 4:
-        case 8:
-        case 16:
-            base_multiplier = [base](const BigInt &n) { return n << static_cast<int>(std::log2(base)); };
-            break;
-
-        default:
-            base_multiplier = [base](const BigInt &n) { return n * BigInt(base); };
-            break;
-    }
-
-    for (auto it = str.cbegin() + 1; it != str.cend(); ++it)
-    {
-        const int converted = get_digit_value(std::tolower(*it));
-        check_conversion(*it, static_cast<unsigned>(converted), base);
-        *this = base_multiplier(*this);
-        *this += BigInt(converted);
-    }
-
-    sign = (first == '-') ? Sign::Minus : Sign::Plus;
-    normalize();
+    *this = impl::from_string(str, base);
 }
 
 void BigInt::normalize()

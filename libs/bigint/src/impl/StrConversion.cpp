@@ -1,8 +1,14 @@
 #include "StrConversion.h"
 
+#include <yabil/bigint/BigInt.h>
+#include <yabil/bigint/BigIntBase.h>
+#include <yabil/bigint/io.h>
+#include <yabil/utils/IterUtils.h>
+
 #include <cassert>
 #include <cstdint>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <type_traits>
@@ -14,6 +20,19 @@ namespace yabil::bigint::impl
 {
 namespace
 {
+
+static constexpr uint64_t conversion_base_10_to_18 = 1'000'000'000'000'000'000ULL;
+static constexpr uint64_t conversion_base_10_to_9 = 1'000'000'000ULL;
+static constexpr uint64_t conversion_base_10_to_4 = 10'000ULL;
+
+static constexpr auto conversion_base =
+    std::is_same_v<bigint_base_t, std::uint64_t> ? conversion_base_10_to_18 :      //
+        (std::is_same_v<bigint_base_t, std::uint32_t> ? conversion_base_10_to_9 :  //
+             conversion_base_10_to_4);
+
+static constexpr auto conversion_decimal_places_count = std::is_same_v<bigint_base_t, std::uint64_t> ? 18 :      //
+                                                            (std::is_same_v<bigint_base_t, std::uint32_t> ? 9 :  //
+                                                                 4);
 
 std::string merge_converted_parts(const std::vector<std::string>& parts, const int part_size_digits, const Sign sign)
 {
@@ -40,8 +59,8 @@ std::string to_string_any(const BigInt& number, const unsigned base)
 
     do
     {
-        const auto [quotient, remainder] = n.divide(BigInt{base});
-        n = quotient;
+        auto [quotient, remainder] = n.divide(BigInt{base});
+        n = std::move(quotient);
         str_number.append(1, get_digit_char(static_cast<int>(remainder.to<int>())));
     } while (!n.is_zero());
 
@@ -120,14 +139,6 @@ std::string to_string_16(const BigInt& number)
 
 std::string to_string_10(const BigInt& number)
 {
-    constexpr uint64_t base_10_to_18 = 1'000'000'000'000'000'000ULL;
-    constexpr uint64_t base_10_to_9 = 1'000'000'000ULL;
-    constexpr uint64_t base_10_to_4 = 10'000ULL;
-
-    constexpr auto base = std::is_same_v<bigint_base_t, std::uint64_t> ? base_10_to_18 :      //
-                              (std::is_same_v<bigint_base_t, std::uint32_t> ? base_10_to_9 :  //
-                                   base_10_to_4);
-
     static_assert(sizeof(bigint_base_t) >= 2, "This function cannot be used with types smaller than 16 bits");
 
     auto data = number.raw_data();
@@ -143,8 +154,8 @@ std::string to_string_10(const BigInt& number)
         {
             const auto current =
                 static_cast<utils::double_width_t<bigint_base_t>>(carry) << BigInt::digit_size_bits | *digit_it;
-            *digit_it = current / base;
-            carry = current % base;
+            *digit_it = current / conversion_base;
+            carry = current % conversion_base;
         }
 
         result_parts.push_back(carry);
@@ -163,9 +174,82 @@ std::string to_string_10(const BigInt& number)
 
     for (auto result_digit_it = result_parts.rbegin() + 1; result_digit_it != result_parts.rend(); ++result_digit_it)
     {
-        result += std::to_string(*result_digit_it + base).substr(1);
+        result += std::to_string(*result_digit_it + conversion_base).substr(1);
     }
 
+    return result;
+}
+
+BigInt from_string_any(const std::string_view& str, const unsigned base)
+{
+    assert(str.size() > 0);
+
+    const char first = str.front();
+    const bool hasSign = (first == '-') || (first == '+');
+
+    std::vector<bigint_base_t> data;
+
+    if (!hasSign)
+    {
+        const int converted = get_digit_value(std::tolower(first));
+        check_conversion(first, static_cast<unsigned>(converted), base);
+        data.push_back(converted);
+    }
+
+    BigInt result{std::move(data)};
+
+    for (auto it = str.cbegin() + 1; it != str.cend(); ++it)
+    {
+        const int converted = get_digit_value(std::tolower(*it));
+        check_conversion(*it, static_cast<unsigned>(converted), base);
+        result *= BigInt{base};
+        result += BigInt{converted};
+    }
+
+    result.set_sign(hasSign ? (first == '-' ? Sign::Minus : Sign::Plus) : Sign::Plus);
+    return result;
+}
+
+BigInt from_string_10(const std::string_view& str)
+{
+    assert(str.size() > 0);
+
+    const char first = str.front();
+    const bool hasSign = (first == '-') || (first == '+');
+
+    if (hasSign && str.size() == 1)
+    {
+        throw std::invalid_argument("Invalid number format");
+    }
+
+    const std::string_view number_str = hasSign ? str.substr(1) : str;
+
+    BigInt result;
+    BigInt decimal_place{1};
+
+    std::size_t processed = 0;
+    int window_end = static_cast<int>(number_str.size());
+
+    while (window_end > 0)
+    {
+        const int window_start = std::max(0, window_end - conversion_decimal_places_count);
+        const int window_len = window_end - window_start;
+
+        const auto number_chunk = number_str.substr(window_start, window_len);
+        const auto chunk_value = std::stoull(std::string{number_chunk}, &processed);
+
+        if (static_cast<int>(processed) != window_len)
+        {
+            throw std::invalid_argument("Invalid number format");
+        }
+
+        result += BigInt{chunk_value} * decimal_place;
+        decimal_place *= BigInt{conversion_base};
+
+        window_end = window_start;
+    }
+
+    result.set_sign(hasSign ? (first == '-' ? Sign::Minus : Sign::Plus) : Sign::Plus);
     return result;
 }
 
@@ -190,6 +274,22 @@ std::string to_string(const BigInt& number, const unsigned base)
             return to_string_10(number);
         default:
             return to_string_any(number, base);
+    }
+}
+
+BigInt from_string(const std::string_view& str, const unsigned base)
+{
+    if (str.size() == 0)
+    {
+        return BigInt{};
+    }
+
+    switch (base)
+    {
+        case 10:
+            return from_string_10(str);
+        default:
+            return from_string_any(str, base);
     }
 }
 

@@ -11,4 +11,6 @@ namespace yabil::bigint::impl
 
 std::string to_string(const BigInt& number, const unsigned base);
 
+BigInt from_string(const std::string_view& str, const unsigned base);
+
 }  // namespace yabil::bigint::impl
