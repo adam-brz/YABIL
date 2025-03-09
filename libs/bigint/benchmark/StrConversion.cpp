@@ -11,7 +11,7 @@ class StrConversionBenchmark : public benchmark::Fixture
 {
 };
 
-BENCHMARK_DEFINE_F(StrConversionBenchmark, ConversionToString)(benchmark::State &st)
+BENCHMARK_DEFINE_F(StrConversionBenchmark, ToString)(benchmark::State &st)
 {
     const auto number_size = st.range();
     const auto base = st.range(1);
@@ -25,7 +25,25 @@ BENCHMARK_DEFINE_F(StrConversionBenchmark, ConversionToString)(benchmark::State 
     }
 }
 
-BENCHMARK_REGISTER_F(StrConversionBenchmark, ConversionToString)
+BENCHMARK_DEFINE_F(StrConversionBenchmark, FromString)(benchmark::State &st)
+{
+    const auto number_size = st.range();
+    const auto base = st.range(1);
+
+    for (auto _ : st)
+    {
+        BigInt result = BigInt{benchmark_utils::random_str_digits(number_size, static_cast<int>(base)),
+                               static_cast<unsigned>(base)};
+
+        benchmark::DoNotOptimize(result);
+        benchmark::ClobberMemory();
+    }
+}
+
+BENCHMARK_REGISTER_F(StrConversionBenchmark, ToString)
     ->ArgsProduct({benchmark::CreateRange(1, 256, /*multi=*/2), {2, 3, 4, 8, 10, 16}});
+
+BENCHMARK_REGISTER_F(StrConversionBenchmark, FromString)
+    ->ArgsProduct({benchmark::CreateRange(1, 1024, /*multi=*/2), {2, 3, 4, 8, 10, 16}});
 
 }  // namespace yabil::bigint
