@@ -52,6 +52,22 @@ std::string merge_converted_parts(const std::vector<std::string>& parts, const i
     return result;
 }
 
+std::pair<std::string_view, Sign> extract_sign(const std::string_view& str)
+{
+    assert(str.size() > 0);
+
+    const char first = str.front();
+    const bool hasSign = (first == '-') || (first == '+');
+
+    if (hasSign && str.size() == 1)
+    {
+        throw std::invalid_argument("Invalid number format");
+    }
+
+    const Sign sign = hasSign ? (first == '-' ? Sign::Minus : Sign::Plus) : Sign::Plus;
+    return std::make_pair(hasSign ? str.substr(1) : str, sign);
+}
+
 std::string to_string_any(const BigInt& number, const unsigned base)
 {
     std::string str_number;
@@ -210,19 +226,41 @@ BigInt from_string_any(const std::string_view& str, const unsigned base)
     return result;
 }
 
-BigInt from_string_10(const std::string_view& str)
+BigInt from_string_2(const std::string_view& str)
 {
-    assert(str.size() > 0);
+    const auto [number_str, sign] = extract_sign(str);
 
-    const char first = str.front();
-    const bool hasSign = (first == '-') || (first == '+');
+    std::vector<bigint_base_t> data;
+    data.reserve(number_str.size() / BigInt::digit_size_bits + 1);
 
-    if (hasSign && str.size() == 1)
+    std::size_t processed = 0;
+    int window_end = static_cast<int>(number_str.size());
+
+    while (window_end > 0)
     {
-        throw std::invalid_argument("Invalid number format");
+        const int window_start = std::max(0, window_end - BigInt::digit_size_bits);
+        const int window_len = window_end - window_start;
+
+        const auto number_chunk = number_str.substr(window_start, window_len);
+        const auto chunk_value = std::stoull(std::string{number_chunk}, &processed, 2);
+
+        if (static_cast<int>(processed) != window_len)
+        {
+            throw std::invalid_argument("Invalid number format");
+        }
+
+        data.push_back(chunk_value);
+        window_end = window_start;
     }
 
-    const std::string_view number_str = hasSign ? str.substr(1) : str;
+    BigInt result{std::move(data)};
+    result.set_sign(sign);
+    return result;
+}
+
+BigInt from_string_10(const std::string_view& str)
+{
+    const auto [number_str, sign] = extract_sign(str);
 
     BigInt result;
     BigInt decimal_place{1};
@@ -249,7 +287,41 @@ BigInt from_string_10(const std::string_view& str)
         window_end = window_start;
     }
 
-    result.set_sign(hasSign ? (first == '-' ? Sign::Minus : Sign::Plus) : Sign::Plus);
+    result.set_sign(sign);
+    return result;
+}
+
+BigInt from_string_16(const std::string_view& str)
+{
+    const auto [number_str, sign] = extract_sign(str);
+
+    static constexpr int hex_digits_in_digit = BigInt::digit_size_bits / 4;
+
+    std::vector<bigint_base_t> data;
+    data.reserve(number_str.size() / hex_digits_in_digit + 1);
+
+    std::size_t processed = 0;
+    int window_end = static_cast<int>(number_str.size());
+
+    while (window_end > 0)
+    {
+        const int window_start = std::max(0, window_end - hex_digits_in_digit);
+        const int window_len = window_end - window_start;
+
+        const auto number_chunk = number_str.substr(window_start, window_len);
+        const auto chunk_value = std::stoull(std::string{number_chunk}, &processed, 16);
+
+        if (static_cast<int>(processed) != window_len)
+        {
+            throw std::invalid_argument("Invalid number format");
+        }
+
+        data.push_back(chunk_value);
+        window_end = window_start;
+    }
+
+    BigInt result{std::move(data)};
+    result.set_sign(sign);
     return result;
 }
 
@@ -286,8 +358,12 @@ BigInt from_string(const std::string_view& str, const unsigned base)
 
     switch (base)
     {
+        case 2:
+            return from_string_2(str);
         case 10:
             return from_string_10(str);
+        case 16:
+            return from_string_16(str);
         default:
             return from_string_any(str, base);
     }
