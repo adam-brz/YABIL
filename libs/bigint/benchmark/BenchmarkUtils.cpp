@@ -40,7 +40,15 @@ std::string random_str_digits(std::size_t number_of_digits, int base)
 
     for (std::size_t i = 0; i < number_of_digits; i++)
     {
-        generated.push_back(static_cast<char>(dist(gen) + '0'));
+        const auto digit = dist(gen);
+        if (digit < 10)
+        {
+            generated.push_back(static_cast<char>(digit + '0'));
+        }
+        else
+        {
+            generated.push_back(static_cast<char>(digit - 10 + 'A'));
+        }
     }
 
     return generated;
