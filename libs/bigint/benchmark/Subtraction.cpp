@@ -6,11 +6,11 @@
 namespace yabil::bigint
 {
 
-class AdditionBenchmark : public benchmark::Fixture
+class SubtractionBenchmark : public benchmark::Fixture
 {
 };
 
-BENCHMARK_DEFINE_F(AdditionBenchmark, TwoPositiveNumbers)(benchmark::State &st)
+BENCHMARK_DEFINE_F(SubtractionBenchmark, TwoPositiveNumbers)(benchmark::State &st)
 {
     const auto number_size = st.range();
     const BigInt a{benchmark_utils::random_digits(number_size)};
@@ -18,13 +18,13 @@ BENCHMARK_DEFINE_F(AdditionBenchmark, TwoPositiveNumbers)(benchmark::State &st)
 
     for (auto _ : st)
     {
-        auto result = a + b;
+        auto result = a - b;
         benchmark::DoNotOptimize(result);
         benchmark::ClobberMemory();
     }
 }
 
-BENCHMARK_DEFINE_F(AdditionBenchmark, InPlaceTwoPositiveNumbers)(benchmark::State &st)
+BENCHMARK_DEFINE_F(SubtractionBenchmark, InPlaceTwoPositiveNumbers)(benchmark::State &st)
 {
     const auto number_size = st.range();
     const BigInt a{benchmark_utils::random_digits(number_size)};
@@ -36,13 +36,13 @@ BENCHMARK_DEFINE_F(AdditionBenchmark, InPlaceTwoPositiveNumbers)(benchmark::Stat
         BigInt result = a;
         st.ResumeTiming();
 
-        result += b;
+        result -= b;
         benchmark::DoNotOptimize(result);
         benchmark::ClobberMemory();
     }
 }
 
-BENCHMARK_DEFINE_F(AdditionBenchmark, PositiveAndNegativeNumbers)(benchmark::State &st)
+BENCHMARK_DEFINE_F(SubtractionBenchmark, PositiveAndNegativeNumbers)(benchmark::State &st)
 {
     const auto number_size = st.range();
     const BigInt a{benchmark_utils::random_digits(number_size), Sign::Minus};
@@ -50,14 +50,14 @@ BENCHMARK_DEFINE_F(AdditionBenchmark, PositiveAndNegativeNumbers)(benchmark::Sta
 
     for (auto _ : st)
     {
-        auto result = a + b;
+        auto result = a - b;
         benchmark::DoNotOptimize(result);
         benchmark::ClobberMemory();
     }
 }
 
-BENCHMARK_REGISTER_F(AdditionBenchmark, TwoPositiveNumbers)->Range(1, 1e8);
-BENCHMARK_REGISTER_F(AdditionBenchmark, InPlaceTwoPositiveNumbers)->Range(1, 1e8);
-BENCHMARK_REGISTER_F(AdditionBenchmark, PositiveAndNegativeNumbers)->Range(1, 1e8);
+BENCHMARK_REGISTER_F(SubtractionBenchmark, TwoPositiveNumbers)->Range(1, 1e8);
+BENCHMARK_REGISTER_F(SubtractionBenchmark, InPlaceTwoPositiveNumbers)->Range(1, 1e8);
+BENCHMARK_REGISTER_F(SubtractionBenchmark, PositiveAndNegativeNumbers)->Range(1, 1e8);
 
 }  // namespace yabil::bigint

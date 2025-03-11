@@ -74,7 +74,8 @@ TEST_F(BigIntConstructorTest, longStringToBigIntWithSign)
     if constexpr (sizeof(bigint_base_t) == 8)
     {
         const BigInt big_int1("-1424112908491024712973012389");
-        const std::vector<bigint_base_t> expected = {static_cast<bigint_base_t>(8532190400157437349ULL), static_cast<bigint_base_t>(77201315ULL)};
+        const std::vector<bigint_base_t> expected = {static_cast<bigint_base_t>(8532190400157437349ULL),
+                                                     static_cast<bigint_base_t>(77201315ULL)};
         EXPECT_EQ(Sign::Minus, big_int1.get_sign());
         EXPECT_EQ(expected, big_int1.raw_data());
     }
@@ -120,5 +121,19 @@ TEST_F(BigIntConstructorTest, longStringInBase16ToBigIntWithSign)
                                                      static_cast<bigint_base_t>(180146567ULL)};
         EXPECT_EQ(Sign::Plus, big_int1.get_sign());
         EXPECT_EQ(expected, big_int1.raw_data());
+    }
+}
+
+TEST_F(BigIntConstructorTest, longStringInBase8ToBigIntWithSign)
+{
+    {
+        const BigInt number("+4671212321431210512412136123213712312312312313543712357012316", 8);
+        EXPECT_EQ(Sign::Plus, number.get_sign());
+        EXPECT_EQ(number.to_str(), "7450772815782842376790467456618731586860747368351667406");
+    }
+    {
+        const BigInt number("-4671212321431210512412136123213712312312312313543712357012316", 8);
+        EXPECT_EQ(Sign::Minus, number.get_sign());
+        EXPECT_EQ(number.to_str(), "-7450772815782842376790467456618731586860747368351667406");
     }
 }
