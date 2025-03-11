@@ -34,6 +34,10 @@ static constexpr auto conversion_decimal_places_count = std::is_same_v<bigint_ba
                                                             (std::is_same_v<bigint_base_t, std::uint32_t> ? 9 :  //
                                                                  4);
 
+static constexpr int base_8_digits = 21;  // each octal digit is 3 bits, so 63 bits is 21 digits
+static constexpr int base_8_digit_bits = 3;
+static constexpr int base_8_shift_for_64_bits = base_8_digits * base_8_digit_bits;
+
 std::string merge_converted_parts(const std::vector<std::string>& parts, const int part_size_digits, const Sign sign)
 {
     std::string result;
@@ -111,10 +115,6 @@ std::string to_string_2(const BigInt& number)
 
 std::string to_string_8(const BigInt& number)
 {
-    static constexpr int base_8_digits = 21;  // each octal digit is 3 bits, so 63 bits is 21 digits
-    static constexpr int base_8_digit_bits = 3;
-    static constexpr int base_8_shift_for_64_bits = base_8_digits * base_8_digit_bits;
-
     BigInt n = number.abs();
     std::vector<std::string> result_parts;
 
@@ -258,6 +258,39 @@ BigInt from_string_2(const std::string_view& str)
     return result;
 }
 
+BigInt from_string_8(const std::string_view& str)
+{
+    const auto [number_str, sign] = extract_sign(str);
+
+    BigInt result;
+
+    std::size_t processed = 0;
+    int window_end = static_cast<int>(number_str.size());
+    uint64_t shift = 0;
+
+    while (window_end > 0)
+    {
+        const int window_start = std::max(0, window_end - base_8_digits);
+        const int window_len = window_end - window_start;
+
+        const auto number_chunk = number_str.substr(window_start, window_len);
+        const auto chunk_value = std::stoull(std::string{number_chunk}, &processed, 8);
+
+        if (static_cast<int>(processed) != window_len)
+        {
+            throw std::invalid_argument("Invalid number format");
+        }
+
+        result += BigInt{chunk_value} << shift;
+        shift += base_8_shift_for_64_bits;
+
+        window_end = window_start;
+    }
+
+    result.set_sign(sign);
+    return result;
+}
+
 BigInt from_string_10(const std::string_view& str)
 {
     const auto [number_str, sign] = extract_sign(str);
@@ -340,10 +373,10 @@ std::string to_string(const BigInt& number, const unsigned base)
             return to_string_2(number);
         case 8:
             return to_string_8(number);
-        case 16:
-            return to_string_16(number);
         case 10:
             return to_string_10(number);
+        case 16:
+            return to_string_16(number);
         default:
             return to_string_any(number, base);
     }
@@ -360,6 +393,8 @@ BigInt from_string(const std::string_view& str, const unsigned base)
     {
         case 2:
             return from_string_2(str);
+        case 8:
+            return from_string_8(str);
         case 10:
             return from_string_10(str);
         case 16:

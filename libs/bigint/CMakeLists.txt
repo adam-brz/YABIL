@@ -59,7 +59,11 @@ set(BENCHMARKS
     benchmark/Addition.cpp
     benchmark/BenchmarkUtils.cpp
     benchmark/BenchmarkUtils.h
+    benchmark/BitOperations.cpp
+    benchmark/Division.cpp
+    benchmark/Multiplication.cpp
     benchmark/StrConversion.cpp
+    benchmark/Subtraction.cpp
 )
 
 if(YABIL_ENABLE_CUDA)
