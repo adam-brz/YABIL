@@ -57,8 +57,6 @@ set(TESTS
 
 set(BENCHMARKS
     benchmark/Addition.cpp
-    benchmark/BenchmarkUtils.cpp
-    benchmark/BenchmarkUtils.h
     benchmark/BitOperations.cpp
     benchmark/Division.cpp
     benchmark/Multiplication.cpp

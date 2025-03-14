@@ -20,6 +20,11 @@ set(TESTS
     test/ThreadPool_tests.cpp
 )
 
+set(BENCHMARKS
+    benchmark/Add.cpp
+    benchmark/Mul.cpp
+)
+
 add_library(${PROJECT_NAME})
 
 if(YABIL_ENABLE_TBB)
@@ -43,3 +48,4 @@ target_sources(${PROJECT_NAME}
 
 set_common_properties(${PROJECT_NAME})
 add_test_target(${PROJECT_NAME} ${TESTS})
+add_benchmark_target(${PROJECT_NAME} ${BENCHMARKS})

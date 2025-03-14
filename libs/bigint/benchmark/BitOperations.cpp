@@ -1,7 +1,6 @@
 #include <benchmark/benchmark.h>
 #include <yabil/bigint/BigInt.h>
-
-#include "BenchmarkUtils.h"
+#include <yabil/test_utils/BenchmarkUtils.h>
 
 namespace yabil::bigint
 {
@@ -13,8 +12,8 @@ class BitOperationsBenchmark : public benchmark::Fixture
 BENCHMARK_DEFINE_F(BitOperationsBenchmark, And)(benchmark::State &st)
 {
     const auto number_size = st.range();
-    const BigInt a{benchmark_utils::random_digits(number_size)};
-    const BigInt b{benchmark_utils::random_digits(number_size)};
+    const BigInt a{test_utils::random_digits<bigint_base_t>(number_size)};
+    const BigInt b{test_utils::random_digits<bigint_base_t>(number_size)};
 
     for (auto _ : st)
     {
@@ -27,8 +26,8 @@ BENCHMARK_DEFINE_F(BitOperationsBenchmark, And)(benchmark::State &st)
 BENCHMARK_DEFINE_F(BitOperationsBenchmark, InPlaceAnd)(benchmark::State &st)
 {
     const auto number_size = st.range();
-    BigInt a{benchmark_utils::random_digits(number_size)};
-    const BigInt b{benchmark_utils::random_digits(number_size)};
+    BigInt a{test_utils::random_digits<bigint_base_t>(number_size)};
+    const BigInt b{test_utils::random_digits<bigint_base_t>(number_size)};
 
     for (auto _ : st)
     {
@@ -41,8 +40,8 @@ BENCHMARK_DEFINE_F(BitOperationsBenchmark, InPlaceAnd)(benchmark::State &st)
 BENCHMARK_DEFINE_F(BitOperationsBenchmark, Or)(benchmark::State &st)
 {
     const auto number_size = st.range();
-    const BigInt a{benchmark_utils::random_digits(number_size)};
-    const BigInt b{benchmark_utils::random_digits(number_size)};
+    const BigInt a{test_utils::random_digits<bigint_base_t>(number_size)};
+    const BigInt b{test_utils::random_digits<bigint_base_t>(number_size)};
 
     for (auto _ : st)
     {
@@ -55,8 +54,8 @@ BENCHMARK_DEFINE_F(BitOperationsBenchmark, Or)(benchmark::State &st)
 BENCHMARK_DEFINE_F(BitOperationsBenchmark, InPlaceOr)(benchmark::State &st)
 {
     const auto number_size = st.range();
-    BigInt a{benchmark_utils::random_digits(number_size)};
-    const BigInt b{benchmark_utils::random_digits(number_size)};
+    BigInt a{test_utils::random_digits<bigint_base_t>(number_size)};
+    const BigInt b{test_utils::random_digits<bigint_base_t>(number_size)};
 
     for (auto _ : st)
     {
@@ -69,8 +68,8 @@ BENCHMARK_DEFINE_F(BitOperationsBenchmark, InPlaceOr)(benchmark::State &st)
 BENCHMARK_DEFINE_F(BitOperationsBenchmark, Xor)(benchmark::State &st)
 {
     const auto number_size = st.range();
-    const BigInt a{benchmark_utils::random_digits(number_size)};
-    const BigInt b{benchmark_utils::random_digits(number_size)};
+    const BigInt a{test_utils::random_digits<bigint_base_t>(number_size)};
+    const BigInt b{test_utils::random_digits<bigint_base_t>(number_size)};
 
     for (auto _ : st)
     {
@@ -83,8 +82,8 @@ BENCHMARK_DEFINE_F(BitOperationsBenchmark, Xor)(benchmark::State &st)
 BENCHMARK_DEFINE_F(BitOperationsBenchmark, InPlaceXor)(benchmark::State &st)
 {
     const auto number_size = st.range();
-    BigInt a{benchmark_utils::random_digits(number_size)};
-    const BigInt b{benchmark_utils::random_digits(number_size)};
+    BigInt a{test_utils::random_digits<bigint_base_t>(number_size)};
+    const BigInt b{test_utils::random_digits<bigint_base_t>(number_size)};
 
     for (auto _ : st)
     {
@@ -97,7 +96,7 @@ BENCHMARK_DEFINE_F(BitOperationsBenchmark, InPlaceXor)(benchmark::State &st)
 BENCHMARK_DEFINE_F(BitOperationsBenchmark, Not)(benchmark::State &st)
 {
     const auto number_size = st.range();
-    const BigInt a{benchmark_utils::random_digits(number_size)};
+    const BigInt a{test_utils::random_digits<bigint_base_t>(number_size)};
 
     for (auto _ : st)
     {
@@ -110,7 +109,7 @@ BENCHMARK_DEFINE_F(BitOperationsBenchmark, Not)(benchmark::State &st)
 BENCHMARK_DEFINE_F(BitOperationsBenchmark, ShiftLeft)(benchmark::State &st)
 {
     const auto number_size = st.range();
-    const BigInt a{benchmark_utils::random_digits(number_size)};
+    const BigInt a{test_utils::random_digits<bigint_base_t>(number_size)};
     const int shift = 53;
 
     for (auto _ : st)
@@ -124,7 +123,7 @@ BENCHMARK_DEFINE_F(BitOperationsBenchmark, ShiftLeft)(benchmark::State &st)
 BENCHMARK_DEFINE_F(BitOperationsBenchmark, InPlaceShiftLeft)(benchmark::State &st)
 {
     const auto number_size = st.range();
-    const BigInt a{benchmark_utils::random_digits(number_size)};
+    const BigInt a{test_utils::random_digits<bigint_base_t>(number_size)};
     const int shift = 53;
 
     for (auto _ : st)
@@ -142,7 +141,7 @@ BENCHMARK_DEFINE_F(BitOperationsBenchmark, InPlaceShiftLeft)(benchmark::State &s
 BENCHMARK_DEFINE_F(BitOperationsBenchmark, ShiftRight)(benchmark::State &st)
 {
     const auto number_size = st.range();
-    const BigInt a{benchmark_utils::random_digits(number_size)};
+    const BigInt a{test_utils::random_digits<bigint_base_t>(number_size)};
     const int shift = 53;
 
     for (auto _ : st)
@@ -156,7 +155,7 @@ BENCHMARK_DEFINE_F(BitOperationsBenchmark, ShiftRight)(benchmark::State &st)
 BENCHMARK_DEFINE_F(BitOperationsBenchmark, InPlaceShiftRight)(benchmark::State &st)
 {
     const auto number_size = st.range();
-    const BigInt a{benchmark_utils::random_digits(number_size)};
+    const BigInt a{test_utils::random_digits<bigint_base_t>(number_size)};
     const int shift = 53;
 
     for (auto _ : st)
