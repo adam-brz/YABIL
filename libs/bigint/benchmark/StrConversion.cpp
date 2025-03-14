@@ -1,8 +1,8 @@
 
 #include <benchmark/benchmark.h>
 #include <yabil/bigint/BigInt.h>
-
-#include "BenchmarkUtils.h"
+#include <yabil/bigint/BigIntBase.h>
+#include <yabil/test_utils/BenchmarkUtils.h>
 
 namespace yabil::bigint
 {
@@ -15,7 +15,7 @@ BENCHMARK_DEFINE_F(StrConversionBenchmark, ToString)(benchmark::State &st)
 {
     const auto number_size = st.range();
     const auto base = st.range(1);
-    const BigInt a = BigInt{benchmark_utils::random_digits(number_size)} + BigInt{1};
+    const BigInt a = BigInt{test_utils::random_digits<bigint_base_t>(number_size)} + BigInt{1};
 
     for (auto _ : st)
     {
@@ -32,8 +32,8 @@ BENCHMARK_DEFINE_F(StrConversionBenchmark, FromString)(benchmark::State &st)
 
     for (auto _ : st)
     {
-        BigInt result = BigInt{benchmark_utils::random_str_digits(number_size, static_cast<int>(base)),
-                               static_cast<unsigned>(base)};
+        BigInt result =
+            BigInt{test_utils::random_str_digits(number_size, static_cast<int>(base)), static_cast<unsigned>(base)};
 
         benchmark::DoNotOptimize(result);
         benchmark::ClobberMemory();

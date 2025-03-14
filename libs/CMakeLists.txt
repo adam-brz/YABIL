@@ -1,3 +1,7 @@
+if(YABIL_ENABLE_TESTS OR YABIL_ENABLE_BENCHMARKS)
+    add_subdirectory(test_utils)
+endif()
+
 add_subdirectory(utils)
 add_subdirectory(compile_time)
 add_subdirectory(bigint)

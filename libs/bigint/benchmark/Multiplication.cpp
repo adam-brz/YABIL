@@ -1,7 +1,6 @@
 #include <benchmark/benchmark.h>
 #include <yabil/bigint/BigInt.h>
-
-#include "BenchmarkUtils.h"
+#include <yabil/test_utils/BenchmarkUtils.h>
 
 namespace yabil::bigint
 {
@@ -13,8 +12,8 @@ class MultiplicationBenchmark : public benchmark::Fixture
 BENCHMARK_DEFINE_F(MultiplicationBenchmark, TwoPositiveNumbers)(benchmark::State &st)
 {
     const auto number_size = st.range();
-    const BigInt a{benchmark_utils::random_digits(number_size)};
-    const BigInt b{benchmark_utils::random_digits(number_size)};
+    const BigInt a{test_utils::random_digits<bigint_base_t>(number_size)};
+    const BigInt b{test_utils::random_digits<bigint_base_t>(number_size)};
 
     for (auto _ : st)
     {
@@ -27,8 +26,8 @@ BENCHMARK_DEFINE_F(MultiplicationBenchmark, TwoPositiveNumbers)(benchmark::State
 BENCHMARK_DEFINE_F(MultiplicationBenchmark, InPlaceTwoPositiveNumbers)(benchmark::State &st)
 {
     const auto number_size = st.range();
-    const BigInt a{benchmark_utils::random_digits(number_size)};
-    const BigInt b{benchmark_utils::random_digits(number_size)};
+    const BigInt a{test_utils::random_digits<bigint_base_t>(number_size)};
+    const BigInt b{test_utils::random_digits<bigint_base_t>(number_size)};
 
     for (auto _ : st)
     {
@@ -45,8 +44,8 @@ BENCHMARK_DEFINE_F(MultiplicationBenchmark, InPlaceTwoPositiveNumbers)(benchmark
 BENCHMARK_DEFINE_F(MultiplicationBenchmark, PositiveAndNegativeNumbers)(benchmark::State &st)
 {
     const auto number_size = st.range();
-    const BigInt a{benchmark_utils::random_digits(number_size), Sign::Minus};
-    const BigInt b{benchmark_utils::random_digits(number_size)};
+    const BigInt a{test_utils::random_digits<bigint_base_t>(number_size), Sign::Minus};
+    const BigInt b{test_utils::random_digits<bigint_base_t>(number_size)};
 
     for (auto _ : st)
     {

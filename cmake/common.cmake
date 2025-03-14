@@ -129,7 +129,7 @@ function(add_test_target TARGET)
     endif()
 
     add_executable(${TEST_TARGET} ${ARGN})
-    target_link_libraries(${TEST_TARGET} PRIVATE ${TARGET} GTest::gtest GTest::gtest_main)
+    target_link_libraries(${TEST_TARGET} PRIVATE ${TARGET} test_utils GTest::gtest GTest::gtest_main)
 
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         target_compile_options(${TEST_TARGET} PRIVATE -fconstexpr-backtrace-limit=0 -fconstexpr-steps=4194304)
@@ -206,7 +206,7 @@ function(add_benchmark_target TARGET)
     set(BENCHMARK_TARGET ${TARGET}_benchmarks)
 
     add_executable(${BENCHMARK_TARGET} ${ARGN})
-    target_link_libraries(${BENCHMARK_TARGET} PRIVATE ${TARGET} benchmark::benchmark benchmark::benchmark_main)
+    target_link_libraries(${BENCHMARK_TARGET} PRIVATE ${TARGET} test_utils benchmark::benchmark benchmark::benchmark_main)
 
     if(YABIL_ENABLE_CUDA)
         target_link_libraries(${BENCHMARK_TARGET} PRIVATE CUDA::cudart)
