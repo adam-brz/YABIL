@@ -5,6 +5,7 @@
 #include <yabil/bigint/io.h>
 #include <yabil/utils/IterUtils.h>
 
+#include <bitset>
 #include <cassert>
 #include <cstdint>
 #include <iomanip>
