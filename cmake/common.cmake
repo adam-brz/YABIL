@@ -21,7 +21,6 @@ function(set_common_properties TARGET)
     endif()
 
     if(YABIL_ENABLE_CUDA)
-        enable_language(CUDA)
         set_target_properties(${TARGET} PROPERTIES
             # CUDA_SEPARABLE_COMPILATION ON
             CUDA_RESOLVE_DEVICE_SYMBOLS ON
@@ -106,6 +105,7 @@ function(set_common_target_options TARGET)
         string(TOUPPER "${TARGET}" UPPER_TARGET_NAME)
         target_compile_definitions(${TARGET} PUBLIC YABIL_${UPPER_TARGET_NAME}_STATIC_DEFINE)
     endif()
+
 endfunction()
 
 macro(setup_coverage_variables)
@@ -168,10 +168,8 @@ function(setup_test_target TEST_TARGET)
 
     set_common_properties(${TEST_TARGET})
 
-    if(YABIL_ENABLE_CUDA)
-        if(APPLE)
-            set_target_properties(${TEST_TARGET} PROPERTIES BUILD_RPATH ${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES})
-        endif()
+    if(YABIL_ENABLE_CUDA AND APPLE)
+        set_target_properties(${TEST_TARGET} PROPERTIES BUILD_RPATH ${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES})
     endif()
 
     if(CMAKE_CROSSCOMPILING)

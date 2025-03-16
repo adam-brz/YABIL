@@ -65,6 +65,7 @@ set(BENCHMARKS
 )
 
 if(YABIL_ENABLE_CUDA)
+    enable_language(CUDA)
     list(APPEND SOURCES src/add_sub/AddSubCUDAImpl.cu)
 elseif(YABIL_HAS_AVX512)
     list(APPEND SOURCES src/add_sub/AddSubAVX512DQImpl.cpp)

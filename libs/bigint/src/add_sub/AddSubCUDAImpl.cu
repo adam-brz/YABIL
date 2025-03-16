@@ -1,23 +1,23 @@
 #include <cuda_runtime.h>
+#include <yabil/bigint/BigIntBase.h>
 
-#include <algorithm>
 #include <cassert>
-#include <cstdint>
 #include <cstring>
+#include <vector>
 
 #include "AddSub.h"
 
-namespace yabil
+namespace yabil::bigint
 {
 
-namespace bigint
+namespace
 {
 
 constexpr int device_add_block_size = 64;
 
 __global__ void add_with_carry(const bigint_base_t *a, const bigint_base_t *b, bigint_base_t *r, bigint_base_t *c)
 {
-    const int idx_c = blockDim.x * blockIdx.x + threadIdx.x;
+    const int idx_c = static_cast<int>(blockDim.x * blockIdx.x + threadIdx.x);
     const int idx_r = idx_c * device_add_block_size;
     bigint_base_t carry = 0;
 
@@ -32,6 +32,8 @@ __global__ void add_with_carry(const bigint_base_t *a, const bigint_base_t *b, b
 
     c[idx_c] = carry;
 }
+
+}  // namespace
 
 void add_arrays(const yabil::bigint::bigint_base_t *a, std::size_t a_size, const yabil::bigint::bigint_base_t *b,
                 std::size_t b_size, yabil::bigint::bigint_base_t *r)
@@ -48,7 +50,7 @@ void add_arrays(const yabil::bigint::bigint_base_t *a, std::size_t a_size, const
     if (blocks_count > 0)
     {
         const auto carry_output_size = results_output_size / device_add_block_size;
-        bigint_base_t *carries = new bigint_base_t[carry_output_size];
+        std::vector<bigint_base_t> carries(carry_output_size);
 
         {
             bigint_base_t *a_device, *b_device, *results_device, *carries_device;
@@ -63,7 +65,7 @@ void add_arrays(const yabil::bigint::bigint_base_t *a, std::size_t a_size, const
             add_with_carry<<<blocks_count, max_thread_count>>>(a_device, b_device, results_device, carries_device);
 
             cudaMemcpy(r, results_device, results_output_size, cudaMemcpyDeviceToHost);
-            cudaMemcpy(carries, carries_device, carry_output_size, cudaMemcpyDeviceToHost);
+            cudaMemcpy(carries.data(), carries_device, carry_output_size, cudaMemcpyDeviceToHost);
 
             cudaFree(a_device);
             cudaFree(b_device);
@@ -90,7 +92,6 @@ void add_arrays(const yabil::bigint::bigint_base_t *a, std::size_t a_size, const
             }
         }
         r[results_output_size] = carry;
-        delete[] carries;
     }
 
     add_plain_arrays(&a[results_output_size], a_size - results_output_size, &b[results_output_size],
@@ -102,6 +103,5 @@ void sub_arrays(const yabil::bigint::bigint_base_t *a, std::size_t a_size, const
 {
     sub_plain_arrays(a, a_size, b, b_size, r);
 }
-}  // namespace bigint
 
-}  // namespace yabil
+}  // namespace yabil::bigint
