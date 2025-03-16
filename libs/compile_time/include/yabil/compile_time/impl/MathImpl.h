@@ -102,20 +102,4 @@ consteval uint64_t log2_int(const ConstBigInt<NumberSign, NumberSize, NumberData
     return impl::log2_int<NumberSize, NumberData>();
 }
 
-// TODO(andrew2a1): Implement this
-//
-// template <std::size_t NumberSize, BigIntData<NumberSize> NumberData>
-// consteval double log2()
-// {
-//     constexpr auto number = make_bigint<NumberSize, NumberData>();
-//     static_assert(!number.is_zero(), "Logarithm argument must be greater than 0");
-
-//     constexpr auto raw_fraction = impl::compute_raw_fraction_for_log2<NumberSize, NumberData>();
-//     // constexpr double remaining_part = std::bit_cast<double, uint64_t>(raw_fraction);
-
-//     // Unfortunately, std::log2 is not constexpr - result will be an approximation
-
-//     return static_cast<double>(log2_int(number));  //+ std::log2(remaining_part);
-// }
-
 }  // namespace yabil::compile_time::math
