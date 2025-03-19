@@ -13,7 +13,7 @@
 #include <thread>
 #include <vector>
 
-#include "ParallelImpl.h"
+#include "ParallelCPUInterface.h"
 
 using namespace oneapi;
 

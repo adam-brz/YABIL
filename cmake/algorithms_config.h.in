@@ -11,6 +11,9 @@ struct AlgorithmsDefaultsConfig
     using bigint_base_t = @YABIL_CONFIG_BIGINT_BASE_T@;
 
     static constexpr bool consteval_thresholds = static_cast<bool>(@YABIL_CONFIG_CONSTEVAL_THRESHOLDS@);
+    static constexpr bool with_cuda = static_cast<bool>(@YABIL_CONFIG_WITH_CUDA@);
+    static constexpr std::size_t cuda_add_threshold = @YABIL_CONFIG_CUDA_ADD_THRESHOLD@;
+
     static constexpr std::size_t karatsuba_threshold = @YABIL_CONFIG_KARATSUBA_THRESHOLD@;
     static constexpr std::size_t recursive_div_threshold = @YABIL_CONFIG_RECURSIVE_DIV_THRESHOLD@;
     static constexpr std::size_t parallel_add_threshold = @YABIL_CONFIG_PARALLEL_ADD_THRESHOLD@;

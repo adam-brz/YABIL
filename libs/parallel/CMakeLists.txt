@@ -1,8 +1,9 @@
 project(parallel C CXX)
 
 set(SOURCES
+    src/gpu/ParallelGPUInterface.h
     src/Parallel.cpp
-    src/ParallelImpl.h
+    src/ParallelCPUInterface.h
     src/ThreadPool.cpp
     src/ThreadPoolSingleton.cpp
 )
@@ -26,6 +27,11 @@ set(BENCHMARKS
 )
 
 add_library(${PROJECT_NAME})
+
+if(YABIL_ENABLE_CUDA)
+    enable_language(CUDA)
+    list(APPEND SOURCES src/gpu/ParallelCUDAImpl.cu)
+endif()
 
 if(YABIL_ENABLE_TBB)
     list(APPEND SOURCES src/ParallelTBBImpl.cpp)

@@ -8,11 +8,11 @@ set(SOURCES
     src/io.cpp
     src/StringConversionUtils.cpp
     src/StringConversionUtils.h
-    src/add_sub/AddSub.h
-    src/add_sub/AddSub.cpp
-    src/arithmetic/Mul.cpp
-    src/arithmetic/Div.cpp
+    src/add_sub/AddSubInterface.h
     src/arithmetic/Add.cpp
+    src/arithmetic/ArrayAddSub.cpp
+    src/arithmetic/Div.cpp
+    src/arithmetic/Mul.cpp
     src/arithmetic/Sub.cpp
     src/impl/StrConversion.h
     src/impl/StrConversion.cpp
@@ -27,10 +27,11 @@ set(HEADERS
     include/yabil/bigint/BigIntBase.h
     include/yabil/bigint/BigIntGlobalConfig.h
     include/yabil/bigint/io.h
-    include/yabil/bigint/arithmetic/Sub.h
     include/yabil/bigint/arithmetic/Add.h
-    include/yabil/bigint/arithmetic/Mul.h
+    include/yabil/bigint/arithmetic/ArrayAddSub.h
     include/yabil/bigint/arithmetic/Div.h
+    include/yabil/bigint/arithmetic/Mul.h
+    include/yabil/bigint/arithmetic/Sub.h
 )
 
 set(TESTS
@@ -64,10 +65,7 @@ set(BENCHMARKS
     benchmark/Subtraction.cpp
 )
 
-if(YABIL_ENABLE_CUDA)
-    enable_language(CUDA)
-    list(APPEND SOURCES src/add_sub/AddSubCUDAImpl.cu)
-elseif(YABIL_HAS_AVX512)
+if(YABIL_HAS_AVX512)
     list(APPEND SOURCES src/add_sub/AddSubAVX512DQImpl.cpp)
 elseif(YABIL_HAS_AVX2)
     list(APPEND SOURCES src/add_sub/AddSubAVX2Impl.cpp)
