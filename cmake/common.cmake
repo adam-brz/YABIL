@@ -224,8 +224,17 @@ function(setup_algorithms_config_file)
     set(YABIL_CONFIG_PARALLEL_ADD_THRESHOLD "2000" CACHE STRING "Minimum number of digits for parallel addition.")
     set(YABIL_CONFIG_PARALLEL_MUL_THRESHOLD "256" CACHE STRING "Minimum number of digits for parallel multiplication.")
     set(YABIL_CONFIG_PARALLEL_DIV_THRESHOLD "1800" CACHE STRING "Minimum number of digits for parallel division.")
+    set(YABIL_CONFIG_CUDA_ADD_THRESHOLD "4096" CACHE STRING "Minimum number of digits for parallel addition using CUDA. Should be greater than YABIL_CONFIG_PARALLEL_ADD_THRESHOLD.")
 
     set(YABIL_CONFIG_CONSTEVAL_THRESHOLDS "1" CACHE STRING "Boolean value indicating if algorithm configuration should only be known in compile time.")
+
+    if(YABIL_ENABLE_CUDA)
+        set(CUDA_ENABLED "1")
+    else()
+        set(CUDA_ENABLED "0")
+    endif()
+
+    set(YABIL_CONFIG_WITH_CUDA "${CUDA_ENABLED}" CACHE STRING "Boolean value indicating if algorithms should be configured to use CUDA.")
 
     if(YABIL_HAS_INT128)
         set(BASE_T uint64_t)

@@ -10,7 +10,7 @@
 #include <future>
 #include <vector>
 
-#include "ParallelImpl.h"
+#include "ParallelCPUInterface.h"
 
 namespace yabil::parallel
 {

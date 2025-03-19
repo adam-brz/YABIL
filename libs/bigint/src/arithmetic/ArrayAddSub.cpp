@@ -1,4 +1,4 @@
-#include "AddSub.h"
+#include <yabil/bigint/arithmetic/ArrayAddSub.h>
 
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/BigIntBase.h>
@@ -12,7 +12,7 @@
 #endif
 #endif
 
-namespace yabil::bigint
+namespace yabil::bigint::arithmetic
 {
 
 namespace
@@ -92,7 +92,7 @@ static bigint_base_t sub_borrow(const bigint_base_t borrow, const bigint_base_t 
 
 }  // namespace
 
-void add_plain_arrays(const bigint_base_t *a, std::size_t a_size, const bigint_base_t *b, std::size_t b_size,
+void add_arrays_with_carry(const bigint_base_t *a, std::size_t a_size, const bigint_base_t *b, std::size_t b_size,
                       bigint_base_t *r, bigint_base_t carry)
 {
     assert(a_size >= b_size);
@@ -114,7 +114,7 @@ void add_plain_arrays(const bigint_base_t *a, std::size_t a_size, const bigint_b
     }
 }
 
-void sub_plain_arrays(const bigint_base_t *a, std::size_t a_size, const bigint_base_t *b, std::size_t b_size,
+void sub_arrays_with_borrow(const bigint_base_t *a, std::size_t a_size, const bigint_base_t *b, std::size_t b_size,
                       bigint_base_t *r, bigint_base_t borrow)
 {
     assert(a_size >= b_size);

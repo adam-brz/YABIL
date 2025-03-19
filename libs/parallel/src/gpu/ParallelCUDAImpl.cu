@@ -1,19 +1,24 @@
 #include <cuda_runtime.h>
 #include <yabil/bigint/BigIntBase.h>
+#include <yabil/bigint/arithmetic/ArrayAddSub.h>
 
 #include <cassert>
+
+#include "ParallelGPUInterface.h"
+
 #include <cstring>
 #include <vector>
 
-#include "AddSub.h"
 
-namespace yabil::bigint
+namespace yabil::parallel::gpu
 {
+
+using namespace yabil::bigint;
 
 namespace
 {
 
-constexpr int device_add_block_size = 64;
+static constexpr int device_add_block_size = 64;
 
 __global__ void add_with_carry(const bigint_base_t *a, const bigint_base_t *b, bigint_base_t *r, bigint_base_t *c)
 {
@@ -94,14 +99,8 @@ void add_arrays(const yabil::bigint::bigint_base_t *a, std::size_t a_size, const
         r[results_output_size] = carry;
     }
 
-    add_plain_arrays(&a[results_output_size], a_size - results_output_size, &b[results_output_size],
-                     b_size - results_output_size, &r[results_output_size], carry);
+    arithmetic::add_arrays_with_carry(&a[results_output_size], a_size - results_output_size, &b[results_output_size],
+                                      b_size - results_output_size, &r[results_output_size], carry);
 }
 
-void sub_arrays(const yabil::bigint::bigint_base_t *a, std::size_t a_size, const yabil::bigint::bigint_base_t *b,
-                std::size_t b_size, yabil::bigint::bigint_base_t *r)
-{
-    sub_plain_arrays(a, a_size, b, b_size, r);
-}
-
-}  // namespace yabil::bigint
+}  // namespace yabil::parallel::gpu

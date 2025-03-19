@@ -1,8 +1,9 @@
 #include <immintrin.h>
+#include <yabil/bigint/arithmetic/ArrayAddSub.h>
 
 #include <cassert>
 
-#include "AddSub.h"
+#include "AddSubInterface.h"
 
 namespace yabil::bigint
 {
@@ -110,7 +111,7 @@ void add_arrays(const bigint_base_t *a, std::size_t a_size, const bigint_base_t 
     const auto a_unaligned = (a_size_bytes - max_avx_iters * avx2_data_size_bytes) / sizeof(*a);
     const auto b_unaligned = (b_size_bytes - max_avx_iters * avx2_data_size_bytes) / sizeof(*b);
 
-    add_plain_arrays(a, a_unaligned, b, b_unaligned, r, carry);
+    arithmetic::add_arrays_with_carry(a, a_unaligned, b, b_unaligned, r, carry);
 }
 
 // Requires a_size > b_size
@@ -141,7 +142,7 @@ void sub_arrays(const bigint_base_t *a, std::size_t a_size, const bigint_base_t 
     const auto a_unaligned = (a_size_bytes - max_avx_iters * avx2_data_size_bytes) / sizeof(*a);
     const auto b_unaligned = (b_size_bytes - max_avx_iters * avx2_data_size_bytes) / sizeof(*b);
 
-    sub_plain_arrays(a, a_unaligned, b, b_unaligned, r, borrow);
+    arithmetic::sub_arrays_with_borrow(a, a_unaligned, b, b_unaligned, r, borrow);
 }
 
 }  // namespace yabil::bigint
