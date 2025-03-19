@@ -59,7 +59,7 @@ endfunction()
 function(set_common_target_options TARGET)
     message(STATUS "Setting up target: ${TARGET}")
 
-    set(MSVC_FLAGS /W4 /wd4068)
+    set(MSVC_FLAGS /W4 /wd4068 /wd4127)
     set(OTHER_FLAGS -Wall -Wextra -Wpedantic -Wno-pragmas)
 
     if(YABIL_ENABLE_SANITIZER)

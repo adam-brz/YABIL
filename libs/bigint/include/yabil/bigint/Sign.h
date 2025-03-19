@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cstdint>
 
 namespace yabil::bigint
@@ -11,4 +13,4 @@ enum class Sign : uint8_t
     Minus
 };
 
-}
+}  // namespace yabil::bigint

@@ -5,6 +5,7 @@
 #include <yabil/bigint/io.h>
 #include <yabil/utils/IterUtils.h>
 
+#include <algorithm>
 #include <bitset>
 #include <cassert>
 #include <cstdint>
@@ -13,6 +14,8 @@
 #include <sstream>
 #include <string>
 #include <type_traits>
+#include <utility>
+#include <vector>
 
 #include "StringConversionUtils.h"
 #include "impl/Arithmetic.h"
@@ -127,7 +130,6 @@ std::string to_string_8(const BigInt& number)
         std::stringstream ss;
         ss << std::oct << std::setfill('0') << std::setw(n.is_zero() ? 0 : base_8_digits) << remainder_value;
         result_parts.push_back(ss.str());
-
     } while (!n.is_zero());
 
     return merge_converted_parts(result_parts, base_8_digits, number.get_sign());
@@ -171,8 +173,8 @@ std::string to_string_10(const BigInt& number)
         {
             const auto current =
                 static_cast<utils::double_width_t<bigint_base_t>>(carry) << BigInt::digit_size_bits | *digit_it;
-            *digit_it = current / conversion_base;
-            carry = current % conversion_base;
+            *digit_it = static_cast<bigint_base_t>(current / conversion_base);
+            carry = static_cast<bigint_base_t>(current % conversion_base);
         }
 
         result_parts.push_back(carry);
@@ -250,7 +252,7 @@ BigInt from_string_2(const std::string_view& str)
             throw std::invalid_argument("Invalid number format");
         }
 
-        data.push_back(chunk_value);
+        data.push_back(static_cast<bigint_base_t>(chunk_value));
         window_end = window_start;
     }
 
@@ -350,7 +352,7 @@ BigInt from_string_16(const std::string_view& str)
             throw std::invalid_argument("Invalid number format");
         }
 
-        data.push_back(chunk_value);
+        data.push_back(static_cast<bigint_base_t>(chunk_value));
         window_end = window_start;
     }
 

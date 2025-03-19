@@ -2,7 +2,9 @@
 
 #include <concepts>
 #include <cstddef>
+#include <limits>
 #include <random>
+#include <string>
 #include <vector>
 
 namespace yabil::test_utils
