@@ -15,9 +15,9 @@ ThreadPool &ThreadPoolSingleton::instance()
     return *thread_pool;
 }
 
-void ThreadPoolSingleton::set_default_thread_pool_size(int default_thread_count)
+void ThreadPoolSingleton::set_default_thread_pool_size(int new_size)
 {
-    ThreadPoolSingleton::default_thread_count = default_thread_count;
+    ThreadPoolSingleton::default_thread_count = new_size;
 }
 
 }  // namespace yabil::parallel

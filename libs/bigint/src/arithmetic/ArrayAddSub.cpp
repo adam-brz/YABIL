@@ -1,7 +1,6 @@
-#include <yabil/bigint/arithmetic/ArrayAddSub.h>
-
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/BigIntBase.h>
+#include <yabil/bigint/arithmetic/ArrayAddSub.h>
 
 #include <cassert>
 
@@ -93,7 +92,7 @@ static bigint_base_t sub_borrow(const bigint_base_t borrow, const bigint_base_t 
 }  // namespace
 
 void add_arrays_with_carry(const bigint_base_t *a, std::size_t a_size, const bigint_base_t *b, std::size_t b_size,
-                      bigint_base_t *r, bigint_base_t carry)
+                           bigint_base_t *r, bigint_base_t carry)
 {
     assert(a_size >= b_size);
 
@@ -115,7 +114,7 @@ void add_arrays_with_carry(const bigint_base_t *a, std::size_t a_size, const big
 }
 
 void sub_arrays_with_borrow(const bigint_base_t *a, std::size_t a_size, const bigint_base_t *b, std::size_t b_size,
-                      bigint_base_t *r, bigint_base_t borrow)
+                            bigint_base_t *r, bigint_base_t borrow)
 {
     assert(a_size >= b_size);
 
@@ -131,4 +130,4 @@ void sub_arrays_with_borrow(const bigint_base_t *a, std::size_t a_size, const bi
     }
 }
 
-}  // namespace yabil::bigint
+}  // namespace yabil::bigint::arithmetic
