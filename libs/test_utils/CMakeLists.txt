@@ -18,6 +18,6 @@ target_sources(${PROJECT_NAME}
     FILES ${HEADERS}
 )
 
-set_target_properties(${TEST_TARGET} PROPERTIES IS_TEST_TARGET TRUE)
+set_target_properties(${PROJECT_NAME} PROPERTIES IS_TEST_TARGET TRUE)
 set_common_properties(${PROJECT_NAME})
 
