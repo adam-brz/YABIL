@@ -55,8 +55,14 @@ BENCHMARK_DEFINE_F(DivisionBenchmark, PositiveAndNegativeNumbers)(benchmark::Sta
     }
 }
 
-BENCHMARK_REGISTER_F(DivisionBenchmark, TwoPositiveNumbers)->Range(1, 1e6);
-BENCHMARK_REGISTER_F(DivisionBenchmark, InPlaceTwoPositiveNumbers)->Range(1, 1e6);
-BENCHMARK_REGISTER_F(DivisionBenchmark, PositiveAndNegativeNumbers)->Range(1, 1e6);
+#ifdef NDEBUG
+static constexpr int max_range = 1e6;
+#else
+static constexpr int max_range = 1e4;
+#endif
+
+BENCHMARK_REGISTER_F(DivisionBenchmark, TwoPositiveNumbers)->Range(1, max_range);
+BENCHMARK_REGISTER_F(DivisionBenchmark, InPlaceTwoPositiveNumbers)->Range(1, max_range);
+BENCHMARK_REGISTER_F(DivisionBenchmark, PositiveAndNegativeNumbers)->Range(1, max_range);
 
 }  // namespace yabil::bigint
