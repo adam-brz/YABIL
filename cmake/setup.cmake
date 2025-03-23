@@ -49,10 +49,10 @@ macro(setup_compiler_options)
             unsigned long long a;
             return _addcarry_u64(0,0,0,&a);
         }"
-        YABIL_HAS_X64_INTRINSICS
+        YABIL_HAS_X64_INTRINSICS_CHECK
     )
 
-    set(YABIL_HAS_X64_INTRINSICS "${YABIL_HAS_X64_INTRINSICS}" CACHE BOOL "Enable intrinsics support")
+    set(YABIL_HAS_X64_INTRINSICS "${YABIL_HAS_X64_INTRINSICS_CHECK}" CACHE BOOL "Enable intrinsics support")
 
     check_cxx_symbol_exists(__SIZEOF_INT128__ "" YABIL_HAS_INT128)
     set(YABIL_HAS_INT128 "${YABIL_HAS_INT128}" CACHE BOOL "Enable usage of int128_t type")

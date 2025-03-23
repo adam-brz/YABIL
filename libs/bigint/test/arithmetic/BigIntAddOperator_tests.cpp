@@ -171,6 +171,14 @@ TEST_F(BigIntAddOperator_tests, addInPlacePropagatesSignCorrectly)
     EXPECT_EQ(big_int.to<int64_t>(), -8);
 }
 
+TEST_F(BigIntAddOperator_tests, addInPlaceForTwoPositiveNumbersIsPositive)
+{
+    BigInt big_int(10);
+    big_int += BigInt{2};
+    EXPECT_EQ(big_int.get_sign(), Sign::Plus);
+    EXPECT_EQ(big_int.to<int64_t>(), 12);
+}
+
 TEST_F(BigIntAddOperator_tests, canAddNegatedNumber)
 {
     const BigInt a(12031023ULL, Sign::Minus);

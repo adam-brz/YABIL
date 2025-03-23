@@ -52,6 +52,15 @@ TEST_F(ParallelOperations_tests, addTwoLongNonZeroWithOverflow)
     EXPECT_EQ(expected, parallel::add(big_int1, big_int2).raw_data());
 }
 
+TEST_F(ParallelOperations_tests, addTwoLongWithOverflowOnLastDigit)
+{
+    const BigInt big_int1(std::vector<bigint_base_t>{std::numeric_limits<bigint_base_t>::max(),
+                                                     std::numeric_limits<bigint_base_t>::max()});
+    const BigInt big_int2(std::vector<bigint_base_t>{1, 1});
+    const std::vector<bigint_base_t> expected = {0, 1, 1};
+    EXPECT_EQ(expected, parallel::add(big_int1, big_int2).raw_data());
+}
+
 TEST_F(ParallelOperations_tests, addTwoNegativeWithOverflow)
 {
     const BigInt big_int1(std::vector<bigint_base_t>{std::numeric_limits<bigint_base_t>::max(),
@@ -214,6 +223,13 @@ TEST_F(ParallelOperations_tests, mulVeryLong)
     const auto result = parallel::mul(big_int1, big_int2);
 
     EXPECT_EQ(expected, result);
+}
+
+TEST_F(ParallelOperations_tests, canMultiplyModerateSize)
+{
+    const BigInt a(std::vector<bigint_base_t>{1, 2, 3, 4, 5});
+    const BigInt b(std::vector<bigint_base_t>{1, 2, 3, 4, 5});
+    EXPECT_EQ(parallel::mul(a, b).to_str(), "335195198248564927518424173926970428810769590115364161861093509794723949441761384071908605885316593647387446216969379980719012632662703439762557362423988225");
 }
 
 TEST_F(ParallelOperations_tests, mulHuge)

@@ -225,6 +225,11 @@ BigInt from_string_any(const std::string_view& str, const unsigned base)
         result += BigInt{converted};
     }
 
+    if (result.is_zero() && hasSign)
+    {
+        throw std::invalid_argument("Invalid number format");
+    }
+
     result.set_sign(hasSign ? (first == '-' ? Sign::Minus : Sign::Plus) : Sign::Plus);
     return result;
 }

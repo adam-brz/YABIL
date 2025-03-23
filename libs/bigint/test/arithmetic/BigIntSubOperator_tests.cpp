@@ -40,6 +40,11 @@ TEST_F(BigIntSubOperator_tests, subtractTwoNonZeroWithOverflow)
     EXPECT_EQ(expected, (big_int1 - big_int2).raw_data());
 }
 
+TEST_F(BigIntSubOperator_tests, subtractionPropagatesSignCorrectly)
+{
+    EXPECT_EQ(-BigInt{-12} - -BigInt{10}, BigInt{22});
+}
+
 TEST_F(BigIntSubOperator_tests, subtractTwoLongNonZeroWithOverflow)
 {
     const BigInt big_int1(std::vector<bigint_base_t>{0, std::numeric_limits<bigint_base_t>::max()});

@@ -103,16 +103,16 @@ std::vector<bigint::bigint_base_t> parallel_add_unsigned(const std::span<const b
 std::vector<bigint::bigint_base_t> parallel_karatsuba(const std::span<const bigint::bigint_base_t> &a,
                                                       const std::span<const bigint::bigint_base_t> &b)
 {
-    const auto &parallel_config = ParallelGlobalConfig::instance();
-    if (a.size() < parallel_config.parallel_mul_threshold || b.size() < parallel_config.parallel_mul_threshold)
-    {
-        return bigint::arithmetic::mul_unsigned_karatsuba(a, b);
-    }
-
     const auto &algorithms_config = bigint::BigIntGlobalConfig::instance();
     if (a.size() < algorithms_config.karatsuba_threshold || b.size() < algorithms_config.karatsuba_threshold)
     {
         return bigint::arithmetic::mul_unsigned_basecase(a, b);
+    }
+
+    const auto &parallel_config = ParallelGlobalConfig::instance();
+    if (a.size() < parallel_config.parallel_mul_threshold || b.size() < parallel_config.parallel_mul_threshold)
+    {
+        return bigint::arithmetic::mul_unsigned_karatsuba(a, b);
     }
 
     const int m2 = static_cast<int>(std::max(a.size(), b.size()) / 2);
