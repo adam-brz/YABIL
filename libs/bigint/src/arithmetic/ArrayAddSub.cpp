@@ -34,8 +34,9 @@ struct GenericArithProvider
                                                                             const bigint_base_t b,
                                                                             bigint_base_t *destination)
     {
-        return _addcarry_u64(static_cast<unsigned char>(carry), a, b,
-                             reinterpret_cast<unsigned long long *>(destination));  // NOLINT
+        using op_t = unsigned long long;
+        return _addcarry_u64(static_cast<unsigned char>(carry), static_cast<op_t>(a), static_cast<op_t>(b),
+                             reinterpret_cast<op_t *>(destination));  // NOLINT
     }
 
     template <typename bigint_t = bigint_base_t>
@@ -44,7 +45,9 @@ struct GenericArithProvider
                                                                             const bigint_base_t b,
                                                                             bigint_base_t *destination)
     {
-        return _addcarry_u32(static_cast<unsigned char>(carry), a, b, reinterpret_cast<unsigned int *>(destination));
+        using op_t = unsigned int;
+        return _addcarry_u32(static_cast<unsigned char>(carry), static_cast<op_t>(a), static_cast<op_t>(b),
+                             reinterpret_cast<op_t *>(destination));
     }
 
     template <typename bigint_t = bigint_base_t>
@@ -53,8 +56,9 @@ struct GenericArithProvider
                                                                              const bigint_base_t b,
                                                                              bigint_base_t *destination)
     {
-        return _subborrow_u64(static_cast<unsigned char>(borrow), a, b,
-                              reinterpret_cast<unsigned long long *>(destination));  // NOLINT
+        using op_t = unsigned long long;
+        return _subborrow_u64(static_cast<unsigned char>(borrow), static_cast<op_t>(a), static_cast<op_t>(b),
+                              reinterpret_cast<op_t *>(destination));  // NOLINT
     }
 
     template <typename bigint_t = bigint_base_t>
@@ -63,7 +67,9 @@ struct GenericArithProvider
                                                                              const bigint_base_t b,
                                                                              bigint_base_t *destination)
     {
-        return _subborrow_u32(static_cast<unsigned char>(borrow), a, b, reinterpret_cast<unsigned int *>(destination));
+        using op_t = unsigned int;
+        return _subborrow_u32(static_cast<unsigned char>(borrow), static_cast<op_t>(a), static_cast<op_t>(b),
+                              reinterpret_cast<op_t *>(destination));
     }
 #endif
 
