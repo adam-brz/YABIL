@@ -1,10 +1,15 @@
 #include <yabil/parallel/ThreadPoolSingleton.h>
+#include <memory>
+
 
 namespace yabil::parallel
 {
 
-std::unique_ptr<ThreadPool> ThreadPoolSingleton::thread_pool = nullptr;
-int ThreadPoolSingleton::default_thread_count = -1;
+namespace
+{
+static std::unique_ptr<ThreadPool> thread_pool = nullptr;
+static int default_thread_count = -1;
+}  // namespace
 
 ThreadPool &ThreadPoolSingleton::instance()
 {
@@ -17,7 +22,7 @@ ThreadPool &ThreadPoolSingleton::instance()
 
 void ThreadPoolSingleton::set_default_thread_pool_size(int new_size)
 {
-    ThreadPoolSingleton::default_thread_count = new_size;
+    default_thread_count = new_size;
 }
 
 }  // namespace yabil::parallel

@@ -47,6 +47,7 @@ jobs:
             -s build_type=Release \
             -o yabil/*:with_tests=True \
             -o yabil/*:with_tbb=True \
+            -o yabil/*:with_benchmarks=True \
             --build=missing
 
       - name: Configure
@@ -77,4 +78,4 @@ jobs:
 
       - name: Run tests
         working-directory: build/Release
-        run: ctest -C Release --verbose -j "$(nproc)"
+        run: ctest -C Release --verbose -j "$(nproc)" -E "benchmark"
