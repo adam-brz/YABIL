@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <yabil/bigint/BigInt.h>
 
+#include <cstdint>
 #include <limits>
 
 using namespace yabil::bigint;
@@ -160,6 +161,14 @@ TEST_F(BigIntAddOperator_tests, addInPlaceTwoNegativeWithOverflow)
 
     EXPECT_EQ(expected, big_int1.raw_data());
     EXPECT_EQ(Sign::Minus, big_int1.get_sign());
+}
+
+TEST_F(BigIntAddOperator_tests, addInPlacePropagatesSignCorrectly)
+{
+    BigInt big_int(-10);
+    big_int += BigInt{2};
+    EXPECT_EQ(big_int.get_sign(), Sign::Minus);
+    EXPECT_EQ(big_int.to<int64_t>(), -8);
 }
 
 TEST_F(BigIntAddOperator_tests, canAddNegatedNumber)
