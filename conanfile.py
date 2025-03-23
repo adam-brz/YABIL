@@ -94,7 +94,7 @@ class YabilConan(ConanFile):
         if self.options.with_tests and can_run(self):
             if ctest := shutil.which("ctest"):
                 self.run(
-                    f"{ctest} -C {self.settings.build_type} --output-on-failure")
+                    f"{ctest} -C {self.settings.build_type} --output-on-failure -E 'benchmark'")
 
     def package(self):
         cmake = CMake(self)

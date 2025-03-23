@@ -44,6 +44,7 @@ jobs:
             -o yabil/*:${{ matrix.parallel_use_tbb }} \
             -o yabil/*:${{ matrix.native_optimizations }} \
             -o yabil/*:with_tests=True \
+            -o yabil/*:with_benchmarks=True \
             --build=missing
 
       - name: Configure
@@ -66,7 +67,7 @@ jobs:
 
       - name: Run tests
         working-directory: build/${{ matrix.build_type }}
-        run: ctest --verbose -j "$(nproc)"
+        run: ctest --verbose -j "$(nproc)" -E "benchmark"
 
       - name: Run tests with Valgrind
         if: matrix.parallel_use_tbb == 'with_tbb=False' && matrix.native_optimizations == 'native_optimizations=False'

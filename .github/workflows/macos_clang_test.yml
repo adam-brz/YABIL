@@ -50,6 +50,7 @@ jobs:
             -s compiler.cppstd=gnu20 \
             -o yabil/*:with_tests=True \
             -o yabil/*:with_tbb=True \
+            -o yabil/*:with_benchmark=True \
             -c yabil/*:tools.cmake.cmaketoolchain:generator=xcode \
             --build=missing
 
@@ -64,4 +65,4 @@ jobs:
 
       - name: Run tests
         working-directory: build/Debug
-        run: ctest --verbose -j 4
+        run: ctest --verbose -j 4 -E "benchmark"
