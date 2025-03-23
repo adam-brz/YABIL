@@ -1,5 +1,6 @@
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/BigIntGlobalConfig.h>
+#include <yabil/bigint/Sign.h>
 #include <yabil/bigint/arithmetic/Add.h>
 #include <yabil/bigint/arithmetic/Div.h>
 #include <yabil/bigint/arithmetic/Mul.h>
@@ -150,16 +151,9 @@ BigInt &BigInt::operator+=(const BigInt &other)
     }
 
     data.resize(std::max(data.size(), other.data.size()));
+    std::tie(std::ignore, sign) = impl::inplace_plain_sub(data, other.data, sign, other.sign);
+    normalize();
 
-    if (sign == Sign::Minus)
-    {
-        const auto [_, calculated_sign] = impl::inplace_plain_sub(data, other.data, sign);
-        sign = (calculated_sign == Sign::Minus) ? Sign::Plus : Sign::Minus;
-        return *this;
-    }
-
-    const auto [_, calculated_sign] = impl::inplace_plain_sub(data, other.data, sign);
-    sign = calculated_sign;
     return *this;
 }
 
@@ -173,15 +167,10 @@ BigInt &BigInt::operator-=(const BigInt &other)
     }
 
     data.resize(std::max(data.size(), other.data.size()));
-    if (sign == Sign::Plus)
-    {
-        const auto [_, calculated_sign] = impl::inplace_plain_sub(data, other.data, sign);
-        sign = calculated_sign;
-        return *this;
-    }
+    std::tie(std::ignore, sign) =
+        impl::inplace_plain_sub(data, other.data, sign, other.sign == Sign::Plus ? Sign::Minus : Sign::Plus);
+    normalize();
 
-    const auto [_, calculated_sign] = impl::inplace_plain_sub(data, other.data, sign);
-    sign = calculated_sign;
     return *this;
 }
 

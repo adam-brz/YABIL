@@ -28,7 +28,8 @@ std::vector<bigint_base_t> &inplace_plain_add(std::vector<bigint_base_t> &a, con
 // Be careful when using! "a" must be resized to std::max(a.size(), b.size()). This cannot be done inside this function
 // as data from "b" might overlap with "a" and resize will invalidate pointer.
 std::pair<std::reference_wrapper<std::vector<bigint_base_t>>, Sign> inplace_plain_sub(
-    std::vector<bigint_base_t> &a, const std::span<const bigint_base_t> &b, const Sign a_sign = Sign::Plus);
+    std::vector<bigint_base_t> &a, const std::span<const bigint_base_t> &b, const Sign a_sign = Sign::Plus,
+    const Sign b_sign = Sign::Plus);
 
 std::vector<bigint_base_t> shift_digits_left(const std::span<const bigint_base_t> &data, const int shift);
 

@@ -3,6 +3,7 @@
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/BigIntBase.h>
 #include <yabil/bigint/BigIntGlobalConfig.h>
+#include <yabil/bigint/Sign.h>
 #include <yabil/utils/IterUtils.h>
 #include <yabil/utils/TypeUtils.h>
 
@@ -74,7 +75,7 @@ std::vector<bigint_base_t> &inplace_plain_add(std::vector<bigint_base_t> &a, con
 }
 
 std::pair<std::reference_wrapper<std::vector<bigint_base_t>>, Sign> inplace_plain_sub(
-    std::vector<bigint_base_t> &a, const std::span<const bigint_base_t> &b, const Sign a_sign)
+    std::vector<bigint_base_t> &a, const std::span<const bigint_base_t> &b, const Sign a_sign, const Sign b_sign)
 {
     const std::span<const bigint_base_t> a_view{a};
 
@@ -82,11 +83,10 @@ std::pair<std::reference_wrapper<std::vector<bigint_base_t>>, Sign> inplace_plai
     const auto *shorter = &b;
 
     Sign sign = a_sign;
-
     if (impl::abs_lower(a, b))
     {
         std::swap(longer, shorter);
-        sign = Sign::Minus;
+        sign = b_sign;
     }
 
     assert(a.size() == longer->size());
