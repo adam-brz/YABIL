@@ -24,6 +24,12 @@ BENCHMARK_DEFINE_F(MultiplicationBenchmark, TwoPositiveNumbers)(benchmark::State
     }
 }
 
-BENCHMARK_REGISTER_F(MultiplicationBenchmark, TwoPositiveNumbers)->Range(1, 1e6);
+#ifdef NDEBUG
+static constexpr int max_range = 1e6;
+#else
+static constexpr int max_range = 1e4;
+#endif
+
+BENCHMARK_REGISTER_F(MultiplicationBenchmark, TwoPositiveNumbers)->Range(1, max_range);
 
 }  // namespace yabil::parallel
