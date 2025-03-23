@@ -18,6 +18,17 @@ TEST_F(BigIntDivOperator_tests, fastModuloZeroByAnyShouldGiveZero)
     }
 }
 
+TEST_F(BigIntDivOperator_tests, zeroDividedByANythingShouldBeZero)
+{
+    const BigInt big_int;
+    for (unsigned i = 1; i < 1000; i += 200)
+    {
+        const auto [q, r] = big_int.divide(BigInt{i});
+        EXPECT_TRUE(q.is_zero());
+        EXPECT_TRUE(r.is_zero());
+    }
+}
+
 TEST_F(BigIntDivOperator_tests, fastModuloByZeroShouldThrowException)
 {
     ASSERT_THROW({ BigInt() % 0; }, std::invalid_argument);

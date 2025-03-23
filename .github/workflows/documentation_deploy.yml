@@ -50,7 +50,7 @@ jobs:
             -o yabil/*:with_benchmarks=True \
             -o yabil/*:shared=True \
             -c yabil/*:tools.cmake.cmaketoolchain:generator=Ninja \
-            --build=missing \
+            --build=missing 
 
           cmake --preset conan-debug \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
@@ -66,7 +66,9 @@ jobs:
           cmake --build . --config Debug -j $(nproc)
 
           ctest -C Debug -j $(nproc) -E "benchmark"
-          LLVM_PROFILE_FILE=%m.profraw find bin/ -type f -executable -iname "*benchmarks" -exec {}  --benchmark_min_time=1x \;
+
+          cd bin
+          LLVM_PROFILE_FILE=%m.profraw find . -type f -executable -iname "*benchmarks" -exec {} --benchmark_min_time=1x \;
 
       - name: Create coverage report
         run: |

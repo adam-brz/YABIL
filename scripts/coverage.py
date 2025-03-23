@@ -45,12 +45,17 @@ def generate_html(
 ):
     GitHubLogger.print("::group::Generate coverage HTML report")
     library_files = glob.glob(f"{lib_dir}/*.a") + glob.glob(f"{lib_dir}/*.so")
-    exec_files = list(filter(lambda f: f.find(".") == -1, glob.glob(f"{binary_dir}/*")))
+    exec_files = list(filter(lambda f: f.find(".") == -
+                      1, glob.glob(f"{binary_dir}/*")))
 
     object_flags = ["-object " + file for file in (library_files + exec_files)]
 
+    ignore_patterns = ["--ignore-filename-regex='.*test_utils.*'",
+                       "--ignore-filename-regex='.*compile_time.*h'",
+                       "--ignore-filename-regex='.*_tests.cpp'"]
+
     subprocess.check_call(
-        f"{llvm_cov} show -format=html --ignore-filename-regex='.*_tests.cpp' -output-dir={output_dir} -instr-profile coverage.profdata {' '.join(object_flags)}",
+        f"{llvm_cov} show -format=html {' '.join(ignore_patterns)} -output-dir={output_dir} -instr-profile coverage.profdata {' '.join(object_flags)}",
         shell=True,
         cwd=binary_dir,
     )
@@ -60,7 +65,7 @@ def generate_html(
     )
 
     process = subprocess.run(
-        f"{llvm_cov} report -show-region-summary=false --ignore-filename-regex='.*_tests.cpp' -show-functions=false {show_branch_summary} "
+        f"{llvm_cov} report -show-region-summary=false {' '.join(ignore_patterns)} -show-functions=false {show_branch_summary} "
         f"-instr-profile coverage.profdata {' '.join(object_flags)}",
         shell=True,
         cwd=binary_dir,

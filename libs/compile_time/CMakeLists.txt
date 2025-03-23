@@ -37,12 +37,12 @@ set(TESTS
 )
 
 set(GENERATED_TESTS
-    test/generated/AdditionGeneratedTests.cpp
-    test/generated/BitOperationsGeneratedTests.cpp
-    test/generated/DivisionGeneratedTests.cpp
-    test/generated/MultiplicationGeneratedTests.cpp
-    test/generated/RelationGeneratedTests.cpp
-    test/generated/SubtractionGeneratedTests.cpp
+    test/generated/AdditionGenerated_tests.cpp
+    test/generated/BitOperationsGenerated_tests.cpp
+    test/generated/DivisionGenerated_tests.cpp
+    test/generated/MultiplicationGenerated_tests.cpp
+    test/generated/RelationGenerated_tests.cpp
+    test/generated/SubtractionGenerated_tests.cpp
 )
 
 add_library(${PROJECT_NAME} INTERFACE)

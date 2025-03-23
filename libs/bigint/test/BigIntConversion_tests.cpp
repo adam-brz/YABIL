@@ -103,6 +103,64 @@ TEST_F(BigIntConversionTest, canConvertToStringInBase8)
     EXPECT_EQ("-123321563412650324153412121", big_int2.to_str(8));
 }
 
+TEST_F(BigIntConversionTest, canConvertToStringInBase3)
+{
+    const BigInt big_int("10268505253688348126349422393563030295385832673");
+    EXPECT_EQ("1121120111200012001100210112000022100210222121112222021222212001100210210122022121010121010000102",
+              big_int.to_str(3));
+}
+
+TEST_F(BigIntConversionTest, canConvertToStringInBase11)
+{
+    {
+        const BigInt big_int("160562090019248238166895269860528AAA001A96956", 11);
+        EXPECT_EQ("10268505253688348126349422393563030295385832673", big_int.to_str());
+    }
+    {
+        const BigInt big_int("-160562090019248238166895269860528AAA001A96956", 11);
+        EXPECT_EQ("-10268505253688348126349422393563030295385832673", big_int.to_str());
+    }
+}
+
+TEST_F(BigIntConversionTest, canConvertFromStringInBase3)
+{
+    {
+        const BigInt big_int(
+            "1121120111200012001100210112000022100210222121112222021222212001100210210122022121010121010000102", 3);
+        EXPECT_EQ("10268505253688348126349422393563030295385832673", big_int.to_str());
+    }
+    {
+        const BigInt big_int(
+            "-1121120111200012001100210112000022100210222121112222021222212001100210210122022121010121010000102", 3);
+        EXPECT_EQ("-10268505253688348126349422393563030295385832673", big_int.to_str());
+    }
+}
+
+TEST_F(BigIntConversionTest, canConvertFromStringInBase11)
+{
+    {
+        const BigInt big_int("10268505253688348126349422393563030295385832673");
+        EXPECT_EQ("160562090019248238166895269860528aaa001a96956", big_int.to_str(11));
+    }
+    {
+        const BigInt big_int("-10268505253688348126349422393563030295385832673");
+        EXPECT_EQ("-160562090019248238166895269860528aaa001a96956", big_int.to_str(11));
+    }
+}
+
+TEST_F(BigIntConversionTest, throwsDuringConversionFromInvalidString)
+{
+    for (const auto &base : {2, 3, 7, 8, 10, 13, 16})
+    {
+        EXPECT_THROW(BigInt("-", static_cast<unsigned>(base)), std::invalid_argument) << " for base: " << base;
+    }
+
+    for (const auto &base : {2, 3, 7, 8, 10, 13, 16})
+    {
+        EXPECT_THROW(BigInt("101010-01", static_cast<unsigned>(base)), std::invalid_argument) << " for base: " << base;
+    }
+}
+
 TEST_F(BigIntConversionTest, canGetAbsoluteValue)
 {
     const BigInt big_int1("12381290381928309115962312309132093");

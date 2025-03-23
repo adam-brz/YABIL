@@ -7,6 +7,8 @@
 
 #include <cstdint>
 
+#include "yabil/compile_time/impl/ConstBigIntImpl.h"
+
 namespace yabil::compile_time
 {
 

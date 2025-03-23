@@ -12,8 +12,16 @@ class ThreadPool_tests : public ::testing::Test
 TEST_F(ThreadPool_tests, canRunSingleTask)
 {
     ThreadPool pool;
+    EXPECT_TRUE(pool.is_active());
+
     auto result = pool.submit([]() { return 2 + 8; });
     EXPECT_EQ(result.get(), 10);
+}
+
+TEST_F(ThreadPool_tests, callingStartWhenThreadsAreAlreadyStartedDoesNothing)
+{
+    ThreadPool pool;
+    EXPECT_FALSE(pool.start());
 }
 
 TEST_F(ThreadPool_tests, canRunMultipleTasksWithSingleCore)

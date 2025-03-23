@@ -3,6 +3,8 @@
 #include <yabil/parallel/ThreadPool.h>
 #include <yabil/parallel/parallel_export.h>
 
+#include <memory>
+
 namespace yabil::parallel
 {
 
@@ -10,11 +12,12 @@ namespace yabil::parallel
 class ThreadPoolSingleton
 {
 public:
-    /// @brief Get @p ThreadPool instance, creates instance on first invocation.
+    /// @brief Get @p ThreadPool instance, creates default instance on first invocation.
     YABIL_PARALLEL_EXPORT static ThreadPool &instance();
 
-    /// @brief Sets thread pool size to create on first @p ThreadPoolSingleton::instance call.
-    YABIL_PARALLEL_EXPORT static void set_default_thread_pool_size(int default_thread_count);
+    /// @brief Sets new thread pool instance to use.
+    /// @param new_instance Unique pointer to new instance which will replace old one.
+    YABIL_PARALLEL_EXPORT static void reset(std::unique_ptr<ThreadPool> &&new_instance);
 };
 
 }  // namespace yabil::parallel
