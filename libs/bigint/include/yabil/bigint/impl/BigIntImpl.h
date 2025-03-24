@@ -72,7 +72,14 @@ OutType BigInt::to() const
 template <std::signed_integral OutType>
 bool BigInt::is() const
 {
-    return is<std::make_unsigned_t<OutType>>() && !get_bit(sizeof(OutType) * 8 - 1);
+    if (is_zero())
+    {
+        return true;
+    }
+
+    const auto leading_zeroes = std::countl_zero(data.back());
+    return static_cast<int>(byte_size() * 8) - leading_zeroes <=
+           static_cast<int>(sizeof(OutType) * 8) - (is_negative() ? 0 : 1);
 }
 
 template <std::unsigned_integral OutType>
@@ -81,6 +88,10 @@ bool BigInt::is() const
     if (is_zero())
     {
         return true;
+    }
+    if (is_negative())
+    {
+        return false;
     }
     const auto leading_zeroes = std::countl_zero(data.back());
     return static_cast<int>(byte_size() * 8) - leading_zeroes <= static_cast<int>(sizeof(OutType) * 8);
