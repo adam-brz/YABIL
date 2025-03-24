@@ -36,7 +36,7 @@ struct ParallelArithmeticProvider
         return parallel_add_unsigned(a, b);
     }
 
-    template <bool cuda_enabled = with_cuda, std::enable_if_t<!cuda_enabled,bool> = true>
+    template <bool cuda_enabled = with_cuda, std::enable_if_t<!cuda_enabled, bool> = true>
     static std::vector<bigint::bigint_base_t> add_unsigned(const std::span<const bigint::bigint_base_t> &a,
                                                            const std::span<const bigint::bigint_base_t> &b)
     {
