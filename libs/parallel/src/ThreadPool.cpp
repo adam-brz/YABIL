@@ -98,6 +98,7 @@ bool ThreadPool::Impl::start()
         return false;
     }
 
+    wait_stopped();
     join_all();
     threads.clear();
     should_stop_threads = false;
