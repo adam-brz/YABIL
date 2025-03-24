@@ -229,9 +229,7 @@ TEST_F(ParallelOperations_tests, canMultiplyModerateSize)
 {
     const BigInt a(std::vector<bigint_base_t>{1, 2, 3, 4, 5});
     const BigInt b(std::vector<bigint_base_t>{1, 2, 3, 4, 5});
-    EXPECT_EQ(parallel::mul(a, b).to_str(),
-              "33519519824856492751842417392697042881076959011536416186109350979472394944176138407190860588531659364738"
-              "7446216969379980719012632662703439762557362423988225");
+    EXPECT_EQ(parallel::mul(a, b), a * b);
 }
 
 TEST_F(ParallelOperations_tests, mulHuge)
