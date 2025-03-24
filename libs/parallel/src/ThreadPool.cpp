@@ -29,11 +29,13 @@ private:
     std::vector<std::thread> threads;
     std::unordered_map<std::thread::id, ThreadStatus> thread_statuses;
     std::atomic<bool> should_stop_threads = false;
+    std::atomic<bool> are_threads_newly_created = false;
 
     std::queue<std::function<void()>> tasks;
     std::condition_variable task_ready;
     std::mutex task_mutex;
     std::mutex thread_status_mutex;
+    std::mutex pool_start_mutex;
 
 public:
     explicit Impl(int concurrency = 0);
@@ -93,12 +95,13 @@ bool ThreadPool::Impl::start(int threads_number)
 
 bool ThreadPool::Impl::start()
 {
-    if (!are_all_threads_stopped())
+    std::lock_guard guard(pool_start_mutex);
+
+    if (are_threads_newly_created || !are_all_threads_stopped())
     {
         return false;
     }
 
-    wait_stopped();
     join_all();
     threads.clear();
     should_stop_threads = false;
@@ -109,12 +112,14 @@ bool ThreadPool::Impl::start()
         threads.emplace_back(&Impl::worker, this);
     }
 
+    are_threads_newly_created = true;
     return true;
 }
 
 void ThreadPool::Impl::stop()
 {
     should_stop_threads = true;
+    are_threads_newly_created = false;
     task_ready.notify_all();
 }
 
