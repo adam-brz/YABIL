@@ -70,7 +70,7 @@ public:
     /// This method returns immediately.
     /// To wait until all threads are stopped use @p ThreadPool::wait_stopped method.
     YABIL_PARALLEL_EXPORT void stop();
-    
+
     /// @brief Schedule all threads to stop and wait until all are stopped.
     YABIL_PARALLEL_EXPORT void wait_stopped();
 
