@@ -6,7 +6,6 @@
 #include <cstdint>
 #include <utility>
 
-/// @brief Common mathematical functions for \p BigInt
 namespace yabil::math
 {
 

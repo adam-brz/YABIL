@@ -6,7 +6,6 @@
 #include <concepts>
 #include <cstddef>
 
-/// @brief Namespace containing functionalities for compile-time big integer support.
 namespace yabil::compile_time
 {
 

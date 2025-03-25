@@ -5,7 +5,6 @@
 
 #include <cstdint>
 
-/// @brief Pseudo-random big integer generation functionalities
 namespace yabil::crypto::random
 {
 

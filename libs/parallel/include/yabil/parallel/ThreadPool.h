@@ -7,7 +7,6 @@
 #include <memory>
 #include <utility>
 
-/// @brief Additional utilities
 namespace yabil::parallel
 {
 

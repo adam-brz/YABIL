@@ -2,7 +2,6 @@
 
 #include <yabil/compile_time/impl/StringConversion.h>
 
-/// @brief Namespace containing literals for creation of compile-time big integers.
 namespace yabil::compile_time::literals
 {
 

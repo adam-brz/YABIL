@@ -114,6 +114,10 @@ void BigInt::set_bit(std::size_t n, bool bit_value)
 
     if (item_index >= data.size())
     {
+        if(!bit_value)
+        {
+            return;
+        }
         data.resize(item_index + 1, 0);
     }
 
