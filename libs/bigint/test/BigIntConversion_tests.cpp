@@ -169,3 +169,32 @@ TEST_F(BigIntConversionTest, canGetAbsoluteValue)
     const BigInt big_int2("-91283910102313201023731947875192120001");
     EXPECT_EQ("91283910102313201023731947875192120001", big_int2.abs().to_str());
 }
+
+TEST_F(BigIntConversionTest, canBeConvertedToNumberOfArbitraryType)
+{
+    EXPECT_EQ(std::numeric_limits<uint64_t>::max(), BigInt{std::numeric_limits<uint64_t>::max()}.to<uint64_t>());
+    EXPECT_EQ(std::numeric_limits<uint32_t>::max(), BigInt{std::numeric_limits<uint32_t>::max()}.to<uint32_t>());
+    EXPECT_EQ(std::numeric_limits<int64_t>::max(), BigInt{std::numeric_limits<int64_t>::max()}.to<int64_t>());
+    EXPECT_EQ(std::numeric_limits<int32_t>::max(), BigInt{std::numeric_limits<int32_t>::max()}.to<int32_t>());
+
+    EXPECT_EQ(std::numeric_limits<uint64_t>::min(), BigInt{std::numeric_limits<uint64_t>::min()}.to<uint64_t>());
+    EXPECT_EQ(std::numeric_limits<uint32_t>::min(), BigInt{std::numeric_limits<uint32_t>::min()}.to<uint32_t>());
+    EXPECT_EQ(std::numeric_limits<int64_t>::min(), BigInt{std::numeric_limits<int64_t>::min()}.to<int64_t>());
+    EXPECT_EQ(std::numeric_limits<int32_t>::min(), BigInt{std::numeric_limits<int32_t>::min()}.to<int32_t>());
+}
+
+TEST_F(BigIntConversionTest, canCheckIfConversionIsSave)
+{
+    EXPECT_TRUE(BigInt{std::numeric_limits<uint64_t>::max()}.is<uint64_t>());
+    EXPECT_TRUE(BigInt{std::numeric_limits<uint32_t>::max()}.is<uint32_t>());
+    EXPECT_TRUE(BigInt{std::numeric_limits<int64_t>::max()}.is<int64_t>());
+    EXPECT_TRUE(BigInt{std::numeric_limits<int32_t>::max()}.is<int32_t>());
+
+    EXPECT_TRUE(BigInt{std::numeric_limits<uint64_t>::min()}.is<uint64_t>());
+    EXPECT_TRUE(BigInt{std::numeric_limits<uint32_t>::min()}.is<uint32_t>());
+    EXPECT_TRUE(BigInt{std::numeric_limits<int64_t>::min()}.is<int64_t>());
+    EXPECT_TRUE(BigInt{std::numeric_limits<int32_t>::min()}.is<int32_t>());
+
+    EXPECT_FALSE(BigInt{std::numeric_limits<uint64_t>::max()}.is<int64_t>());
+    EXPECT_FALSE(BigInt{std::numeric_limits<int64_t>::min()}.is<uint64_t>());
+}

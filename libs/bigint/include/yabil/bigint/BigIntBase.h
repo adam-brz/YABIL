@@ -2,16 +2,13 @@
 
 #include <yabil/bigint/algorithms_config.h>
 
-namespace yabil
+namespace yabil::bigint
 {
 
-namespace bigint
-{
-
-/// @brief Base type for big integer internal representation
+/// @brief Base type for big integer digit internal representation.
+/// @details It can be configured using @p AlgorithmsDefaultsConfig.
+/// In most cases default type is the most optimal one.
 /// @headerfile BigIntBase.h <yabil/bigint/BigIntBase.h>
 using bigint_base_t = AlgorithmsDefaultsConfig::bigint_base_t;
 
-}  // namespace bigint
-
-}  // namespace yabil
+}  // namespace yabil::bigint

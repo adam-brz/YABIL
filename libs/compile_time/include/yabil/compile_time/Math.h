@@ -5,7 +5,6 @@
 #include <cstddef>
 #include <type_traits>
 
-/// @brief Namespace containing math functions for compile-time big integers.
 namespace yabil::compile_time::math
 {
 

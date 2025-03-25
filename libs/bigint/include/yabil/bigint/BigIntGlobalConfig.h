@@ -12,17 +12,37 @@ namespace yabil::bigint
 template <bool KnownInCompileTime>
 struct BigIntConfig;
 
+/** 
+ * \defgroup bigint-config BigIntConfig
+ */
+
+/// @copybrief BigIntConfig
+/// @ingroup bigint-config
+/// @details Defines configuration values known in compile-time.
 template <>
 struct BigIntConfig<true>
 {
+    /// @brief Minimum number of big integer digits to perform Karatsuba multiplication algorithm.
+    /// For numbers shorter than this threshold, naive implementation will be used.
     static constexpr std::size_t karatsuba_threshold = AlgorithmsDefaultsConfig::karatsuba_threshold;
+
+    /// @brief Minimum number of big integer digits to perform recursive division algorithm.
+    /// For numbers shorter than this threshold, naive implementation will be used.
     static constexpr std::size_t recursive_div_threshold = AlgorithmsDefaultsConfig::recursive_div_threshold;
 };
 
+/// @copybrief BigIntConfig
+/// @ingroup bigint-config
+/// @details Defines configuration values which can be changed in runtime.
 template <>
 struct BigIntConfig<false>
 {
+    /// @brief Minimum number of big integer digits to perform Karatsuba multiplication algorithm.
+    /// For numbers shorter than this threshold, naive implementation will be used.
     std::size_t karatsuba_threshold = AlgorithmsDefaultsConfig::karatsuba_threshold;
+
+    /// @brief Minimum number of big integer digits to perform recursive division algorithm.
+    /// For numbers shorter than this threshold, naive implementation will be used.
     std::size_t recursive_div_threshold = AlgorithmsDefaultsConfig::recursive_div_threshold;
 };
 

@@ -9,7 +9,6 @@
 #include <utility>
 #include <vector>
 
-/// @brief RSA cryptosystem functionalities
 namespace yabil::crypto::rsa
 {
 

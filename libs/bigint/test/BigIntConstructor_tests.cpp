@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/BigIntBase.h>
+#include <cstdint>
+#include <limits>
 
 using namespace yabil::bigint;
 
