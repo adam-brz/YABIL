@@ -76,13 +76,13 @@ public:
     /// @tparam OutType The type to which the number is converted.
     /// @return True if the number can be safely converted to the specified type, false otherwise.
     template <std::signed_integral OutType>
-    static consteval OutType is();
+    static consteval bool is();
 
     /// @brief Check if the number can be safely converted to specified unsigned type (without losing precision).
     /// @tparam OutType The type to which the number is converted.
     /// @return True if the number can be safely converted to the specified type, false otherwise.
     template <std::unsigned_integral OutType>
-    static consteval OutType is();
+    static consteval bool is();
 
     /// @brief Convert number to string.
     /// @tparam Base Base of the number.

@@ -35,15 +35,21 @@ BigInt::BigInt(UnsignedInteger number, Sign sign) : sign(sign)
 
 template <std::signed_integral SignedInteger>
 BigInt::BigInt(SignedInteger number)
-    : BigInt(static_cast<std::make_unsigned_t<SignedInteger>>(std::abs(number)), number < 0 ? Sign::Minus : Sign::Plus)
+    : BigInt(
+          [&number]()
+          {
+              using UnsignedT = std::make_unsigned_t<SignedInteger>;
+              return static_cast<UnsignedT>( (number < 0) ? -static_cast<UnsignedT>(number) : static_cast<UnsignedT>(number));
+          }(),
+          number < 0 ? Sign::Minus : Sign::Plus)
 {
 }
 
 template <std::signed_integral OutType>
 OutType BigInt::to() const
 {
-    const OutType result = static_cast<OutType>(to<std::make_unsigned_t<OutType>>());
-    return is_negative() ? -result : result;
+    const auto result = to<std::make_unsigned_t<OutType>>();
+    return static_cast<OutType>(is_negative() ? -result : result);
 }
 
 template <std::unsigned_integral OutType>
