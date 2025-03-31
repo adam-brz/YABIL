@@ -198,3 +198,14 @@ TEST_F(BigIntConversionTest, canCheckIfConversionIsSave)
     EXPECT_FALSE(BigInt{std::numeric_limits<uint64_t>::max()}.is<int64_t>());
     EXPECT_FALSE(BigInt{std::numeric_limits<int64_t>::min()}.is<uint64_t>());
 }
+
+TEST_F(BigIntConversionTest, conversionMaintainsNumberProperties)
+{
+    const BigInt a{std::numeric_limits<uint64_t>::max()};
+    const BigInt b{std::numeric_limits<int64_t>::min()};
+
+    EXPECT_EQ(a + b, BigInt{std::numeric_limits<uint64_t>::max() + std::numeric_limits<int64_t>::min()});
+    EXPECT_EQ(-b - a,
+              (BigInt(std::numeric_limits<uint64_t>::max() + std::numeric_limits<int64_t>::min(), Sign::Minus)));
+    EXPECT_EQ(a + a, a << 1);
+}

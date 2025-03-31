@@ -52,7 +52,7 @@ template <std::make_signed_t<bigint_base_t> value>
 static inline consteval auto make_signed_bigint()
 {
     constexpr auto sign = (value < 0) ? Sign::Minus : Sign::Plus;
-    constexpr auto abs_value = static_cast<bigint_base_t>((value < 0) ? -value : value);
+    constexpr auto abs_value = static_cast<bigint_base_t>((value < 0) ? -static_cast<bigint_base_t>(value) : static_cast<bigint_base_t>(value));
     return make_bigint<sign, 1, BigIntData<1>{abs_value}>();
 }
 

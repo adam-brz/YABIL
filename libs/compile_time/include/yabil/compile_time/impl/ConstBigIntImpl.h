@@ -127,8 +127,8 @@ template <Sign NumberSign, std::size_t InternalSize, BigIntData<InternalSize> In
 template <std::signed_integral OutType>
 consteval OutType ConstBigInt<NumberSign, InternalSize, InternalData>::to()
 {
-    const OutType result = static_cast<OutType>(to<std::make_unsigned_t<OutType>>());
-    return is_negative() ? -result : result;
+    const auto result = to<std::make_unsigned_t<OutType>>();
+    return  is_negative() ? -result : result;
 }
 
 template <Sign NumberSign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>
@@ -152,16 +152,33 @@ consteval OutType ConstBigInt<NumberSign, InternalSize, InternalData>::to()
 
 template <Sign NumberSign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>
 template <std::signed_integral OutType>
-consteval OutType ConstBigInt<NumberSign, InternalSize, InternalData>::is()
+consteval bool ConstBigInt<NumberSign, InternalSize, InternalData>::is()
 {
+    if (is_zero())
+    {
+        return true;
+    }
+
+    constexpr auto leading_zeroes = std::countl_zero(data.back());
+    return static_cast<int>(byte_size() * 8) - leading_zeroes <=
+           static_cast<int>(sizeof(OutType) * 8) - (is_negative() ? 0 : 1);
+
     return is<std::make_unsigned_t<OutType>>() && !get_bit<sizeof(OutType) * 8 - 1>();
 }
 
 template <Sign NumberSign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>
 template <std::unsigned_integral OutType>
-consteval OutType ConstBigInt<NumberSign, InternalSize, InternalData>::is()
+consteval bool ConstBigInt<NumberSign, InternalSize, InternalData>::is()
 {
-    constexpr auto leading_zeroes = std::countl_zero(impl::get_digit(data.size() - 1, data));
+    if (is_zero())
+    {
+        return true;
+    }
+    if (is_negative())
+    {
+        return false;
+    }
+    constexpr auto leading_zeroes = std::countl_zero(data.back());
     return static_cast<int>(byte_size() * 8) - leading_zeroes <= static_cast<int>(sizeof(OutType) * 8);
 }
 
