@@ -128,7 +128,7 @@ template <std::signed_integral OutType>
 consteval OutType ConstBigInt<NumberSign, InternalSize, InternalData>::to()
 {
     const auto result = to<std::make_unsigned_t<OutType>>();
-    return  is_negative() ? -result : result;
+    return static_cast<OutType>(is_negative() ? -result : result);
 }
 
 template <Sign NumberSign, std::size_t InternalSize, BigIntData<InternalSize> InternalData>
