@@ -5,8 +5,7 @@
 namespace yabil::bigint
 {
 
-/// @brief Sign of big integer
-/// @details Sign can be either "Plus" or "Minus"
+/// @brief Sign of big integer. Can be either @p Sign::Plus or @p Sign::Minus
 enum class Sign : uint8_t
 {
     Plus,

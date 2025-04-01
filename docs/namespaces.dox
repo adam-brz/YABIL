@@ -1,0 +1,43 @@
+/// @brief Yet Another Big Integer Library (yabil) main namespace
+namespace yabil 
+{
+    /// @brief Big integer core functionalities.
+    namespace bigint 
+    {
+    }
+
+    /// @brief Namespace containing functionalities for compile-time big integer support.
+    namespace compile_time 
+    {
+        /// @brief Namespace containing literals for creation of compile-time big integers.
+        namespace literals {}
+
+        /// @brief Namespace containing math functions for compile-time big integers.
+        namespace math {}
+    }
+
+    /// @brief Naive implementation of RSA cryptosystem using big integers.
+    namespace crypto 
+    {
+        /// @brief Pseudo-random big integer generation functionalities.
+        namespace random {}
+
+        /// @brief RSA cryptosystem functionalities
+        namespace rsa {}
+    }
+
+    /// @brief Common mathematical functions for BigInt
+    namespace math 
+    {
+    }
+
+    /// @brief Utilities for performing multi-threading operations for big integers.
+    namespace parallel 
+    {
+    }
+
+    /// @brief General utilities not connected with specific functionalities for big integers.
+    namespace utils 
+    {
+    }
+}

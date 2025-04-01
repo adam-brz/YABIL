@@ -3,6 +3,8 @@
 namespace yabil::utils
 {
 
+/// @brief Template type for making a singleton from any structure.
+/// @tparam StoredType Type which unique instance will be stored globally.
 template <typename StoredType>
 class GlobalInstance
 {

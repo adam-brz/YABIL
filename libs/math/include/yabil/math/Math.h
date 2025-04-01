@@ -31,16 +31,19 @@ YABIL_MATH_EXPORT yabil::bigint::BigInt pow(const yabil::bigint::BigInt &number,
 YABIL_MATH_EXPORT yabil::bigint::BigInt factorial(uint64_t n);
 
 /// @brief Calculate integer part of binary logarithm of specified number.
+/// @details Algorithms computes logarithm in constant time: O(1).
 /// @param number \p BigInt Number to calculate logarithm for
 /// @return Integer part of binary logarithm result
 YABIL_MATH_EXPORT uint64_t log2_int(const yabil::bigint::BigInt &number);
 
 /// @brief Calculate binary logarithm of specified number.
+/// @details Algorithms computes logarithm in constant time: O(1).
 /// @param number \p BigInt Number to calculate logarithm for
 /// @return Binary logarithm result
 YABIL_MATH_EXPORT double log2(const yabil::bigint::BigInt &number);
 
 /// @brief Calculate logarithm for specified number and logarithm base.
+/// @details Algorithms computes logarithm in constant time: O(1).
 /// @param number Number to calculate logarithm for
 /// @param base Base of the logarithm
 /// @return Logarithm result
@@ -58,9 +61,9 @@ YABIL_MATH_EXPORT yabil::bigint::BigInt gcd(yabil::bigint::BigInt number, yabil:
 /// @brief Calculate extended gcd for two big integers
 /// @param a First \p BigInt number
 /// @param b Second \p BigInt number
-/// @return \p std::pair<BigInt,std::pair<BigInt,BigInt>> greatest common divisor and Bezout coefficients
-YABIL_MATH_EXPORT std::pair<yabil::bigint::BigInt, std::pair<yabil::bigint::BigInt, yabil::bigint::BigInt>>
-extended_gcd(const yabil::bigint::BigInt &a, const yabil::bigint::BigInt &b);
+/// @return Greatest common divisor and Bezout coefficients
+YABIL_MATH_EXPORT auto extended_gcd(const yabil::bigint::BigInt &a, const yabil::bigint::BigInt &b)
+    -> std::pair<yabil::bigint::BigInt, std::pair<yabil::bigint::BigInt, yabil::bigint::BigInt>>;
 
 /// @brief Calculate multiplicative inverse of a for modulo n
 /// @param a First \p BigInt number

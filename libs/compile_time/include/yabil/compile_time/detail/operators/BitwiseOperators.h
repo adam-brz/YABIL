@@ -8,6 +8,7 @@ namespace yabil::compile_time
 {
 
 /// @brief Left shift operator for compile time big integers.
+/// @details Shift value can be provided with @p shift_v helper template.
 /// @tparam SelfSign The sign of the number.
 /// @tparam SelfSize Number of digits in the number.
 /// @tparam SelfData The data of the number.
@@ -20,6 +21,7 @@ consteval auto operator<<(const ConstBigInt<SelfSign, SelfSize, SelfData> &self,
                           const std::integral_constant<uint64_t, shift_value> shift);
 
 /// @brief Right shift operator for compile time big integers.
+/// @details Shift value can be provided with @p shift_v helper template.
 /// @tparam SelfSign The sign of the number.
 /// @tparam SelfSize Number of digits in the number.
 /// @tparam SelfData The data of the number.
