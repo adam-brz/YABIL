@@ -13,11 +13,13 @@ namespace yabil::compile_time
 using Sign = bigint::Sign;
 
 /// @brief Big integer class for compile-time arbitrary size integer numbers.
-/// @details All computations should be performed in compile time.
-/// @headerfile ConstBigInt.h <yabil/compile_time/detail/ConstBigInt.h>
+/// Supporting all standard arithmetic operations in compile-time.
+/// @details Digits are stored in a array potentially with leading zeroes,
+/// which does not affect computation results.
 /// @tparam NumberSign The sign of the number.
 /// @tparam InternalSize Number of digits in the number.
 /// @tparam InternalData The data of the number.
+/// @headerfile ConstBigInt.h <yabil/compile_time/detail/ConstBigInt.h>
 template <Sign NumberSign = Sign::Plus, std::size_t InternalSize = 1,
           BigIntData<InternalSize> InternalData = BigIntData<InternalSize>{}>
 class ConstBigInt
@@ -32,7 +34,7 @@ public:
     /// @return The real size of the number.
     static consteval std::size_t real_size();
 
-    /// @brief Get the byte size of the number (real_size * sizeof(digit_size)).
+    /// @brief Get the byte size of the number: <tt>real_size * sizeof(digit_size)</tt>.
     /// @return The byte size of the number.
     static consteval std::size_t byte_size();
 
@@ -53,6 +55,7 @@ public:
     operator bigint::BigInt() const;
 
     /// @brief Get the bit at the given position.
+    /// @details Returns 0 if position is greater than number of stored bits.
     /// @tparam n The position of the bit.
     /// @return The bit value at the given position.
     template <std::size_t n>

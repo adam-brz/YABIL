@@ -10,7 +10,7 @@
 namespace yabil::parallel
 {
 
-/// @brief Thread pool allowing submitting tasks for asynchronous execution.
+/// @brief Thread pool allowing asynchronous execution of tasks.
 /// @details Thread pool cannot be copied, but can be moved.
 class ThreadPool
 {
@@ -20,8 +20,8 @@ private:
 
 public:
     /// @brief Creates thread pool and starts given number of threads.
-    /// @param threads_number Number of threads to use with pool. Value <= 0 means automatic detection of available
-    /// cores
+    /// @param threads_number Number of threads to use with pool.
+    /// Value <= 0 means automatic detection of available cores.
     YABIL_PARALLEL_EXPORT explicit ThreadPool(int threads_number = 0);
     YABIL_PARALLEL_EXPORT ~ThreadPool();
 

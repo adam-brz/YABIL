@@ -6,9 +6,7 @@ namespace yabil::utils
 {
 
 /// @brief Template struct for calculating the double width of a type.
-/// @details This struct is used to calculate the double width of a given type.
-/// It provides a compile-time calculation for determining the double width
-/// of the type specified as the template parameter.
+/// @details For example for type @p uint16_t this will hold @p uint32_t type.
 template <class>
 struct double_width;
 
@@ -17,24 +15,18 @@ struct double_width;
 template <class T>
 using double_width_t = typename double_width<T>::type;
 
-/// @brief Specialization of the double_width struct for uint8_t.
-/// This specialization defines the type alias 'type' as uint16_t.
 template <>
 struct double_width<uint8_t>
 {
     using type = uint16_t;
 };
 
-/// @brief Specialization of the double_width struct for uint16_t.
-/// This specialization defines the type alias 'type' as uint32_t.
 template <>
 struct double_width<uint16_t>
 {
     using type = uint32_t;
 };
 
-/// @brief Specialization of the double_width struct for uint32_t.
-/// This specialization defines the type alias 'type' as uint64_t, representing the double width of uint32_t.
 template <>
 struct double_width<uint32_t>
 {
@@ -42,8 +34,6 @@ struct double_width<uint32_t>
 };
 
 #ifdef __SIZEOF_INT128__
-/// @brief Specialization of the double_width struct for uint64_t.
-/// This specialization defines the type alias 'type' as __uint128_t, which represents the double width of uint64_t.
 template <>
 struct double_width<uint64_t>
 {
@@ -52,6 +42,7 @@ struct double_width<uint64_t>
 #endif
 
 /// @brief Template struct for determining the half width of a type.
+/// @details For example for type @p uint16_t this will hold @p uint8_t type.
 /// @tparam T The type for which to determine the half width.
 template <class T>
 struct half_width;
@@ -61,24 +52,18 @@ struct half_width;
 template <class T>
 using half_width_t = typename half_width<T>::type;
 
-/// @brief Specialization of the half_width struct for uint16_t.
-/// This specialization defines the type alias 'type' as uint8_t.
 template <>
 struct half_width<uint16_t>
 {
     using type = uint8_t;
 };
 
-/// @brief Specialization of the half_width struct for uint32_t.
-/// This specialization defines the type alias 'type' as uint16_t.
 template <>
 struct half_width<uint32_t>
 {
     using type = uint16_t;
 };
 
-/// @brief Specialization of the half_width struct for uint64_t.
-/// This specialization defines the type alias 'type' as uint32_t.
 template <>
 struct half_width<uint64_t>
 {
