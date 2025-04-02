@@ -3,12 +3,12 @@ project(crypto C CXX)
 set(SOURCES
     src/Primes.cpp
     src/Primes.h
-    src/Random.cpp
+    src/RandomEngine.cpp
     src/RSA.cpp
 )
 
 set(HEADERS
-    include/yabil/crypto/Random.h
+    include/yabil/crypto/RandomEngine.h
     include/yabil/crypto/RSA.h
 )
 

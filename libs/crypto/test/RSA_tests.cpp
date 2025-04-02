@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <yabil/bigint/BigInt.h>
 #include <yabil/crypto/RSA.h>
-#include <yabil/crypto/Random.h>
+#include <yabil/crypto/RandomEngine.h>
 
 #include <sstream>
 
@@ -10,13 +10,14 @@ using namespace yabil::bigint;
 
 class RSA_tests : public ::testing::Test
 {
+public:
+    random::RandomEngine rng{7};
 };
 
 TEST_F(RSA_tests, canGeneratePrivateAndPublicKey)
 {
     constexpr int key_size = 256;
-    const auto [private_key, pub_key] =
-        rsa::generate_keys(random::random_prime(key_size), random::random_prime(key_size));
+    const auto [private_key, pub_key] = rsa::generate_keys(rng, rng.random_prime(key_size), rng.random_prime(key_size));
 
     ASSERT_TRUE(private_key.n == pub_key.n);
     ASSERT_FALSE(private_key.e.is_zero());

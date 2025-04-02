@@ -1,23 +1,26 @@
 #include <yabil/bigint/BigInt.h>
 #include <yabil/crypto/RSA.h>
-#include <yabil/crypto/Random.h>
+#include <yabil/crypto/RandomEngine.h>
 #include <yabil/math/Math.h>
 
 #include <algorithm>
+#include <bit>
 #include <cstring>
 
 namespace yabil::crypto::rsa
 {
 
-std::pair<PublicKey, PrivateKey> generate_keys(bigint::BigInt p, bigint::BigInt q)
+std::pair<PublicKey, PrivateKey> generate_keys(random::RandomEngine &random_engine, bigint::BigInt p, bigint::BigInt q)
 {
     const auto n = p * q;
     const auto phi = (--p) * (--q);
 
-    yabil::bigint::BigInt e(2);
-    while (e < phi && yabil::math::gcd(e, phi) != yabil::bigint::BigInt(1))
+    yabil::bigint::BigInt e{65537};
+    while (e >= phi || yabil::math::gcd(e, phi) != yabil::bigint::BigInt(1))
     {
-        ++e;
+        const auto max_bits = phi.byte_size() * 8 - std::countl_zero(phi.raw_data().back());
+        const auto bits_to_generate = random_engine.random_digit(std::uniform_int_distribution(max_bits / 2, max_bits));
+        e = random_engine.random_prime(static_cast<std::size_t>(bits_to_generate));
     }
     const auto d = yabil::math::mod_inverse(e, phi);
     return {{e, n}, {d, n}};
