@@ -22,7 +22,7 @@ namespace yabil
         /// @brief Pseudo-random big integer generation functionalities.
         namespace random {}
 
-        /// @brief RSA cryptosystem functionalities
+        /// @brief [known unsafe] RSA cryptosystem functionalities
         namespace rsa {}
     }
 
