@@ -7,6 +7,8 @@
 #include <bit>
 #include <cstring>
 
+#include <yabil/bigint/BigIntBase.h>
+
 namespace yabil::crypto::rsa
 {
 
@@ -19,7 +21,11 @@ std::pair<PublicKey, PrivateKey> generate_keys(random::RandomEngine &random_engi
     while (e >= phi || yabil::math::gcd(e, phi) != yabil::bigint::BigInt(1))
     {
         const auto max_bits = phi.byte_size() * 8 - std::countl_zero(phi.raw_data().back());
-        const auto bits_to_generate = random_engine.random_digit(std::uniform_int_distribution(max_bits / 2, max_bits));
+        const auto bits_to_generate =
+            max_bits < 32
+                ? random_engine.random_digit(
+                      std::uniform_int_distribution<bigint::bigint_base_t>(max_bits / 2, max_bits))
+                : 16 + random_engine.random_digit(std::uniform_int_distribution<bigint::bigint_base_t>(0, 16));
         e = random_engine.random_prime(static_cast<std::size_t>(bits_to_generate));
     }
     const auto d = yabil::math::mod_inverse(e, phi);
