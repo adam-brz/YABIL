@@ -1,6 +1,7 @@
 #pragma once
 
 #include <yabil/bigint/BigInt.h>
+#include <yabil/crypto/RandomEngine.h>
 #include <yabil/crypto/crypto_export.h>
 
 #include <ostream>
@@ -30,7 +31,8 @@ struct PrivateKey
 /// @param p Prime number
 /// @param q Prime number different than q
 /// @return \p std::pair of \p PublicKey and \p PrivateKey
-YABIL_CRYPTO_EXPORT std::pair<PublicKey, PrivateKey> generate_keys(bigint::BigInt p, bigint::BigInt q);
+YABIL_CRYPTO_EXPORT std::pair<PublicKey, PrivateKey> generate_keys(random::RandomEngine &random_engine,
+                                                                   bigint::BigInt p, bigint::BigInt q);
 
 /// @brief Encrypt single byte using RSA public key.
 /// @param byte Byte to encrypt
