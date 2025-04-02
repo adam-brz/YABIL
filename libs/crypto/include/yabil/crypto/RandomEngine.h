@@ -23,9 +23,9 @@ private:
 public:
     /// @brief Create random engine and seed it with specified value.
     /// @param seed Seed for random engine. By default will use @p std::random_device
-    RandomEngine(const std::size_t seed = std::random_device{}());
+    YABIL_PARALLEL_EXPORT RandomEngine(const std::size_t seed = std::random_device{}());
 
-    ~RandomEngine();
+    YABIL_PARALLEL_EXPORT ~RandomEngine();
 
     /// @brief Generate large pseudo-random integer.
     /// @param number_of_bits Number of bits to generate
