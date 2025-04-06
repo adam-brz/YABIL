@@ -16,14 +16,9 @@ namespace yabil
         namespace math {}
     }
 
-    /// @brief Naive implementation of RSA cryptosystem using big integers.
-    namespace crypto 
+    /// @brief Pseudo-random big integer generation functionalities.
+    namespace random 
     {
-        /// @brief Pseudo-random big integer generation functionalities.
-        namespace random {}
-
-        /// @brief [known unsafe] RSA cryptosystem functionalities
-        namespace rsa {}
     }
 
     /// @brief Common mathematical functions for BigInt
