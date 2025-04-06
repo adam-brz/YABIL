@@ -11,13 +11,6 @@
 // OpenSSL
 #include <openssl/bn.h>
 
-// CPython
-#include <Python.h>
-
-// FLINT
-
-#include <fmpz.h>
-
 #include <exception>
 #include <random>
 #include <span>
@@ -90,14 +83,8 @@ void convertTo_(BIGNUM* output, std::span<const uint64_t> digits)
     BN_bin2bn(reinterpret_cast<uint8_t*>(const_cast<uint64_t*>(digits.data())), digits.size() * 8, output);
 }
 
-template <>
-void convertTo_(PyObject** output, std::span<const uint64_t> digits)
-{
-    *output = _PyLong_FromByteArray(reinterpret_cast<const uint8_t*>(digits.data()), digits.size() * 8, 1, 0);
-}
-
-template <>
-void convertTo_(fmpz_t output, std::span<const uint64_t> digits)
-{
-    fmpz_set_ui_array(output, digits.data(), digits.size());
-}
+// template <>
+// void convertTo_(fmpz_t output, std::span<const uint64_t> digits)
+// {
+//     fmpz_set_ui_array(output, digits.data(), digits.size());
+// }
