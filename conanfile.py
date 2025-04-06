@@ -129,7 +129,7 @@ class YabilConan(ConanFile):
             )
 
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["utils"].system_libs = ["pthread"]
+            self.cpp_info.components["parallel"].system_libs = ["pthread"]
 
         self.cpp_info.components["bigint"].requires = ["utils"]
         self.cpp_info.components["math"].requires = ["bigint"]
