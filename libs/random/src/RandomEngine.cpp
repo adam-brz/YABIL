@@ -1,4 +1,4 @@
-#include <yabil/crypto/RandomEngine.h>
+#include <yabil/random/RandomEngine.h>
 #include <yabil/math/Math.h>
 
 #include <bit>
@@ -12,7 +12,7 @@
 
 #include "Primes.h"
 
-namespace yabil::crypto::random
+namespace yabil::random
 {
 
 namespace
@@ -148,11 +148,11 @@ yabil::bigint::BigInt RandomEngine::Impl::probable_prime(uint64_t number_of_bits
 
         for (int i = 1; i < trial_division_count; ++i)
         {
-            const auto mod = prime_candidate % primes()[i];
+            const auto mod = prime_candidate % primes[i];
             if (mod == 0)
             {
                 good_candidate = prime_candidate.is<uint64_t>()
-                                     ? (prime_candidate.to<uint64_t>() == static_cast<uint64_t>(primes()[i]))
+                                     ? (prime_candidate.to<uint64_t>() == static_cast<uint64_t>(primes[i]))
                                      : false;
                 break;
             }
@@ -234,4 +234,4 @@ bigint::bigint_base_t RandomEngine::random_digit(
     return impl->random_digit(distribution);
 }
 
-}  // namespace yabil::crypto::random
+}  // namespace yabil::random

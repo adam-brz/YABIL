@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
 #include <yabil/bigint/BigInt.h>
-#include <yabil/crypto/RandomEngine.h>
+#include <yabil/random/RandomEngine.h>
 
 #include <cmath>
 #include <stdexcept>
 
-using namespace yabil::crypto::random;
+using namespace yabil::random;
 using namespace yabil::bigint;
 
 class UtilsRandom_tests : public ::testing::Test

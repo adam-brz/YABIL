@@ -102,7 +102,7 @@ class YabilConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "yabil")
-        lib_components = ["bigint", "math", "crypto", "parallel"]
+        lib_components = ["bigint", "math", "random", "parallel"]
 
         for conan_component in lib_components:
             self.cpp_info.components[conan_component].set_property(
@@ -133,7 +133,7 @@ class YabilConan(ConanFile):
 
         self.cpp_info.components["bigint"].requires = ["utils"]
         self.cpp_info.components["math"].requires = ["bigint"]
-        self.cpp_info.components["crypto"].requires = ["bigint", "math"]
+        self.cpp_info.components["random"].requires = ["bigint", "math"]
         self.cpp_info.components["parallel"].requires = ["bigint"]
 
         if self.options.digit_type != "auto":
