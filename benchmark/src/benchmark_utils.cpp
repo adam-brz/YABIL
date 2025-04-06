@@ -68,7 +68,7 @@ void convertTo_(mpz_t output, std::span<const uint64_t> digits)
 {
     output->_mp_alloc = static_cast<int>(digits.size());
     output->_mp_size = static_cast<int>(digits.size());
-    output->_mp_d = const_cast<mp_limb_t*>(digits.data());
+    output->_mp_d = const_cast<mp_limb_t*>(reinterpret_cast<const mp_limb_t*>(digits.data()));
 }
 
 template <>
