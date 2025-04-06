@@ -10,11 +10,6 @@
 // OpenSSL
 #include <openssl/bn.h>
 
-// CPython
-#include <Python.h>
-
-// FLINT
-#include <fmpz.h>
 
 // Utils
 #include <thread>
@@ -112,79 +107,10 @@ BENCHMARK_DEFINE_F(Subtraction, openssl)(benchmark::State& state)
     BN_free(b);
 }
 
-BENCHMARK_DEFINE_F(Subtraction, python)(benchmark::State& state)
-{
-    const int size = static_cast<int>(state.range(0));
-    const auto [a_data, b_data] = generate_test_numbers(size);
-
-    Py_Initialize();
-    PyObject* a;
-    PyObject* b;
-
-    convertTo_(&a, a_data);
-    convertTo_(&b, b_data);
-
-    PyObject* c = nullptr;
-
-    for (auto _ : state)
-    {
-        c = PyNumber_Subtract(a, b);
-        benchmark::DoNotOptimize(c);
-        benchmark::ClobberMemory();
-        Py_DECREF(c);
-    }
-
-    Py_DECREF(a);
-    Py_DECREF(b);
-    Py_Finalize();
-}
-
-BENCHMARK_DEFINE_F(Subtraction, FLINT)(benchmark::State& state)
-{
-    const int size = static_cast<int>(state.range(0));
-    const auto [a_data, b_data] = generate_test_numbers(size);
-
-    fmpz_t a, b;
-    convertTo_(a, a_data);
-    convertTo_(b, b_data);
-
-    PyObject* c = nullptr;
-
-    for (auto _ : state)
-    {
-        fmpz_t c;
-        fmpz_init(c);
-        fmpz_sub(c, a, b);
-        benchmark::DoNotOptimize(c);
-        benchmark::ClobberMemory();
-        fmpz_clear(c);
-    }
-}
 
 REGISTER_F(Subtraction, YABIL);
 REGISTER_F(Subtraction, GMP);
 REGISTER_F(Subtraction, boost);
 REGISTER_F(Subtraction, openssl);
-REGISTER_F(Subtraction, python);
-REGISTER_F(Subtraction, FLINT);
-
-// ----------
-// Perform subtraction for large inputs
-
-constexpr int extended_range_start = 0;
-constexpr int extended_range_stop = 20'000'000;
-constexpr int extended_range_step = extended_range_stop / BaseBigIntBenchmark::number_of_probes;
-
-BENCHMARK_REGISTER_F(Subtraction, YABIL)
-    ->Name("Subtraction/YABIL_big")
-    ->DenseRange(extended_range_start, extended_range_stop, extended_range_step);
-
-BENCHMARK_REGISTER_F(Subtraction, GMP)
-    ->Name("Subtraction/GMP_big")
-    ->DenseRange(extended_range_start, extended_range_stop, extended_range_step);
-
-BENCHMARK_REGISTER_F(Subtraction, boost)
-    ->Name("Subtraction/boost_big")
-    ->DenseRange(extended_range_start, extended_range_stop, extended_range_step);
 
 }  // namespace

@@ -6,8 +6,7 @@ find_package(gmp REQUIRED CONFIG)
 find_package(yabil REQUIRED CONFIG)
 find_package(Boost REQUIRED CONFIG)
 find_package(OpenSSL REQUIRED CONFIG)
-find_package(cpython REQUIRED CONFIG)
-find_package(flint REQUIRED CONFIG)
+#find_package(libflint REQUIRED CONFIG)
 
 
 set(SOURCES
@@ -33,13 +32,12 @@ endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     yabil::bigint
-    yabil::crypto
+    yabil::parallel
+    yabil::random
     gmp::gmp
     Boost::math
     OpenSSL::Crypto
-    cpython::python
-    cpython::embed
-    flint::flint
+    #libflint::libflint
     benchmark::benchmark
     benchmark::benchmark_main
 )
