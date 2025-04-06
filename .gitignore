@@ -6,4 +6,6 @@ build/
 CMakeUserPresets.json
 compile_commands.json
 
+/coverage_percent.txt
+
 *.pyc
