@@ -1,7 +1,8 @@
-#include <yabil/random/RandomEngine.h>
 #include <yabil/math/Math.h>
+#include <yabil/random/RandomEngine.h>
 
 #include <bit>
+#include <cassert>
 #include <cmath>
 #include <cstring>
 #include <memory>
@@ -77,6 +78,8 @@ yabil::bigint::BigInt RandomEngine::Impl::random_bigint(uint64_t number_of_bits,
         raw_bigint_data.push_back(uniform_dist(generator) >> (chunk_size_bits - bigint_remaining_bits));
     }
 
+    assert(!raw_bigint_data.empty());
+
     if (bottom_odd)
     {
         raw_bigint_data.front() |= 1;
@@ -84,7 +87,8 @@ yabil::bigint::BigInt RandomEngine::Impl::random_bigint(uint64_t number_of_bits,
 
     if (top_two)
     {
-        raw_bigint_data.back() |= static_cast<yabil::bigint::bigint_base_t>(1) << (chunk_size_bits - 1);
+        raw_bigint_data.back() |= static_cast<yabil::bigint::bigint_base_t>(1)
+                                  << (chunk_size_bits - bigint_remaining_bits - 1);
     }
 
     return yabil::bigint::BigInt(std::move(raw_bigint_data));
