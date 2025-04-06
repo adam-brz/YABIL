@@ -10,7 +10,6 @@
 // OpenSSL
 #include <openssl/bn.h>
 
-
 // Utils
 #include <thread>
 
@@ -107,10 +106,9 @@ BENCHMARK_DEFINE_F(Subtraction, openssl)(benchmark::State& state)
     BN_free(b);
 }
 
-
-REGISTER_F(Subtraction, YABIL);
-REGISTER_F(Subtraction, GMP);
-REGISTER_F(Subtraction, boost);
-REGISTER_F(Subtraction, openssl);
+REGISTER_BIG_F(Subtraction, YABIL);
+REGISTER_BIG_F(Subtraction, GMP);
+REGISTER_BIG_F(Subtraction, boost);
+REGISTER_BIG_F(Subtraction, openssl);
 
 }  // namespace

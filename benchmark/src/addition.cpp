@@ -13,7 +13,6 @@
 // OpenSSL
 #include <openssl/bn.h>
 
-
 #include <string>
 #include <thread>
 
@@ -129,11 +128,10 @@ BENCHMARK_DEFINE_F(Addition, openssl)(benchmark::State& state)
     BN_free(b);
 }
 
-
-REGISTER_F(Addition, YABIL);
-REGISTER_F(Addition, YABIL_parallel);
-REGISTER_F(Addition, GMP);
-REGISTER_F(Addition, boost);
-REGISTER_F(Addition, openssl);
+REGISTER_BIG_F(Addition, YABIL);
+REGISTER_BIG_F(Addition, YABIL_parallel);
+REGISTER_BIG_F(Addition, GMP);
+REGISTER_BIG_F(Addition, boost);
+REGISTER_BIG_F(Addition, openssl);
 
 }  // namespace
