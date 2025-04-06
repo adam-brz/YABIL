@@ -16,13 +16,13 @@ This is a simple and easy to use C++ library for arbitrary precision integer ari
 It only requires c++20 standard and can be compiled on most of the widely used platforms.
 
 Performance wise, comparing to other popular libraries (like GMP or FLINT), this library is slightly worse (TODO add link to benchmarks).
-However, it is much easier to use and understand. It is also very easy to extend and modify.
+However, it is much easier to use and understand. And very simple to extend and modify.
 
 Use this library when you:
 
-- Need a simple and easy to use library for arbitrary precision integer arithmetic, with no dependencies beyond c++20.
-- Want to use arbitrary precision arithmetic also in **compile-time** (from my knowledge, there is no other library supporting such features).
-- Need a library which can be easily extended or modified to suit your needs.
+- Need an easy-to-use library for arbitrary precision integer arithmetic, with no dependencies beyond c++20.
+- Want to use arbitrary precision arithmetic also in **compile-time** (from my knowledge, there is no other library supporting such feature).
+- Need a library which can be easily extended or modified, to suit your needs.
 
 Do not use this library when you:
 
@@ -31,28 +31,11 @@ Do not use this library when you:
 
 ## Features
 
-1. Arbitrary precision integer arithmetic
-
-Supported by `yabil::bigint::BigInt` class. From `yabil/bigint/BigInt.h` header file.
-
-2. Compile time arbitrary precision integer arithmetic
-
-Supported by `yabil::compile_time::ConstBigInt` class. From `yabil/compile_time/ConstBigInt.h` header file.
-
-Can be used transparently using literals defined in `yabil/compile_time/Literals.h` header file.
-
-3. Parallel algorithms
-
-Supported by `yabil::parallel::Parallel`. From `yabil/parallel/Parallel.h` header file.
-
-4. Math functions
-
-Supported by `yabil::math` namespace. From `yabil/math/Math.h` header file.
-
-5. Random number generation
-
-Supported by `yabil::random::RandomEngine`. From `yabil/random/RandomEngine.h` header file.
-
+1. Arbitrary precision integer arithmetic.
+2. Compile time arbitrary precision integer arithmetic.
+3. Parallel algorithms.
+4. Math functions.
+5. Random number generation.
 
 ## Examples
 
