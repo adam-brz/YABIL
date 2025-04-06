@@ -33,9 +33,72 @@ Do not use this library when you:
 
 1. Arbitrary precision integer arithmetic.
 2. Compile time arbitrary precision integer arithmetic.
-3. Parallel algorithms.
+3. Parallel algorithms (in progress, currently addition (also with CUDA implementation!) and multiplication).
 4. Math functions.
 5. Random number generation.
+
+## Usage
+
+### CMake
+
+This project uses [CMake](https://cmake.org). To build the project, you need to have it installed on your system.
+
+To build and install the project, you can use the following commands:
+
+```bash
+cmake -S . -B build
+cmake --build build
+cmake --install build --prefix <install_path>
+```
+
+Then you can include the library in your project by adding the following code to your CMakeLists.txt:
+
+```cmake
+# Add yabil installation path, this can be done in many ways
+set(CMAKE_PREFIX_PATH <install_path>)
+
+find_package(yabil REQUIRED)
+target_link_libraries(<your_target> yabil::bigint)
+```
+
+### Conan
+
+This project supports [Conan](https://conan.io) package manager. To use it, you need to have it installed on your system.
+
+To use the library in your project, you can export YABIL `conanfile.py` file:
+
+```bash
+conan export . --version=0.1 # From the root of YABIL project directory
+```
+
+Then you can use exported recipe to build package which can be used in your project.
+
+First, add the YABIL package to conanfile in your project:
+
+```txt
+[requires]
+yabil/[>=0.1.0]
+
+[generators]
+CMakeToolchain
+CMakeDeps
+
+[layout]
+cmake_layout
+```
+
+Then call `conan install` command with `--build` option:
+
+```bash
+conan install . --build=missing # From the root of your project directory
+```
+
+Finally, you can include the library in your project by adding the following code to your CMakeLists.txt:
+
+```cmake
+find_package(yabil REQUIRED)
+target_link_libraries(<your_target> yabil::bigint)
+```
 
 ## Examples
 
