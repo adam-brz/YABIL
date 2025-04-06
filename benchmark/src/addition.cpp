@@ -2,7 +2,7 @@
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/BigIntGlobalConfig.h>
 #include <yabil/bigint/Parallel.h>
-#include <yabil/crypto/Random.h>
+#include <yabil/random/Random.h>
 
 // Boost
 #include <boost/multiprecision/cpp_int.hpp>

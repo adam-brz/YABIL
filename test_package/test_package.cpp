@@ -2,7 +2,7 @@
 #include <yabil/bigint/io.h>
 #include <yabil/compile_time/ConstBigInt.h>
 #include <yabil/compile_time/Literals.h>
-#include <yabil/crypto/Random.h>
+#include <yabil/random/Random.h>
 #include <yabil/math/Math.h>
 
 #include <iostream>
@@ -20,6 +20,6 @@ int main()
     std::cout << "a*b = " << a * b << std::endl;
     std::cout << "a/b = " << a / b << std::endl;
     std::cout << "pow(a,log2(b)) = " << math::pow(a, BigInt(math::log2_int(b))) << std::endl;
-    std::cout << "random_prime(32-bits) = " << crypto::random::random_prime(32) << std::endl;
+    std::cout << "random_prime(32-bits) = " << random::random_prime(32) << std::endl;
     return 0;
 }
