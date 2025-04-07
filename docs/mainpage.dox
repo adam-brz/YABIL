@@ -1,25 +1,64 @@
 /*!
-
-\mainpage YABIL Documentation
+\mainpage About
 \section intro_section Introduction
+\tableofcontents
 
-Yet another big integer library (YABIL) is a library created to support operations for arbitrary length integer numbers.
+<b>YABIL</b> (Yet Another Big Integer Library) is a lightweight C++ library designed for performing operations on integers of arbitrary size.
+The primary goal of this project is to serve research, prototyping, and educational purposes.
 
-This library is created for research purposes. If you look for high-performance and well tested solutions see:
-- gmp https://gmplib.org/
-- openssl https://github.com/openssl/openssl
+If you are looking for a production-grade, high-performance big integer library, you should consider one of the following projects instead:
+- [mp++](https://github.com/bluescarni/mppp).
+- [GMP (GNU Multiple Precision Arithmetic Library)](https://gmplib.org/).
+- [Boost multiprecision](https://www.boost.org/doc/libs/1_83_0/libs/multiprecision/doc/html/index.html).
 
-Library consists of two different comonents \ref yabil::bigint and \ref yabil::crypto, where:
-- \ref yabil::bigint - provides basic BigInt class for representing big integer and supports basic operations
-- \ref yabil::crypto - provides cryptographic-related functionalities which uses big integers
+\section supported_platforms Supported Platforms
 
-\section install_section Installation
-\subsection install_step1 Step 1: WIP
+This library is actively build and tested on following configurations:
+- Linux - gcc 11 - clang 14
+- MacOS - apple-clang 14 
+- Windows - MSVC 17
+- Android - NDK r26
 
-etc...
+\section features_section Features
 
-\section see_also_section See also
+YABIL provides following components:
+- \ref yabil::bigint — a core module that offers the @p yabil::bigint::BigInt class for representing and manipulating large integers in the runtime.
+- \ref yabil::compile_time - providing @p yabil::compile_time::ConstBigInt - class capable of performing all big integer operations in compile-time.
+- \ref yabil::math - containing various math functionalities (e.g. @p yabil::math::pow, @p yabil::math::log).
+- \ref yabil::parallel - implementing parallel algorithms for operations on big integers.
+- \ref yabil::random - providing simple big integer random number generator.
+- \ref yabil::utils - containing useful features, for other parts of library. 
 
-Coverage: https://adam-brz.github.io/YABIL/coverage_report
+Core functionalities include:
+- Support for arithmetic operations (addition, subtraction, multiplication, division).
+- Bitwise operations (AND, OR, XOR, shifts).
+- Comparisons and utility methods.
+
+For list of all features consult documentation of specific namespace.
+
+\section requirements_section Requirements
+
+Core of this library can be build with no additional requirements beyond compiler supporting c++20 standard.
+
+Optionally, this library will use:
+- [GTest](https://github.com/google/googletest) - for testing.
+- [Google Benchmark](https://github.com/google/benchmark) - for benchmarking.
+- [oneTBB](https://github.com/uxlfoundation/oneTBB) - for efficient multithreading (otherwise custom c++ implementation will be used).
+- [CUDA](https://docs.nvidia.com/cuda/) - for custom parallel algorithms, providing performance improvements for very large numbers.   
+
+For instruction on how to enable each of those features see: \ref page_usage.
+
+\section Tutorial
+
+Following pages contain instruction on how to setup and use this library:
+
+- \ref page_usage Usage
+- \ref page_examples Examples
+
+\section license License
+
+YABIL is licensed under the MIT License. See the [LICENSE](https://github.com/adam-brz/YABIL/blob/master/LICENSE.txt) file for details.
+
+This documentation uses `doxygen-awesome-css` project https://github.com/jothepro/doxygen-awesome-css for awesome css style.
 
 */

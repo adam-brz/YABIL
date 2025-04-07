@@ -15,7 +15,7 @@ This is a simple and easy to use C++ library for arbitrary precision integer ari
 
 It only requires c++20 standard and can be compiled on most of the widely used platforms.
 
-Performance wise, comparing to other popular libraries (like GMP or FLINT), this library is slightly worse (TODO add link to benchmarks).
+Comparing to other popular libraries (like GMP or FLINT), this library performs slightly worse. You can see benchmarks here: (TODO add link to benchmarks).
 However, it is much easier to use and understand. And very simple to extend and modify.
 
 Use this library when you:
@@ -31,11 +31,17 @@ Do not use this library when you:
 
 ## Features
 
-1. Arbitrary precision integer arithmetic.
-2. Compile time arbitrary precision integer arithmetic.
-3. Parallel algorithms (in progress, currently addition (also with CUDA implementation!) and multiplication).
-4. Math functions.
-5. Random number generation.
+- **Core Capabilities**
+  - Arbitrary precision integer arithmetic
+  - Compile-time (`constexpr`) big integer support
+
+- **Performance**
+  - Parallelized algorithms (currently, addition and multiplication)
+  - CUDA acceleration (optional)
+
+- **Utilities**
+  - Math functions (e.g., `pow`, `log`, `gcd`)
+  - Random number generation
 
 ## Examples
 
@@ -175,3 +181,6 @@ find_package(yabil REQUIRED)
 target_link_libraries(<your_target> yabil::bigint) # Link all libraries that you need, e.g. yabil::bigint, yabil::math, yabil::random
 ```
 
+## License
+
+This project is licensed under the terms of the [MIT license](LICENSE.txt).
