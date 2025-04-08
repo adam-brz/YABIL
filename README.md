@@ -37,7 +37,7 @@ Do not use this library when you:
 
 - **Performance**
   - Parallelized algorithms (currently, addition and multiplication)
-  - CUDA acceleration (optional)
+  - CUDA acceleration (experimental, optional)
 
 - **Utilities**
   - Math functions (e.g., `pow`, `log`, `gcd`)

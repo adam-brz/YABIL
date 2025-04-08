@@ -1,0 +1,106 @@
+/*!
+
+\page library_setup Library Setup
+\tableofcontents
+\section installation Installation
+
+This project requires [CMake](https://cmake.org/) in minimum version 3.23.
+
+Optionally, you can use [Conan](https://conan.io/) to create binary packages using `conanfile.py` from root of the repository.
+
+\subsection getting_sources Minimal Project Configuration
+
+This is enough to build and install library with sensible defaults:
+
+```bash
+git clone https://github.com/adam-brz/YABIL.git
+cd YABIL
+mkdir build
+cmake -S . -B ./build
+cmake --build ./build -j 8
+cmake --install ./build # optionally specify installation dir with: --prefix=<installation_dir>
+```
+
+If you would like to use parallel algorithms, to increase performance it is advised to add `YABIL_ENABLE_TBB=ON` to configure step:
+
+```bash
+cmake -S . -B ./build -DYABIL_ENABLE_TBB=ON
+```
+
+You can also edit once configured project with CMake GUI or ccmake.
+
+\note For all possible configuration options see: \ref additional_cmake_vars
+
+\subsection usage_in_project Usage In Project
+
+After installing library, you can use it from your CMake project. There are many ways to achieve it, for example, if you installed library globally:
+
+```bash
+find_package(yabil REQUIRED)
+target_link_libraries(<your_target> yabil::bigint yabil::compile_time)
+```
+
+\subsection additional_cmake_vars Additional CMake Variables
+
+This library can be configured using few CMake variables:
+- `CMAKE_BUILD_TYPE` - [default "Release"] can be "Release" or "Debug"
+- `CMAKE_CXX_STANDARD` - [default "20"] minimum required is "20", but newer versions also can be used
+- `BUILD_SHARED_LIBS` - [default "OFF"] if set to "ON", CMake will build shared libraries (e.g. `.so` on Linux, `.dylib` on MacOS), by default and static libraries are used
+- `YABIL_ENABLE_TESTS` - [default "OFF"] enables test building, note that it requires [GTest](https://github.com/google/googletest) library as a dependency
+- `YABIL_ENABLE_BENCHMARKS` - [default "OFF"] enables benchmark building, note that it requires [Google Benchmark](https://github.com/google/benchmark) library as a dependency
+- `YABIL_ENABLE_TBB` - [default "OFF"] enables oneTBB for parallel algorithms. Greatly improves performance. Note that it adds [TBB](https://github.com/uxlfoundation/oneTBB) as dependency 
+- `YABIL_ENABLE_SANITIZER` - [default "OFF"] enables compilation with clang sanitizer (e.g. "address", "thread"), use for debugging
+- `YABIL_ENABLE_COVERAGE` - [default "OFF"] enables coverage build, only supported on clang compiler
+- `YABIL_ENABLE_CUDA` - [default "OFF"] enables CUDA algorithms for @p yabil::parallel library
+- `YABIL_ENABLE_NATIVE_OPTIMIZATIONS` - [default "ON"] enables usage of AVX instructions if supported by compiler
+
+[Advanced] Algorithms from this library can be configured using threshold values (do not change unless benchmarking shows otherwise):
+- `YABIL_CONFIG_KARATSUBA_THRESHOLD`
+- `YABIL_CONFIG_RECURSIVE_DIV_THRESHOLD`
+- `YABIL_CONFIG_PARALLEL_ADD_THRESHOLD`
+- `YABIL_CONFIG_PARALLEL_MUL_THRESHOLD`
+- `YABIL_CONFIG_PARALLEL_DIV_THRESHOLD`
+- `YABIL_CONFIG_CUDA_ADD_THRESHOLD`
+- `YABIL_CONFIG_CONSTEVAL_THRESHOLDS` - [default "OFF"] enables configuration that can be changed in runtime. Otherwise `constexpr` thresholds will be used. See: @p yabil::bigint::BigIntConfig.
+- `YABIL_CONFIG_BIGINT_BASE_T` - type for single "digit" of big integer, in most cases `uint64_t` should be used here. By default will use type which suits the best the target platform.
+
+Also following variables are automatically detected during first configure and can be changed manually:
+- `YABIL_HAS_X64_INTRINSICS` - enable usage of x64 intrinsics to speed-up algorithms
+- `YABIL_HAS_AVX2` - enable AVX2 instructions usage
+- `YABIL_HAS_AVX512`- enable AVX512 instructions usage
+- `YABIL_DEBUG_FLAGS`, `YABIL_RELEASE_FLAGS`, `YABIL_LINK_FLAGS` - default flags for compilation and linking
+
+\subsection using_conan Using Conan
+
+Conan greatly simplifies multiplatform dependency managenent. In this project it is used to fetch gtest, google benchmark and oneTBB dependencies on GitHub Actions CI.
+
+You can export `conanfile.py` recipe from root of repository to use it later in your conan project:
+
+```bash
+conan export . --version=0.1
+```
+
+Then in your `conanfile` you have to add `yabil` library as a dependency:
+
+```
+# conanfile.txt
+[requires]
+# ...
+yabil/[>=0.1.0]
+
+#...
+```
+
+Please refer to [Conan Tutorial](https://docs.conan.io/2/tutorial/consuming_packages.html#consuming-packages) for more detailed instructions.
+
+\subsubsection conanfile_options Conanfile Options
+
+The `conanfile.py` defines following options, which corresponds to CMake variables defined \ref additional_cmake_vars "here":
+- `native_optimizations` - one of [True, False],
+- `digit_type` - one of ["uint16_t", "uint32_t", "uint64_t", "auto"],
+- `with_tbb` - one of [True, False],
+- `with_tests` - one of [True, False],
+- `with_benchmarks` - one of [True, False],
+- `with_cuda` - one of [True, False]
+
+*/ 
