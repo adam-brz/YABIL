@@ -3,21 +3,24 @@
 \section intro_section Introduction
 \tableofcontents
 
-<b>YABIL</b> (Yet Another Big Integer Library) is a lightweight C++ library designed for performing operations on integers of arbitrary size.
+<b>YABIL</b> (Yet Another Big Integer Library) is an open-source, lightweight C++ library designed for performing operations on integers of arbitrary size.
 The primary goal of this project is to serve research, prototyping, and educational purposes.
 
 If you are looking for a production-grade, high-performance big integer library, you should consider one of the following projects instead:
-- [mp++](https://github.com/bluescarni/mppp).
-- [GMP (GNU Multiple Precision Arithmetic Library)](https://gmplib.org/).
-- [Boost multiprecision](https://www.boost.org/doc/libs/1_83_0/libs/multiprecision/doc/html/index.html).
+- [mp++](https://github.com/bluescarni/mppp)
+- [GMP (GNU Multiple Precision Arithmetic Library)](https://gmplib.org/)
+- [Boost multiprecision](https://www.boost.org/doc/libs/1_83_0/libs/multiprecision/doc/html/index.html)
 
 \section supported_platforms Supported Platforms
 
 This library is actively build and tested on following configurations:
-- Linux - gcc 11 - clang 14
-- MacOS - apple-clang 14 
-- Windows - MSVC 17
-- Android - NDK r26
+- Linux x64 - gcc 11 - clang 14
+- MacOS x64, arm64 - apple-clang 14 
+- Windows x64 - MSVC 17
+- Android armv7 cross-compilation - NDK r26
+
+As this library does not use any system-specific features, 
+it should build for any platform with compiler supporting c++20.
 
 \section features_section Features
 
@@ -36,6 +39,8 @@ Core functionalities include:
 
 For list of all features consult documentation of specific namespace.
 
+\note For detailed usage description see: \ref examples "Examples page"
+
 \section requirements_section Requirements
 
 Core of this library can be build with no additional requirements beyond compiler supporting c++20 standard.
@@ -46,14 +51,14 @@ Optionally, this library will use:
 - [oneTBB](https://github.com/uxlfoundation/oneTBB) - for efficient multithreading (otherwise custom c++ implementation will be used).
 - [CUDA](https://docs.nvidia.com/cuda/) - for custom parallel algorithms, providing performance improvements for very large numbers.   
 
-For instruction on how to enable each of those features see: \ref page_usage.
+For instruction on how to enable each of those features see: \ref additional_cmake_vars.
 
 \section Tutorial
 
 Following pages contain instruction on how to setup and use this library:
 
-- \ref page_usage Usage
-- \ref page_examples Examples
+- \ref library_setup "Library Setup"
+- \ref examples Examples
 
 \section license License
 

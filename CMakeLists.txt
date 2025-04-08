@@ -15,13 +15,13 @@ if(NOT CMAKE_CXX_STANDARD)
 endif()
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
-option(YABIL_ENABLE_SANITIZER "Enable address sanitizer" OFF)
+option(YABIL_ENABLE_SANITIZER "Enable sanitizer" OFF)
 option(YABIL_ENABLE_TESTS "Enable test targets" OFF)
 option(YABIL_ENABLE_BENCHMARKS "Enable benchmark targets" OFF)
 option(YABIL_ENABLE_TBB "Use TBB library" OFF)
 option(YABIL_ENABLE_COVERAGE "Build with coverage info" OFF)
 option(YABIL_ENABLE_CUDA "Enable CUDA" OFF)
-option(YABIL_ENABLE_NATIVE_OPTIMIZATIONS "Enable optimizations using native instrucitons (AVX)" OFF)
+option(YABIL_ENABLE_NATIVE_OPTIMIZATIONS "Enable optimizations using native instructions (AVX)" ON)
 
 set(CPACK_GENERATOR "ZIP" CACHE STRING "Generators to support. Semicolon delimited list.")
 
