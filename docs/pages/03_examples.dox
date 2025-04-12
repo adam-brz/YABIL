@@ -1,4 +1,196 @@
 /*!
 
 \page examples Examples
+\tableofcontents
+
+\section runtime_big_integers Runtime Big Integers
+
+For full module documentation see: \p yabil::bigint namespace.
+
+\subsection runtime_big_integers_construction Bit Integer Construction
+
+\subsubsection runtime_big_integers_construction_int From Standard Types
+
+\code{.cpp}
+#include <yabil/bigint/BigInt.h>
+
+BigInt a;       // Default constructor, a = 0
+
+// Conversion from int
+BigInt b = 100; 
+BigInt c{20};
+\endcode
+
+\subsubsection runtime_big_integers_construction_str From String
+
+\code{.cpp}
+BigInt a{"101"};    // string in base 10, a = 101
+BigInt b{"101", 2}; // string in base 2,  b = 5
+BigInt c{"abc", 2}; // string in base 16, c = 2748
+
+std::string str;
+std::cin >> str;
+BigInt d{str};     // string in base 10, loaded from stream
+\endcode
+
+\subsubsection runtime_big_integers_construction_cbigint From Compile-Time Big Integer
+
+\code{.cpp}
+using namespace yabil::compile_time::literals;
+
+BigInt a = 1800_bi; // convert from compile-time literal in base 10
+BigInt b = 10_bi2; // convert from compile-time literal in base 2
+\endcode
+
+\subsection runtime_big_integers_conversion Big Integer Conversion
+
+\subsubsection runtime_big_integers_conversion_to_int To Standard Types
+
+\code{.cpp}
+BigInt a{"10"};
+
+assert(a.is<int>() && a.is<uint32_t>());
+
+const int b = a.to<int>();
+const uint32_t c = a.to<uint32_t>();
+
+BigInt d = 1_bi << shift_v<32>;  // 2**32
+assert(!d.is<uint32_t>());       // Cannot be converted without loss in precision
+const auto e = d.to<uint32_t>(); // But conversion can still be performed. e = 0 in this particular case (first 32 bits of bigint extracted)
+\endcode
+
+\subsubsection runtime_big_integers_conversion_to_str To String
+
+\code{.cpp}
+BigInt a{"10"};
+
+const std:::string str_base_10 = a.to_str();
+const std:::string str_base_16 = a.to_str(16);
+\endcode
+
+\subsection runtime_big_integers_operations Bit Integer Operations
+
+\subsubsection runtime_big_integers_operations_arithmetic Arithmetic Operations
+
+\code{.cpp}
+#include <yabil/bigint/io.h>
+
+BigInt a, b;
+std::cin >> a >> b;
+
+BigInt c = ((a + b) / BigInt{2}) * (a - b);
+\endcode
+
+\subsubsection runtime_big_integers_operations_binary Binary Operations
+
+\code{.cpp}
+BigInt c = (a & b) | ((a >> 2) ^ (b << 2));
+\endcode
+
+\subsubsection runtime_big_integers_operations_comparison Comparison Operations
+
+\code{.cpp}
+if (a < b) {
+    std::cout << a << " is less than " << b << '\n';
+} else if (a >= b) {
+    std::cout << a << " is greater or equal " << b << '\n';
+}
+\endcode
+
+\section compile_time_big_integers Compile-Time Big Integers
+
+For full module documentation see: \p yabil::compile_time namespace.
+
+\subsection compile_time_big_integers_construction Compile-Time Big Integers Construction
+
+\subsubsection compile_time_big_integers_construction_literals From Literals
+
+\code{.cpp}
+#include <yabil/compile_time/Literals.h>
+
+using namespace yabil::compile_time::literals;
+
+constexpr auto a = 12345678901234567890_bi; // decimal number
+constexpr auto b = 1010101_bi2;             // binary number
+\endcode
+
+\subsection compile_time_big_integers_conversion Compile-Time Big Integers Conversion
+
+\subsubsection compile_time_big_integers_conversion_to_standard To Standard Types
+
+\code{.cpp}
+#include <yabil/compile_time/Literals.h>
+
+using namespace yabil::compile_time::literals;
+
+constexpr auto a = 12345678901234567890_bi;
+
+static_assert(!a.is<int>()); // Cannot be converted without loss of precision, but still can be converted.
+constexpr int b = a.to<int>();
+\endcode
+
+\subsubsection compile_time_big_integers_conversion_to_runtime To Runtime BigInt
+
+\code{.cpp}
+#include <yabil/compile_time/Literals.h>
+
+using namespace yabil::compile_time::literals;
+
+constexpr auto a = 12345678901234567890_bi;
+BigInt b = a;
+\endcode
+
+\section math_module_examples Math Module
+
+For full module documentation see: \p yabil::math namespace.
+
+\code{.cpp}
+#include <yabil/math/Math.h>
+
+BigInt a, b;
+std::cin >> a >> b;
+
+std::cout << math::pow(BigInt{math::log2(a)}, math::gcd(a, b));
+\endcode
+
+\section random_module_examples Random Module
+
+For full module documentation see: \p yabil::random namespace.
+
+\code{.cpp}
+#include <yabil/random/RandomEngine.h>
+
+BigInt a = random::random_bigint(128); // random big integer of max 128-bit length
+BigInt b = random::random_prime(32); // random prime of size 32-bits
+\endcode
+
+\section parallel_module_examples Parallel Module
+
+For full module documentation see: \p yabil::parallel namespace.
+
+\subsection parallel_module_examples_algorithms Parallel Algorithms
+
+\code{.cpp}
+#include <yabil/parallel/Parallel.h>
+
+BigInt a, b;
+std::cin >> a >> b;
+
+std::cout << "a*b = " << parallel::mul(a, b);
+\endcode
+
+\subsection parallel_module_examples_thread_pool Thread Pool
+
+\code{.cpp}
+#include <yabil/parallel/ThreadPool.h>
+
+ThreadPool pool; // Creates thread-pool with number of threads the same as std::thread::hardware_concurrency
+
+const auto task = pool.submit([&]() { 
+    /* Time-comsuming task to be run in separate thread*/
+    return std::string("return value");
+});
+
+const auto task_result = task.get(); // Wait for std::future and get result
+\endcode
 */
