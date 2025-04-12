@@ -29,6 +29,9 @@ Do not use this library when you:
 - Need a library which is extremely fast and efficient.
 - Need a library which is extremely feature rich and has a lot of advanced features.
 
+> [!NOTE]  
+> See [documentation](https://adam-brz.github.io/YABIL) for more details.
+
 ## Features
 
 - **Core Capabilities**
