@@ -1,0 +1,32 @@
+/*!
+
+\page benchmarks Benchmarks
+\tableofcontents
+
+This page contains set of graphs with data from benchmarks on few platforms.  
+
+@htmlonly
+<noscript>
+    <p>This section requires javascript.</p>
+</noscript>
+<script src="https://cdn.plot.ly/plotly-3.0.1.min.js" charset="utf-8"></script>
+<script src="./scripts/benchmarks.js"></script>
+@endhtmlonly
+
+\section benchmarks_linux Linux Benchmarks
+
+<table>
+<caption>Hardware Specifications of the Platform</caption>
+<tr><th>Component     <th>Specification 
+<tr><td>CPU           <td>Intel© Core™ i5-10400F CPU @ 2.90GHz × 6
+<tr><td>Architecture  <td>x64
+<tr><td>RAM           <td>34GB DDR4 2666MHz
+<tr><td>OS            <td>Linux Mint
+</table>
+
+@htmlonly
+<div id="linux-benchmarks-container"></div>
+<script> draw_from_benchmarks('./data/benchmarks_linux_x64.json', 'linux-benchmarks-container'); </script>
+@endhtmlonly
+
+*/
