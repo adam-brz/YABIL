@@ -15,7 +15,7 @@ This is a simple and easy to use C++ library for arbitrary precision integer ari
 
 It only requires c++20 standard and can be compiled on most of the widely used platforms.
 
-Comparing to other popular libraries (like GMP or FLINT), this library performs slightly worse. You can see benchmarks here: (TODO add link to benchmarks).
+In most cases this library is not as performant as e.g. GMP or Boost Multiprecision. You can see benchmarks here: [link](https://adam-brz.github.io/YABIL/benchmarks.html).
 However, it is much easier to use and understand. And very simple to extend and modify.
 
 Use this library when you:
