@@ -12,20 +12,20 @@ Optionally, you can use [Conan](https://conan.io/) to create binary packages usi
 
 This is enough to build and install library with sensible defaults:
 
-```bash
+\code{.sh}
 git clone https://github.com/adam-brz/YABIL.git
 cd YABIL
 mkdir build
 cmake -S . -B ./build
 cmake --build ./build -j 8
 cmake --install ./build # optionally specify installation dir with: --prefix=<installation_dir>
-```
+\endcode
 
-If you would like to use parallel algorithms, to increase performance it is advised to add `YABIL_ENABLE_TBB=ON` to configure step:
+If you would like to use parallel algorithms, to increase performance it is advised to add `YABIL_ENABLE_TBB=ON` in configure step:
 
-```bash
+\code{.sh}
 cmake -S . -B ./build -DYABIL_ENABLE_TBB=ON
-```
+\endcode
 
 You can also edit once configured project with CMake GUI or ccmake.
 
@@ -35,10 +35,19 @@ You can also edit once configured project with CMake GUI or ccmake.
 
 After installing library, you can use it from your CMake project. There are many ways to achieve it, for example, if you installed library globally:
 
-```bash
+\code{.cmake}
 find_package(yabil REQUIRED)
 target_link_libraries(<your_target> yabil::bigint yabil::compile_time)
-```
+\endcode
+
+If you specified custom installation directory you can provide it with [CMAKE_PREFIX_PATH](https://cmake.org/cmake/help/latest/variable/CMAKE_PREFIX_PATH.html):
+
+\code{.cmake}
+set(CMAKE_PREFIX_PATH <install_path>)
+
+find_package(yabil REQUIRED)
+target_link_libraries(<your_target> yabil::bigint)
+\endcode
 
 \subsection additional_cmake_vars Additional CMake Variables
 
@@ -76,9 +85,9 @@ Conan greatly simplifies multiplatform dependency managenent. In this project it
 
 You can export `conanfile.py` recipe from root of repository to use it later in your conan project:
 
-```bash
+\code{.sh}
 conan export . --version=0.1
-```
+\endcode
 
 Then in your `conanfile` you have to add `yabil` library as a dependency:
 
