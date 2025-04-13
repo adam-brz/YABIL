@@ -15,6 +15,9 @@
 namespace yabil::compile_time::impl
 {
 
+// Implementation of division algorithms from: "Modern Computer Arithmetic" by Richard P. Brent and Paul Zimmermann
+// (https://maths-people.anu.edu.au/~brent/pd/mca-cup-0.5.9.pdf#subsection.1.4.3)
+
 template <std::size_t SelfSize, BigIntData<SelfSize> SelfData>
 consteval bool is_normalized_for_division()
 {
