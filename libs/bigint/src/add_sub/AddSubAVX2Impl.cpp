@@ -11,6 +11,7 @@ namespace yabil::bigint
 namespace
 {
 
+// Implementation from: http://www.numberworld.org/y-cruncher/internals/addition.html
 static const __m256i BROADCAST_MASK[16] = {
     _mm256_set_epi64x(static_cast<int64_t>(0x8000000000000000), static_cast<int64_t>(0x8000000000000000),
                       static_cast<int64_t>(0x8000000000000000), static_cast<int64_t>(0x8000000000000000)),

@@ -16,6 +16,9 @@
 namespace yabil::bigint::arithmetic
 {
 
+// Implementation of division algorithms from: "Modern Computer Arithmetic" by Richard P. Brent and Paul Zimmermann
+// (https://maths-people.anu.edu.au/~brent/pd/mca-cup-0.5.9.pdf#subsection.1.4.3)
+
 std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> div_unsigned(const std::span<const bigint_base_t> &a,
                                                                                const std::span<const bigint_base_t> &b)
 {

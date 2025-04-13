@@ -11,6 +11,7 @@ namespace yabil::bigint
 namespace
 {
 
+// Implementation from: http://www.numberworld.org/y-cruncher/internals/addition.html
 __m512i avx_add512(__m512i A, __m512i B, uint32_t *carry)
 {
     static const __m512i MAX_WORD = _mm512_set1_epi64(static_cast<int64_t>(0xffffffffffffffff));
