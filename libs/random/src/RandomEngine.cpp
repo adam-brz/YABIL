@@ -41,7 +41,7 @@ private:
     std::uniform_int_distribution<yabil::bigint::bigint_base_t> uniform_dist;
 
 public:
-    Impl(std::size_t seed) : generator(seed) {}
+    Impl(unsigned seed) : generator(seed) {}
     yabil::bigint::BigInt random_bigint(uint64_t number_of_bits, bool top_two = false, bool bottom_odd = false);
     yabil::bigint::BigInt random_bigint(const yabil::bigint::BigInt &min, const yabil::bigint::BigInt &max);
     bigint::BigInt random_prime(uint64_t number_of_bits);
