@@ -103,7 +103,10 @@ jobs:
           fi
 
       - name: Move documentation files
-        run: mv build/Debug/coverage_report build/docs/html/coverage_report
+        run: |
+          mv build/Debug/coverage_report build/docs/html/coverage_report
+          cp -r docs/data build/docs/html/data
+          cp -r docs/scripts build/docs/html/scripts
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
