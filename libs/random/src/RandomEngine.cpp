@@ -213,7 +213,7 @@ bool RandomEngine::Impl::miller_rabin_test(const yabil::bigint::BigInt &prime_ca
     return true;
 }
 
-RandomEngine::RandomEngine(const std::size_t seed) : impl(std::make_unique<Impl>(seed)) {}
+RandomEngine::RandomEngine(const unsigned int seed) : impl(std::make_unique<Impl>(seed)) {}
 
 RandomEngine::~RandomEngine() = default;
 
