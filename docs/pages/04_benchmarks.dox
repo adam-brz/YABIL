@@ -21,6 +21,8 @@ gmp/*:disable_assembly=False
 
 All graphs are generated using [plotly](https://plotly.com/javascript/).
 
+\note Take note of x-axis values. For example in case of addition benchmarks number values go up to 2**10'000'000, which is a lot.
+
 @htmlonly
 <noscript>
     <p>This section requires javascript.</p>
