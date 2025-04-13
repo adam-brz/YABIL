@@ -26,12 +26,13 @@ function convertBenchmarkData(benchmarkData) {
     return structuredData;
 }
 
-function generatePlots(structuredData, container_name) {
+function generateBenchmarkGraph(structuredData, container_name) {
     const container = document.getElementById(container_name);
-
+    container.innerHTML = '';
+    
     for (const [operation, libraries] of Object.entries(structuredData)) {
         const chartDiv = document.createElement('div');
-        chartDiv.id = `chart-${operation}`;
+        chartDiv.id = `chart-${operation}-${container_name}`;
         chartDiv.style.marginBottom = '50px';
         container.appendChild(chartDiv);
 
@@ -44,9 +45,13 @@ function generatePlots(structuredData, container_name) {
 
             for (const [size, values] of Object.entries(sizeData)) {
                 if (values.mean != null && values.stddev != null) {
-                    x.push(Number(size));
-                    y.push(values.mean);
-                    errorY.push(values.stddev);
+                    // Filter out uncertain measurements
+                    if(values.stddev < values.mean * 0.2)
+                    {
+                        x.push(Number(size));
+                        y.push(values.mean);
+                        errorY.push(values.stddev);
+                    }
                 }
             }
 
@@ -77,7 +82,7 @@ function generatePlots(structuredData, container_name) {
             margin: { t: 50 },
             paper_bgcolor: "rgb(255,255,255)", 
             plot_bgcolor: "rgb(229,229,229)", 
-            xaxis: { title: { text: 'Number size in digits' } },
+            xaxis: { title: { text: 'Number size in bits' } },
             yaxis: { title: { text: 'Time (ns)' } },
             autosize: true,
             responsive: true,
@@ -92,7 +97,7 @@ function draw_from_benchmarks(benchmark_file, container_name) {
         .then(response => response.json())
         .then(benchmarkData => {
             const structuredData = convertBenchmarkData(benchmarkData);
-            generatePlots(structuredData, container_name);
+            generateBenchmarkGraph(structuredData, container_name);
         })
         .catch(error => {
             console.error('Error loading data:', error);

@@ -3,7 +3,23 @@
 \page benchmarks Benchmarks
 \tableofcontents
 
-This page contains set of graphs with data from benchmarks on few platforms.  
+This page contains set of graphs with data from benchmarks on different platforms.  
+
+Benchmarks were configured using Conan (see: [conanfile](https://github.com/adam-brz/YABIL/blob/master/benchmark/conanfile.txt)).
+Following options were used:
+
+\code{.text}
+boost/*:zlib=False
+openssl/*:no_zlib=True
+yabil/*:cuda=True
+yabil/*:tbb=True
+yabil/*:native_optimizations=True
+yabil/*:digit_type=auto
+openssl/*:no_asm=False
+gmp/*:disable_assembly=False
+\endcode
+
+All graphs are generated using [plotly](https://plotly.com/javascript/).
 
 @htmlonly
 <noscript>
@@ -16,17 +32,33 @@ This page contains set of graphs with data from benchmarks on few platforms.
 \section benchmarks_linux Linux Benchmarks
 
 <table>
-<caption>Hardware Specifications of the Platform</caption>
+<caption>Platform Specification</caption>
 <tr><th>Component     <th>Specification 
 <tr><td>CPU           <td>Intel© Core™ i5-10400F CPU @ 2.90GHz × 6
 <tr><td>Architecture  <td>x64
-<tr><td>RAM           <td>34GB DDR4 2666MHz
+<tr><td>RAM           <td>32GB DDR4 2666MHz
 <tr><td>OS            <td>Linux Mint
 </table>
 
 @htmlonly
-<div id="linux-benchmarks-container"></div>
-<script> draw_from_benchmarks('./data/benchmarks_linux_x64.json', 'linux-benchmarks-container'); </script>
+<div id="linux-benchmarks-container">Loading graphs...</div>
+<script> draw_from_benchmarks('./data/linux_x64_benchmarks.json', 'linux-benchmarks-container'); </script>
+@endhtmlonly
+
+\section benchmarks_macos MacOS Benchmarks
+
+<table>
+<caption>Platform Specification</caption>
+<tr><th>Component     <th>Specification 
+<tr><td>CPU           <td>M3 Pro 11-core (5 x 4.06GHz + 6 x 2.8GHz)
+<tr><td>Architecture  <td>arm64
+<tr><td>RAM           <td>32GB LPDDR5 SDRAM
+<tr><td>OS            <td>MacOS 15.4
+</table>
+
+@htmlonly
+<div id="macos-benchmarks-container">Loading graphs...</div>
+<script> draw_from_benchmarks('./data/macos_arm64_benchmarks.json', 'macos-benchmarks-container'); </script>
 @endhtmlonly
 
 */
