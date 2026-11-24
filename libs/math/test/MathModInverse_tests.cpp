@@ -21,3 +21,8 @@ TEST_F(MathModInverse_tests, modInverseFor2And6DoesNotExist)
 {
     ASSERT_THROW({ mod_inverse(BigInt(2), BigInt(6)); }, std::runtime_error);
 }
+
+TEST_F(MathModInverse_tests, modInverseForMinus1And3Equals2)
+{
+    EXPECT_EQ(BigInt(2), mod_inverse(BigInt(-1), BigInt(3)));
+}

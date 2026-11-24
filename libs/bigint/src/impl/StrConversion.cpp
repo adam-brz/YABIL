@@ -8,10 +8,12 @@
 #include <algorithm>
 #include <bitset>
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -42,7 +44,17 @@ static constexpr int base_8_digits = 21;  // each octal digit is 3 bits, so 63 b
 static constexpr int base_8_digit_bits = 3;
 static constexpr int base_8_shift_for_64_bits = base_8_digits * base_8_digit_bits;
 
-std::string merge_converted_parts(const std::vector<std::string>& parts, const int part_size_digits, const Sign sign)
+void check_base(const unsigned base)
+{
+    static constexpr unsigned min_base = 2;
+    static constexpr unsigned max_base = 16;
+    if (base < min_base || base > max_base)
+    {
+        throw std::invalid_argument("Invalid base: " + std::to_string(base) + ". It must be from 2 to 16.");
+    }
+}
+
+std::string merge_converted_parts(const std::vector<std::string> &parts, const int part_size_digits, const Sign sign)
 {
     std::string result;
     result.reserve(parts.size() * part_size_digits + 1);
@@ -60,7 +72,7 @@ std::string merge_converted_parts(const std::vector<std::string>& parts, const i
     return result;
 }
 
-std::pair<std::string_view, Sign> extract_sign(const std::string_view& str)
+std::pair<std::string_view, Sign> extract_sign_and_check_digits(const std::string_view &str, const unsigned base)
 {
     assert(str.size() > 0);
 
@@ -73,10 +85,18 @@ std::pair<std::string_view, Sign> extract_sign(const std::string_view& str)
     }
 
     const Sign sign = hasSign ? (first == '-' ? Sign::Minus : Sign::Plus) : Sign::Plus;
-    return std::make_pair(hasSign ? str.substr(1) : str, sign);
+    const auto digits = hasSign ? str.substr(1) : str;
+
+    for (const char chr : digits)
+    {
+        const auto converted = get_digit_value(std::tolower(static_cast<unsigned char>(chr)));
+        check_conversion(chr, static_cast<unsigned>(converted), base);
+    }
+
+    return std::make_pair(digits, sign);
 }
 
-std::string to_string_any(const BigInt& number, const unsigned base)
+std::string to_string_any(const BigInt &number, const unsigned base)
 {
     std::string str_number;
     BigInt n = number.abs();
@@ -97,14 +117,14 @@ std::string to_string_any(const BigInt& number, const unsigned base)
     return str_number;
 }
 
-std::string to_string_2(const BigInt& number)
+std::string to_string_2(const BigInt &number)
 {
-    const auto& data = number.raw_data();
+    const auto &data = number.raw_data();
 
     std::vector<std::string> result_parts;
     for (std::size_t i = 0; i < data.size(); ++i)
     {
-        const auto& digit = data[i];
+        const auto &digit = data[i];
 
         std::stringstream ss;
         ss << std::bitset<BigInt::digit_size_bits>(digit);
@@ -117,7 +137,7 @@ std::string to_string_2(const BigInt& number)
     return merge_converted_parts(result_parts, BigInt::digit_size_bits, number.get_sign());
 }
 
-std::string to_string_8(const BigInt& number)
+std::string to_string_8(const BigInt &number)
 {
     BigInt n = number.abs();
     std::vector<std::string> result_parts;
@@ -135,13 +155,13 @@ std::string to_string_8(const BigInt& number)
     return merge_converted_parts(result_parts, base_8_digits, number.get_sign());
 }
 
-std::string to_string_16(const BigInt& number)
+std::string to_string_16(const BigInt &number)
 {
     static constexpr int amount_of_bits_in_hex_digit = 4;
-    const auto& data = number.raw_data();
+    const auto &data = number.raw_data();
 
     std::vector<std::string> result_parts;
-    for (const auto& digit : data)
+    for (const auto &digit : data)
     {
         std::stringstream ss;
         ss << std::hex << std::setfill('0') << std::setw(BigInt::digit_size_bits / amount_of_bits_in_hex_digit)
@@ -156,14 +176,14 @@ std::string to_string_16(const BigInt& number)
                                  number.get_sign());
 }
 
-std::string to_string_10(const BigInt& number)
+std::string to_string_10(const BigInt &number)
 {
     static_assert(sizeof(bigint_base_t) >= 2, "This function cannot be used with types smaller than 16 bits");
 
     auto data = number.raw_data();
     std::vector<bigint_base_t> result_parts;
 
-    const auto is_zero = [](const auto& data) { return data.empty() || (data.size() == 1 && data[0] == 0); };
+    const auto is_zero = [](const auto &data) { return data.empty() || (data.size() == 1 && data[0] == 0); };
 
     while (!is_zero(data))
     {
@@ -199,7 +219,7 @@ std::string to_string_10(const BigInt& number)
     return result;
 }
 
-BigInt from_string_any(const std::string_view& str, const unsigned base)
+BigInt from_string_any(const std::string_view &str, const unsigned base)
 {
     assert(str.size() > 0);
 
@@ -210,7 +230,7 @@ BigInt from_string_any(const std::string_view& str, const unsigned base)
 
     if (!hasSign)
     {
-        const int converted = get_digit_value(std::tolower(first));
+        const int converted = get_digit_value(std::tolower(static_cast<unsigned char>(first)));
         check_conversion(first, static_cast<unsigned>(converted), base);
         data.push_back(converted);
     }
@@ -219,13 +239,13 @@ BigInt from_string_any(const std::string_view& str, const unsigned base)
 
     for (auto it = str.cbegin() + 1; it != str.cend(); ++it)
     {
-        const int converted = get_digit_value(std::tolower(*it));
+        const int converted = get_digit_value(std::tolower(static_cast<unsigned char>(*it)));
         check_conversion(*it, static_cast<unsigned>(converted), base);
         result *= BigInt{base};
         result += BigInt{converted};
     }
 
-    if (result.is_zero() && hasSign)
+    if (hasSign && str.size() == 1)
     {
         throw std::invalid_argument("Invalid number format");
     }
@@ -234,25 +254,25 @@ BigInt from_string_any(const std::string_view& str, const unsigned base)
     return result;
 }
 
-BigInt from_string_2(const std::string_view& str)
+BigInt from_string_2(const std::string_view &str)
 {
-    const auto [number_str, sign] = extract_sign(str);
+    const auto [number_str, sign] = extract_sign_and_check_digits(str, 2);
 
     std::vector<bigint_base_t> data;
     data.reserve(number_str.size() / BigInt::digit_size_bits + 1);
 
     std::size_t processed = 0;
-    int window_end = static_cast<int>(number_str.size());
+    std::size_t window_end = number_str.size();
 
     while (window_end > 0)
     {
-        const int window_start = std::max(0, window_end - BigInt::digit_size_bits);
-        const int window_len = window_end - window_start;
+        const std::size_t window_start = window_end - std::min<std::size_t>(window_end, BigInt::digit_size_bits);
+        const std::size_t window_len = window_end - window_start;
 
         const auto number_chunk = number_str.substr(window_start, window_len);
         const auto chunk_value = std::stoull(std::string{number_chunk}, &processed, 2);
 
-        if (static_cast<int>(processed) != window_len)
+        if (processed != window_len)
         {
             throw std::invalid_argument("Invalid number format");
         }
@@ -266,25 +286,25 @@ BigInt from_string_2(const std::string_view& str)
     return result;
 }
 
-BigInt from_string_8(const std::string_view& str)
+BigInt from_string_8(const std::string_view &str)
 {
-    const auto [number_str, sign] = extract_sign(str);
+    const auto [number_str, sign] = extract_sign_and_check_digits(str, 8);
 
     BigInt result;
 
     std::size_t processed = 0;
-    int window_end = static_cast<int>(number_str.size());
+    std::size_t window_end = number_str.size();
     uint64_t shift = 0;
 
     while (window_end > 0)
     {
-        const int window_start = std::max(0, window_end - base_8_digits);
-        const int window_len = window_end - window_start;
+        const std::size_t window_start = window_end - std::min<std::size_t>(window_end, base_8_digits);
+        const std::size_t window_len = window_end - window_start;
 
         const auto number_chunk = number_str.substr(window_start, window_len);
         const auto chunk_value = std::stoull(std::string{number_chunk}, &processed, 8);
 
-        if (static_cast<int>(processed) != window_len)
+        if (processed != window_len)
         {
             throw std::invalid_argument("Invalid number format");
         }
@@ -299,25 +319,26 @@ BigInt from_string_8(const std::string_view& str)
     return result;
 }
 
-BigInt from_string_10(const std::string_view& str)
+BigInt from_string_10(const std::string_view &str)
 {
-    const auto [number_str, sign] = extract_sign(str);
+    const auto [number_str, sign] = extract_sign_and_check_digits(str, 10);
 
     BigInt result;
     BigInt decimal_place{1};
 
     std::size_t processed = 0;
-    int window_end = static_cast<int>(number_str.size());
+    std::size_t window_end = number_str.size();
 
     while (window_end > 0)
     {
-        const int window_start = std::max(0, window_end - conversion_decimal_places_count);
-        const int window_len = window_end - window_start;
+        const std::size_t window_start =
+            window_end - std::min<std::size_t>(window_end, conversion_decimal_places_count);
+        const std::size_t window_len = window_end - window_start;
 
         const auto number_chunk = number_str.substr(window_start, window_len);
         const auto chunk_value = std::stoull(std::string{number_chunk}, &processed);
 
-        if (static_cast<int>(processed) != window_len)
+        if (processed != window_len)
         {
             throw std::invalid_argument("Invalid number format");
         }
@@ -332,9 +353,9 @@ BigInt from_string_10(const std::string_view& str)
     return result;
 }
 
-BigInt from_string_16(const std::string_view& str)
+BigInt from_string_16(const std::string_view &str)
 {
-    const auto [number_str, sign] = extract_sign(str);
+    const auto [number_str, sign] = extract_sign_and_check_digits(str, 16);
 
     static constexpr int hex_digits_in_digit = BigInt::digit_size_bits / 4;
 
@@ -342,17 +363,17 @@ BigInt from_string_16(const std::string_view& str)
     data.reserve(number_str.size() / hex_digits_in_digit + 1);
 
     std::size_t processed = 0;
-    int window_end = static_cast<int>(number_str.size());
+    std::size_t window_end = number_str.size();
 
     while (window_end > 0)
     {
-        const int window_start = std::max(0, window_end - hex_digits_in_digit);
-        const int window_len = window_end - window_start;
+        const std::size_t window_start = window_end - std::min<std::size_t>(window_end, hex_digits_in_digit);
+        const std::size_t window_len = window_end - window_start;
 
         const auto number_chunk = number_str.substr(window_start, window_len);
         const auto chunk_value = std::stoull(std::string{number_chunk}, &processed, 16);
 
-        if (static_cast<int>(processed) != window_len)
+        if (processed != window_len)
         {
             throw std::invalid_argument("Invalid number format");
         }
@@ -368,8 +389,9 @@ BigInt from_string_16(const std::string_view& str)
 
 }  // namespace
 
-std::string to_string(const BigInt& number, const unsigned base)
+std::string to_string(const BigInt &number, const unsigned base)
 {
+    check_base(base);
     if (number.is_zero())
     {
         return "0";
@@ -390,8 +412,9 @@ std::string to_string(const BigInt& number, const unsigned base)
     }
 }
 
-BigInt from_string(const std::string_view& str, const unsigned base)
+BigInt from_string(const std::string_view &str, const unsigned base)
 {
+    check_base(base);
     if (str.size() == 0)
     {
         return BigInt{};

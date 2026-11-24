@@ -7,6 +7,7 @@
 #include <yabil/utils/IterUtils.h>
 
 #include <algorithm>
+#include <cstddef>
 #include <future>
 #include <vector>
 
@@ -40,19 +41,19 @@ std::vector<bigint::bigint_base_t> parallel_add_unsigned(const std::span<const b
     }
 
     auto &thread_pool = ThreadPoolSingleton::instance();
-    const auto concurrency = std::min(min_s, thread_pool.thread_count());
+    const auto concurrency = std::max<std::size_t>(std::min(min_s, thread_pool.thread_count()), 1);
     const auto chunk_size = min_s / concurrency;
 
     std::vector<std::future<std::vector<bigint::bigint_base_t>>> partial_results;
     partial_results.reserve(concurrency);
 
-    for (int i = 0; i < static_cast<int>(concurrency); ++i)
+    for (std::size_t i = 0; i < concurrency; ++i)
     {
         partial_results.push_back(thread_pool.submit(
             [&, i]()
             {
-                return bigint::arithmetic::add_unsigned({&a[i * chunk_size], chunk_size},
-                                                        {&b[i * chunk_size], chunk_size});
+                return bigint::arithmetic::add_unsigned(a.subspan(i * chunk_size, chunk_size),
+                                                        b.subspan(i * chunk_size, chunk_size));
             }));
     }
 
@@ -60,14 +61,14 @@ std::vector<bigint::bigint_base_t> parallel_add_unsigned(const std::span<const b
         [&]()
         {
             return bigint::arithmetic::add_unsigned(
-                utils::make_span(a.begin() + static_cast<int>(concurrency * chunk_size), a.end()),
-                utils::make_span(b.begin() + static_cast<int>(concurrency * chunk_size), b.end()));
+                utils::make_span(a.begin() + static_cast<std::ptrdiff_t>(concurrency * chunk_size), a.end()),
+                utils::make_span(b.begin() + static_cast<std::ptrdiff_t>(concurrency * chunk_size), b.end()));
         });
 
     std::vector<bigint::bigint_base_t> result(std::max(a.size(), b.size()) + 1);
     bigint::bigint_base_t carry = 0;
 
-    int chunk_index = 0;
+    std::size_t chunk_index = 0;
     for (auto &chunk : partial_results)
     {
         auto part_data = chunk.get();
@@ -80,8 +81,9 @@ std::vector<bigint::bigint_base_t> parallel_add_unsigned(const std::span<const b
         {
             carry += part_data.back();
         }
-        std::copy(part_data.cbegin(), part_data.cbegin() + static_cast<int>(chunk_size), result.begin() + chunk_index);
-        chunk_index += static_cast<int>(chunk_size);
+        std::copy(part_data.cbegin(), part_data.cbegin() + static_cast<std::ptrdiff_t>(chunk_size),
+                  result.begin() + static_cast<std::ptrdiff_t>(chunk_index));
+        chunk_index += chunk_size;
     }
 
     auto final_part_data = last_part.get();
@@ -90,7 +92,8 @@ std::vector<bigint::bigint_base_t> parallel_add_unsigned(const std::span<const b
         bigint::arithmetic::increment_unsigned(final_part_data);
     }
 
-    std::copy(final_part_data.cbegin(), final_part_data.cend(), result.begin() + chunk_index);
+    std::copy(final_part_data.cbegin(), final_part_data.cend(),
+              result.begin() + static_cast<std::ptrdiff_t>(chunk_index));
     return result;
 }
 
@@ -109,7 +112,7 @@ std::vector<bigint::bigint_base_t> parallel_karatsuba(const std::span<const bigi
         return bigint::arithmetic::mul_unsigned_basecase(a, b);
     }
 
-    const int m2 = static_cast<int>(std::max(a.size(), b.size()) / 2);
+    const auto m2 = static_cast<std::ptrdiff_t>(std::max(a.size(), b.size()) / 2);
 
     const std::span<const bigint::bigint_base_t> low1 =
         utils::make_span(a.begin(), utils::safe_advance(a.begin(), m2, a));

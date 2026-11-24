@@ -1,6 +1,10 @@
 #include <yabil/bigint/BigInt.h>
+#include <yabil/bigint/BigIntBase.h>
 
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <vector>
 
 #include "impl/Arithmetic.h"
 
@@ -71,7 +75,7 @@ BigInt BigInt::operator<<(uint64_t shift) const
 
     if (real_shift == 0)
     {
-        std::copy(data.cbegin(), data.cend(), shifted.begin() + static_cast<int>(new_items_count));
+        std::copy(data.cbegin(), data.cend(), shifted.begin() + static_cast<std::ptrdiff_t>(new_items_count));
     }
     else
     {
@@ -102,12 +106,13 @@ BigInt BigInt::operator>>(uint64_t shift) const
 
     if (real_shift == 0)
     {
-        std::copy(data.cbegin() + static_cast<int>(removed_items_count), data.cend(), shifted.begin());
+        std::copy(data.cbegin() + static_cast<std::ptrdiff_t>(removed_items_count), data.cend(), shifted.begin());
     }
     else
     {
         bigint_base_t shifted_val = 0;
-        std::transform(data.crbegin(), data.crend() - static_cast<int>(removed_items_count), shifted.rbegin(),
+        std::transform(data.crbegin(), data.crend() - static_cast<std::ptrdiff_t>(removed_items_count),
+                       shifted.rbegin(),
                        [real_shift, &shifted_val](const bigint_base_t &v)
                        {
                            const bigint_base_t transformed = (v >> real_shift) | shifted_val;
@@ -173,18 +178,18 @@ BigInt &BigInt::operator<<=(uint64_t shift)
     const uint64_t new_items_count = shift / BigInt::digit_size_bits;
     const uint64_t real_shift = shift % BigInt::digit_size_bits;
 
-    const int original_data_size = static_cast<int>(data.size());
+    const auto original_data_size = static_cast<std::ptrdiff_t>(data.size());
     data.resize(data.size() + new_items_count + 1);
 
     if (real_shift == 0)
     {
-        std::shift_right(data.begin(), data.end(), static_cast<int>(new_items_count));
+        std::shift_right(data.begin(), data.end(), static_cast<std::ptrdiff_t>(new_items_count));
     }
     else
     {
-        for (int idx = original_data_size - 1; idx >= 0; --idx)
+        for (auto idx = original_data_size - 1; idx >= 0; --idx)
         {
-            const int destination_idx = idx + static_cast<int>(new_items_count + 1);
+            const auto destination_idx = idx + static_cast<std::ptrdiff_t>(new_items_count + 1);
             data[destination_idx] |= data[idx] >> (BigInt::digit_size_bits - real_shift);
             data[destination_idx - 1] = data[idx] << real_shift;
         }
@@ -210,7 +215,7 @@ BigInt &BigInt::operator>>=(uint64_t shift)
 
     if (real_shift == 0)
     {
-        std::shift_left(data.begin(), data.end(), static_cast<int>(removed_items_count));
+        std::shift_left(data.begin(), data.end(), static_cast<std::ptrdiff_t>(removed_items_count));
     }
     else
     {

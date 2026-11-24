@@ -18,6 +18,22 @@
 namespace yabil::bigint
 {
 
+namespace
+{
+
+bool fits_int64_division(const BigInt &dividend, const BigInt &divisor)
+{
+    const auto does_overflow_division = [&]()
+    {
+        return dividend.to<int64_t>() == std::numeric_limits<int64_t>::min()  //
+               && divisor.to<int64_t>() == -1;
+    };
+
+    return dividend.is<int64_t>() && divisor.is<int64_t>() && !does_overflow_division();
+}
+
+}  // namespace
+
 BigInt BigInt::operator+(const BigInt &other) const
 {
     if (sign == other.sign)
@@ -50,7 +66,7 @@ BigInt BigInt::operator*(const BigInt &other) const
 
 BigInt BigInt::operator/(const BigInt &other) const
 {
-    if (is<int64_t>() && other.is<int64_t>())
+    if (fits_int64_division(*this, other))
     {
         if (other.is_zero())
         {
@@ -68,7 +84,7 @@ BigInt BigInt::operator%(const BigInt &other) const
         throw std::invalid_argument("Cannot divide by 0");
     }
 
-    if (is<int64_t>() && other.is<int64_t>())
+    if (fits_int64_division(*this, other))
     {
         return BigInt(to<int64_t>() % other.to<int64_t>());
     }
@@ -76,7 +92,7 @@ BigInt BigInt::operator%(const BigInt &other) const
     if (other.data.size() == 1 && other.sign == Sign::Plus &&
         other.data.front() < std::numeric_limits<utils::half_width_t<bigint_base_t>>::max())
     {
-        return BigInt((*this) % other.data.front());
+        return BigInt((*this) % other.data.front(), sign);
     }
 
     return divide(other).second;
@@ -89,11 +105,21 @@ bigint_base_t BigInt::operator%(bigint_base_t other) const
         throw std::invalid_argument("Cannot divide by 0");
     }
 
+    constexpr auto shift_val = bigint_base_t{BigInt::digit_size_bits / 2};
+    if (other > (bigint_base_t{1} << shift_val))
+    {
+        utils::double_width_t<bigint_base_t> wide_ret = 0;
+        for (auto it = data.crbegin(); it != data.crend(); ++it)
+        {
+            wide_ret = ((wide_ret << bigint_base_t{BigInt::digit_size_bits}) | *it) % other;
+        }
+        return static_cast<bigint_base_t>(wide_ret);
+    }
+
     bigint_base_t ret = 0;
     for (auto it = data.crbegin(); it != data.crend(); ++it)
     {
         const bigint_base_t digit = *it;
-        constexpr auto shift_val = BigInt::digit_size_bits / 2;
         constexpr auto mask = std::numeric_limits<utils::half_width_t<bigint_base_t>>::max();
         ret = ((ret << shift_val) | ((digit >> shift_val) & mask)) % other;
         ret = ((ret << shift_val) | (digit & mask)) % other;
@@ -113,7 +139,7 @@ std::pair<BigInt, BigInt> BigInt::divide(const BigInt &other) const
         return {BigInt(), BigInt()};
     }
 
-    if (is<int64_t>() && other.is<int64_t>())
+    if (fits_int64_division(*this, other))
     {
         const auto a = to<int64_t>();
         const auto b = other.to<int64_t>();
@@ -137,7 +163,7 @@ std::pair<BigInt, BigInt> BigInt::divide(const BigInt &other) const
 BigInt BigInt::operator-() const
 {
     BigInt result(*this);
-    result.sign = (sign == Sign::Plus) ? Sign::Minus : Sign::Plus;
+    result.set_sign((sign == Sign::Plus) ? Sign::Minus : Sign::Plus);
     return result;
 }
 

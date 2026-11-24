@@ -96,7 +96,7 @@ std::pair<std::reference_wrapper<std::vector<bigint_base_t>>, Sign> inplace_plai
     return {std::ref(a), sign};
 }
 
-std::vector<bigint_base_t> shift_digits_left(const std::span<const bigint_base_t> &data, const int shift)
+std::vector<bigint_base_t> shift_digits_left(const std::span<const bigint_base_t> &data, const std::size_t shift)
 {
     std::vector<bigint_base_t> result(data.size() + shift);
     std::copy(data.begin(), data.end(), result.begin() + shift);

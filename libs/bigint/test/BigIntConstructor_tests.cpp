@@ -1,8 +1,12 @@
 #include <gtest/gtest.h>
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/BigIntBase.h>
+
 #include <cstdint>
 #include <limits>
+#include <span>
+#include <stdexcept>
+#include <vector>
 
 using namespace yabil::bigint;
 
@@ -138,4 +142,57 @@ TEST_F(BigIntConstructorTest, longStringInBase8ToBigIntWithSign)
         EXPECT_EQ(Sign::Minus, number.get_sign());
         EXPECT_EQ(number.to_str(), "-7450772815782842376790467456618731586860747368351667406");
     }
+}
+
+TEST_F(BigIntConstructorTest, zeroKeepsPlusSignAfterSetSign)
+{
+    BigInt zero;
+    zero.set_sign(Sign::Minus);
+    EXPECT_EQ(Sign::Plus, zero.get_sign());
+}
+
+TEST_F(BigIntConstructorTest, minusZeroStringIsNotNegative)
+{
+    EXPECT_EQ(Sign::Plus, BigInt("-0").get_sign());
+}
+
+TEST_F(BigIntConstructorTest, digitEqualToBaseThrows)
+{
+    EXPECT_THROW(BigInt("3", 3), std::invalid_argument);
+}
+
+TEST_F(BigIntConstructorTest, punctuationBetweenDigitsAndLettersThrows)
+{
+    EXPECT_THROW(BigInt(":", 12), std::invalid_argument);
+}
+
+TEST_F(BigIntConstructorTest, spaceBeforeDigitsThrows)
+{
+    EXPECT_THROW(BigInt(" 5"), std::invalid_argument);
+}
+
+TEST_F(BigIntConstructorTest, secondSignThrows)
+{
+    EXPECT_THROW(BigInt("++5"), std::invalid_argument);
+}
+
+TEST_F(BigIntConstructorTest, hexPrefixThrows)
+{
+    EXPECT_THROW(BigInt("0x1f", 16), std::invalid_argument);
+}
+
+TEST_F(BigIntConstructorTest, signedZeroInBase3IsZero)
+{
+    EXPECT_EQ(BigInt(), BigInt("+0", 3));
+}
+
+TEST_F(BigIntConstructorTest, zeroSpanWithMinusSignIsNotNegative)
+{
+    const std::vector<bigint_base_t> zero_digits{0, 0};
+    EXPECT_FALSE(BigInt(std::span<const bigint_base_t>{zero_digits}, Sign::Minus).is_negative());
+}
+
+TEST_F(BigIntConstructorTest, base17Throws)
+{
+    EXPECT_THROW(BigInt("10", 17), std::invalid_argument);
 }

@@ -1,9 +1,25 @@
 #include <gtest/gtest.h>
 #include <yabil/bigint/BigInt.h>
+#include <yabil/bigint/BigIntGlobalConfig.h>
 
+#include <cstdint>
+#include <limits>
 #include <stdexcept>
 
 using namespace yabil::bigint;
+
+namespace
+{
+
+BigInt recursive_division_divisor()
+{
+    const auto digit_count = BigIntGlobalConfig::instance().recursive_div_threshold + 1;
+    std::vector<bigint_base_t> digits(digit_count, static_cast<bigint_base_t>(0x0123456789abcdefULL));
+    digits.back() = (bigint_base_t{1} << (BigInt::digit_size_bits - 1)) | 1;
+    return BigInt(std::move(digits));
+}
+
+}  // namespace
 
 class BigIntDivOperator_tests : public ::testing::Test
 {
@@ -345,4 +361,88 @@ TEST_F(BigIntDivOperator_tests, divHugeUnbalancedNumbers_4)
     const auto [quotient, remainder] = big_int1.divide(big_int2);
     EXPECT_EQ(expected_quotioent, quotient);
     EXPECT_EQ(expected_remainder, remainder);
+}
+
+TEST_F(BigIntDivOperator_tests, divideDivisorTimesBaseByDivisor)
+{
+    constexpr auto top_bit = bigint_base_t{1} << (BigInt::digit_size_bits - 1);
+    const BigInt divisor(std::vector<bigint_base_t>{top_bit});
+    const BigInt dividend(std::vector<bigint_base_t>{0, top_bit});
+
+    const auto [quotient, remainder] = dividend.divide(divisor);
+    EXPECT_EQ(BigInt(std::vector<bigint_base_t>{0, 1}), quotient);
+    EXPECT_EQ(BigInt(), remainder);
+}
+
+TEST_F(BigIntDivOperator_tests, divideNumberBelowInt64MinByOne)
+{
+    const BigInt dividend = BigInt{std::numeric_limits<int64_t>::min()} - BigInt{1};
+
+    const auto [quotient, remainder] = dividend.divide(BigInt{1});
+    EXPECT_EQ(dividend, quotient);
+    EXPECT_EQ(BigInt(), remainder);
+}
+
+TEST_F(BigIntDivOperator_tests, divideInt64MinByMinusOne)
+{
+    const BigInt dividend{std::numeric_limits<int64_t>::min()};
+
+    const auto [quotient, remainder] = dividend.divide(BigInt{-1});
+    EXPECT_EQ(-dividend, quotient);
+    EXPECT_EQ(BigInt(), remainder);
+}
+
+TEST_F(BigIntDivOperator_tests, divideOperatorInt64MinByMinusOne)
+{
+    const BigInt dividend{std::numeric_limits<int64_t>::min()};
+    EXPECT_EQ(-dividend, dividend / BigInt{-1});
+}
+
+TEST_F(BigIntDivOperator_tests, moduloOperatorInt64MinByMinusOne)
+{
+    const BigInt dividend{std::numeric_limits<int64_t>::min()};
+    EXPECT_EQ(BigInt(), dividend % BigInt{-1});
+}
+
+TEST_F(BigIntDivOperator_tests, fastModuloByDigitAboveHalfDigitWidth)
+{
+    constexpr auto divisor = (bigint_base_t{1} << (BigInt::digit_size_bits - 1)) + 1;
+    const BigInt dividend = BigInt{1} << BigInt::digit_size_bits;
+    EXPECT_EQ(divisor - 2, dividend % divisor);
+}
+
+TEST_F(BigIntDivOperator_tests, divideExactMultipleRecursively)
+{
+    const BigInt divisor = recursive_division_divisor();
+    const auto shift = BigInt::digit_size_bits * divisor.raw_data().size();
+
+    const auto [quotient, remainder] = (divisor << shift).divide(divisor);
+    EXPECT_EQ(BigInt{1} << shift, quotient);
+    EXPECT_EQ(BigInt(), remainder);
+}
+
+TEST_F(BigIntDivOperator_tests, divideExactMultipleUnbalanced)
+{
+    const BigInt divisor = recursive_division_divisor();
+    const auto shift = 3 * BigInt::digit_size_bits * divisor.raw_data().size();
+
+    const auto [quotient, remainder] = (divisor << shift).divide(divisor);
+    EXPECT_EQ(BigInt{1} << shift, quotient);
+    EXPECT_EQ(BigInt(), remainder);
+}
+
+TEST_F(BigIntDivOperator_tests, moduloOperatorKeepsSignOfDividendBeyondInt64)
+{
+    const BigInt dividend = -(BigInt{1} << 64);
+    EXPECT_EQ(BigInt{-1}, dividend % BigInt{3});
+}
+
+TEST_F(BigIntDivOperator_tests, divideShorterByLongerBeyondRecursionThreshold)
+{
+    const BigInt dividend = recursive_division_divisor();
+    const BigInt divisor = dividend << BigInt::digit_size_bits;
+
+    const auto [quotient, remainder] = dividend.divide(divisor);
+    EXPECT_EQ(BigInt(), quotient);
+    EXPECT_EQ(dividend, remainder);
 }

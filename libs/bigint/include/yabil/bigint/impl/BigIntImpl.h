@@ -3,6 +3,9 @@
 #include <yabil/bigint/BigInt.h>
 
 #include <bit>
+#include <concepts>
+#include <cstdint>
+#include <limits>
 #include <type_traits>
 
 namespace yabil::bigint
@@ -55,6 +58,11 @@ OutType BigInt::to() const
 template <std::unsigned_integral OutType>
 OutType BigInt::to() const
 {
+    if constexpr (std::same_as<OutType, bool>)
+    {
+        return !is_zero();
+    }
+
     if (is_zero())
     {
         return 0;
@@ -83,9 +91,9 @@ bool BigInt::is() const
         return true;
     }
 
-    const auto leading_zeroes = std::countl_zero(data.back());
-    return static_cast<int>(byte_size() * 8) - leading_zeroes <=
-           static_cast<int>(sizeof(OutType) * 8) - (is_negative() ? 0 : 1);
+    const uint64_t value_bits = byte_size() * 8 - std::countl_zero(data.back());
+    constexpr uint64_t type_bits = sizeof(OutType) * 8;
+    return (value_bits < type_bits) || (is_negative() && value_bits == type_bits && is_power_of_2());
 }
 
 template <std::unsigned_integral OutType>
@@ -99,8 +107,8 @@ bool BigInt::is() const
     {
         return false;
     }
-    const auto leading_zeroes = std::countl_zero(data.back());
-    return static_cast<int>(byte_size() * 8) - leading_zeroes <= static_cast<int>(sizeof(OutType) * 8);
+    const uint64_t value_bits = byte_size() * 8 - std::countl_zero(data.back());
+    return value_bits <= static_cast<uint64_t>(std::numeric_limits<OutType>::digits);
 }
 
 }  // namespace yabil::bigint

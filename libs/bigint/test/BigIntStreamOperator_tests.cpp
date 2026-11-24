@@ -106,3 +106,26 @@ TEST_F(BigIntStreamOperator_tests, invalidStringShouldThrowException_2)
     BigInt big_int;
     ASSERT_THROW(iss >> big_int, std::invalid_argument);
 }
+
+TEST_F(BigIntStreamOperator_tests, numberEndsAtNewLine)
+{
+    std::istringstream iss("123\n");
+    BigInt big_int;
+    iss >> big_int;
+    EXPECT_EQ(BigInt(123), big_int);
+}
+
+TEST_F(BigIntStreamOperator_tests, signWithoutDigitsThrows)
+{
+    std::istringstream iss("-");
+    BigInt big_int;
+    EXPECT_THROW(iss >> big_int, std::invalid_argument);
+}
+
+TEST_F(BigIntStreamOperator_tests, emptyStreamLeavesNumberUnchanged)
+{
+    std::istringstream iss("");
+    BigInt big_int(5);
+    iss >> big_int;
+    EXPECT_EQ(BigInt(5), big_int);
+}

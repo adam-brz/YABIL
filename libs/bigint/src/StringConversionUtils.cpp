@@ -12,7 +12,8 @@ namespace yabil::bigint
 int get_digit_value(int digit)
 {
     if (digit >= 'a' && digit <= 'f') return digit - 'a' + 10;
-    return digit - '0';
+    if (digit >= '0' && digit <= '9') return digit - '0';
+    return -1;
 }
 
 char get_digit_char(int digit)
@@ -23,7 +24,7 @@ char get_digit_char(int digit)
 
 void check_conversion(char chr, unsigned converted, unsigned base)
 {
-    if (converted > base)
+    if (converted >= base)
     {
         throw std::invalid_argument("Cannot convert character: " + std::string(1, chr) +
                                     " to number of base: " + std::to_string(base));

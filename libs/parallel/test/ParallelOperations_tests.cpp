@@ -2,8 +2,10 @@
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/io.h>
 #include <yabil/parallel/Parallel.h>
+#include <yabil/parallel/ParallelGlobalConfig.h>
 
 #include <limits>
+#include <type_traits>
 
 using namespace yabil;
 using namespace yabil::bigint;
@@ -282,4 +284,23 @@ TEST_F(ParallelOperations_tests, mulHugeNegative)
     const auto result = parallel::mul(big_int1, big_int2);
 
     EXPECT_EQ(expected, result);
+}
+
+TEST_F(ParallelOperations_tests, addWithZeroThresholdAddsZeroAndNonZero)
+{
+    [](auto &config)
+    {
+        if constexpr (std::is_const_v<decltype(config.parallel_add_threshold)>)
+        {
+            GTEST_SKIP() << "Thresholds are compile-time constants in this build.";
+        }
+        else
+        {
+            const auto default_threshold = config.parallel_add_threshold;
+            config.parallel_add_threshold = 0;
+            const auto sum = parallel::add(BigInt(), BigInt(1));
+            config.parallel_add_threshold = default_threshold;
+            EXPECT_EQ(BigInt(1), sum);
+        }
+    }(parallel::ParallelGlobalConfig::instance());
 }

@@ -3,6 +3,7 @@
 #include <yabil/math/Math.h>
 
 #include <stdexcept>
+#include <tuple>
 
 using namespace yabil::bigint;
 using namespace yabil::math;
@@ -100,4 +101,14 @@ TEST_F(BigIntPowOperator_tests, powModularArithmeticThrowsOnNegativeInput)
     ASSERT_THROW({ pow(BigInt(-1), BigInt(1), BigInt(1)); }, std::invalid_argument);
     ASSERT_THROW({ pow(BigInt(1), BigInt(-1), BigInt(1)); }, std::invalid_argument);
     ASSERT_THROW({ pow(BigInt(1), BigInt(1), BigInt(-1)); }, std::invalid_argument);
+}
+
+TEST_F(BigIntPowOperator_tests, negativeExponentThrows)
+{
+    EXPECT_THROW(std::ignore = pow(BigInt(2), BigInt(-3)), std::invalid_argument);
+}
+
+TEST_F(BigIntPowOperator_tests, modularPowerZeroModuloOneIsZero)
+{
+    EXPECT_EQ(BigInt(0), pow(BigInt(5), BigInt(0), BigInt(1)));
 }

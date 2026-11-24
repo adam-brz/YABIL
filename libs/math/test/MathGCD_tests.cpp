@@ -103,3 +103,19 @@ TEST_F(MathGCD_tests, extendedGCDWorks)
         EXPECT_EQ(-15309, y.to<int64_t>());
     }
 }
+
+TEST_F(MathGCD_tests, gcdOfZeroAndNegativeIsPositive)
+{
+    EXPECT_EQ(BigInt(5), gcd(BigInt(), BigInt(-5)));
+}
+
+TEST_F(MathGCD_tests, gcdOfLargeNegativeAndPositiveIsPositive)
+{
+    const BigInt common = BigInt("100000000000000000000003") << 70;
+    EXPECT_EQ(BigInt(3) * common, gcd(BigInt(-3) * common, BigInt(9) * common));
+}
+
+TEST_F(MathGCD_tests, gcdOfInt64MinAndThreeIsOne)
+{
+    EXPECT_EQ(BigInt(1), gcd(BigInt(std::numeric_limits<int64_t>::min()), BigInt(3)));
+}

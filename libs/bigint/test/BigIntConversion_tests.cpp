@@ -1,7 +1,11 @@
 #include <gtest/gtest.h>
 #include <yabil/bigint/BigInt.h>
 
+#include <cstddef>
 #include <limits>
+#include <stdexcept>
+#include <utility>
+#include <vector>
 
 using namespace yabil::bigint;
 
@@ -208,4 +212,45 @@ TEST_F(BigIntConversionTest, conversionMaintainsNumberProperties)
     EXPECT_EQ(-b - a,
               (BigInt(std::numeric_limits<uint64_t>::max() + std::numeric_limits<int64_t>::min(), Sign::Minus)));
     EXPECT_EQ(a + a, a << 1);
+}
+
+TEST_F(BigIntConversionTest, int64MinIsInt64)
+{
+    EXPECT_TRUE(BigInt{std::numeric_limits<int64_t>::min()}.is<int64_t>());
+}
+
+TEST_F(BigIntConversionTest, numberBelowInt64MinIsNotInt64)
+{
+    const BigInt below_int64_min = BigInt{std::numeric_limits<int64_t>::min()} - BigInt{1};
+    EXPECT_FALSE(below_int64_min.is<int64_t>());
+}
+
+TEST_F(BigIntConversionTest, twoIsNotBool)
+{
+    EXPECT_FALSE(BigInt{2U}.is<bool>());
+}
+
+TEST_F(BigIntConversionTest, nonZeroNumberWithZeroLowestDigitConvertsToTrue)
+{
+    const BigInt number{std::vector<bigint_base_t>{0, 1}};
+    EXPECT_TRUE(number.to<bool>());
+}
+
+TEST_F(BigIntConversionTest, numberWithMoreBitsThanIntMaxIsNotInt64)
+{
+    std::vector<bigint_base_t> digits((std::size_t{1} << 31) / BigInt::digit_size_bits + 1);
+    digits.back() = 1;
+    EXPECT_FALSE(BigInt{std::move(digits)}.is<int64_t>());
+}
+
+TEST_F(BigIntConversionTest, numberWithMoreBitsThanIntMaxIsNotUint64)
+{
+    std::vector<bigint_base_t> digits((std::size_t{1} << 31) / BigInt::digit_size_bits + 1);
+    digits.back() = 1;
+    EXPECT_FALSE(BigInt{std::move(digits)}.is<uint64_t>());
+}
+
+TEST_F(BigIntConversionTest, toStrInBase17Throws)
+{
+    EXPECT_THROW(BigInt{17U}.to_str(17), std::invalid_argument);
 }

@@ -4,6 +4,8 @@
 #include <yabil/utils/IterUtils.h>
 #include <yabil/utils/TypeUtils.h>
 
+#include <cstddef>
+#include <cmath>
 #include <span>
 #include <vector>
 
@@ -47,7 +49,7 @@ std::vector<bigint_base_t> mul_unsigned_karatsuba(const std::span<const bigint_b
         return mul_unsigned_basecase(a, b);
     }
 
-    const int m2 = static_cast<int>(std::max(a.size(), b.size()) / 2);
+    const auto m2 = static_cast<std::ptrdiff_t>(std::max(a.size(), b.size()) / 2);
 
     const std::span<const bigint_base_t> low1 = utils::make_span(a.begin(), utils::safe_advance(a.begin(), m2, a));
     const std::span<const bigint_base_t> high1 = utils::make_span(utils::safe_advance(a.begin(), m2, a), a.end());

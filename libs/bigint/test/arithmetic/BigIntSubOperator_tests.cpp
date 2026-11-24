@@ -276,3 +276,8 @@ TEST_F(BigIntSubOperator_tests, subtractHugePositive)
     const auto result = a - b;
     EXPECT_EQ(result, expected);
 }
+
+TEST_F(BigIntSubOperator_tests, negatedZeroIsNotNegative)
+{
+    EXPECT_FALSE((-BigInt()).is_negative());
+}

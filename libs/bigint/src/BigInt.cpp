@@ -18,11 +18,12 @@ BigInt::BigInt(std::vector<bigint_base_t> &&raw_data, Sign sign) : data(std::mov
     normalize();
 }
 
-BigInt::BigInt(const std::span<const bigint_base_t> &raw_data, Sign sign) : sign(sign)
+BigInt::BigInt(const std::span<const bigint_base_t> &raw_data, Sign sign)
 {
     const auto lastNonZeroDigitIt =
         std::find_if(raw_data.rbegin(), raw_data.rend(), [](const auto &v) { return v != 0; }).base();
     data.insert(data.begin(), raw_data.begin(), lastNonZeroDigitIt);
+    set_sign(sign);
 }
 
 BigInt::BigInt(const std::string_view &str, unsigned base)
@@ -87,7 +88,7 @@ Sign BigInt::get_sign() const
 
 void BigInt::set_sign(Sign new_sign)
 {
-    sign = new_sign;
+    sign = is_zero() ? Sign::Plus : new_sign;
 }
 
 bool BigInt::is_zero() const

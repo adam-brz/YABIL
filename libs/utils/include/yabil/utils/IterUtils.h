@@ -1,6 +1,8 @@
 #pragma once
 
 #include <algorithm>
+#include <cstddef>
+#include <iterator>
 #include <span>
 #include <type_traits>
 
@@ -38,17 +40,10 @@ constexpr auto make_span(BeginIter begin, EndIter end)
 /// @param amount Advance value
 /// @param container Container to which iterator belongs to
 template <typename Iterator, typename Container>
-constexpr auto safe_advance(Iterator iter, int amount, Container &container)
+constexpr auto safe_advance(Iterator iter, const std::ptrdiff_t amount, Container &container)
 {
-    if (amount < 0)
-    {
-        amount = std::max(-static_cast<int>(std::distance(container.begin(), iter)), amount);
-    }
-    else
-    {
-        amount = std::min(static_cast<int>(std::distance(iter, container.end())), amount);
-    }
-    return iter + amount;
+    return iter + std::clamp<std::ptrdiff_t>(amount, -std::distance(container.begin(), iter),
+                                             std::distance(iter, container.end()));
 }
 
 }  // namespace yabil::utils

@@ -3,6 +3,7 @@
 #include <yabil/bigint/BigInt.h>
 #include <yabil/bigint/BigIntBase.h>
 
+#include <cstddef>
 #include <functional>
 #include <span>
 #include <utility>
@@ -31,7 +32,7 @@ std::pair<std::reference_wrapper<std::vector<bigint_base_t>>, Sign> inplace_plai
     std::vector<bigint_base_t> &a, const std::span<const bigint_base_t> &b, const Sign a_sign = Sign::Plus,
     const Sign b_sign = Sign::Plus);
 
-std::vector<bigint_base_t> shift_digits_left(const std::span<const bigint_base_t> &data, const int shift);
+std::vector<bigint_base_t> shift_digits_left(const std::span<const bigint_base_t> &data, const std::size_t shift);
 
 bool abs_greater(const std::span<const bigint_base_t> &a, const std::span<const bigint_base_t> &b);
 bool abs_lower(const std::span<const bigint_base_t> &a, const std::span<const bigint_base_t> &b);

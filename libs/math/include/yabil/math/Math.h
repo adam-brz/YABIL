@@ -73,13 +73,13 @@ YABIL_MATH_EXPORT yabil::bigint::BigInt mod_inverse(const yabil::bigint::BigInt 
 
 /// @brief Calculate square root of given \p BigInt
 /// @param n Number to calculate square root of
-/// @return Ceil of square root from input number
+/// @return Floor of square root from input number
 YABIL_MATH_EXPORT yabil::bigint::BigInt sqrt(const yabil::bigint::BigInt &n);
 
 /// @brief Calculate k-th root of given \p BigInt
 /// @param n Number to calculate root of
 /// @param k Degree of root to calculate
-/// @return Ceil of k-th root from input number
+/// @return Floor of k-th root from input number
 YABIL_MATH_EXPORT yabil::bigint::BigInt root(const yabil::bigint::BigInt &n, const yabil::bigint::BigInt &k);
 
 }  // namespace yabil::math

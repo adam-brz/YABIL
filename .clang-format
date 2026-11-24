@@ -6,3 +6,4 @@ BreakBeforeBraces: Allman
 ColumnLimit: 120
 PackConstructorInitializers: CurrentLine
 AllowShortFunctionsOnASingleLine: Empty
+PointerAlignment: Right

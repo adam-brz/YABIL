@@ -3,6 +3,7 @@
 #include <yabil/math/Math.h>
 
 #include <cmath>
+#include <tuple>
 #include <stdexcept>
 
 using namespace yabil::math;
@@ -105,4 +106,9 @@ TEST_F(MathLog_tests, logAcceptanceTest)
     {
         ASSERT_DOUBLE_EQ(std::log10(i), log(BigInt(i)));
     }
+}
+
+TEST_F(MathLog_tests, log2OfZeroShouldThrowException)
+{
+    EXPECT_THROW(std::ignore = log2(BigInt()), std::invalid_argument);
 }

@@ -1,7 +1,9 @@
+#include <yabil/bigint/BigIntBase.h>
 #include <yabil/math/Math.h>
 
 #include <bit>
 #include <cmath>
+#include <cstddef>
 #include <numeric>
 #include <stdexcept>
 #include <tuple>
@@ -25,6 +27,11 @@ yabil::bigint::BigInt pow_recursive(const yabil::bigint::BigInt &number, const y
 
 yabil::bigint::BigInt pow(const yabil::bigint::BigInt &number, const yabil::bigint::BigInt &n)
 {
+    if (n.is_negative())
+    {
+        throw std::invalid_argument("Cannot calculate power with negative exponent");
+    }
+
     const auto new_sign = (number.get_sign() == yabil::bigint::Sign::Minus && !n.is_even()) ? yabil::bigint::Sign::Minus
                                                                                             : yabil::bigint::Sign::Plus;
     yabil::bigint::BigInt result = pow_recursive(number, n);
@@ -42,7 +49,7 @@ yabil::bigint::BigInt pow(const yabil::bigint::BigInt &number, const yabil::bigi
 
     if (n.is_zero())
     {
-        return yabil::bigint::BigInt(1);
+        return yabil::bigint::BigInt(1) % mod;
     }
 
     yabil::bigint::BigInt result(1);
@@ -69,9 +76,9 @@ yabil::bigint::BigInt pow(const yabil::bigint::BigInt &number, const yabil::bigi
 yabil::bigint::BigInt factorial(uint64_t n)
 {
     yabil::bigint::BigInt result(1U);
-    for (uint64_t i = 1; i <= n; ++i)
+    for (uint64_t i = 0; i < n; ++i)
     {
-        result *= yabil::bigint::BigInt(i);
+        result *= yabil::bigint::BigInt(i + 1);
     }
     return result;
 }
@@ -92,21 +99,23 @@ uint64_t log2_int(const yabil::bigint::BigInt &number)
 
 double log2(const yabil::bigint::BigInt &number)
 {
+    const auto integer_part = log2_int(number);
     constexpr auto item_size_bits = sizeof(yabil::bigint::bigint_base_t) * 8;
-    constexpr int result_iter_count = 64 / item_size_bits;
+    constexpr std::size_t result_iter_count = 64 / item_size_bits;
 
     const auto bit_shift_quotient_removal = std::countl_zero(number.raw_data().back()) + 1;
     uint64_t raw_fraction = 0;
 
-    int i;
-    for (i = 0; i < result_iter_count && i < static_cast<int>(number.raw_data().size()); ++i)
+    std::size_t i = 0;
+    for (; i < result_iter_count && i < number.raw_data().size(); ++i)
     {
-        const uint64_t fraction_part = static_cast<uint64_t>(number.raw_data()[number.raw_data().size() - 1 - i])
-                                       << bit_shift_quotient_removal;
+        const uint64_t fraction_part = (static_cast<uint64_t>(number.raw_data()[number.raw_data().size() - 1 - i])
+                                        << static_cast<uint64_t>(bit_shift_quotient_removal - 1))
+                                       << uint64_t{1};
         raw_fraction |= fraction_part << (64 - (i + 1) * item_size_bits);
     }
 
-    if (i < static_cast<int>(number.raw_data().size()))
+    if (i < number.raw_data().size())
     {
         raw_fraction |= static_cast<uint64_t>(number.raw_data()[number.raw_data().size() - 1 - i]) >>
                         (item_size_bits - bit_shift_quotient_removal);
@@ -114,7 +123,7 @@ double log2(const yabil::bigint::BigInt &number)
 
     raw_fraction = (raw_fraction >> 12) | 0x3ff0000000000000;
     const double remaining_part = std::bit_cast<double, uint64_t>(raw_fraction);
-    return static_cast<double>(log2_int(number)) + std::log2(remaining_part);
+    return static_cast<double>(integer_part) + std::log2(remaining_part);
 }
 
 double log(const yabil::bigint::BigInt &number, const yabil::bigint::BigInt &base)
@@ -129,6 +138,9 @@ double log(const yabil::bigint::BigInt &number, double base)
 
 yabil::bigint::BigInt gcd(yabil::bigint::BigInt number, yabil::bigint::BigInt other)
 {
+    number = number.abs();
+    other = other.abs();
+
     if (number.is_zero()) return other;
     if (other.is_zero()) return number;
 
@@ -185,7 +197,7 @@ std::pair<yabil::bigint::BigInt, std::pair<yabil::bigint::BigInt, yabil::bigint:
 
 yabil::bigint::BigInt mod_inverse(const yabil::bigint::BigInt &a, const yabil::bigint::BigInt &n)
 {
-    const auto result = extended_gcd(a, n);
+    const auto result = extended_gcd((a % n + n) % n, n);
     if (result.first > yabil::bigint::BigInt(1))
     {
         throw std::runtime_error("number: " + a.to_str() + " is not invertible");

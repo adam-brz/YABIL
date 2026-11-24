@@ -7,6 +7,10 @@
 #include <yabil/utils/IterUtils.h>
 #include <yabil/utils/TypeUtils.h>
 
+#include <bit>
+#include <cassert>
+#include <cmath>
+#include <cstddef>
 #include <span>
 #include <utility>
 #include <vector>
@@ -22,6 +26,7 @@ namespace yabil::bigint::arithmetic
 std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> div_unsigned(const std::span<const bigint_base_t> &a,
                                                                                const std::span<const bigint_base_t> &b)
 {
+    assert(!b.empty() && std::countl_zero(b.back()) == 0);
     const auto &config = BigIntGlobalConfig::instance();
 
     if (a.size() > config.recursive_div_threshold && b.size() > config.recursive_div_threshold)
@@ -35,17 +40,24 @@ std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> div_unsigned(c
 std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> div_unsigned_unbalanced(
     const std::span<const bigint_base_t> &a, const std::span<const bigint_base_t> &b)
 {
+    assert(!b.empty() && std::countl_zero(b.back()) == 0);
     constexpr uint64_t digit_bit_size = static_cast<uint64_t>(BigInt::digit_size_bits);
 
-    const int n = static_cast<int>(b.size());
-    int m = static_cast<int>(a.size()) - n;
+    const auto n = static_cast<std::ptrdiff_t>(b.size());
+    auto m = static_cast<std::ptrdiff_t>(a.size()) - n;
+
+    if (m < 0)
+    {
+        return {{}, std::vector(a.begin(), a.end())};
+    }
 
     std::vector<bigint_base_t> A{a.begin(), a.end()};
     BigInt Q;
 
     while (m > n)
     {
-        const std::span<const bigint_base_t> A_div = utils::make_span(A.cbegin() + (m - n), A.cend());
+        const auto A_split = utils::safe_advance(A.cbegin(), m - n, std::as_const(A));
+        const std::span<const bigint_base_t> A_div = utils::make_span(A_split, A.cend());
         auto [q, r] = div_unsigned_recursive(A_div, b);
 
         Q <<= digit_bit_size * n;
@@ -53,8 +65,8 @@ std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> div_unsigned_u
 
         auto R = impl::shift_digits_left(r, m - n);
 
-        R.resize(std::max(static_cast<int>(R.size()), m - n) + 1);
-        impl::inplace_plain_add(R, utils::make_span(A.cbegin(), A.cbegin() + (m - n)));
+        R.resize(std::max(static_cast<std::ptrdiff_t>(R.size()), m - n) + 1);
+        impl::inplace_plain_add(R, utils::make_span(A.cbegin(), A_split));
 
         A = std::move(R);
         m -= n;
@@ -70,21 +82,23 @@ std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> div_unsigned_u
 std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> div_unsigned_recursive(
     const std::span<const bigint_base_t> &a, const std::span<const bigint_base_t> &b)
 {
-    const int n = static_cast<int>(b.size());
-    const int m = static_cast<int>(a.size()) - n;
+    assert(!b.empty() && std::countl_zero(b.back()) == 0);
+    assert(a.size() <= 2 * b.size());
+    const auto n = static_cast<std::ptrdiff_t>(b.size());
+    const auto m = static_cast<std::ptrdiff_t>(a.size()) - n;
 
     if (m < 2)
     {
         return div_unsigned_basecase(a, b);
     }
 
-    const int k = m / 2;
+    const auto k = m / 2;
 
     const auto B0 = utils::make_span(b.begin(), b.begin() + k);
     const auto B1 = utils::make_span(b.begin() + k, b.end());
 
-    const auto A0 = utils::make_span(a.begin(), a.begin() + 2L * k);
-    const auto A1 = utils::make_span(a.begin() + 2L * k, a.end());
+    const auto A0 = utils::make_span(a.begin(), a.begin() + 2 * k);
+    const auto A1 = utils::make_span(a.begin() + 2 * k, a.end());
 
     auto [Q1, R1] = div_unsigned_recursive(A1, B1);
     R1 = impl::shift_digits_left(R1, 2 * k);
@@ -98,8 +112,9 @@ std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> div_unsigned_r
         A_prim += BigInt(std::move(B));
     }
 
-    const auto A_prim0 = utils::make_span(A_prim.raw_data().cbegin(), A_prim.raw_data().cbegin() + k);
-    const auto A_prim1 = utils::make_span(A_prim.raw_data().cbegin() + k, A_prim.raw_data().cend());
+    const auto A_prim_split = utils::safe_advance(A_prim.raw_data().cbegin(), k, A_prim.raw_data());
+    const auto A_prim0 = utils::make_span(A_prim.raw_data().cbegin(), A_prim_split);
+    const auto A_prim1 = utils::make_span(A_prim_split, A_prim.raw_data().cend());
 
     auto [Q0, R0] = div_unsigned_recursive(A_prim1, B1);
     R0 = impl::shift_digits_left(R0, k);
@@ -120,10 +135,11 @@ std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> div_unsigned_r
 std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> div_unsigned_basecase(
     const std::span<const bigint_base_t> &a, const std::span<const bigint_base_t> &b)
 {
+    assert(!b.empty() && std::countl_zero(b.back()) == 0);
     constexpr uint64_t digit_bit_size = static_cast<uint64_t>(BigInt::digit_size_bits);
 
-    const int n = static_cast<int>(b.size());
-    const int m = static_cast<int>(a.size()) - n;
+    const auto n = static_cast<std::ptrdiff_t>(b.size());
+    const auto m = static_cast<std::ptrdiff_t>(a.size()) - n;
 
     if (m < 0)
     {
@@ -142,11 +158,15 @@ std::pair<std::vector<bigint_base_t>, std::vector<bigint_base_t>> div_unsigned_b
         q[m] = 1;
     }
 
-    for (int i = m - 1; i >= 0; --i)
+    const auto digit_of_A = [&A](const std::ptrdiff_t index) -> utils::double_width_t<bigint_base_t>
     {
-        const auto top_two_digits =
-            (static_cast<utils::double_width_t<bigint_base_t>>(A.raw_data()[n + i]) << BigInt::digit_size_bits) |
-            static_cast<utils::double_width_t<bigint_base_t>>(A.raw_data()[n + i - 1]);
+        const auto &digits = A.raw_data();
+        return static_cast<std::size_t>(index) < digits.size() ? digits[index] : 0;
+    };
+
+    for (auto i = m - 1; i >= 0; --i)
+    {
+        const auto top_two_digits = (digit_of_A(n + i) << BigInt::digit_size_bits) | digit_of_A(n + i - 1);
 
         const auto quotient_part = top_two_digits / B.raw_data()[n - 1];
         auto q_i = std::min(quotient_part,
