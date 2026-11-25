@@ -62,24 +62,26 @@ OutType BigInt::to() const
     {
         return !is_zero();
     }
-
-    if (is_zero())
-    {
-        return 0;
-    }
-
-    if constexpr (sizeof(OutType) <= sizeof(bigint_base_t))
-    {
-        return static_cast<OutType>(data[0]);
-    }
     else
     {
-        OutType result = 0;
-        for (std::size_t i = 0; (i < data.size()) && (i < sizeof(OutType) / sizeof(bigint_base_t)); ++i)
+        if (is_zero())
         {
-            result |= static_cast<OutType>(data[i]) << (i * BigInt::digit_size_bits);
+            return 0;
         }
-        return result;
+
+        if constexpr (sizeof(OutType) <= sizeof(bigint_base_t))
+        {
+            return static_cast<OutType>(data[0]);
+        }
+        else
+        {
+            OutType result = 0;
+            for (std::size_t i = 0; (i < data.size()) && (i < sizeof(OutType) / sizeof(bigint_base_t)); ++i)
+            {
+                result |= static_cast<OutType>(data[i]) << (i * BigInt::digit_size_bits);
+            }
+            return result;
+        }
     }
 }
 
